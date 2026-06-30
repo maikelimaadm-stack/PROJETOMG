@@ -630,6 +630,18 @@
 
 ---
 
+## D-053 — Project Continuity Protocol (Program 2.3.Y)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Establish permanent **Project Continuity Protocol** — no AI session may depend on chat history. Official continuity via `PROJECT-STATUS.md`, `AI-STARTUP-GUIDE.md`, `CONTINUITY-PROTOCOL.md`, and `DOCUMENT-MAP.md`. All future sessions start from repository documents only. |
+| **Evidence** | [IFM-PROGRAM-2.3.Y-CONTINUITY-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.Y-CONTINUITY-CERTIFICATION-REPORT.md) |
+| **Consequences** | Any AI tool can assume development; README_AI updated with CURRENT PROJECT STATUS section |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

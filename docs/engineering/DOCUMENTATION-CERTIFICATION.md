@@ -19,6 +19,8 @@
 
 **Corrections applied in Mission 0.2:** Prisma model count, gate CI scope clarity, constitution doc numbering (01–10 → of 11), legacy import count, new tech debt items (TD-013–TD-015), official next program declaration.
 
+**Continuity update (Program 2.3.Y, 2026-06-30):** Full document hierarchy moved to [DOCUMENT-MAP.md](./DOCUMENT-MAP.md). Project position SSOT: [PROJECT-STATUS.md](./PROJECT-STATUS.md).
+
 ---
 
 ## 1. Document-by-Document Audit

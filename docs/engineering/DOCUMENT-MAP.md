@@ -1,0 +1,148 @@
+# Document Map — MAK Gestão Platform
+
+**Status:** Official — Hierarchical index of all authoritative documentation  
+**Version:** 1.0.0  
+**Last updated:** 2026-06-30  
+**Mission:** Program 2.3.Y — Project Transition & Continuity Preparation
+
+> Use with [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md) for onboarding. Chat history is not listed here because it is not authoritative.
+
+---
+
+## L0 — Constitution (Highest Authority)
+
+| Document | Path |
+|----------|------|
+| MAK Constitution | [docs/constitution/00-MAK-CONSTITUTION.md](../constitution/00-MAK-CONSTITUTION.md) |
+| Vision & Scope | [01-VISION-AND-SCOPE.md](../constitution/01-VISION-AND-SCOPE.md) |
+| Architecture Principles | [02-ARCHITECTURE-PRINCIPLES.md](../constitution/02-ARCHITECTURE-PRINCIPLES.md) |
+| Metadata First | [03-METADATA-FIRST-PRINCIPLE.md](../constitution/03-METADATA-FIRST-PRINCIPLE.md) |
+| Promotion First | [04-PROMOTION-FIRST-PRINCIPLE.md](../constitution/04-PROMOTION-FIRST-PRINCIPLE.md) |
+| Code Quality Standards | [05-CODE-QUALITY-STANDARDS.md](../constitution/05-CODE-QUALITY-STANDARDS.md) |
+| Governance & Gates | [06-GOVERNANCE-AND-GATES.md](../constitution/06-GOVERNANCE-AND-GATES.md) |
+| Module Contract | [07-MODULE-CONTRACT.md](../constitution/07-MODULE-CONTRACT.md) |
+| Do Not Do List | [08-DO-NOT-DO-LIST.md](../constitution/08-DO-NOT-DO-LIST.md) |
+| Testing Standards | [09-TESTING-STANDARDS.md](../constitution/09-TESTING-STANDARDS.md) |
+| Platform Evolution | [10-PLATFORM-EVOLUTION.md](../constitution/10-PLATFORM-EVOLUTION.md) |
+| Permanent Governance Directive | [11-PERMANENT-GOVERNANCE-DIRECTIVE.md](../constitution/11-PERMANENT-GOVERNANCE-DIRECTIVE.md) |
+
+---
+
+## L1 — Master Architecture
+
+| Document | Path |
+|----------|------|
+| MAK 2035 Master Architecture | [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md) |
+| MAK Studio Architecture | [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) |
+| MAK Studio UX Framework | [MAK-STUDIO-UX-FRAMEWORK.md](../architecture/MAK-STUDIO-UX-FRAMEWORK.md) |
+| Platform Language Standard | [MAK-PLATFORM-LANGUAGE-STANDARD.md](../architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md) |
+
+---
+
+## L2 — Engineering Principles
+
+| Document | Path |
+|----------|------|
+| MAK Engineering Principles (18) | [MAK-ENGINEERING-PRINCIPLES.md](../architecture/MAK-ENGINEERING-PRINCIPLES.md) |
+| Engineering Governance (D-028) | [IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md](./IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md) |
+| Principles Audit (D-029) | [IFM-D029-ENGINEERING-PRINCIPLES-AUDIT-REPORT.md](./IFM-D029-ENGINEERING-PRINCIPLES-AUDIT-REPORT.md) |
+
+---
+
+## L3 — Architecture Specifications
+
+| Document | Path |
+|----------|------|
+| MDP Architecture Specification | [MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md](../architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md) |
+| MDP Engineering Summary | [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md) |
+| Platform Reassessment (D-027) | [IFM-PLATFORM-ARCHITECTURE-REASSESSMENT-REPORT.md](./IFM-PLATFORM-ARCHITECTURE-REASSESSMENT-REPORT.md) |
+| IFM Phase 1 Technical Roadmap | [IFM-PHASE-1-TECHNICAL-ROADMAP.md](./IFM-PHASE-1-TECHNICAL-ROADMAP.md) |
+
+---
+
+## L4 — Engineering (Living OS)
+
+| Document | Path |
+|----------|------|
+| **Project Status (SSOT position)** | **[PROJECT-STATUS.md](./PROJECT-STATUS.md)** |
+| Current State | [CURRENT-STATE.md](./CURRENT-STATE.md) |
+| Roadmap | [ROADMAP.md](./ROADMAP.md) |
+| Decisions | [DECISIONS.md](./DECISIONS.md) |
+| Engineering Journal | [ENGINEERING-JOURNAL.md](./ENGINEERING-JOURNAL.md) |
+| Platform Maturity Index | [PLATFORM-MATURITY-INDEX.md](./PLATFORM-MATURITY-INDEX.md) |
+| Implementation Protocol (PIP) | [PLATFORM-IMPLEMENTATION-PROTOCOL.md](./PLATFORM-IMPLEMENTATION-PROTOCOL.md) |
+| Tech Debt | [TECH-DEBT.md](./TECH-DEBT.md) |
+| Capabilities Registry | [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md) |
+| Documentation Certification | [DOCUMENTATION-CERTIFICATION.md](./DOCUMENTATION-CERTIFICATION.md) |
+| Next Sprint | [NEXT-SPRINT.md](./NEXT-SPRINT.md) |
+
+---
+
+## L5 — Studio
+
+| Document | Path |
+|----------|------|
+| Studio Architecture (definitive) | [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) |
+| Studio UX Framework | [MAK-STUDIO-UX-FRAMEWORK.md](../architecture/MAK-STUDIO-UX-FRAMEWORK.md) |
+| Program 2 Brief | [IFM-PHASE-2-MAK-STUDIO-BRIEF.md](./IFM-PHASE-2-MAK-STUDIO-BRIEF.md) |
+| Layout Studio Brief | [IFM-PHASE-2.1-LAYOUT-STUDIO-BRIEF.md](./IFM-PHASE-2.1-LAYOUT-STUDIO-BRIEF.md) |
+| Field Studio Brief | [IFM-PHASE-2.3-FIELD-STUDIO-BRIEF.md](./IFM-PHASE-2.3-FIELD-STUDIO-BRIEF.md) |
+| Computation Engine Brief (next) | [IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md](./IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
+| Stabilization Report | [IFM-PROGRAM-2.3.X-REPOSITORY-STABILIZATION-REPORT.md](./IFM-PROGRAM-2.3.X-REPOSITORY-STABILIZATION-REPORT.md) |
+| Certification reports | [IFM-PROGRAM-2.*-CERTIFICATION-REPORT.md](./) (2.0 through 2.3.5) |
+
+---
+
+## L6 — Programs (Mission Artifacts)
+
+| Type | Pattern | Example |
+|------|---------|---------|
+| Briefs | `IFM-PHASE-*.md` | [IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md](./IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
+| Certification | `IFM-PROGRAM-*-CERTIFICATION-REPORT.md` | [IFM-PROGRAM-2.3.5-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.5-CERTIFICATION-REPORT.md) |
+| IFM reports | `IFM-*-REPORT.md` | MDP, audit, repo health reports |
+| Vision | [MAK-2040-VISION-BACKLOG.md](../vision/MAK-2040-VISION-BACKLOG.md) | Long-term backlog |
+
+---
+
+## L7 — Implementation
+
+| Document | Path |
+|----------|------|
+| AI & Agent Entry | [README_AI.md](../../README_AI.md) |
+| Dev Commands | [AGENTS.md](../../AGENTS.md) |
+| Local Dev | [LOCAL_DEV.md](../../LOCAL_DEV.md) |
+| Governance baseline | [scripts/governance-baseline.json](../../scripts/governance-baseline.json) |
+| Gate scripts | [scripts/gate-*.mjs](../../scripts/) |
+| CI workflow | [.github/workflows/foundation-governance.yml](../../.github/workflows/foundation-governance.yml) |
+
+---
+
+## Continuity Layer (Cross-Cutting)
+
+| Document | Path | Purpose |
+|----------|------|---------|
+| **AI Startup Guide** | [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md) | Onboard any AI in one session |
+| **Continuity Protocol** | [CONTINUITY-PROTOCOL.md](./CONTINUITY-PROTOCOL.md) | Handoff rules across tools |
+| **Project Status** | [PROJECT-STATUS.md](./PROJECT-STATUS.md) | Current position SSOT |
+| **Document Map** | [DOCUMENT-MAP.md](./DOCUMENT-MAP.md) | This file |
+
+---
+
+## Visual Hierarchy
+
+```
+L0 Constitution
+ └── L1 Master Architecture
+      └── L2 Engineering Principles
+           └── L3 Architecture Specifications (MDP, etc.)
+                └── L4 Engineering OS (ROADMAP, DECISIONS, PROJECT-STATUS)
+                     └── L5 Studio Architecture + Briefs
+                          └── L6 Programs (certifications, missions)
+                               └── L7 Implementation (code, gates, CI)
+
+Continuity Layer wraps all levels (AI-STARTUP-GUIDE, CONTINUITY-PROTOCOL, PROJECT-STATUS)
+```
+
+---
+
+*Update this map when new top-level doc categories are created.*

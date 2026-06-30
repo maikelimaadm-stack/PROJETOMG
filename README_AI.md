@@ -1,8 +1,8 @@
 # README — AI & Agent Entry Point
 
 **Status:** Official — Mandatory pre-flight for all AI agents and assisted development  
-**Version:** 1.0.0  
-**Effective date:** 2026-06-28  
+**Version:** 1.1.0  
+**Effective date:** 2026-06-30  
 **Complements:** [Constitution](./docs/constitution/00-MAK-CONSTITUTION.md) + [Permanent Governance Directive](./docs/constitution/11-PERMANENT-GOVERNANCE-DIRECTIVE.md) + [Implementation Protocol](./docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md)
 
 ---
@@ -13,6 +13,39 @@ This file is the **first document** any AI agent, cloud agent, or new developer 
 
 The project does not depend on chat memory. All strategy, architecture, state, and decisions live in this repository.
 
+**New session?** Read [AI-STARTUP-GUIDE.md](./docs/engineering/AI-STARTUP-GUIDE.md) and [PROJECT-STATUS.md](./docs/engineering/PROJECT-STATUS.md) first.
+
+---
+
+## CURRENT PROJECT STATUS
+
+| Field | Value |
+|-------|-------|
+| **Foundation** | **Frozen** — Enterprise V10.2.0 + Studio Foundation (D-052) |
+| **Current Version** | `0.4.0-rc.1` |
+| **Current Release** | `v0.4.0-RC1` |
+| **Current Program** | Program 2 — MAK Studio |
+| **Last Decision** | **D-052** — Studio Foundation Freeze |
+| **Roadmap Position** | Phase 4 → **2.3.6 Computation Engine authorized** |
+| **Current Architecture Stage** | L5 Experience Authoring — Studio Shell + Layout + Field operational |
+| **Current Studio Stage** | Foundation frozen (2.0–2.3.5); Computation Engine next |
+| **Next Official Mission** | **Program 2.3.6** — Studio Computation Engine |
+
+### Mandatory Documents (continuity)
+
+| # | Document | Path |
+|---|----------|------|
+| 1 | **Project Status (SSOT)** | [PROJECT-STATUS.md](./docs/engineering/PROJECT-STATUS.md) |
+| 2 | **AI Startup Guide** | [AI-STARTUP-GUIDE.md](./docs/engineering/AI-STARTUP-GUIDE.md) |
+| 3 | **Continuity Protocol** | [CONTINUITY-PROTOCOL.md](./docs/engineering/CONTINUITY-PROTOCOL.md) |
+| 4 | **Document Map** | [DOCUMENT-MAP.md](./docs/engineering/DOCUMENT-MAP.md) |
+| 5 | **Current State** | [CURRENT-STATE.md](./docs/engineering/CURRENT-STATE.md) |
+| 6 | **Roadmap** | [ROADMAP.md](./docs/engineering/ROADMAP.md) |
+| 7 | **Decisions** | [DECISIONS.md](./docs/engineering/DECISIONS.md) |
+| 8 | **Next mission brief** | [IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md](./docs/engineering/IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
+
+Full details: [PROJECT-STATUS.md](./docs/engineering/PROJECT-STATUS.md)
+
 ---
 
 ## Pre-Implementation Checklist (Mandatory)
@@ -21,6 +54,8 @@ Before altering **any** file, read and verify:
 
 | # | Document | Path |
 |---|----------|------|
+| 0 | **Project Status (SSOT)** | `docs/engineering/PROJECT-STATUS.md` |
+| 0b | **AI Startup Guide** | `docs/engineering/AI-STARTUP-GUIDE.md` |
 | 1 | **This file** | `README_AI.md` |
 | 2 | **Constitution** | `docs/constitution/00-MAK-CONSTITUTION.md` (+ relevant docs 01–11) |
 | 3 | **Current State** | `docs/engineering/CURRENT-STATE.md` |
@@ -129,18 +164,20 @@ Template: [11-PERMANENT-GOVERNANCE-DIRECTIVE.md § Certification](./docs/constit
 
 ## Quick Reference — Platform State
 
-| Item | Value (verify in CURRENT-STATE.md) |
-|------|-------------------------------------|
-| Foundation | Frozen V10.2.0 (2026-06-28) |
+> **Authoritative:** [PROJECT-STATUS.md](./docs/engineering/PROJECT-STATUS.md) — verify dates before acting.
+
+| Item | Value |
+|------|-------|
+| Foundation | **Frozen** V10.2.0 + Studio Foundation (D-052) |
+| Release | **`v0.4.0-RC1`** · package `0.4.0-rc.1` |
 | Runtime modules | empresas, cadcps (2 certified) |
 | New module creation | `npm run generate:module` only |
 | Primary gate suite | `npm run verify:governance` |
-| MAK Studio | **Pre-Shell complete** (Foundation + UX Framework) — Shell 2.1 next |
-| MAK DATA PLATFORM | Spec approved — not implemented (IFM 1C) |
-| Master Architecture | v1.0.0 — `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
-| Platform Language Standard | v1.0.0 — `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
-| Platform Maturity Index | v1.1.0 — `docs/engineering/PLATFORM-MATURITY-INDEX.md` |
-| Implementation Protocol | v1.1.0 — includes RHP (D-019) |
+| MAK Studio | **Foundation frozen** — Shell + Layout + Field ✅; **2.3.6 next** |
+| MAK DATA PLATFORM | **Complete** (IFM 1C MDP-0→5) |
+| Master Architecture | v1.0.0 |
+| Platform Maturity Index | v1.3.0 (ERI 3.8/10) |
+| Implementation Protocol | v1.2.0 — includes RHP (D-019) |
 | Legacy layer | `src/framework/cadastro/` — do not extend |
 
 ---
@@ -149,6 +186,10 @@ Template: [11-PERMANENT-GOVERNANCE-DIRECTIVE.md § Certification](./docs/constit
 
 ```
 README_AI.md                          ← you are here (AI entry)
+docs/engineering/PROJECT-STATUS.md    ← current position SSOT
+docs/engineering/AI-STARTUP-GUIDE.md  ← onboard any new session
+docs/engineering/CONTINUITY-PROTOCOL.md
+docs/engineering/DOCUMENT-MAP.md      ← L0–L7 doc hierarchy
 docs/constitution/00-MAK-CONSTITUTION.md   ← highest authority
 docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md  ← definitive platform map
 docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md  ← official nomenclature
@@ -156,7 +197,7 @@ docs/architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md  ← MDP defin
 docs/engineering/PLATFORM-MATURITY-INDEX.md  ← maturity dashboard
 docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md  ← 10-phase mission lifecycle + RHP
 docs/constitution/11-PERMANENT-GOVERNANCE-DIRECTIVE.md
-docs/engineering/CURRENT-STATE.md      ← living platform state
+docs/engineering/CURRENT-STATE.md      ← living platform state (detail)
 docs/engineering/ROADMAP.md
 docs/engineering/DECISIONS.md
 scripts/governance-baseline.json      ← machine-enforced rules
@@ -173,4 +214,4 @@ Chat history and external reports are **not authoritative**.
 
 ---
 
-*Last updated: 2026-06-28 — Program 0.7 Platform Implementation Protocol + PMI (D-016–D-019)*
+*Last updated: 2026-06-30 — Program 2.3.Y Project Transition & Continuity (D-053)*
