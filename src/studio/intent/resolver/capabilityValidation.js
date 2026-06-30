@@ -19,6 +19,16 @@ export function validateCapabilities(capabilityResolution, intentDocument) {
     }
   }
 
+  for (const proc of intentDocument.processes ?? []) {
+    if (!proc.processId && !proc.ownerProcessId) {
+      diagnostics.push({
+        code: "PROC_ID_EMPTY",
+        severity: "blocking",
+        message: "Process reference requires a process id.",
+      });
+    }
+  }
+
   const blocking = diagnostics.some((d) => d.severity === "blocking");
 
   return Object.freeze({

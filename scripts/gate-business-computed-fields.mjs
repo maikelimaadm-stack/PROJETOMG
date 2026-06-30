@@ -230,9 +230,9 @@ gate("G306 — No foundation forbidden imports in business package", !foundation
 
 // Extension points only for other derivations
 gate(
-  "G306 — Workflow/Dashboard/Automation remain extension points only",
-  read(path.join(INTENT, "resolver/extensionPoints.js")).includes("implemented: false") &&
-    !read(path.join(BUSINESS, "index.js")).includes("workflow")
+  "G306 — Automation/Dashboard remain extension points only",
+  read(path.join(BUSINESS, "computed/businessComputedExtensionPoints.js")).includes("automation.derivation") &&
+    read(path.join(BUSINESS, "workflow/businessWorkflowExtensionPoints.js")).includes("automation.derivation")
 );
 
 // Upstream gates still green

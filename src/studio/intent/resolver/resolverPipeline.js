@@ -6,6 +6,7 @@ import { validateCapabilities } from "./capabilityValidation.js";
 import { checkCapabilityCompatibility } from "./capabilityCompatibility.js";
 import { planDerivations } from "./derivationPlanning.js";
 import { executeComputedFieldDerivation } from "./computedFieldDerivation.js";
+import { executeWorkflowDerivation } from "./workflowDerivation.js";
 import { buildExplainabilityReport } from "./explainability.js";
 import { createResolverTelemetry } from "./telemetry.js";
 import { createResolverResult } from "./regeneration.js";
@@ -115,9 +116,13 @@ export function runResolverPipeline(intentDocument, options = {}) {
   let metadata = null;
   let businessComputedField = null;
   let businessComputedDocument = null;
+  let businessWorkflow = null;
+  let businessWorkflowDocument = null;
   let businessExplainability = null;
   let businessPreview = null;
   let runtimeProjection = null;
+  let workflowConfigDocument = null;
+  let workflowValidation = null;
 
   const t5 = Date.now();
   for (const entry of derivationPlan.executable) {
@@ -146,12 +151,35 @@ export function runResolverPipeline(intentDocument, options = {}) {
         );
       }
     }
+    if (entry.derivationKind === "workflow.approval") {
+      const executed = executeWorkflowDerivation(entry, intentDocument, session, context);
+      derivations.push(executed.derivationDocument);
+      businessWorkflow = executed.businessWorkflow;
+      businessWorkflowDocument = executed.businessWorkflowDocument;
+      workflowConfigDocument = executed.workflowConfigDocument;
+      workflowValidation = executed.validation;
+      derivationDocument = executed.derivationDocument;
+      metadata = executed.metadata;
+      businessExplainability = executed.explainability;
+      businessPreview = executed.preview;
+      runtimeProjection = executed.runtimeProjection;
+      for (const d of executed.diagnostics ?? []) {
+        if (d.severity === "blocking") diagnostics.push(createDiagnostic(d.code, d.message, d.severity));
+      }
+      if (!executed.validation?.ok) {
+        diagnostics.push(
+          createDiagnostic("DERIVATION_FAILED", "Business Workflow validation failed.", "blocking")
+        );
+      }
+    }
   }
   stageLatency.derivation_execution = Date.now() - t5;
   stageLatency.projection = stageLatency.derivation_execution;
   stageLatency.validation = 0;
 
-  const ok = diagnostics.every((d) => d.severity !== "blocking") && pipeline?.validation?.ok;
+  const computationOk = pipeline ? pipeline.validation?.ok : true;
+  const workflowOk = workflowValidation ? workflowValidation.ok : true;
+  const ok = diagnostics.every((d) => d.severity !== "blocking") && computationOk && workflowOk;
   const completedSession = finalizeResolverSession(session, {
     status: ok ? "completed" : "failed",
   });
@@ -200,10 +228,13 @@ export function runResolverPipeline(intentDocument, options = {}) {
     metadata,
     businessComputedField,
     businessComputedDocument,
+    businessWorkflow,
+    businessWorkflowDocument,
     businessExplainability,
     businessPreview,
     runtimeProjection,
     formulaDocument,
+    workflowConfigDocument,
     computationDocument: pipeline?.computationDocument ?? null,
     expressionAst: pipeline?.expressionAst ?? null,
     validation: pipeline?.validation ?? null,

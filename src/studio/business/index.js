@@ -47,6 +47,25 @@ export { createBusinessComputedOwnership } from "./computed/businessComputedOwne
 export { createBusinessComputedSecurityContracts } from "./computed/businessComputedSecurityContracts.js";
 export { BUSINESS_COMPUTED_EXTENSION_POINTS } from "./computed/businessComputedExtensionPoints.js";
 
+export {
+  BUSINESS_WORKFLOW_VERSION,
+  BUSINESS_WORKFLOW_DOCUMENT_VERSION,
+  BUSINESS_WORKFLOW_ASSET_TYPE,
+  ARTIFACT_TYPE_BUSINESS_WORKFLOW,
+  ARTIFACT_TYPE_WORKFLOW_PROJECTION,
+  DERIVATION_KIND_WORKFLOW,
+} from "./contracts/businessWorkflowContracts.js";
+
+export { createBusinessWorkflowField, stableWorkflowId } from "./workflow/businessWorkflowField.js";
+export { createBusinessWorkflowDocument } from "./workflow/businessWorkflowDocument.js";
+export { buildBusinessWorkflowAsset } from "./workflow/buildBusinessWorkflowAsset.js";
+export { createWorkflowProjectionFromBusinessWorkflow } from "./workflow/projectWorkflowFromBusinessWorkflow.js";
+export { validateBusinessWorkflow } from "./workflow/businessWorkflowValidation.js";
+export { createBusinessWorkflowPreview } from "./workflow/businessWorkflowPreview.js";
+export { createBusinessWorkflowRuntimeProjection } from "./workflow/businessWorkflowRuntimeProjection.js";
+export { BUSINESS_WORKFLOW_EXTENSION_POINTS } from "./workflow/businessWorkflowExtensionPoints.js";
+export { listWorkflowTasks, saveWorkflowTask, applyWorkflowTaskAction, seedDemoWorkflowTasks } from "./workflow/businessWorkflowTaskInbox.js";
+
 import { buildBusinessComputedAsset } from "./computed/buildBusinessComputedAsset.js";
 
 export default buildBusinessComputedAsset;

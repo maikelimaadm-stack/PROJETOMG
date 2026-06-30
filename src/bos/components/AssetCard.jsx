@@ -45,9 +45,16 @@ export function AssetCard({ assetType }) {
       </CardHeader>
       <CardContent className="pt-0">
         {assetType.status === "available" && assetType.createRoute ? (
-          <Button asChild size="sm" className="w-full">
-            <Link to={assetType.createRoute}>Criar ativo</Link>
-          </Button>
+          <div className="flex flex-col gap-2">
+            <Button asChild size="sm" className="w-full">
+              <Link to={assetType.createRoute}>Criar ativo</Link>
+            </Button>
+            {assetType.inboxRoute ? (
+              <Button asChild size="sm" variant="outline" className="w-full">
+                <Link to={assetType.inboxRoute}>Ver pendências</Link>
+              </Button>
+            ) : null}
+          </div>
         ) : (
           <Button size="sm" variant="outline" className="w-full" disabled>
             Disponível na próxima fase

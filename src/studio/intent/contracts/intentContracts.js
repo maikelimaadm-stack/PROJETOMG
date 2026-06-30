@@ -18,7 +18,13 @@ export const DERIVATION_KIND_COMPUTED_FIELD = "compute.computed_field";
 
 export const DERIVATION_KIND_FORMULA = "compute.formula";
 
+export const DERIVATION_KIND_WORKFLOW = "workflow.approval";
+
 export const ARTIFACT_TYPE_BUSINESS_COMPUTED_FIELD = "business.computed_field";
+
+export const ARTIFACT_TYPE_BUSINESS_WORKFLOW = "business.workflow";
+
+export const ARTIFACT_TYPE_WORKFLOW_CONFIG = "workflow.config";
 
 export const DERIVATION_CATEGORY_COMPUTATION = "Computation";
 
@@ -38,6 +44,8 @@ export const INTENT_CATEGORIES = Object.freeze([
 
 export const CAPABILITY_CALCULATION = "capability.calculation";
 
+export const CAPABILITY_WORKFLOW = "capability.workflow";
+
 export const RESOLVER_STRATEGIES = Object.freeze([
   "standard",
   "incremental",
@@ -45,9 +53,8 @@ export const RESOLVER_STRATEGIES = Object.freeze([
   "regeneration",
 ]);
 
-/** Extension-only derivation kinds — not implemented in Program 3.7 */
+/** Extension-only derivation kinds — not implemented beyond Program 3.10 workflow */
 export const EXTENSION_DERIVATION_KINDS = Object.freeze([
-  "workflow.approval",
   "automation.rule",
   "visualization.dashboard",
   "reporting.definition",
