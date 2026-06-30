@@ -34,7 +34,15 @@ export function buildDefaultObjectives() {
 export function buildExplainableSuggestions() {
   return [
     {
-      id: "rec-computed-tax",
+      id: "rec-workflow-compras",
+      title: "Configurar aprovação de compras",
+      explanation:
+        "Descreva quem aprova, prazos e retornos — o sistema deriva o Workflow como ativo de negócio.",
+      actionLabel: "Criar fluxo",
+      actionRoute: "/bos/business-first?asset=workflow",
+      confidence: "alta",
+    },
+    {
       title: "Criar campo calculado para impostos",
       explanation:
         "Você descreve a regra em linguagem de negócio; o sistema traduz para execução sem expor fórmulas.",

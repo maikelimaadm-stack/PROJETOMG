@@ -50,6 +50,9 @@ export default function BosHomePage() {
             <Link to="/bos/business-first">Criar por intenção</Link>
           </Button>
           <Button asChild size="sm" variant="secondary" className="border-white/20 bg-white/10 text-white hover:bg-white/20">
+            <Link to="/bos/workflow/inbox">Pendências</Link>
+          </Button>
+          <Button asChild size="sm" variant="secondary" className="border-white/20 bg-white/10 text-white hover:bg-white/20">
             <Link to="#capabilities">Ver capacidades</Link>
           </Button>
         </div>

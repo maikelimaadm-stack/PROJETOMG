@@ -2,12 +2,15 @@ import {
   COMPATIBILITY_VERSION,
   DERIVATION_KIND_COMPUTED_FIELD,
   DERIVATION_KIND_FORMULA,
+  DERIVATION_KIND_WORKFLOW,
 } from "../contracts/intentContracts.js";
 
 const COMPUTATION_DERIVATION_KINDS = Object.freeze([
   DERIVATION_KIND_FORMULA,
   DERIVATION_KIND_COMPUTED_FIELD,
 ]);
+
+const WORKFLOW_DERIVATION_KINDS = Object.freeze([DERIVATION_KIND_WORKFLOW]);
 
 export function checkCapabilityCompatibility(capabilityResolution, intentDocument) {
   const diagnostics = [];
@@ -25,6 +28,19 @@ export function checkCapabilityCompatibility(capabilityResolution, intentDocumen
           message: "Computation derivation requires a target field.",
           derivationKind: kind,
         });
+      }
+      if (WORKFLOW_DERIVATION_KINDS.includes(kind)) {
+        const hasProcess =
+          intentDocument.processes?.length ||
+          (intentDocument.category === "Process" && intentDocument.intentPhrase?.trim());
+        if (!hasProcess) {
+          diagnostics.push({
+            code: "COMPAT_PROCESS",
+            severity: "blocking",
+            message: "Workflow derivation requires a business process definition.",
+            derivationKind: kind,
+          });
+        }
       }
     }
   }

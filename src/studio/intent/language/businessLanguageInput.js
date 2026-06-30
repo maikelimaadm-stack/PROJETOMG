@@ -1,11 +1,18 @@
 import { createBusinessIntentDocument } from "../document/intentDocument.js";
 import { CAPABILITY_CALCULATION } from "../contracts/intentContracts.js";
+import {
+  createBusinessWorkflowLanguageInput,
+  businessWorkflowLanguageToIntent,
+} from "./businessWorkflowLanguageInput.js";
 
 /**
  * Business Language input — structured business expression (D-065).
  * Produces Business Intent Document; never technical artifacts.
  */
 export function createBusinessLanguageInput(partial = {}) {
+  if (partial.assetKind === "workflow" || partial.workflow === true) {
+    return createBusinessWorkflowLanguageInput(partial);
+  }
   return Object.freeze({
     schemaVersion: "mak-business-language-input-v1",
     objective: partial.objective ?? "",
@@ -31,6 +38,9 @@ export function createBusinessLanguageInput(partial = {}) {
 
 /** Convert Business Language input → approved Business Intent Document */
 export function businessLanguageToIntent(input, options = {}) {
+  if (input.assetKind === "workflow") {
+    return businessWorkflowLanguageToIntent(input, options);
+  }
   const intentPhrase = [
     input.objective,
     input.condition ? `When: ${input.condition}` : null,

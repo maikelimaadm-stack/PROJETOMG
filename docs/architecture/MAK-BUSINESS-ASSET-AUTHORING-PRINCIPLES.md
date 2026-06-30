@@ -72,7 +72,8 @@ Both modes converge on the **same pipeline**. Architecture never changes — onl
 | Asset type | Program 3.8 status |
 |------------|-------------------|
 | Computed Field | ✅ Implemented (G306) |
-| Workflow, Automation, Dashboard, Report, Integration, IA, Indicator, Process, Document | Extension points only |
+| Workflow | ✅ Implemented (G308) |
+| Automation, Dashboard, Report, Integration, IA, Indicator, Process, Document | Extension points only |
 
 ---
 

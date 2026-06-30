@@ -100,7 +100,8 @@
 | **—** | **Platform Remediation & Product Alignment** | D-073 | **complete** | 3.8.7 ✅ |
 | **3.8.8** | **Product Identity Freeze** | D-074 | **complete (frozen)** | 3.8.7 ✅ |
 | **3.9** | **Business Operating Shell MVP** | D-075 | **complete (G307)** | 3.8.8 ✅ |
-| **3.10** | **Business Workflow** | D-063 | **planned** | 3.9 ✅ |
+| **3.10** | **Business Workflow MVP** | D-076 | **complete (G308)** | 3.9 ✅ |
+| **3.11+** | **Enterprise Intelligence layers** | D-060 | **planned** | 3.10 ✅ |
 | 3.3-impl | Business Computation impl | D-058 | planned | G303B |
 | 4.x | Enterprise Memory / Intelligence impl | D-060 | planned | Post Resolver |
 
@@ -122,7 +123,8 @@
                 → 3.8.6 Enterprise Platform Deep Audit (D-070) ✅
                   → 3.8.8 Product Identity Freeze (D-074) ✅
                     → 3.9 Business Operating Shell MVP (G307) ✅
-                      → 3.10 Business Workflow ← NEXT
+                      → 3.10 Business Workflow MVP (G308) ✅
+                        → 3.11+ Enterprise Intelligence ← NEXT
                 → 4.x Enterprise Intelligence programs (D-060)
 ```
 

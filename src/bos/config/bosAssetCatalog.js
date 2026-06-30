@@ -27,8 +27,9 @@ export function buildBosAssetTypes() {
       assetType: BOS_ASSET_TYPES.WORKFLOW,
       label: "Fluxo de Aprovação",
       description: "Processos e aprovações em linguagem de negócio.",
-      status: "coming_soon",
-      createRoute: null,
+      status: "available",
+      createRoute: "/bos/business-first?asset=workflow",
+      inboxRoute: "/bos/workflow/inbox",
       icon: "git-branch",
     },
     {

@@ -1,7 +1,10 @@
 import {
   DERIVATION_KIND_COMPUTED_FIELD,
   DERIVATION_KIND_FORMULA,
+  DERIVATION_KIND_WORKFLOW,
   ARTIFACT_TYPE_BUSINESS_COMPUTED_FIELD,
+  ARTIFACT_TYPE_BUSINESS_WORKFLOW,
+  ARTIFACT_TYPE_WORKFLOW_CONFIG,
 } from "../contracts/intentContracts.js";
 import { EXTENSION_DERIVATION_KINDS } from "../contracts/intentContracts.js";
 
@@ -18,6 +21,20 @@ export function planDerivations(intentDocument, capabilityResolution) {
         projectionArtifactType: "formula.document",
         capabilityId: "capability.calculation",
         computationRefs: intentDocument.computations,
+        status: "planned",
+      })
+    );
+  }
+
+  if (intentDocument.category === "Process" && intentDocument.processes?.length) {
+    plan.push(
+      Object.freeze({
+        derivationKind: DERIVATION_KIND_WORKFLOW,
+        artifactType: ARTIFACT_TYPE_BUSINESS_WORKFLOW,
+        projectionKind: DERIVATION_KIND_WORKFLOW,
+        projectionArtifactType: ARTIFACT_TYPE_WORKFLOW_CONFIG,
+        capabilityId: "capability.workflow",
+        processRefs: intentDocument.processes,
         status: "planned",
       })
     );

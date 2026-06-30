@@ -20,6 +20,7 @@ const EmpresasPage = lazy(() => import("@/modules/empresas/pages/PAGEMP"));
 const BosHomePage = lazy(() => import("@/bos/pages/BosHomePage"));
 const BusinessFirstPage = lazy(() => import("@/bos/pages/BusinessFirstPage"));
 const ExpertModePage = lazy(() => import("@/bos/pages/ExpertModePage"));
+const WorkflowInboxPage = lazy(() => import("@/bos/pages/WorkflowInboxPage"));
 const StudioPrototypePage = lazy(() => import("@/studio/pages/StudioPrototypePage.jsx"));
 const StudioProductionPage = lazy(() => import("@/studio/pages/StudioProductionPage.jsx"));
 const generatedModuleRoutes = generatedModules
@@ -223,6 +224,7 @@ const AuthenticatedApp = () => {
         <Route path="/bos" element={<BosHomePage />} />
         <Route path="/bos/business-first" element={<BusinessFirstPage />} />
         <Route path="/bos/expert" element={<ExpertModePage />} />
+        <Route path="/bos/workflow/inbox" element={<WorkflowInboxPage />} />
       </Route>
       <Route element={<ErpLayoutRoute />}>
         <Route path="/CadastroEmpresas" element={<EmpresasPage />} />

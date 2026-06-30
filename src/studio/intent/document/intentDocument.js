@@ -24,6 +24,7 @@ export function createBusinessIntentDocument(partial = {}) {
     }),
     capabilities: Object.freeze([...(partial.capabilities ?? [])]),
     computations: Object.freeze([...(partial.computations ?? [])]),
+    processes: Object.freeze([...(partial.processes ?? [])]),
     goals: Object.freeze([...(partial.goals ?? [])]),
     rules: Object.freeze([...(partial.rules ?? [])]),
     conditions: Object.freeze([...(partial.conditions ?? [])]),
@@ -63,6 +64,9 @@ export function validateBusinessIntentDocument(doc) {
   if (doc?.lifecycle !== "approved") errors.push("Intent must be approved before resolution.");
   if (!doc?.computations?.length && doc?.category === "Computation") {
     errors.push("Computation intents require at least one computation reference.");
+  }
+  if (!doc?.processes?.length && doc?.category === "Process") {
+    errors.push("Process intents require at least one process reference.");
   }
   return { valid: errors.length === 0, ok: errors.length === 0, errors };
 }

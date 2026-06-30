@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-075 BOS MVP)
+**Last updated:** 2026-06-30 (D-076 Business Workflow MVP)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -909,6 +909,18 @@
 | **Decision** | Implement first functional **Business Operating Shell** surface under frozen D-074 identity. Default authenticated route = BOS home (`/`). Preserve `/CadastroEmpresas` and all cadastro runtime. Add Business First entry (`/bos/business-first`), Expert Mode entry (`/bos/expert`), capability/asset-centric home regions, `StudioTechnicalGuard` blocking Formula Builder for business users. Gate **G307** certifies identity compliance. No Foundation/Runtime/API/DB/Studio structural changes. |
 | **Evidence** | `src/bos/**` · [MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](../architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md) · `scripts/gate-business-operating-shell.mjs` |
 | **Consequences** | Product identity visible in UI; legacy module menu demoted; Program 3.10+ builds on BOS surface |
+
+---
+
+## D-076 — Business Workflow MVP (Program 3.10)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Implement first **Business Workflow** as official reusable Business Asset under D-074. Pipeline: Business Language → Intent → Resolver → Business Workflow → technical projection. Business vocabulary states/transitions/SLA/escalation/assignments. BOS integration (asset, Business First, inbox). No BPMN, no Studio for business users. Gate **G308**. |
+| **Evidence** | `src/studio/business/workflow/**` · [PROGRAM-3.10-BUSINESS-WORKFLOW-REPORT.md](./PROGRAM-3.10-BUSINESS-WORKFLOW-REPORT.md) |
+| **Consequences** | Workflow asset type implemented; Automation/Dashboard remain extension points |
 
 ---
 

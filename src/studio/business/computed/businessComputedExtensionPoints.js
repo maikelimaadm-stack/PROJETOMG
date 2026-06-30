@@ -1,6 +1,5 @@
 /** Extension points — not implemented in Program 3.8 */
 export const BUSINESS_COMPUTED_EXTENSION_POINTS = Object.freeze([
-  Object.freeze({ id: "workflow.derivation", implemented: false }),
   Object.freeze({ id: "automation.derivation", implemented: false }),
   Object.freeze({ id: "dashboard.derivation", implemented: false }),
   Object.freeze({ id: "report.derivation", implemented: false }),

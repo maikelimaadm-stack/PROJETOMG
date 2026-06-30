@@ -24,6 +24,11 @@ export {
 } from "./language/businessLanguageInput.js";
 
 export {
+  createBusinessWorkflowLanguageInput,
+  businessWorkflowLanguageToIntent,
+} from "./language/businessWorkflowLanguageInput.js";
+
+export {
   createIntentResolver,
   getIntentResolver,
   resolveIntentDocument,
