@@ -1,7 +1,19 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-30 (Program 3.0.5 Studio Computation Architecture — D-054)
+**Last updated:** 2026-06-30 (Program 3.1 Studio Computation Engine — D-055, G302)
+
+---
+
+## 2026-06-30 — Program 3.1: Studio Computation Engine
+
+**Scope:** First functional Computation Engine infrastructure — no Formula Builder, Computed/Derived Fields UI, Dashboard, Workflow, Automation, AI, or Marketplace  
+**Deliverables:** `src/studio/computation/` (Document, AST, Computation Graph, Execution Graph, IR, Studio/Runtime/Computation contexts, Validation Pipeline, Optimizer stub, Cost Analyzer, Field models contracts) · Gate **G302**  
+**Decision:** D-055 — official orchestration layer composing Expression (D-048), Dependency (D-049), Type (D-050), Evaluation (D-051)  
+**Certification:** G302 17/17 · G301–G298 remain green · no parallel computation in designers
+
+**Validation:** build · lint · verify:governance · verify:ci · verify:governance:cycles (5)  
+**Next:** **Program 3.2** — Formula Builder
 
 ---
 

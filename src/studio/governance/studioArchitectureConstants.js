@@ -9,6 +9,7 @@ export const STUDIO_GOVERNANCE_VERSION = "mak-studio-governance-v1";
 export const DEPENDENCY_STACK = Object.freeze([
   { layerId: "studio-consumer", label: "Studio Shell / Designers / Dock", paths: ["shell", "designers", "dock", "navigation", "workspace", "pages", "panels", "mock"] },
   { layerId: "studio-editor", label: "Studio Editor Engine", paths: ["editor"] },
+  { layerId: "studio-computation", label: "Studio Computation Engine", paths: ["computation"] },
   { layerId: "studio-expression", label: "Studio Expression Engine", paths: ["expression"] },
   { layerId: "studio-evaluation", label: "Studio Evaluation Engine", paths: ["evaluation"] },
   { layerId: "studio-dependency", label: "Studio Dependency Engine", paths: ["dependency"] },
@@ -57,6 +58,7 @@ export const PUBLIC_API_ENTRY_POINTS = Object.freeze([
   "src/studio/dependency/index.js",
   "src/studio/typeSystem/index.js",
   "src/studio/evaluation/index.js",
+  "src/studio/computation/index.js",
   "src/studio/services/",
 ]);
 

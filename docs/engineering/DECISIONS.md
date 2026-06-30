@@ -654,6 +654,22 @@
 
 ---
 
+**Next:** **Program 3.2** — Formula Builder
+
+---
+
+## D-055 — Studio Computation Engine (Program 3.1)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Implement **Studio Computation Engine** as the sole official orchestration layer for all computed behavior in MAK Studio. Infrastructure-only delivery: Computation Document, Computation AST, Computation Graph, Execution Graph, Computation IR, Studio/Runtime/Computation contexts, Validation Pipeline, Optimizer (compile-time stub), Cost Analyzer, and field model contracts. Engine **composes** Expression (D-048), Dependency (D-049), Type System (D-050), and Evaluation (D-051) — no parallel evaluators or computation graphs in designers. Gate **G302** enforces structure and integration. Version facade: `mak-studio-computation-v1`. **Authorize** Program 3.2 Formula Builder against this engine. |
+| **Evidence** | `src/studio/computation/` · `scripts/gate-studio-computation-engine.mjs` · [MAK-STUDIO-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-STUDIO-COMPUTATION-ARCHITECTURE.md) |
+| **Consequences** | All future designers (Formula Builder, Computed Fields, Dashboard, Workflow) must consume Computation Engine; Field Studio adapter (`designers/field/computation/`) deferred to Program 3.2+ |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |
