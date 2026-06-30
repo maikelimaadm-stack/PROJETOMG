@@ -63,10 +63,10 @@
 | Field | Value |
 |-------|-------|
 | **Current program** | **Program 3 — Studio Intelligence** |
-| **Last completed program** | **Program 3.8** — Business Computed Fields (D-068, G306) |
+| **Last completed program** | **Program 3.8.5** — Enterprise Vision Compliance Audit (D-069) |
 | **Last certified implementation** | **Program 3.8** — Business Computed Field (G306) |
-| **Last decision** | **D-068** — Business Computed Fields + Business Asset Authoring Principles |
-| **Roadmap position** | **Program 3.9 — Business Workflow** |
+| **Last decision** | **D-069** — Enterprise Vision Compliance Audit |
+| **Roadmap position** | **Program 3.9 — Business Workflow** (authorized post-audit) |
 | **Next official mission** | **Program 3.9** — Business Workflow |
 
 Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md)
@@ -88,6 +88,7 @@ Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md)
 | **3.6.9** Enterprise Digital Organization Architecture (D-066) | ✅ |
 | **3.7** Business Intent Resolver Implementation (D-067, G305) | ✅ |
 | **3.8** Business Computed Fields (D-068, G306) | ✅ |
+| **3.8.5** Enterprise Vision Compliance Audit (D-069) | ✅ |
 | **Próximo passo** | **Program 3.9** — Business Workflow |
 
 **Registries:** [GOVERNANCE-REGISTRY.md](./GOVERNANCE-REGISTRY.md) · [GATE-REGISTRY.md](./GATE-REGISTRY.md) · [SSOT-REGISTRY.md](./SSOT-REGISTRY.md)

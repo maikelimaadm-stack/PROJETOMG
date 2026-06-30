@@ -1,7 +1,33 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-30 (Program 3.8 Business Computed Fields — D-068)
+**Last updated:** 2026-06-30 (Program 3.8.5 Enterprise Vision Compliance Audit — D-069)
+
+---
+
+## 2026-06-30 — Program 3.8.5: Enterprise Vision Compliance Audit
+
+**Scope:** Strategic vision adherence audit · 40 domains · UX journeys · consistency · P0–P3 findings · **no code**  
+**Deliverables:** 5 audit reports in `docs/engineering/`  
+**Decision:** D-069 — Audit complete; Program 3.9 authorized with P0 debt acknowledged  
+**Key verdict:** Architecture **aligned** with EOS vision; **product UX and runtime** not yet EOS-grade
+
+### Certificação (12 perguntas — Program 3.8.5)
+
+| # | Pergunta | Resposta |
+|---|----------|----------|
+| 1 | Visão original exata? | **NÃO** — arquitetura sim; produto parcial |
+| 2 | Divergência arquitetura vs visão? | **SIM** — camada experiência e inteligência |
+| 3 | Operar sem conhecimento técnico? | **NÃO** — hoje |
+| 4 | Começar simples e evoluir? | **AINDA NÃO** |
+| 5 | Dual Authoring consistente? | **ARQUITETURA SIM · PRODUTO NÃO** |
+| 6 | Assets independentes dos Studios? | **NORMATIVO SIM · 1 ASSET** |
+| 7 | Inteligência pertence ao negócio? | **POLÍTICA SIM · SEM RUNTIME** |
+| 8 | Memória pertence à empresa? | **ARQUITETURA SIM · NÃO IMPLEMENTADA** |
+| 9 | Reduz dependência de consultoria? | **POTENCIAL SIM · AINDA NÃO** |
+| 10 | Caminha para EOS? | **SIM** |
+| 11 | Funcionalidade não prevista? | **SIM** — Asset Registry UI, Runtime Unification impl, Language shell |
+| 12 | Decisão antes dos próximos Programs? | **SIM** — Runtime Unification + Business Language UX |
 
 ---
 
