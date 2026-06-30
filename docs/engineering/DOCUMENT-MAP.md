@@ -3,7 +3,7 @@
 **Status:** Official — Hierarchical index of all authoritative documentation  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Mission:** Program 3.5B — Enterprise Architecture Consolidation Audit (D-061) · includes Program 3.5A (D-060) on `main`
+**Mission:** Program 3.5C — Enterprise Architecture Remediation (D-062)
 
 > Use with [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md) for onboarding. Chat history is not listed here because it is not authoritative.
 
@@ -107,6 +107,14 @@
 | **Architecture Debt Register** | **[ARCHITECTURE-DEBT-REGISTER.md](./ARCHITECTURE-DEBT-REGISTER.md)** |
 | **Architecture Consistency Report** | **[ARCHITECTURE-CONSISTENCY-REPORT.md](./ARCHITECTURE-CONSISTENCY-REPORT.md)** |
 | **Program Sequence Validation** | **[PROGRAM-SEQUENCE-VALIDATION.md](./PROGRAM-SEQUENCE-VALIDATION.md)** |
+| **Governance Registry (umbrella)** | **[GOVERNANCE-REGISTRY.md](./GOVERNANCE-REGISTRY.md)** (**D-062**) |
+| **Gate Registry (SSOT)** | **[GATE-REGISTRY.md](./GATE-REGISTRY.md)** |
+| **SSOT Registry** | **[SSOT-REGISTRY.md](./SSOT-REGISTRY.md)** |
+| **Program Registry** | **[PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md)** |
+| **Supersession Register** | **[SUPERSESSION-REGISTER.md](./SUPERSESSION-REGISTER.md)** |
+| **Document Classification** | **[DOCUMENT-CLASSIFICATION.md](./DOCUMENT-CLASSIFICATION.md)** |
+| **Formula Runtime Unification Plan** | **[FORMULA-RUNTIME-UNIFICATION-PLAN.md](./FORMULA-RUNTIME-UNIFICATION-PLAN.md)** |
+| **Architecture Remediation Report** | **[ARCHITECTURE-REMEDIATION-REPORT.md](./ARCHITECTURE-REMEDIATION-REPORT.md)** (**D-062** — Program 3.5C) |
 
 ---
 

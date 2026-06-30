@@ -1,8 +1,10 @@
 # ROADMAP — MAK Gestão Platform
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (Program 2.3.Y Project Transition & Continuity — D-053)
+**Last updated:** 2026-06-30 (Program 3.5C — Enterprise Architecture Remediation — D-062)
 **Horizon:** Technical roadmap aligned with [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md)
+
+> **SSOT for "next mission":** [PROJECT-STATUS.md](./PROJECT-STATUS.md). This roadmap documents **sequence and phases** — see [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md).
 
 ---
 
@@ -150,7 +152,27 @@ Architecture: [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTU
 | **2.3.5** | Studio Evaluation Engine | ✅ Complete (D-051) — [Report](./IFM-PROGRAM-2.3.5-CERTIFICATION-REPORT.md) |
 | **2.3.X** | Repository Stabilization + Foundation Freeze | ✅ Complete (D-052) — [Report](./IFM-PROGRAM-2.3.X-REPOSITORY-STABILIZATION-REPORT.md) · **Release `v0.4.0-RC1`** |
 | **2.3.Y** | Project Transition & Continuity | ✅ Complete (D-053) — [Report](./IFM-PROGRAM-2.3.Y-CONTINUITY-CERTIFICATION-REPORT.md) |
-| **2.3.6** | Studio Computation Engine | **Authorized — next official mission** — [Brief](./IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
+| ~~**2.3.6**~~ | ~~Studio Computation Engine~~ | **Superseded → Program 3.0.5 + 3.1** — [SUPERSESSION-REGISTER](./SUPERSESSION-REGISTER.md) |
+
+---
+
+## Phase 4B — Program 3 Studio Intelligence (current track)
+
+Architecture: [MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md) · Registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md)
+
+| Phase | Deliverable | Status |
+|-------|-------------|--------|
+| **3.0.5** | Studio Computation Architecture | ✅ Complete (D-054) |
+| **3.1** | Computation Engine (G302) | ✅ Complete (D-055) |
+| **3.2** | Formula Builder (G303A) | ✅ Complete (D-056) |
+| **3.1.5** | Enterprise Platform Vision | ✅ Complete (D-057) |
+| **3.3** | Business Computation Layer | ✅ Complete docs (D-058) |
+| **3.4** | Business Intent Authoring | ✅ Complete docs (D-059) |
+| **3.5A** | Enterprise Intelligence Vision | ✅ Complete docs (D-060) |
+| **3.5B** | Architecture Consolidation Audit | ✅ Complete (D-061) |
+| **3.5C** | Architecture Remediation | ✅ Complete (D-062) — **ARCHITECTURE CONSOLIDATED** |
+| **3.5** | Business Intent Resolver (impl) | **Next implementation** — G304 |
+| **3.5+** | Business Computed Fields | After Resolver |
 
 | Studio | Prerequisite | Status |
 |--------|--------------|--------|
@@ -293,7 +315,7 @@ Architecture for migrating **all platform artifacts** — not database-only:
 
 | Platform | Dependency | Precedes Studio? |
 |----------|------------|------------------|
-| Marketplace | MDP bundles + versioning ✅ | **No** — Program 3 |
+| Marketplace | MDP bundles + versioning ✅ | **No** — **Program 6** (future; was labeled "Program 3" pre-D-062) |
 | Knowledge Platform | MDP entity links | **No** — Program 5 |
 | AI Platform | MDP introspect ✅ + Event Bus (A5) | **No** — Program 4 |
 | Offline / Sync | MDP snapshots ✅ + Sync Platform | **No** — Program 6 |

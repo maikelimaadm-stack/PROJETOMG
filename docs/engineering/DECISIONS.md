@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-061 Enterprise Architecture Consolidation Audit)
+**Last updated:** 2026-06-30 (D-062 Enterprise Architecture Remediation)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -744,6 +744,18 @@
 
 ---
 
+## D-062 — Enterprise Architecture Remediation (Program 3.5C)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Complete **Enterprise Architecture Remediation** — eliminate all P0 debt from D-061 audit through **consolidation only** (no functional implementation). Establish official registries: [GOVERNANCE-REGISTRY.md](./GOVERNANCE-REGISTRY.md), [GATE-REGISTRY.md](./GATE-REGISTRY.md), [SSOT-REGISTRY.md](./SSOT-REGISTRY.md), [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md), [SUPERSESSION-REGISTER.md](./SUPERSESSION-REGISTER.md), [DOCUMENT-CLASSIFICATION.md](./DOCUMENT-CLASSIFICATION.md). Renumber deploy gates **G303/G304 → G401/G402**; reserve **G304 exclusively** for Business Intent Resolver. Approve [FORMULA-RUNTIME-UNIFICATION-PLAN.md](./FORMULA-RUNTIME-UNIFICATION-PLAN.md) (plan only — no implementation). Sync ROADMAP/SSOT hierarchy. **Declare platform state: ARCHITECTURE CONSOLIDATED.** **Authorize** Program 3.5 — Business Intent Resolver implementation. **Permanent rule:** no D-xxx, G-xxx, Program, or SSOT doc without registry update. |
+| **Evidence** | [ARCHITECTURE-REMEDIATION-REPORT.md](./ARCHITECTURE-REMEDIATION-REPORT.md) |
+| **Consequences** | D-061 implementation block lifted; all P0 resolved; implementation resumes from consolidated baseline; formula runtime unification deferred to future program per plan |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |
@@ -757,7 +769,16 @@
 
 ## Superseded
 
-_None yet._
+| Item | Superseded aspect | Successor | Register |
+|------|-------------------|-----------|----------|
+| D-056 consequence | "Program 3.3 Computed Fields first impl" | Resolver first (D-059) | [SUPERSESSION-REGISTER.md](./SUPERSESSION-REGISTER.md) |
+| D-058 consequence | "Computed Fields first mission" | Resolver first (D-059) | SUPERSESSION-REGISTER |
+| D-052 freeze text | "until 2.3.6" | G302 done (3.1) | SUPERSESSION-REGISTER |
+| D-061 block | All implementation blocked | Lifted by D-062 | SUPERSESSION-REGISTER |
+| Deploy G303/G304 | Gate IDs | G401/G402 | [GATE-REGISTRY.md](./GATE-REGISTRY.md) |
+| Program 2.3.6 | Program ID | 3.0.5 + 3.1 | [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md) |
+
+Full traceability: [SUPERSESSION-REGISTER.md](./SUPERSESSION-REGISTER.md)
 
 ---
 

@@ -7,7 +7,7 @@
 **Decision:** D-061  
 **Parent:** [ENTERPRISE-ARCHITECTURE-CONSOLIDATION-AUDIT.md](./ENTERPRISE-ARCHITECTURE-CONSOLIDATION-AUDIT.md)
 
-> **Rule:** Items here are **documented only**. Remediation occurs in **dedicated missions** — not in this audit.
+> **Rule:** Items here are **documented only**. P0 items resolved in Program 3.5C (D-062). P1+ remediate in future missions.
 
 ---
 
@@ -24,13 +24,13 @@
 
 ## P0 — Critical
 
-| ID | Category | Description | Evidence | Remediation mission (proposed) |
-|----|----------|-------------|----------|------------------------------|
-| AD-P0-01 | Runtime | **Dual formula evaluation** — Foundation `campoEngine.jsx` + `runMakFormulaEvaluation.js` parallel to Studio Computation/Expression/Evaluation | `src/framework/cadastro/fields/campoEngine.jsx`, `src/framework/mak/formula/` | Runtime Formula Unification |
-| AD-P0-02 | Runtime | **Studio preview vs production semantic split** for computed fields | CRB V17 hydration vs legacy campoEngine path | Same as AD-P0-01 |
-| AD-P0-03 | Governance | **G304 gate ID collision** — deploy (`gate-railway-docker.mjs`) vs planned Intent Resolver gate (D-059) | `scripts/gate-railway-docker.mjs`, `MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md` §10 | Gate Registry Consolidation |
-| AD-P0-04 | Documentation | **ROADMAP vs PROJECT-STATUS** — next mission 2.3.6 vs Program 3.5 Resolver | `ROADMAP.md` L153 vs `PROJECT-STATUS.md` | Documentation SSOT Sync |
-| AD-P0-05 | Documentation | **Program 3.5A (D-060) approved but not on `main`** — intelligence vision docs missing from canonical branch | Branch `cursor/enterprise-intelligence-vision-0b52` | **✅ Resolved** — merged to `main` via PR #346 (2026-06-30) |
+| ID | Category | Description | Evidence | Status |
+|----|----------|-------------|----------|--------|
+| AD-P0-01 | Runtime | **Dual formula evaluation** | `campoEngine.jsx`, `runMakFormulaEvaluation.js` | **✅ Resolved** — [FORMULA-RUNTIME-UNIFICATION-PLAN.md](./FORMULA-RUNTIME-UNIFICATION-PLAN.md) (D-062) |
+| AD-P0-02 | Runtime | **Studio preview vs production semantic split** | CRB vs legacy path | **✅ Resolved** — same plan (D-062) |
+| AD-P0-03 | Governance | **G304 gate ID collision** | deploy vs Intent Resolver | **✅ Resolved** — G401/G402 deploy; G304 exclusive ([GATE-REGISTRY.md](./GATE-REGISTRY.md), D-062) |
+| AD-P0-04 | Documentation | **ROADMAP vs PROJECT-STATUS drift** | Stale 2.3.6 next | **✅ Resolved** — [SSOT-REGISTRY.md](./SSOT-REGISTRY.md), ROADMAP sync (D-062) |
+| AD-P0-05 | Documentation | **Program 3.5A not on `main`** | Branch only | **✅ Resolved** — PR #346 |
 
 ---
 
@@ -38,7 +38,7 @@
 
 | ID | Category | Description | Evidence | Remediation mission (proposed) |
 |----|----------|-------------|----------|------------------------------|
-| AD-P1-01 | Governance | **G303 namespace overlap** — deploy bootstrap vs Studio G303A/B family | `gate-backend-bootstrap.mjs`, D-059 G304 plan | Gate Registry Consolidation |
+| AD-P1-01 | Governance | **G303 namespace overlap** — deploy bootstrap vs Studio G303A/B family | `gate-backend-bootstrap.mjs`, D-059 G304 plan | **✅ Resolved** — deploy G401 (D-062) |
 | AD-P1-02 | Governance | **No gate coverage** for Foundation parallel formula evaluators | G298/G302 scope = `src/studio/` only | Foundation Formula Gate |
 | AD-P1-03 | Decisions | **Superseded decisions not recorded** — D-058→D-059 sequencing, D-056 "3.3 Computed Fields" | `DECISIONS.md` Superseded section empty | Decision Register Cleanup |
 | AD-P1-04 | Decisions | **Computed Fields authorization chain** — D-056 → D-058 → D-059 conflict on timing | D-056, D-058, D-059 consequences | Decision Register Cleanup |
@@ -88,7 +88,7 @@
 
 | Severity | Count |
 |----------|-------|
-| P0 | 4 (1 resolved: AD-P0-05) |
+| P0 | **0** (all resolved — D-062) |
 | P1 | 10 |
 | P2 | 14 |
 | P3 | 5 |
@@ -96,16 +96,15 @@
 
 ---
 
-## Remediation sequencing (recommended — not part of 3.5B)
+## Remediation sequencing (P0 complete — D-062)
 
-1. ~~AD-P0-05~~ — ✅ D-060 / 3.5A merged to `main` (PR #346)
-2. AD-P0-03, AD-P1-01 — Gate registry renumbering (e.g. deploy G303/G304 → G401/G402 or G30D-*)
-3. AD-P0-04, AD-P1-05, AD-P1-06, AD-P2-* docs — Documentation SSOT sync mission
-4. AD-P1-03, AD-P1-04 — Decision supersession cleanup
-5. AD-P0-01, AD-P0-02 — Runtime formula unification (before Business Computed Fields)
-6. AD-P1-07 — Intent Resolver brief + gate assignment
-7. Resume **Program 3.5 — Intent Resolver** implementation
+1. ~~AD-P0-05~~ — ✅ D-060 merged (PR #346)
+2. ~~AD-P0-03, AD-P1-01~~ — ✅ G401/G402; G304 exclusive
+3. ~~AD-P0-04~~ — ✅ SSOT sync
+4. ~~AD-P1-03, AD-P1-04~~ — ✅ SUPERSESSION-REGISTER
+5. ~~AD-P0-01, AD-P0-02~~ — ✅ Formula unification plan
+6. **Program 3.5 — Intent Resolver** — **authorized next**
 
 ---
 
-*Register maintained per D-061. Update only via consolidation or remediation missions.*
+*Register maintained per D-061/D-062. P1+ items remediate in future missions.*

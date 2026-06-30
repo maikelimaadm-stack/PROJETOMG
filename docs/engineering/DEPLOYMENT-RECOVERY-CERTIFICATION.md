@@ -17,7 +17,7 @@
 | Criterion | Result |
 |-----------|--------|
 | RC-001 (ESM import) | ✅ Fixed in PR #332 |
-| G303 + G304 gates | ✅ Active in CI |
+| G401 + G402 gates | ✅ Active in CI |
 | First green Railway deploy | ✅ Commit `7ad7c11d` (2026-06-30T01:46:06Z) |
 | Core production (auth, empresas, health) | ✅ Operational |
 | MDP + CADCPS campos (production API) | ❌ HTTP 500 — **P0 follow-up** |
@@ -43,7 +43,7 @@
 | **Last successful deploy before incident** | `2754b4d7` (merge PR #297) |
 | **Failure stage** | Runtime → Import ESM (before boot, migration, healthcheck) |
 | **Fix** | PR #332 — import moved to `mdpFieldCadcpsAdapter.js` |
-| **Permanent gate** | G303 — `scripts/gate-backend-bootstrap.mjs` |
+| **Permanent gate** | G401 — `scripts/gate-backend-bootstrap.mjs` |
 
 Full analysis: [RAILWAY-ROOT-CAUSE-REPORT.md](./RAILWAY-ROOT-CAUSE-REPORT.md)
 
@@ -55,7 +55,7 @@ Full analysis: [RAILWAY-ROOT-CAUSE-REPORT.md](./RAILWAY-ROOT-CAUSE-REPORT.md)
 |----|-----------------|---------|--------|
 | **G303** | `scripts/gate-backend-bootstrap.mjs` | ESM import graph + pre-listen bootstrap validation | ✅ CI |
 | **G304** | `scripts/gate-railway-docker.mjs` | Dockerfile.railway build simulation + prisma validate/generate | ✅ CI |
-| **Bundle** | `scripts/gate-deploy-pipeline.mjs` | G303 + G304 combined | ✅ CI |
+| **Bundle** | `scripts/gate-deploy-pipeline.mjs` | G401 + G402 combined | ✅ CI |
 | **RULE-DEPLOY-002** | Official deploy flow documentation | Manual merge after CI + Railway + Smoke | ✅ |
 | **Platform audit** | DEPLOYMENT-PLATFORM-HARDENING.md | GitHub/Railway runbooks | ✅ |
 | **Legacy removal** | Deleted `sync-main-deploy.yml` | Eliminated bypass workflow | ✅ |
@@ -74,7 +74,7 @@ Full analysis: [RAILWAY-ROOT-CAUSE-REPORT.md](./RAILWAY-ROOT-CAUSE-REPORT.md)
 | 2026-06-30 | Program 2.3.X.0 — Root cause audit | — | RAILWAY-ROOT-CAUSE-REPORT.md |
 | 2026-06-30 | Program 2.3.X.1 — G304 + RULE-DEPLOY-002 | — | Pipeline hardening |
 | 2026-06-30 | Program 2.3.X.2 — Platform hardening audit | — | DEPLOYMENT-PLATFORM-HARDENING.md |
-| 2026-06-30T01:46:06Z | **Merge PR #332** (`7ad7c11d`) | — | Hotfix 0 + G303/G304 |
+| 2026-06-30T01:46:06Z | **Merge PR #332** (`7ad7c11d`) | — | Hotfix 0 + G401/G402 |
 | 2026-06-30T01:47:30Z | **First green Railway deploy post-recovery** | ✅ Success | Deployment `22afa15b-f571-46f9-811d-ef0952cb54f3` |
 | 2026-06-30T01:52:41Z | Program 2.3.X.3 — Certification smoke | — | This document |
 
@@ -125,7 +125,7 @@ Full analysis: [RAILWAY-ROOT-CAUSE-REPORT.md](./RAILWAY-ROOT-CAUSE-REPORT.md)
 | Layout Studio (G291) | ✅ 15/15 |
 | Field Studio (G296) | ✅ 16/16 |
 | Studio production shell (G287) | ✅ 11/11 |
-| Deploy pipeline G303+G304 | ✅ |
+| Deploy pipeline G401+G402 | ✅ |
 
 **Local gates:** 8/8 passed
 
@@ -209,7 +209,7 @@ PR #332 is **already merged**. Recommended sequence:
 
 ### 3. Pipeline estabilizado?
 
-**Sim.** RC-001 + RC-LATENT-001 closed. G303 + G304 active.
+**Sim.** RC-001 + RC-LATENT-001 closed. G401 + G402 active.
 
 ### 4. Existe alguma regressão?
 
