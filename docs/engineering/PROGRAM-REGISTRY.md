@@ -102,7 +102,8 @@
 | **3.9** | **Business Operating Shell MVP** | D-075 | **complete (G307)** | 3.8.8 ✅ |
 | **3.10** | **Business Workflow MVP** | D-076 | **complete (G308)** | 3.9 ✅ |
 | **3.11** | **Enterprise Intelligence Foundation** | D-077 | **complete (G309)** | 3.10 ✅ |
-| **3.12+** | **Enterprise Memory / Intelligence engines** | D-060 | **planned** | 3.11 ✅ |
+| **3.12** | **Enterprise Memory Engine MVP** | D-078 | **complete (G310)** | 3.11 ✅ |
+| **3.13+** | **Knowledge / Consulting / Decision engines** | D-060 | **planned** | 3.12 ✅ |
 | 3.3-impl | Business Computation impl | D-058 | planned | G303B |
 | 4.x | Enterprise Memory / Intelligence impl | D-060 | planned | Post Resolver |
 
@@ -126,7 +127,8 @@
                     → 3.9 Business Operating Shell MVP (G307) ✅
                       → 3.10 Business Workflow MVP (G308) ✅
                         → 3.11 Enterprise Intelligence Foundation (G309) ✅
-                          → 3.12+ Memory / Intelligence engines ← NEXT
+                          → 3.12 Enterprise Memory Engine MVP (G310) ✅
+                            → 3.13+ Knowledge / Consulting / Decision ← NEXT
                 → 4.x Enterprise Intelligence programs (D-060)
 ```
 

@@ -1,57 +1,37 @@
+import { buildMemoryEngineBosProjection } from "../memory/engine/memoryToBosProjection.js";
+import { bridgeMemoryToIntelligence } from "../memory/engine/memoryToIntelligenceBridge.js";
 import { processObservationLayer } from "../observation/observationLayer.js";
-import {
-  buildBusinessEventTimeline,
-  formatTimelineForBos,
-} from "../timeline/businessEventTimeline.js";
-import {
-  deriveHealthSignals,
-  computeHealthScore,
-} from "../signals/businessHealthSignals.js";
 import { listImprovementOpportunities } from "../registry/improvementOpportunityRegistry.js";
-import { buildTenantKnowledgeSeeds } from "../memory/knowledgeSeeds.js";
-import { captureEnterpriseContext } from "../capture/enterpriseContextCapture.js";
 
-/** BOS-facing projection — business vocabulary only, no technical exposure */
+/** BOS-facing projection — prefers Memory Engine when records exist */
 export function buildIntelligenceHomeProjection(tenantId = "default") {
+  const memoryProjection = buildMemoryEngineBosProjection(tenantId);
   const observation = processObservationLayer(tenantId);
-  const timeline = buildBusinessEventTimeline(tenantId, { limit: 10 });
-  const activity = formatTimelineForBos(timeline);
-  const healthSignals = observation.healthSignals;
-  const score = computeHealthScore(healthSignals);
   const improvements = listImprovementOpportunities(tenantId);
 
-  const health = Object.freeze({
-    score,
-    trend: score >= 75 ? "stable" : "attention",
-    label: "Saúde operacional",
-    highlights: healthSignals.slice(0, 3).map((s) =>
-      Object.freeze({
-        id: s.signalId,
-        label: s.label,
-        value: s.value,
-        tone: s.tone,
-      })
-    ),
-  });
-
-  if (!activity.length) {
+  if (memoryProjection.hasMemory) {
     return Object.freeze({
-      health,
-      activity: null,
-      hasObservations: false,
+      ...memoryProjection,
+      hasObservations: true,
       improvementCount: improvements.length,
-      context: captureEnterpriseContext(tenantId),
-      knowledgeSeeds: buildTenantKnowledgeSeeds(tenantId),
+      intelligenceBridge: bridgeMemoryToIntelligence(tenantId),
+      patterns: observation.patterns,
     });
   }
 
   return Object.freeze({
-    health,
-    activity,
-    hasObservations: true,
+    health: memoryProjection.health,
+    activity: memoryProjection.activity,
+    hasObservations: false,
+    hasMemory: false,
     improvementCount: improvements.length,
-    context: captureEnterpriseContext(tenantId),
-    knowledgeSeeds: buildTenantKnowledgeSeeds(tenantId),
+    operationalSummary: memoryProjection.operationalSummary,
+    recentDecisions: [],
+    recentWorkflows: [],
+    whyHighlights: [],
+    replayTeaser: memoryProjection.replayTeaser,
+    evolutionSignal: memoryProjection.evolutionSignal,
+    patterns: observation.patterns,
   });
 }
 

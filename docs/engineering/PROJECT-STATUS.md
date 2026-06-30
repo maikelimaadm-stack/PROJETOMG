@@ -3,7 +3,7 @@
 **Status:** Official — Single source of truth for project continuity  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Updated by:** Program 3.11 — Enterprise Intelligence Foundation (D-077)  
+**Updated by:** Program 3.12 — Enterprise Memory Engine MVP (D-078)  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md); supersedes chat history
 
 > **Rule:** Any AI or developer session must read this file (via [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md)) before starting work. Do not rely on prior chat context.
@@ -15,7 +15,7 @@
 | Field | Value |
 |-------|-------|
 | **Architecture state** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) · **First Business Asset certified** (D-068, G306) |
-| **Implementation phase** | **Enterprise Intelligence Foundation live (D-077, G309)** — under D-074 identity |
+| **Implementation phase** | **Enterprise Memory Engine live (D-078, G310)** — under D-074 identity |
 | **Implementation authorized** | **Yes** — [MAK-PRODUCT-IDENTITY-FREEZE.md](../architecture/MAK-PRODUCT-IDENTITY-FREEZE.md) |
 | **Primary user surface** | **BOS home (`/`)** — [MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](../architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md) |
 
@@ -63,9 +63,9 @@
 | Field | Value |
 |-------|-------|
 | **Current program** | **Program 3 — Studio Intelligence** |
-| **Last completed mission** | **Program 3.11** — Enterprise Intelligence Foundation (D-077, G309) |
-| **Last decision** | **D-077** — Intelligence Foundation implemented |
-| **Next official mission** | **Program 3.12+** — Enterprise Memory / Intelligence engines |
+| **Last completed mission** | **Program 3.12** — Enterprise Memory Engine MVP (D-078, G310) |
+| **Last decision** | **D-078** — Memory Engine implemented |
+| **Next official mission** | **Program 3.13+** — Knowledge / Consulting / Decision engines |
 
 Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md)
 
