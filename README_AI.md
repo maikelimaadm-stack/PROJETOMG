@@ -26,11 +26,11 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Current Release** | `v0.4.0-RC2` (pending owner tag) |
 | **Current Program** | Program 3 — Studio Intelligence |
 | **Architecture State** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) · Continuous implementation phase |
-| **Last Decision** | **D-066** — Enterprise Digital Organization Architecture |
-| **Roadmap Position** | **Continuous Implementation** — Program 3.7 Resolver (G304) |
-| **Current Architecture Stage** | **Final structural architecture frozen** — implementation only |
-| **Current Studio Stage** | Full Intent + Organization stack architecture ✅ |
-| **Next Official Mission** | **Program 3.7** — Business Intent Resolver Implementation (G304) |
+| **Last Decision** | **D-067** — Business Intent Resolver Implementation |
+| **Roadmap Position** | **Program 3.8 — Business Computed Fields** |
+| **Current Architecture Stage** | Structural architecture frozen · **Resolver implemented (G305)** |
+| **Current Studio Stage** | Intent Resolver ✅ (G305) · Formula Builder ✅ (G303A) |
+| **Next Official Mission** | **Program 3.8** — Business Computed Fields |
 
 > **Governance rule (D-062):** Register all new D-xxx, G-xxx, Programs, SSOT docs in [GOVERNANCE-REGISTRY.md](./docs/engineering/GOVERNANCE-REGISTRY.md).
 
@@ -226,4 +226,4 @@ Chat history and external reports are **not authoritative**.
 
 ---
 
-*Last updated: 2026-06-30 — Program 3.6.9 Enterprise Digital Organization Architecture (D-066)*
+*Last updated: 2026-06-30 — Program 3.7 Business Intent Resolver Implementation (D-067, G305)*

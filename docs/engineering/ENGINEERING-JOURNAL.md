@@ -1,7 +1,31 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-30 (Program 3.6.9 Enterprise Digital Organization Architecture — D-066)
+**Last updated:** 2026-06-30 (Program 3.7 Business Intent Resolver Implementation — D-067)
+
+---
+
+## 2026-06-30 — Program 3.7: Business Intent Resolver Implementation
+
+**Scope:** First functional Intent Resolver — Formula Document derivation only · G305 · continuous implementation phase  
+**Deliverables:** `src/studio/intent/` — Resolver pipeline · Business Language → Runtime preview e2e · extension points for other derivations  
+**Decision:** D-067 — Resolver functional; G305 certified; Program 3.8 authorized  
+**Validation:** build · lint · verify:governance · verify:ci · cycles · G305 16/16
+
+### Certificação Obrigatória (10 perguntas — Program 3.7)
+
+| # | Pergunta | Resposta | Justificativa |
+|---|----------|----------|---------------|
+| 1 | Resolver funcional? | **SIM** | G305 e2e pipeline pass |
+| 2 | Pipeline ponta a ponta implementado? | **SIM** | Business Language → preview |
+| 3 | Toda resolução passa pelo Resolver? | **SIM** | `resolveIntentDocument` único entry |
+| 4 | Existe bypass? | **NÃO** | G305 verifica designers |
+| 5 | Reutiliza arquiteturas aprovadas? | **SIM** | D-059/D-063/D-064/D-065/D-066 contracts |
+| 6 | Pipeline determinístico? | **SIM** | derivationId estável G305 |
+| 7 | Pipeline rastreável? | **SIM** | metadata + lineage obrigatórios |
+| 8 | Pipeline reproduzível? | **SIM** | idempotence check G305 |
+| 9 | Runtime recebe projeções derivadas? | **SIM** | preview via Evaluation Engine |
+| 10 | Program 3.8 Computed Fields liberado? | **SIM** | D-067 autoriza |
 
 ---
 
