@@ -14,6 +14,7 @@ import { appendEvolutionAuditEntry } from "./evolutionAuditTrail.js";
 import { registerEvolutionVersion } from "./evolutionVersioning.js";
 import { summarizeEvolutionEngine } from "./evolutionSummarization.js";
 import { replayDecisionFromStack } from "../../decision/engine/consultingToDecisionIngestion.js";
+import { ingestEvolutionToBusinessDna } from "../../dna/engine/evolutionToDnaIngestion.js";
 
 /** Analyze full stack and produce evolution artifacts */
 export function analyzeEvolutionContext(tenantId = "default") {
@@ -109,6 +110,12 @@ export function analyzeEvolutionContext(tenantId = "default") {
     entityId: analysisDoc.evolutionId,
     entityType: "analysis",
   });
+
+  try {
+    ingestEvolutionToBusinessDna(tenantId);
+  } catch {
+    // non-blocking — DNA ingestion must not break evolution pipeline
+  }
 
   return Object.freeze({
     tenantId,

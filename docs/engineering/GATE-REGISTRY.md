@@ -47,6 +47,7 @@
 | **G312** | Product (active) | **Consulting Engine MVP** (Program 3.14) |
 | **G313** | Product (active) | **Decision Engine MVP** (Program 3.15) |
 | **G314** | Product (active) | **Evolution Engine MVP** (Program 3.16) |
+| **G315** | Product (active) | **Business DNA & Maturity MVP** (Program 3.17) |
 | **G303B** | Studio (planned) | Business Computation implementation |
 | **G304** | Studio (architecture) | Intent Resolver architecture reference (D-064) — implementation certified by **G305** |
 | **G401–G402** | Deploy pipeline | Renumbered from G303/G304 deploy (D-062) |
@@ -103,6 +104,7 @@
 | **G312** | Consulting Engine MVP | 3.14 | D-080 | `gate-enterprise-consulting-engine.mjs` | **active** |
 | **G313** | Decision Engine MVP | 3.15 | D-081 | `gate-enterprise-decision-engine.mjs` | **active** |
 | **G314** | Evolution Engine MVP | 3.16 | D-082 | `gate-enterprise-evolution-engine.mjs` | **active** |
+| **G315** | Business DNA & Maturity MVP | 3.17 | D-083 | `gate-enterprise-business-dna.mjs` | **active** |
 
 ---
 

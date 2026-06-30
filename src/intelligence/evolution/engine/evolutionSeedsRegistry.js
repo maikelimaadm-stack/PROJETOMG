@@ -13,7 +13,7 @@ export function buildEvolutionSeedsRegistry(tenantId = "default") {
     planSeeds: plans.map((p) => Object.freeze({ id: p.planId, title: p.title })),
     milestoneSeeds: milestones.map((m) => Object.freeze({ id: m.milestoneId, label: m.label })),
     summary,
-    forBusinessDna: false,
+    forBusinessDna: summary.documentCount > 0 || plans.length > 0,
   });
 }
 

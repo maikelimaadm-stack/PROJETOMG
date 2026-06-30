@@ -51,6 +51,15 @@ import {
   EvolutionMilestonesSection,
   EvolutionWhySection,
 } from "@/bos/components/EvolutionSections";
+import {
+  BusinessDnaIdentitySection,
+  BusinessDnaFingerprintSection,
+  BusinessDnaMaturitySection,
+  BusinessDnaPatternsSection,
+  BusinessDnaMilestonesSection,
+  BusinessDnaGrowthSignalsSection,
+  BusinessDnaPortfolioSection,
+} from "@/bos/components/BusinessDnaSections";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import {
   buildIntelligenceHomeProjection,
@@ -239,6 +248,30 @@ export default function BosHomePage() {
         periodComparison={intelligence.evolutionPeriodComparison}
         decisionImpact={intelligence.evolutionDecisionImpact}
       />
+
+      <BusinessDnaIdentitySection
+        headline={intelligence.dnaIdentityHeadline}
+        narrative={intelligence.dnaIdentityNarrative}
+        whoIsThisCompany={intelligence.dnaWhoIsThisCompany}
+        howThisCompanyWorks={intelligence.dnaHowThisCompanyWorks}
+      />
+      <BusinessDnaFingerprintSection
+        traits={intelligence.dnaFingerprintTraits}
+        label={intelligence.dnaFingerprintLabel}
+      />
+      <BusinessDnaMaturitySection
+        maturityLevel={intelligence.dnaMaturityLevel}
+        capabilities={intelligence.dnaMaturityByCapability}
+        whereMatured={intelligence.dnaWhereMatured}
+        whereNeedsEvolution={intelligence.dnaWhereNeedsEvolution}
+      />
+      <BusinessDnaPatternsSection
+        operational={intelligence.dnaOperationalPatterns}
+        cultural={intelligence.dnaCulturalPatterns}
+      />
+      <BusinessDnaMilestonesSection milestones={intelligence.dnaMilestones} />
+      <BusinessDnaGrowthSignalsSection signals={intelligence.dnaGrowthSignals} />
+      <BusinessDnaPortfolioSection portfolio={intelligence.dnaPortfolio} />
 
       <ActivityTeaserSection items={activity} />
     </div>

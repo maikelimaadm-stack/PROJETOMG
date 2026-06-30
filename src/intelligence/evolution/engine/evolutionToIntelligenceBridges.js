@@ -1,6 +1,7 @@
 import { summarizeEvolutionEngine } from "./evolutionSummarization.js";
 import { buildEvolutionSeedsRegistry } from "./evolutionSeedsRegistry.js";
 import { retrieveEvolutionByContext } from "./evolutionRetrieval.js";
+import { runBusinessDnaEngine } from "../../dna/engine/runBusinessDnaEngine.js";
 
 export function bridgeEvolutionToConsulting(tenantId = "default") {
   const retrieved = retrieveEvolutionByContext(tenantId);
@@ -26,6 +27,18 @@ export function bridgeEvolutionToDecision(tenantId = "default") {
   });
 }
 
+export function bridgeEvolutionToDna(tenantId = "default") {
+  const dna = runBusinessDnaEngine(tenantId);
+  return Object.freeze({
+    tenantId,
+    bridgedAt: new Date().toISOString(),
+    summary: dna.summary,
+    businessDnaReady: true,
+    autonomousDnaForbidden: true,
+    individualProfilingForbidden: true,
+  });
+}
+
 export function bridgeEvolutionToIntent(tenantId = "default") {
   const retrieved = retrieveEvolutionByContext(tenantId);
   return Object.freeze({
@@ -38,4 +51,4 @@ export function bridgeEvolutionToIntent(tenantId = "default") {
   });
 }
 
-export default { bridgeEvolutionToConsulting, bridgeEvolutionToDecision, bridgeEvolutionToIntent };
+export default { bridgeEvolutionToConsulting, bridgeEvolutionToDecision, bridgeEvolutionToDna, bridgeEvolutionToIntent };

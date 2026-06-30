@@ -70,7 +70,7 @@ L6 Implementation        → scripts/gate-*.mjs, src/
 | **Consolidation mission** | Program 3.5C — D-062 |
 | **Prior audit** | Program 3.5B — D-061 |
 | **State after 3.5C** | **ARCHITECTURE CONSOLIDATED** |
-| **Next implementation** | **Program 3.17+** — Evolution live (D-082, G314) |
+| **Next implementation** | **Program 3.18+** — Business DNA live (D-083, G315) |
 
 ---
 

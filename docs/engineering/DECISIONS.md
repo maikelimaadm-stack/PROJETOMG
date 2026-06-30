@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-082 Evolution Engine MVP)
+**Last updated:** 2026-06-30 (D-083 Business DNA & Maturity MVP)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -993,6 +993,18 @@
 | **Decision** | Implement first **Evolution Engine** consuming full intelligence stack. Tenant-scoped maturity, timeline, progress, roadmaps, BOS projections. Evolution belongs to enterprise — measurable, never autonomous. Gate **G314**. |
 | **Evidence** | `src/intelligence/evolution/engine/**` · [PROGRAM-3.16-EVOLUTION-ENGINE-REPORT.md](./PROGRAM-3.16-EVOLUTION-ENGINE-REPORT.md) |
 | **Consequences** | Evolution MVP live; Business DNA prepared via seeds; organizational growth trackable on BOS |
+
+---
+
+## D-083 — Business DNA & Maturity MVP (Program 3.17)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Implement first **Business DNA Engine** consuming full intelligence stack. Tenant-scoped operational identity, capability maturity, fingerprint, patterns, authorized portfolio aggregation, BOS projections. Business DNA belongs to enterprise — descriptive, never autonomous or individual profiling. Gate **G315**. |
+| **Evidence** | `src/intelligence/dna/engine/**` · [PROGRAM-3.17-BUSINESS-DNA-MATURITY-REPORT.md](./PROGRAM-3.17-BUSINESS-DNA-MATURITY-REPORT.md) |
+| **Consequences** | Organizational identity live on BOS; portfolio layer ready for multi-empresa clients; segmentation/benchmarking foundation prepared |
 
 ---
 
