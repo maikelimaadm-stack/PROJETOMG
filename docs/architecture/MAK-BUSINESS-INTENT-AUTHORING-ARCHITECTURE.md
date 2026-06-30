@@ -498,6 +498,7 @@ Program 3.4 **authorizes** Resolver implementation as next mission; **does not a
 | Gate | Target |
 |------|--------|
 | **G304** (planned) | Intent Document schema, Resolver exclusivity, no designer bypass, Dependency integration, lineage on all derivatives |
+| | **Gate ID G304 is exclusively reserved for Intent Resolver** per D-062. Deploy pipeline uses G401/G402 — see [GATE-REGISTRY.md](../engineering/GATE-REGISTRY.md). |
 | **G303B** (planned) | Business Computation path (from D-058) — subordinate to G304 |
 
 ---

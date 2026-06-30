@@ -218,7 +218,7 @@ Author (Studio + SDK) → package (.makpkg) → certification → listing
 | **Administrator Center** | Cross-tenant ops, support tools, feature flags, billing hooks | L3 |
 | **Multi Country** | Locale, currency, fiscal, regulatory templates | L3 + L1 |
 | **Security** | SSO, MFA, secrets, audit, penetration posture, supply chain | L3 |
-| **Observability** | Metrics, traces, logs, SLOs, deploy health (extends G303/G304) | L0 + L3 |
+| **Observability** | Metrics, traces, logs, SLOs, deploy health (extends G401/G402) | L0 + L3 |
 | **Disaster Recovery** | RPO/RTO, backup, restore runbooks, multi-region | L0 |
 | **Scale Platform** | Sharding, read replicas, queue workers, edge cache | L0 |
 

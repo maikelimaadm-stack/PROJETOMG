@@ -94,7 +94,7 @@ All suggestions link to **evidence** (metrics, event samples) and **estimated im
 | Item | Status |
 |------|--------|
 | Continuous Improvement Platform | **Vision only** |
-| Deploy observability G303/G304 | ✅ CI/deploy health — subset of L2 |
+| Deploy observability G401/G402 | ✅ CI/deploy health — subset of L2 |
 | Program 6 Observability (backlog) | Planned in Platform Evolution |
 
 ---

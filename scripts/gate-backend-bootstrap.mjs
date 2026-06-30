@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Gate G303 — Backend Bootstrap Validation (Hotfix 0 / Railway Deployment Recovery)
+ * Gate G401 — Backend Bootstrap Validation (Hotfix 0 / Railway Deployment Recovery)
  *
  * Detects before merge:
  * - broken ESM imports / missing exports
@@ -35,13 +35,13 @@ const run = (label, command, options = {}) => {
 const backendDepsReady = fs.existsSync(path.join(BACKEND, "node_modules/@prisma/client"));
 
 gate(
-  "G303 — backend dependencies present",
+  "G401 — backend dependencies present",
   backendDepsReady,
   backendDepsReady ? "" : "run npm ci in backend/"
 );
 
 if (!backendDepsReady) {
-  run("G303 — backend npm ci", "npm ci --omit=dev", { cwd: BACKEND, stdio: "inherit" });
+  run("G401 — backend npm ci", "npm ci --omit=dev", { cwd: BACKEND, stdio: "inherit" });
 }
 
 const bootstrapEnv = {
@@ -51,13 +51,13 @@ const bootstrapEnv = {
   JWT_SECRET: process.env.JWT_SECRET || "g303-bootstrap-validation-secret",
 };
 
-run("G303 — prisma generate", "npm run prisma:generate", {
+run("G401 — prisma generate", "npm run prisma:generate", {
   cwd: BACKEND,
   env: bootstrapEnv,
   stdio: "inherit",
 });
 
-run("G303 — backend bootstrap probe", "node scripts/validateBackendBootstrap.mjs", {
+run("G401 — backend bootstrap probe", "node scripts/validateBackendBootstrap.mjs", {
   cwd: BACKEND,
   env: bootstrapEnv,
   stdio: "inherit",
@@ -65,8 +65,8 @@ run("G303 — backend bootstrap probe", "node scripts/validateBackendBootstrap.m
 
 const failed = results.filter((item) => !item.ok);
 if (failed.length > 0) {
-  console.error(`\nGate G303 FAILED — ${failed.length}/${results.length} checks`);
+  console.error(`\nGate G401 FAILED — ${failed.length}/${results.length} checks`);
   process.exit(1);
 }
 
-console.log(`\nGate G303 PASSED — ${results.length}/${results.length} checks`);
+console.log(`\nGate G401 PASSED — ${results.length}/${results.length} checks`);

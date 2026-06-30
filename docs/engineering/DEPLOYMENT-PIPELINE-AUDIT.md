@@ -4,7 +4,7 @@
 **Date:** 2026-06-30  
 **Status:** ✅ Certified for production deploy (with documented P1 platform actions)  
 **Related:** [RAILWAY-ROOT-CAUSE-REPORT.md](./RAILWAY-ROOT-CAUSE-REPORT.md) · [RULE-DEPLOY-002.md](./RULE-DEPLOY-002.md)  
-**PR:** #332 (Hotfix 0 + G303 + G304)
+**PR:** #332 (Hotfix 0 + G401 + G402)
 
 ---
 
@@ -23,7 +23,7 @@ The pipeline is **production-ready** for MAK Gestão at current scale, with **En
 │   Branch    │───▶│  PR + Review │───▶│  GitHub Actions (foundation-gov.yml) │
 └─────────────┘    └──────────────┘    │  build · lint · typecheck:governance │
                                         │  G31-G108 · G109-G136               │
-                                        │  G303 + G304 (deploy-pipeline)       │
+                                        │  G401 + G402 (deploy-pipeline)       │
                                         │  + capability matrix G156-G261       │
                                         └──────────────┬──────────────────────┘
                                                        │ green
@@ -84,7 +84,7 @@ The pipeline is **production-ready** for MAK Gestão at current scale, with **En
 | typecheck:governance | ❌ | ✅ | ✅ |
 | gate:certification | ✅ | ✅ | ✅ |
 | gate:governance | ✅ | ✅ | ✅ |
-| gate:deploy-pipeline (G303+G304) | ✅ | ✅ | ✅ |
+| gate:deploy-pipeline (G401+G402) | ✅ | ✅ | ✅ |
 | gate:capabilities (all) | ✅ | ✅ | ⚠️ partial (V13-V20 only) |
 
 **Recommendation:** Before merge, always run locally: `npm run verify:ci`.
@@ -155,7 +155,7 @@ From `backend/src/config/env.js` + `DEPLOY_BACKEND.md`:
 
 | Variable | CI | Railway |
 |----------|-----|---------|
-| `DATABASE_URL` | Stub in G303/G304 | Required |
+| `DATABASE_URL` | Stub in G401/G402 | Required |
 | `DIRECT_URL` | Stub | Required |
 | `JWT_SECRET` | Stub | Required |
 | `SUPABASE_URL` | Optional in G303 | Required |
@@ -245,7 +245,7 @@ From `backend/src/config/env.js` + `DEPLOY_BACKEND.md`:
 |---------|--------|
 | `npm run build` | ✅ |
 | `npm run lint` | ✅ |
-| `npm run gate:deploy-pipeline` | ✅ G303 + G304 |
+| `npm run gate:deploy-pipeline` | ✅ G401 + G402 |
 | `npm run verify:governance` | ✅ |
 | `npm run verify:ci` | ✅ |
 
@@ -282,14 +282,14 @@ O repositório agora possui gates mecânicos (G303, G304) equivalentes às prát
 
 **Não 100% — protegido no código, parcialmente na plataforma.**
 
-- **Código:** G303 + G304 impedem merge de builds que falhariam no container.
+- **Código:** G401 + G402 impedem merge de builds que falhariam no container.
 - **Plataforma:** Railway ainda pode tentar deploy se `main` receber push sem checks GitHub configurados. **Ação:** enable "Wait for CI" / required status checks.
 
 ### 5. O GitHub Actions está completamente protegido?
 
 **Quase — falta alinhar CI com `verify:ci` completo.**
 
-Foundation job cobre build, lint, typecheck, certification, governance, **G303+G304**. Capability matrix cobre G156-G261. **Studio gates G285-G301** rodam em `verify:ci` local mas não no workflow paralelo — mitigação: `npm run verify:ci` obrigatório antes de merge (RULE-DEPLOY-002).
+Foundation job cobre build, lint, typecheck, certification, governance, **G401+G402**. Capability matrix cobre G156-G261. **Studio gates G285-G301** rodam em `verify:ci` local mas não no workflow paralelo — mitigação: `npm run verify:ci` obrigatório antes de merge (RULE-DEPLOY-002).
 
 ### 6. Validações usadas por Stripe, GitHub, Vercel, Linear, Cloudflare que ainda não utilizamos?
 

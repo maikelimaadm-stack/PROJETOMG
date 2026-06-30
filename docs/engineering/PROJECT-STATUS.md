@@ -3,10 +3,20 @@
 **Status:** Official — Single source of truth for project continuity  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Updated by:** Program 3.5B — Enterprise Architecture Consolidation Audit (D-061)  
+**Updated by:** Program 3.5C — Enterprise Architecture Remediation (D-062)  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md); supersedes chat history
 
 > **Rule:** Any AI or developer session must read this file (via [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md)) before starting work. Do not rely on prior chat context.
+
+---
+
+## Platform State
+
+| Field | Value |
+|-------|-------|
+| **Architecture state** | **ARCHITECTURE CONSOLIDATED** (D-062) |
+| **Consolidation baseline** | Program 3.5C complete — all P0 debt resolved |
+| **Implementation authorized** | **Yes** — from consolidated baseline |
 
 ---
 
@@ -15,9 +25,9 @@
 | Field | Value |
 |-------|-------|
 | **Current version** | `0.4.0-rc.2` (`package.json`) |
-| **Current release** | **`v0.4.0-RC2`** (pending owner tag on `36677dbf`) |
+| **Current release** | **`v0.4.0-RC2`** (pending owner tag) |
 | **Current release candidate** | `v0.4.0-RC2` — Operational stabilization complete (Programs 2.3.X.0–X.4) |
-| **Main branch HEAD** | Verify: `git rev-parse --short main` on latest pull · architecture merge **`2cdd5dda`** (PR #343) |
+| **Main branch HEAD** | Verify: `git rev-parse --short main` on latest pull |
 
 ---
 
@@ -26,13 +36,13 @@
 | Layer | Status |
 |-------|--------|
 | **Enterprise Foundation** (`framework/mak`) | **Frozen** V10.2.0 (2026-06-28) |
-| **MAK Studio Foundation** (Programs 2.0–2.3.5) | **Frozen** — Decision **D-052** (2026-06-30) |
+| **MAK Studio Foundation** (Programs 2.0–2.3.5) | **Frozen** — Decision **D-052** |
 | **MDP (1C)** | **Complete & frozen** — D-025, D-026 |
 | **Runtime Bridge Phase 1** | **Complete** — D-030 |
 
-**Foundation Freeze (Studio):** Frozen per **D-052** — Computation Engine certified (**G302**, Program 3.1). No new Foundation layers without architectural review.
+**Foundation Freeze (Studio):** Frozen per **D-052** — Computation Engine certified (**G302**, Program 3.1).
 
-**Architecture consolidation rule (D-061):** **No new implementation** may start until consolidation remediation missions complete. See [ARCHITECTURE-DEBT-REGISTER.md](./ARCHITECTURE-DEBT-REGISTER.md).
+**Governance rule (D-062):** All new D-xxx, G-xxx, Programs, and SSOT docs must register in [GOVERNANCE-REGISTRY.md](./GOVERNANCE-REGISTRY.md) before merge.
 
 ---
 
@@ -40,10 +50,10 @@
 
 | Field | Value |
 |-------|-------|
-| **Current architecture level** | **L5 Experience Authoring** — MAK Studio operational (Shell + Layout + Field designers) |
+| **Current architecture level** | **L5 Experience Authoring** + **L6 Vision documented** |
 | **Master Architecture** | v1.0.0 — [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md) |
 | **Studio Architecture** | v1.15.0 — [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) |
-| **Current architecture stage** | L5 Studio Intelligence — consolidation audit complete (D-061); L6 Enterprise Intelligence Vision frozen (D-060); **implementation blocked** pending remediation |
+| **Current architecture stage** | **ARCHITECTURE CONSOLIDATED** — Intent Resolver implementation next |
 
 ---
 
@@ -52,56 +62,40 @@
 | Field | Value |
 |-------|-------|
 | **Current program** | **Program 3 — Studio Intelligence** |
-| **Last completed program** | **Program 3.5B** — Enterprise Architecture Consolidation Audit (discovery only, D-061) |
+| **Last completed program** | **Program 3.5C** — Enterprise Architecture Remediation (D-062) |
 | **Last certified implementation** | **Program 3.2** — Formula Builder (G303A) |
-| **Last decision** | **D-061** — Enterprise Architecture Consolidation Audit |
-| **Roadmap position** | **Consolidation remediation (3.5C)** → **Program 3.5 Intent Resolver** → **Business Computed Fields** |
-| **Next official mission** | **Program 3.5C** — Enterprise Architecture Remediation — **not implementation** until P0 debt cleared |
+| **Last decision** | **D-062** — Enterprise Architecture Remediation |
+| **Roadmap position** | **Program 3.5 — Business Intent Resolver** (implementation) |
+| **Next official mission** | **Program 3.5** — Business Intent Resolver · then **Business Computed Fields** |
+
+Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md)
 
 ---
 
-## Documental Cycle Closure (Programs 3.3 + 3.4 + 3.5A)
+## Documental Cycle (Programs 3.x)
 
 | Item | Status |
 |------|--------|
-| **Program 3.3** — Business Computation Layer (D-058) | ✅ On `main` (PR #342) |
-| **Program 3.4** — Business Intent Authoring (D-059) | ✅ On `main` (PR #343) |
-| **Program 3.5A** — Enterprise Intelligence Vision (D-060) | ✅ On `main` (PR #346) |
-| **Program 3.5B** — Architecture Consolidation Audit (D-061) | ⏳ PR #347 |
-| **PR #343** | ✅ Merged — referência definitiva do ciclo 3.3+3.4 |
-| **Próximo passo** | Remediation missions per [ARCHITECTURE-DEBT-REGISTER.md](./ARCHITECTURE-DEBT-REGISTER.md) · then Program 3.5 Intent Resolver |
+| **3.3** Business Computation (D-058) | ✅ |
+| **3.4** Intent Authoring (D-059) | ✅ |
+| **3.5A** Intelligence Vision (D-060) | ✅ |
+| **3.5B** Consolidation Audit (D-061) | ✅ |
+| **3.5C** Architecture Remediation (D-062) | ✅ |
+| **Próximo passo** | **Program 3.5** — Intent Resolver implementation (G304) |
 
-**Visão Intelligence (3.5A) na `main`:** [MAK-ENTERPRISE-OPERATING-SYSTEM-PRINCIPLES.md](../architecture/MAK-ENTERPRISE-OPERATING-SYSTEM-PRINCIPLES.md) · [DOCUMENT-MAP § L1b](./DOCUMENT-MAP.md#l1b--enterprise-intelligence-vision-program-35a-d-060)
-
-**Arquitetura Studio (3.3+3.4):** [MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md) · [MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md)
-
-**Auditoria (3.5B):** [ENTERPRISE-ARCHITECTURE-CONSOLIDATION-AUDIT.md](./ENTERPRISE-ARCHITECTURE-CONSOLIDATION-AUDIT.md) · [ARCHITECTURE-DEBT-REGISTER.md](./ARCHITECTURE-DEBT-REGISTER.md)
+**Registries:** [GOVERNANCE-REGISTRY.md](./GOVERNANCE-REGISTRY.md) · [GATE-REGISTRY.md](./GATE-REGISTRY.md) · [SSOT-REGISTRY.md](./SSOT-REGISTRY.md)
 
 ---
 
 ## Frozen Programs (do not re-implement)
 
-Programs **2.0 through 2.3.5** and **2.3.X** are **complete and frozen** in `main`. Changes require explicit architectural review and new Decision record.
+Programs **2.0 through 2.3.5** and **2.3.X** are **complete and frozen** in `main`.
 
 | Range | Scope |
 |-------|-------|
-| 2.0 – 2.0.9 | Studio SDK, Design System, Events, Governance, UX |
-| 2.1A – 2.1B | Shell Prototype + Production |
-| 2.2 – 2.2.7 | Layout Studio, Core, SOM, Editor |
-| 2.3 – 2.3.5 | Field Studio, Expression, Dependency, Type System, Evaluation |
-| 2.3.X | Operational stabilization — RC-001, G303/G304, platform hardening, production recovery |
-
----
-
-## Branch Strategy
-
-| Branch | Purpose |
-|--------|---------|
-| **`main`** | Production truth — merge target; Railway/Vercel deploy from here |
-| **`cursor/<mission>-579b`** | Feature/mission branches (Cloud Agent convention) |
-| **Tags `v*`** | Release candidates and releases (`v0.4.0-RC1` current) |
-
-**Rules:** Never commit directly to `main` without PR. One program per PR when possible. Run RHP before merge ([PIP §10](./PLATFORM-IMPLEMENTATION-PROTOCOL.md#10-repository-health-protocol-rhp)).
+| 2.0 – 2.3.5 | Studio SDK through Evaluation Engine |
+| 2.3.X | Stabilization — RC-001, **G401/G402** deploy, hardening |
+| 2.3.Y | Transition & continuity |
 
 ---
 
@@ -109,54 +103,13 @@ Programs **2.0 through 2.3.5** and **2.3.X** are **complete and frozen** in `mai
 
 | Component | Gate | Status |
 |-----------|------|--------|
-| SDK + Registries | G279–G284 area | ✅ |
-| Design System | G285 area | ✅ |
-| Event Architecture | — | ✅ |
-| Shell Prototype | G286 | ✅ |
-| Universal Components | G288 | ✅ |
-| Domain Engine | G289 | ✅ |
-| Contribution Engine | G290 | ✅ |
-| Shell Production | G287 | ✅ |
-| Layout Studio | G291 | ✅ |
-| Core Engine | G293 | ✅ |
-| Object Model (SOM) | G294 | ✅ |
-| Editor Engine | G295 | ✅ |
-| Field Studio | G296 | ✅ |
-| Smart Authoring | G297 | ✅ |
-| Expression Engine | G298 | ✅ |
-| Dependency Engine | G299 | ✅ |
-| Type System | G300 | ✅ |
-| Evaluation Engine | G301 | ✅ |
+| Expression → Evaluation stack | G298–G301 | ✅ |
 | **Computation Engine** | G302 | ✅ |
 | **Formula Builder** | G303A | ✅ |
+| **Intent Resolver** | **G304** | ⏳ **Next implementation** |
+| Business Computation impl | G303B | planned |
 
 **Routes:** `/studio`, `/studio/prototype`, `/studio/empresas/layout`, `/studio/empresas/field`, `/studio/empresas/formula`
-
----
-
-## Runtime Status
-
-| Component | Status |
-|-----------|--------|
-| **Backend (Railway)** | `https://projetomg-production.up.railway.app` — ✅ deploy green · MDP/CADCPS operational |
-| **Frontend (Vercel)** | `https://projetomg.vercel.app` |
-| **Runtime Bridge Phase 1** | ✅ CRB hydration (empresas pilot) — D-030 |
-| **Runtime Bridge Phase 2** | Pending (environment pin → reload) |
-| **Certified runtime modules** | `empresas`, `cadcps` |
-
----
-
-## MDP Status
-
-| Phase | Status |
-|-------|--------|
-| MDP-0 Architecture Spec | ✅ |
-| MDP-1 Entity Dictionary | ✅ |
-| MDP-2 Data Dictionary | ✅ |
-| MDP-3 Relationship Dictionary | ✅ |
-| MDP-4 Metadata Registry | ✅ Frozen |
-| MDP-4.5 Architecture Review | ✅ |
-| MDP-5 Versioning & Publication | ✅ — IFM 1C complete |
 
 ---
 
@@ -166,39 +119,22 @@ Programs **2.0 through 2.3.5** and **2.3.X** are **complete and frozen** in `mai
 |-------|---------|----------|
 | Build | `npm run build` | Pass |
 | Lint | `npm run lint` | Pass |
-| Typecheck (governance) | `npm run typecheck:governance` | Pass |
 | Full governance | `npm run verify:governance` | Pass |
 | CI mirror | `npm run verify:ci` | Pass |
 | Stability cycles | `npm run verify:governance:cycles` | 5/5 pass |
-| CI workflow | `.github/workflows/foundation-governance.yml` | Green on `main` |
-| Deploy pipeline gates | G303 + G304 | ✅ CI + RULE-DEPLOY-002 |
+| Deploy pipeline gates | **G401 + G402** | ✅ CI + RULE-DEPLOY-002 |
 
 ---
 
 ## Gates Reference
 
-| Category | Range | Last gate |
-|----------|-------|-----------|
-| Foundation / module | G31–G142 | — |
-| Config engines V13–V20 | G156–G261 | G261 |
-| Studio architecture | G279–G284 | G284 |
-| Studio programs | G285–G303A | **G303A** (Formula Builder) |
-| **Next expected (Studio)** | Intent Resolver (impl) | Gate G304 **planned — ID collision with deploy G304** (AD-P0-03) |
-| **Consolidation status** | **Not officially consolidated** | [ENTERPRISE-ARCHITECTURE-CONSOLIDATION-AUDIT.md](./ENTERPRISE-ARCHITECTURE-CONSOLIDATION-AUDIT.md) |
+| Category | Range | Last active |
+|----------|-------|-------------|
+| Studio programs | G285–G303A | **G303A** |
+| Deploy pipeline | **G401–G402** | **G402** |
+| **Next expected** | Intent Resolver | **G304** (exclusive — D-062) |
 
-Full gate scripts: `scripts/gate-*.mjs` · invoked via `npm run gate:capabilities`
-
----
-
-## Repository Health (last verified 2026-06-30)
-
-| Item | Status |
-|------|--------|
-| `main` synchronized | ✅ |
-| Open PRs | #347 (3.5B audit) — merge pending |
-| Superseded Studio branches | Deleted from remote |
-| Local stale branches | ~63 `cursor/*579b` — safe to prune locally |
-| Working tree | Clean on `main` |
+SSOT: [GATE-REGISTRY.md](./GATE-REGISTRY.md)
 
 ---
 
@@ -207,16 +143,11 @@ Full gate scripts: `scripts/gate-*.mjs` · invoked via `npm run gate:capabilitie
 | Priority | Document | Path |
 |----------|----------|------|
 | 1 | AI entry | [README_AI.md](../../README_AI.md) |
-| 2 | Startup guide | [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md) |
-| 3 | Continuity protocol | [CONTINUITY-PROTOCOL.md](./CONTINUITY-PROTOCOL.md) |
-| 4 | Document map | [DOCUMENT-MAP.md](./DOCUMENT-MAP.md) |
-| 5 | Living state | [CURRENT-STATE.md](./CURRENT-STATE.md) |
-| 6 | Roadmap | [ROADMAP.md](./ROADMAP.md) |
-| 7 | Decisions | [DECISIONS.md](./DECISIONS.md) |
-| 8 | Constitution | [docs/constitution/](../constitution/) |
-| 9 | Studio architecture | [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) |
-| 10 | Vision backlog | [MAK-2040-VISION-BACKLOG.md](../vision/MAK-2040-VISION-BACKLOG.md) |
-| 11 | Dev commands | [AGENTS.md](../../AGENTS.md) |
+| 2 | Project status | This file |
+| 3 | Governance registry | [GOVERNANCE-REGISTRY.md](./GOVERNANCE-REGISTRY.md) |
+| 4 | Gate registry | [GATE-REGISTRY.md](./GATE-REGISTRY.md) |
+| 5 | Remediation report | [ARCHITECTURE-REMEDIATION-REPORT.md](./ARCHITECTURE-REMEDIATION-REPORT.md) |
+| 6 | Intent Authoring arch | [MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md) |
 
 ---
 

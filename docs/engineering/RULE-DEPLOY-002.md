@@ -15,7 +15,7 @@ Branch
   ↓
 PR
   ↓
-CI (verify:ci mirror + G303 + G304)
+CI (verify:ci mirror + G401 + G402)
   ↓
 Auditoria (when incident or architectural change requires it)
   ↓
@@ -56,7 +56,7 @@ Nova Branch
 |------|--------|---------|
 | **G303** | `npm run gate:backend-bootstrap` | ESM graph + pre-listen bootstrap |
 | **G304** | `npm run gate:railway-docker` | Dockerfile.railway build simulation |
-| **Bundle** | `npm run gate:deploy-pipeline` | G303 + G304 |
+| **Bundle** | `npm run gate:deploy-pipeline` | G401 + G402 |
 
 Also required before merge: `npm run verify:ci` (full governance mirror).
 

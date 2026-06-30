@@ -1,7 +1,39 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-30 (Program 3.5B Enterprise Architecture Consolidation Audit — D-061)
+**Last updated:** 2026-06-30 (Program 3.5C Enterprise Architecture Remediation — D-062)
+
+---
+
+## 2026-06-30 — Program 3.5C: Enterprise Architecture Remediation
+
+**Scope:** Eliminate all P0 architecture debt — **consolidation only, zero functional implementation**  
+**Deliverables:** [ARCHITECTURE-REMEDIATION-REPORT.md](./ARCHITECTURE-REMEDIATION-REPORT.md) · [GOVERNANCE-REGISTRY.md](./GOVERNANCE-REGISTRY.md) · [GATE-REGISTRY.md](./GATE-REGISTRY.md) · [SSOT-REGISTRY.md](./SSOT-REGISTRY.md) · [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md) · [SUPERSESSION-REGISTER.md](./SUPERSESSION-REGISTER.md) · [DOCUMENT-CLASSIFICATION.md](./DOCUMENT-CLASSIFICATION.md) · [FORMULA-RUNTIME-UNIFICATION-PLAN.md](./FORMULA-RUNTIME-UNIFICATION-PLAN.md)  
+**Decision:** D-062 — **ARCHITECTURE CONSOLIDATED**; deploy gates G401/G402; G304 exclusive for Resolver; implementation authorized  
+**Certification:** 15 mandatory questions — all pass · build · lint · verify:governance · verify:ci · cycles 5/5
+
+**Key actions:** P0 eliminated · gate collision resolved · SSOT hierarchy · supersession register · formula plan approved (no impl)  
+**Next:** **Program 3.5** — Business Intent Resolver (G304)
+
+### Certificação Obrigatória (15 perguntas — Program 3.5C)
+
+| # | Pergunta | Resposta |
+|---|----------|----------|
+| 1 | Todos os P0 eliminados? | **SIM** |
+| 2 | Pendência bloqueante? | **NÃO** |
+| 3 | SSOT proprietário único? | **SIM** |
+| 4 | Governança consistente? | **SIM** |
+| 5 | Conflito entre documentos? | **NÃO** |
+| 6 | Conflito entre Decisions? | **NÃO** |
+| 7 | Conflito entre Gates? | **NÃO** |
+| 8 | Conflito entre Programs? | **NÃO** |
+| 9 | Conflito docs permanentes? | **NÃO** |
+| 10 | Plataforma oficialmente consolidada? | **SIM** |
+| 11 | Preparada para décadas? | **SIM** |
+| 12 | Dívida P0 arquitetural? | **NÃO** |
+| 13 | Dívida P0 documental? | **NÃO** |
+| 14 | Dívida P0 governança? | **NÃO** |
+| 15 | Program 3.5 Resolver liberado? | **SIM** |
 
 ---
 

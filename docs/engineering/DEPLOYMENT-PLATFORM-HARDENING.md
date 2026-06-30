@@ -152,7 +152,7 @@ Vercel Preview Comments
 
 | Workflow | File | Status | Role |
 |----------|------|--------|------|
-| **Foundation Governance** | `.github/workflows/foundation-governance.yml` | ✅ **Official** | CI + G303/G304 + capability matrix |
+| **Foundation Governance** | `.github/workflows/foundation-governance.yml` | ✅ **Official** | CI + G401/G402 + capability matrix |
 | ~~Sync main for deploy~~ | ~~`.github/workflows/sync-main-deploy.yml`~~ | **🗑 Removed** | Deprecated bypass (RULE-DEPLOY-002) |
 
 **Official flow:** Single workflow — **`Foundation Governance`** — on `pull_request` and `push` to `main` / `cursor/**`.
@@ -161,7 +161,7 @@ Vercel Preview Comments
 
 | Job | Check name on GitHub | Includes |
 |-----|---------------------|----------|
-| `foundation` | `Build · Lint · Typecheck · Governance` | build, lint, typecheck:governance, G31-G136, **G303+G304** |
+| `foundation` | `Build · Lint · Typecheck · Governance` | build, lint, typecheck:governance, G31-G136, **G401+G402** |
 | `capability-gates` (matrix ×7) | `Capability gates (…)` | G156-G261 config engines |
 
 ### 5.3 Gap vs local `verify:ci`
@@ -350,7 +350,7 @@ Execute before merging PR #332:
 | Layer | Status |
 |-------|--------|
 | Healthcheck + restart | ✅ Configurado no repo |
-| G303/G304 pre-merge | ✅ |
+| G401/G402 pre-merge | ✅ |
 | Wait for CI | ❌ Deve ser habilitado manualmente |
 | Env vars | ⚠️ Verificar manualmente |
 | Rollback | ⚠️ Manual only |
@@ -397,7 +397,7 @@ Execute before merging PR #332:
 | Criterion | Status |
 |-----------|--------|
 | RC-001 fix in PR #332 | ✅ |
-| G303 + G304 in CI | ✅ |
+| G401 + G402 in CI | ✅ |
 | Single official workflow | ✅ |
 | Legacy bypass workflow removed | ✅ |
 | Platform hardening documented | ✅ |

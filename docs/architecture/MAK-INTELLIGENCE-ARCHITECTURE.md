@@ -103,7 +103,7 @@ Transform operational and knowledge signals into **actionable business insight**
 |------|--------|
 | Intelligence Platform (L6) | **Not started** |
 | Formula suggestion stubs | Extension points only (D-056) |
-| Observability (G303/G304 deploy) | Operational — not Business Observatory |
+| Observability (G401/G402 deploy) | Operational — not Business Observatory |
 
 ---
 

@@ -1,7 +1,7 @@
 # README — AI & Agent Entry Point
 
 **Status:** Official — Mandatory pre-flight for all AI agents and assisted development  
-**Version:** 1.2.0  
+**Version:** 1.3.0  
 **Effective date:** 2026-06-30  
 **Complements:** [Constitution](./docs/constitution/00-MAK-CONSTITUTION.md) + [Permanent Governance Directive](./docs/constitution/11-PERMANENT-GOVERNANCE-DIRECTIVE.md) + [Implementation Protocol](./docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md)
 
@@ -25,13 +25,14 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Current Version** | `0.4.0-rc.2` |
 | **Current Release** | `v0.4.0-RC2` (pending owner tag) |
 | **Current Program** | Program 3 — Studio Intelligence |
-| **Last Decision** | **D-061** — Enterprise Architecture Consolidation Audit |
-| **Roadmap Position** | **Consolidation remediation (3.5C)** → Intent Resolver → Business Computed Fields |
-| **Current Architecture Stage** | L5 audit complete (D-061) · L6 Intelligence frozen (D-060) · **implementation blocked** pending remediation |
-| **Current Studio Stage** | Computation Engine ✅ · Formula Builder ✅ · Business Computation ✅ · Intent Authoring ✅ · Intelligence Vision ✅ (3.5A) · **Consolidation audit ✅** (3.5B) |
-| **Next Official Mission** | **Program 3.5C** — Enterprise Architecture Remediation |
+| **Architecture State** | **ARCHITECTURE CONSOLIDATED** (D-062) |
+| **Last Decision** | **D-062** — Enterprise Architecture Remediation |
+| **Roadmap Position** | **Program 3.5 — Business Intent Resolver** → Business Computed Fields |
+| **Current Architecture Stage** | Consolidated baseline · Intent Resolver implementation next |
+| **Current Studio Stage** | Computation ✅ · Formula Builder ✅ · Intent Authoring ✅ · Intelligence Vision ✅ · Consolidation ✅ |
+| **Next Official Mission** | **Program 3.5** — Business Intent Resolver (G304) |
 
-> **Permanent rule (D-061):** No new implementation may start before architecture consolidation remediation completes.
+> **Governance rule (D-062):** Register all new D-xxx, G-xxx, Programs, SSOT docs in [GOVERNANCE-REGISTRY.md](./docs/engineering/GOVERNANCE-REGISTRY.md).
 
 ### Mandatory Documents (continuity)
 
@@ -49,7 +50,9 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | 10 | **Enterprise Intelligence Vision (EOS Principles)** | [MAK-ENTERPRISE-OPERATING-SYSTEM-PRINCIPLES.md](./docs/architecture/MAK-ENTERPRISE-OPERATING-SYSTEM-PRINCIPLES.md) |
 | 11 | **Platform Vision (EOS)** | [MAK-2035-PLATFORM-VISION.md](./docs/vision/MAK-2035-PLATFORM-VISION.md) |
 | 12 | **Architecture Consolidation Audit** | [ENTERPRISE-ARCHITECTURE-CONSOLIDATION-AUDIT.md](./docs/engineering/ENTERPRISE-ARCHITECTURE-CONSOLIDATION-AUDIT.md) |
-| 13 | **Architecture Debt Register** | [ARCHITECTURE-DEBT-REGISTER.md](./docs/engineering/ARCHITECTURE-DEBT-REGISTER.md) |
+| 13 | **Governance Registry** | [GOVERNANCE-REGISTRY.md](./docs/engineering/GOVERNANCE-REGISTRY.md) |
+| 14 | **Gate Registry** | [GATE-REGISTRY.md](./docs/engineering/GATE-REGISTRY.md) |
+| 15 | **Remediation Report (3.5C)** | [ARCHITECTURE-REMEDIATION-REPORT.md](./docs/engineering/ARCHITECTURE-REMEDIATION-REPORT.md) |
 
 Full details: [PROJECT-STATUS.md](./docs/engineering/PROJECT-STATUS.md)
 
@@ -180,7 +183,7 @@ Template: [11-PERMANENT-GOVERNANCE-DIRECTIVE.md § Certification](./docs/constit
 | Runtime modules | empresas, cadcps (2 certified) |
 | New module creation | `npm run generate:module` only |
 | Primary gate suite | `npm run verify:governance` |
-| MAK Studio | **Foundation frozen** — Shell + Layout + Field + Computation + Formula Builder ✅ · **implementation blocked** (D-061) |
+| MAK Studio | **Foundation frozen** — Computation + Formula Builder ✅ · **ARCHITECTURE CONSOLIDATED** · **Program 3.5 Resolver next** |
 | MAK DATA PLATFORM | **Complete** (IFM 1C MDP-0→5) |
 | Master Architecture | v1.0.0 |
 | Platform Maturity Index | v1.3.0 (ERI 3.8/10) |
@@ -221,4 +224,4 @@ Chat history and external reports are **not authoritative**.
 
 ---
 
-*Last updated: 2026-06-30 — Program 3.5B Enterprise Architecture Consolidation Audit (D-061)*
+*Last updated: 2026-06-30 — Program 3.5C Enterprise Architecture Remediation (D-062)*

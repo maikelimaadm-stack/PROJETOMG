@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * G303 — Backend Bootstrap Validation probe.
+ * G401 — Backend Bootstrap Validation probe.
  * Validates ESM import graph and pre-listen initialization (no app.listen).
  */
 import fs from "node:fs";
@@ -53,11 +53,11 @@ const walkJsFiles = (dir) => {
   return files.sort();
 };
 
-await check("G303.1 — import src/routes/index.js", async () => {
+await check("G401.1 — import src/routes/index.js", async () => {
   await import(srcUrl("src/routes/index.js"));
 });
 
-await check("G303.2 — import src/server.js (exports, no listen)", async () => {
+await check("G401.2 — import src/server.js (exports, no listen)", async () => {
   const serverModule = await import(srcUrl("src/server.js"));
   if (typeof serverModule.buildServer !== "function") {
     throw new Error("buildServer is not exported from src/server.js");
@@ -71,12 +71,12 @@ const moduleFiles = walkJsFiles(srcRoot);
 for (const filePath of moduleFiles) {
   const rel = path.relative(backendRoot, filePath).replaceAll("\\", "/");
   if (rel === "src/server.js") continue;
-  await check(`G303.3 — import ${rel}`, async () => {
+  await check(`G401.3 — import ${rel}`, async () => {
     await import(pathToFileURL(filePath).href);
   });
 }
 
-await check("G303.4 — bootstrap until pre-listen (buildServer)", async () => {
+await check("G401.4 — bootstrap until pre-listen (buildServer)", async () => {
   const { buildServer, runBlockingBootTasks } = await import(srcUrl("src/server.js"));
   await runBlockingBootTasks(console);
   const app = await buildServer();
@@ -84,11 +84,11 @@ await check("G303.4 — bootstrap until pre-listen (buildServer)", async () => {
 });
 
 if (failures.length > 0) {
-  console.error(`\nG303 Backend Bootstrap Validation FAILED (${failures.length} step(s))`);
+  console.error(`\nG401 Backend Bootstrap Validation FAILED (${failures.length} step(s))`);
   for (const item of failures) {
     console.error(`  - ${item.name}: ${item.message}`);
   }
   process.exit(1);
 }
 
-console.log("\nG303 Backend Bootstrap Validation PASSED");
+console.log("\nG401 Backend Bootstrap Validation PASSED");

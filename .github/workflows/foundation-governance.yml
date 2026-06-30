@@ -46,7 +46,7 @@ jobs:
       - name: Governance gates (G109-G136)
         run: npm run gate:governance
 
-      - name: Deploy pipeline gates (G303 + G304)
+      - name: Deploy pipeline gates (G401 + G402)
         run: npm run gate:deploy-pipeline
 
   capability-gates:

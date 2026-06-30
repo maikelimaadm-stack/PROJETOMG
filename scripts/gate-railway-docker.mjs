@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Gate G304 — Railway Docker Build Validation (Program 2.3.X.1)
+ * Gate G402 — Railway Docker Build Validation (Program 2.3.X.1)
  *
  * Simulates Dockerfile.railway build stages before merge:
  * - deploy config integrity (railway.json, Dockerfile.railway)
@@ -38,51 +38,51 @@ const run = (label, command, options = {}) => {
 const railwayJsonPath = path.join(ROOT, "railway.json");
 const dockerfilePath = path.join(ROOT, "Dockerfile.railway");
 
-gate("G304 — railway.json exists", fs.existsSync(railwayJsonPath));
-gate("G304 — Dockerfile.railway exists", fs.existsSync(dockerfilePath));
+gate("G402 — railway.json exists", fs.existsSync(railwayJsonPath));
+gate("G402 — Dockerfile.railway exists", fs.existsSync(dockerfilePath));
 
 let railwayConfig = {};
 try {
   railwayConfig = JSON.parse(read(railwayJsonPath));
   gate(
-    "G304 — railway.json builder is DOCKERFILE",
+    "G402 — railway.json builder is DOCKERFILE",
     railwayConfig?.build?.builder === "DOCKERFILE",
     railwayConfig?.build?.builder || "missing"
   );
   gate(
-    "G304 — railway.json dockerfilePath matches Dockerfile.railway",
+    "G402 — railway.json dockerfilePath matches Dockerfile.railway",
     railwayConfig?.build?.dockerfilePath === "Dockerfile.railway",
     railwayConfig?.build?.dockerfilePath || "missing"
   );
   gate(
-    "G304 — healthcheckPath is /",
+    "G402 — healthcheckPath is /",
     railwayConfig?.deploy?.healthcheckPath === "/",
     railwayConfig?.deploy?.healthcheckPath || "missing"
   );
 } catch (error) {
-  gate("G304 — railway.json parse", false, error.message);
+  gate("G402 — railway.json parse", false, error.message);
 }
 
 const dockerfile = fs.existsSync(dockerfilePath) ? read(dockerfilePath) : "";
-gate("G304 — Dockerfile uses node:22-alpine", /FROM node:22-alpine/i.test(dockerfile));
-gate("G304 — Dockerfile CMD node src/server.js", /CMD \["node", "src\/server.js"\]/.test(dockerfile));
+gate("G402 — Dockerfile uses node:22-alpine", /FROM node:22-alpine/i.test(dockerfile));
+gate("G402 — Dockerfile CMD node src/server.js", /CMD \["node", "src\/server.js"\]/.test(dockerfile));
 gate(
-  "G304 — Dockerfile runs prisma:generate",
+  "G402 — Dockerfile runs prisma:generate",
   /npm run prisma:generate/.test(dockerfile)
 );
-gate("G304 — Dockerfile EXPOSE 3001", /EXPOSE 3001/.test(dockerfile));
+gate("G402 — Dockerfile EXPOSE 3001", /EXPOSE 3001/.test(dockerfile));
 
 const routesIndex = path.join(BACKEND, "src/routes/index.js");
 if (fs.existsSync(routesIndex)) {
   const routesSource = read(routesIndex);
-  gate("G304 — health route GET / registered", /app\.get\("\/"/.test(routesSource));
+  gate("G402 — health route GET / registered", /app\.get\("\/"/.test(routesSource));
 } else {
-  gate("G304 — health route GET / registered", false, "routes/index.js missing");
+  gate("G402 — health route GET / registered", false, "routes/index.js missing");
 }
 
 const backendPkg = JSON.parse(read(path.join(BACKEND, "package.json")));
 gate(
-  "G304 — backend start script is node src/server.js",
+  "G402 — backend start script is node src/server.js",
   backendPkg.scripts?.start === "node src/server.js"
 );
 
@@ -96,12 +96,12 @@ if (fs.existsSync(migrationsDir)) {
     (folder) => !fs.existsSync(path.join(migrationsDir, folder, "migration.sql"))
   );
   gate(
-    "G304 — prisma migrations have migration.sql",
+    "G402 — prisma migrations have migration.sql",
     missingSql.length === 0,
     missingSql.length ? missingSql.join(", ") : `${migrationFolders.length} migrations`
   );
 } else {
-  gate("G304 — prisma migrations have migration.sql", false, "migrations dir missing");
+  gate("G402 — prisma migrations have migration.sql", false, "migrations dir missing");
 }
 
 const deployEnv = {
@@ -111,16 +111,16 @@ const deployEnv = {
 };
 
 if (!fs.existsSync(path.join(BACKEND, "node_modules"))) {
-  run("G304 — backend npm ci", "npm ci --omit=dev", { cwd: BACKEND, stdio: "inherit" });
+  run("G402 — backend npm ci", "npm ci --omit=dev", { cwd: BACKEND, stdio: "inherit" });
 }
 
-run("G304 — prisma validate", "npm run prisma:validate", {
+run("G402 — prisma validate", "npm run prisma:validate", {
   cwd: BACKEND,
   env: deployEnv,
   stdio: "inherit",
 });
 
-run("G304 — prisma generate", "npm run prisma:generate", {
+run("G402 — prisma generate", "npm run prisma:generate", {
   cwd: BACKEND,
   env: deployEnv,
   stdio: "inherit",
@@ -139,20 +139,20 @@ try {
   fs.cpSync(path.join(BACKEND, "scripts"), path.join(appDir, "scripts"), { recursive: true });
   fs.cpSync(path.join(BACKEND, "config"), path.join(appDir, "config"), { recursive: true });
 
-  run("G304 — docker sim npm ci", "npm ci --omit=dev", {
+  run("G402 — docker sim npm ci", "npm ci --omit=dev", {
     cwd: appDir,
     env: deployEnv,
     stdio: "inherit",
   });
 
-  run("G304 — docker sim prisma generate", "npm run prisma:generate", {
+  run("G402 — docker sim prisma generate", "npm run prisma:generate", {
     cwd: appDir,
     env: deployEnv,
     stdio: "inherit",
   });
 
   gate(
-    "G304 — docker sim entrypoint exists",
+    "G402 — docker sim entrypoint exists",
     fs.existsSync(path.join(appDir, "src/server.js"))
   );
 } finally {
@@ -161,8 +161,8 @@ try {
 
 const failed = results.filter((item) => !item.ok);
 if (failed.length > 0) {
-  console.error(`\nGate G304 FAILED — ${failed.length}/${results.length} checks`);
+  console.error(`\nGate G402 FAILED — ${failed.length}/${results.length} checks`);
   process.exit(1);
 }
 
-console.log(`\nGate G304 PASSED — ${results.length}/${results.length} checks`);
+console.log(`\nGate G402 PASSED — ${results.length}/${results.length} checks`);
