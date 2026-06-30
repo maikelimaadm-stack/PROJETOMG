@@ -1,7 +1,19 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-30 (Program 2.3.X.4 Production Recovery Final)
+**Last updated:** 2026-06-30 (Program 3.0.5 Studio Computation Architecture — D-054)
+
+---
+
+## 2026-06-30 — Program 3.0.5: Studio Computation Architecture
+
+**Scope:** Permanent architecture only — no code, API, runtime, Foundation, or MDP changes  
+**Deliverable:** [MAK-STUDIO-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-STUDIO-COMPUTATION-ARCHITECTURE.md)  
+**Decision:** D-054 — Computation Document, AST, graphs, contexts, field models, pipeline, extension points  
+**Certification:** Architecture supports scale (millions of kernels, 10K+ fields, 100+ modules) with module-scoped graphs + incremental eval; distributed execution via Execution Graph layers (future)
+
+**Validation:** Documentation-only mission  
+**Next:** **Program 2.3.6** — Studio Computation Engine implementation (G302)
 
 ---
 

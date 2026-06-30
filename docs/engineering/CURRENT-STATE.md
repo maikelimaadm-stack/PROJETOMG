@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-30  
-**Verified by:** Program 2.3.X.4 Production Recovery Final (RC-LATENT-001)  
+**Verified by:** Program 3.0.5 Studio Computation Architecture (D-054)  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -19,6 +19,7 @@
 | Master Architecture | v1.0.0 — `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
 | **Engineering Principles** | v1.0.0 — `docs/architecture/MAK-ENGINEERING-PRINCIPLES.md` (**D-029**) |
 | **MAK Studio Architecture** | v1.15.0 | `docs/architecture/MAK-STUDIO-ARCHITECTURE.md` (**foundation frozen** — D-031–D-052) |
+| **MAK Studio Computation Architecture** | v1.0.0 | `docs/architecture/MAK-STUDIO-COMPUTATION-ARCHITECTURE.md` (**D-054** — permanent; 2.3.6 implements) |
 | Platform Language Standard | v1.0.0 — `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
 | Platform Maturity Index | v1.3.0 — `docs/engineering/PLATFORM-MATURITY-INDEX.md` (**ERI 3.8/10**) |
 | Implementation Protocol | v1.2.0 — `docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md` (RHP D-019, **D-028 gate**) |
@@ -40,7 +41,7 @@ Audits: [IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md](./IFM-D028-ENTERPRISE-RE
 
 | Program | Priority | Brief |
 |---------|----------|-------|
-| **Program 2 — MAK Studio** | P1 — **Foundation frozen ✅ (D-052); 2.3.6 Computation Engine authorized after 2.3.X closure** | [Deployment Recovery Certification](./DEPLOYMENT-RECOVERY-CERTIFICATION.md) · [2.3.6 Brief](./IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
+| **Program 2 — MAK Studio** | P1 — **Foundation frozen ✅ (D-052); Computation Architecture frozen ✅ (D-054); 2.3.6 implementation authorized** | [MAK-STUDIO-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-STUDIO-COMPUTATION-ARCHITECTURE.md) · [2.3.6 Brief](./IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
 | **Program 1E — Runtime Bridge** | ✅ Phase 1 complete | [IFM-PHASE-1E-CERTIFICATION-REPORT.md](./IFM-PHASE-1E-CERTIFICATION-REPORT.md) |
 | **Program 1F — Enterprise Readiness** | Doc only | [ROADMAP.md § Program 1F](./ROADMAP.md#program-1f--enterprise-readiness-documentation-only) |
 
@@ -158,7 +159,7 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 
 | Capability | Status |
 |------------|--------|
-| MAK Studio Shell / Designers | **Foundation frozen ✅ (D-052, v0.4.0-RC1)** · **2.3.6 Computation Engine authorized** |
+| MAK Studio Shell / Designers | **Foundation frozen ✅ (D-052)** · **Computation Architecture ✅ (D-054, v1.0.0)** · **2.3.6 implementation next (G302)** |
 | Marketplace | Not started (`ClienteModulo` = feature flags only) |
 | Knowledge Platform | Not started |
 | AI Platform | Not started |

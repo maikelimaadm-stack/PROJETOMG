@@ -642,6 +642,18 @@
 
 ---
 
+## D-054 — Studio Computation Architecture (Program 3.0.5)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Adopt permanent **Studio Computation Architecture** — official contracts for Computation Document, Computation AST, Computation Graph, Execution Graph, evaluation order, dependency resolution, lazy/incremental/batch/parallel strategies, cache layers, Studio/Runtime/Computation contexts, field models (computed, derived, aggregations, rollups, lookups, calculated collections), validation pipeline, diagnostics, optimizer, cost analyzer, profiler, circular dependency policy, versioning, migration strategy, and AI/Marketplace extension points. Computation Engine **composes** Expression (D-048), Dependency (D-049), Type (D-050), and Evaluation (D-051) engines — no parallel evaluators in designers. Version constants: `mak-computation-document-v1`, `mak-computation-ast-v1`, `mak-computation-graph-v1`, `mak-execution-graph-v1`, `mak-computation-ir-v1`, `mak-studio-computation-v1`. v1 **forbids mutual recursion** between computed fields. **Authorize** Program 2.3.6 implementation against this spec; gate **G302** enforces structure. |
+| **Evidence** | [MAK-STUDIO-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-STUDIO-COMPUTATION-ARCHITECTURE.md) |
+| **Consequences** | Program 2.3.6 may begin implementation; Formula Builder, Dashboard, and Automation Studios reuse same computation stack; distributed execution reserved via Execution Graph layers without IR break |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |
