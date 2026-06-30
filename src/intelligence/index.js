@@ -60,6 +60,27 @@ export {
 } from "./integration/intelligenceEventBridge.js";
 export { buildIntelligenceHomeProjection } from "./integration/bosIntelligenceProjection.js";
 
+export {
+  ENTERPRISE_MEMORY_ENGINE_VERSION,
+  MEMORY_STORE_TYPES,
+  MEMORY_ENGINE_EXTENSION_POINTS,
+} from "./memory/engine/memoryEngineContracts.js";
+export {
+  persistEnterpriseMemoryRecord,
+  listEnterpriseMemoryRecords,
+  getEnterpriseMemoryStoreInfo,
+} from "./memory/engine/enterpriseMemoryStore.js";
+export { ingestEventToMemoryEngine } from "./memory/engine/eventToMemoryPersistence.js";
+export { retrieveMemoryRecords, retrieveLatestDecisions, retrieveLatestWorkflows } from "./memory/engine/memoryRetrieval.js";
+export { replayMemorySequence, buildReplaySummary } from "./memory/engine/memoryReplay.js";
+export { assembleMemoryContext } from "./memory/engine/memoryContextAssembly.js";
+export { summarizeEnterpriseMemory } from "./memory/engine/memorySummarization.js";
+export { buildMemoryTimeline, buildMemoryTimelineForBos } from "./memory/engine/memoryTimeline.js";
+export { buildMemoryEngineBosProjection } from "./memory/engine/memoryToBosProjection.js";
+export { bridgeMemoryToIntelligence } from "./memory/engine/memoryToIntelligenceBridge.js";
+export { buildMemorySeedsRegistry } from "./memory/engine/memorySeedsRegistry.js";
+export { runMemoryEngine } from "./memory/engine/runMemoryEngine.js";
+
 export default {
   version: "mak-enterprise-intelligence-v1",
 };

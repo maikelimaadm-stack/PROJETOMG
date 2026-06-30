@@ -19,6 +19,12 @@ import {
   HealthSummarySection,
   ActivityTeaserSection,
 } from "@/bos/components/HealthAndActivitySections";
+import {
+  MemoryOperationalSummarySection,
+  MemoryDecisionsSection,
+  MemoryWorkflowsSection,
+  MemoryWhySection,
+} from "@/bos/components/MemorySections";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import {
   buildIntelligenceHomeProjection,
@@ -43,7 +49,7 @@ export default function BosHomePage() {
   const objectives = buildDefaultObjectives();
   const recommendations = buildExplainableSuggestions();
   const activity = intelligence.activity ?? buildRecentActivity();
-  const health = intelligence.hasObservations ? intelligence.health : buildHealthSummary();
+  const health = intelligence.hasMemory || intelligence.hasObservations ? intelligence.health : buildHealthSummary();
 
   const displayName = user?.nome ?? user?.usuario ?? "Operador";
   const tenantLabel = cliente?.nome ?? cliente?.codigo ?? "sua organização";
@@ -138,6 +144,18 @@ export default function BosHomePage() {
       </section>
 
       <HealthSummarySection health={health} />
+
+      <MemoryOperationalSummarySection
+        summary={intelligence.operationalSummary}
+        evolutionSignal={intelligence.evolutionSignal}
+      />
+      <MemoryDecisionsSection decisions={intelligence.recentDecisions} />
+      <MemoryWorkflowsSection workflows={intelligence.recentWorkflows} />
+      <MemoryWhySection
+        highlights={intelligence.whyHighlights}
+        replayTeaser={intelligence.replayTeaser}
+      />
+
       <ActivityTeaserSection items={activity} />
     </div>
   );

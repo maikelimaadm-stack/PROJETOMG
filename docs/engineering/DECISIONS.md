@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-077 Enterprise Intelligence Foundation)
+**Last updated:** 2026-06-30 (D-078 Enterprise Memory Engine MVP)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -933,6 +933,18 @@
 | **Decision** | Implement **Enterprise Intelligence Foundation** under D-074: tenant-scoped Domain Event Bus (VA-07 implementation start), Business Memory Foundation, Observation Layer, event timeline, health signals, explainable intelligence records, outcome/decision capture from BOS/Workflow/Intent. Observational only — no AI chat, no autonomous execution. Gate **G309**. |
 | **Evidence** | `src/intelligence/**` · [PROGRAM-3.11-ENTERPRISE-INTELLIGENCE-FOUNDATION-REPORT.md](./PROGRAM-3.11-ENTERPRISE-INTELLIGENCE-FOUNDATION-REPORT.md) |
 | **Consequences** | Domain events MVP live; Memory/Knowledge/Consulting/Decision/Evolution engines remain extension points |
+
+---
+
+## D-078 — Enterprise Memory Engine MVP (Program 3.12)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Implement first **Enterprise Memory Engine** under D-074/D-077. Tenant-scoped memory store, event-to-memory persistence, retrieval, replay, context assembly, summaries, BOS projections. Memory belongs to enterprise — not AI. Gate **G310**. |
+| **Evidence** | `src/intelligence/memory/engine/**` · [PROGRAM-3.12-ENTERPRISE-MEMORY-ENGINE-REPORT.md](./PROGRAM-3.12-ENTERPRISE-MEMORY-ENGINE-REPORT.md) |
+| **Consequences** | Operational memory consultable on BOS; future engines consume memory bridge |
 
 ---
 

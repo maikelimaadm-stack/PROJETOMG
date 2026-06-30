@@ -42,6 +42,7 @@
 | **G307** | Product (active) | **Business Operating Shell MVP** (Program 3.9) |
 | **G308** | Product (active) | **Business Workflow MVP** (Program 3.10) |
 | **G309** | Product (active) | **Enterprise Intelligence Foundation** (Program 3.11) |
+| **G310** | Product (active) | **Enterprise Memory Engine MVP** (Program 3.12) |
 | **G303B** | Studio (planned) | Business Computation implementation |
 | **G304** | Studio (architecture) | Intent Resolver architecture reference (D-064) — implementation certified by **G305** |
 | **G401–G402** | Deploy pipeline | Renumbered from G303/G304 deploy (D-062) |
@@ -93,6 +94,7 @@
 | **G307** | Business Operating Shell MVP | 3.9 | D-075 | `gate-business-operating-shell.mjs` | **active** |
 | **G308** | Business Workflow MVP | 3.10 | D-076 | `gate-business-workflow.mjs` | **active** |
 | **G309** | Enterprise Intelligence Foundation | 3.11 | D-077 | `gate-enterprise-intelligence-foundation.mjs` | **active** |
+| **G310** | Enterprise Memory Engine MVP | 3.12 | D-078 | `gate-enterprise-memory-engine.mjs` | **active** |
 
 ---
 

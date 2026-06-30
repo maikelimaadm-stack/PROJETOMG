@@ -1,6 +1,7 @@
 import { DOMAIN_EVENT_BUS_VERSION } from "../contracts/intelligenceContracts.js";
 import { createBusinessEventEnvelope } from "./businessEventEnvelope.js";
 import { persistBusinessMemoryRecord } from "../memory/businessMemoryStore.js";
+import { ingestEventToMemoryEngine } from "../memory/engine/eventToMemoryPersistence.js";
 import { registerObservation } from "../observation/observationRegistry.js";
 
 const STORAGE_KEY = "mak-domain-event-bus-v1";
@@ -48,6 +49,7 @@ export function publishDomainEvent(envelopeInput) {
   writePersistedEvents(events);
 
   const memoryRecord = persistBusinessMemoryRecord(envelope);
+  ingestEventToMemoryEngine(envelope);
   registerObservation(envelope, memoryRecord);
 
   for (const handler of subscribers) {
