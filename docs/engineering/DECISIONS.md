@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-063 Business Derivation Architecture)
+**Last updated:** 2026-06-30 (D-064 Business Intent Resolver Architecture)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -765,6 +765,18 @@
 | **Decision** | Adopt permanent **Business Derivation Architecture** — official infrastructure by which any business asset is derived from Business Intent. Register all permanent concepts: Business Derivation, Derivation Document, Catalog, Library, Registry, Metadata, Lifecycle, Versioning, Identity, Policies, Validation, Diagnostics, Dependencies, Relationships, Contracts, Compatibility, Lineage, Traceability, History, Ownership, Provenance, Explainability, Regeneration, Synchronization, Invalidation, Diff, Merge, Rollback, Migration, Extension Points. Register official pipeline: Intent → Derivation → Asset → Artifact → Technical Projection → Studio → MDP → Runtime. Register policies: Synchronization (§8), Explainability (§9), Marketplace (§10), AI (§11), Evolution (§12). Register mandatory derivation metadata and 13 derivation categories. **Documentation only** — no code, API, runtime, Foundation, Studio, or Resolver implementation. **Authorize** Program 3.7 — Business Intent Resolver implementation using exclusively this architecture. **Permanent rule:** no Studio may implement proprietary derivation; all derivation reuses this infrastructure. |
 | **Evidence** | [MAK-BUSINESS-DERIVATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-DERIVATION-ARCHITECTURE.md) |
 | **Consequences** | Decades-scale derivation SSOT established; Intent Resolver (3.7) implements Derivation Engine contract (G304); all future Studios consume derivations — never origin business logic |
+
+---
+
+## D-064 — Business Intent Resolver Architecture (Program 3.6.5)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Adopt permanent **Business Intent Resolver Architecture** — official SSOT for the sole authorized infrastructure that transforms Business Intent into derived business assets. Register all permanent concepts: Intent Resolver, Resolver Document, Session, Context, Pipeline, Metadata, Lifecycle, Policies, Contracts, Diagnostics, Validation, Explainability, Versioning, Lineage, Dependency Resolution, Strategy, Extension Points, Marketplace Hooks, AI Hooks, Runtime Projection, Preview, Diff, Regeneration, Synchronization, Incremental Update, Rollback, Compatibility, Migration, Cache, Cost Analysis, Optimization, Telemetry, Audit, Security. Register official pipeline: Intent → Capability Resolution → Capability Validation → Capability Compatibility → Business Derivation → Assets → Artifacts → Technical Projection → Studio → MDP → Runtime. Register decision criteria for all derivation kinds, lifecycle operations, integration contracts, and platform guarantees (determinism, idempotence, traceability, reproducibility). **Documentation only** — no code, API, runtime, Foundation, Studio, or Resolver implementation. **Authorize** Program 3.7 — Business Intent Resolver **Implementation** using exclusively this architecture and Business Derivation Architecture (D-063). **Permanent rules:** Resolver is sole resolution authority; no Studio resolution logic; no AI direct resolution. |
+| **Evidence** | [MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md) |
+| **Consequences** | Resolver architecture frozen for decades; Program 3.7 (G304) implements this contract; all future derivation depends on Resolver; Studios remain projection editors only |
 
 ---
 

@@ -89,7 +89,8 @@
 | 3.5B | Architecture Consolidation Audit | D-061 | complete-docs | — |
 | **3.5C** | **Architecture Remediation** | **D-062** | **complete-docs** | — |
 | **3.6** | **Business Derivation Architecture** | **D-063** | **complete-docs** | — |
-| **3.7** | **Business Intent Resolver (impl)** | D-059/D-063 | **active — next impl** | 3.6 ✅ |
+| **3.6.5** | **Business Intent Resolver Architecture** | **D-064** | **complete-docs** | — |
+| **3.7** | **Business Intent Resolver (Implementation)** | D-064/D-063 | **active — next impl** | 3.6.5 ✅ |
 | 3.7+ | Business Computed Fields | D-058/059 | planned | 3.7 Resolver |
 | 3.3-impl | Business Computation impl | D-058 | planned | G303B |
 | 4.x | Enterprise Memory / Intelligence impl | D-060 | planned | Post Resolver |
@@ -103,7 +104,8 @@
 ```
 3.5C Remediation (D-062) ✅
   → 3.6 Business Derivation Architecture (D-063) ✅
-    → 3.7 Intent Resolver (G304) ← AUTHORIZED NEXT
+    → 3.6.5 Intent Resolver Architecture (D-064) ✅
+      → 3.7 Intent Resolver Implementation (G304) ← AUTHORIZED NEXT
       → Business Computed Fields
         → G303B Business Computation impl
           → 4.x Enterprise Intelligence programs (D-060)
