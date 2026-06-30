@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-074 Product Identity Freeze)
+**Last updated:** 2026-06-30 (D-075 BOS MVP)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -897,6 +897,18 @@
 | **Decision** | **Officially freeze definitive MAK product identity.** No open decisions on UX paradigm, product positioning, BOS, Business First, Expert Mode, Dual Authoring, Business Language, Business Assets, capability navigation, platform home, ModeloBase1 role, Formula Builder role, Studios role, Runtime/Resolver/IA/Marketplace/Intelligence pillars, or any central platform concept. Publish [MAK-PRODUCT-IDENTITY-FREEZE.md](../architecture/MAK-PRODUCT-IDENTITY-FREEZE.md) as supreme product-identity SSOT. **Close VA-07:** mandatory tenant-scoped domain event bus (L3) for Intelligence identity — implementation deferred, decision frozen. Legacy module-menu UX is **not** product identity; destination = BOS home frozen. **Implementation may resume** under frozen spec. **No Foundation/Runtime/API/DB/UI code in this mission.** |
 | **Evidence** | [MAK-PRODUCT-IDENTITY-FREEZE.md](../architecture/MAK-PRODUCT-IDENTITY-FREEZE.md) |
 | **Consequences** | Product identity closed; D-074 gates all future UX/product missions; continuous implementation authorized **under frozen identity** |
+
+---
+
+## D-075 — Business Operating Shell MVP (Program 3.9)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Implement first functional **Business Operating Shell** surface under frozen D-074 identity. Default authenticated route = BOS home (`/`). Preserve `/CadastroEmpresas` and all cadastro runtime. Add Business First entry (`/bos/business-first`), Expert Mode entry (`/bos/expert`), capability/asset-centric home regions, `StudioTechnicalGuard` blocking Formula Builder for business users. Gate **G307** certifies identity compliance. No Foundation/Runtime/API/DB/Studio structural changes. |
+| **Evidence** | `src/bos/**` · [MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](../architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md) · `scripts/gate-business-operating-shell.mjs` |
+| **Consequences** | Product identity visible in UI; legacy module menu demoted; Program 3.10+ builds on BOS surface |
 
 ---
 

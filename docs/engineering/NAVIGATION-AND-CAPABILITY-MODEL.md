@@ -16,16 +16,16 @@ Navigation SSOT is **capability-centric, asset-centric, business-centric** — n
 
 ---
 
-## 2. Current state (transition)
+## 2. Current state (post–Program 3.9)
 
-| Element | Today | Target |
-|---------|-------|--------|
-| Default home | Module menu / Cadastro routes | BOS home |
-| Mental model | "Open Empresas module" | "Operate Clientes capability" |
-| Registry | `cadastro-modules.registry.json` | Capability catalog + Business Assets registry |
-| SSOT for capabilities | Engineering gates G262–G306 | User-facing capability catalog (future UI) |
+| Element | Today | Target (complete) |
+|---------|-------|-------------------|
+| Default home | **BOS home (`/`)** ✅ | BOS home |
+| Mental model | Capability/asset-centric home + legacy cadastro via Operations | Full Intelligence integration |
+| Registry | `bosCapabilityCatalog.js` + `generatedModules.json` | Live capability registry API |
+| SSOT for capabilities | BOS UI + engineering gates G262–G307 | User-facing catalog + backend |
 
-**Classification:** Module navigation = **TRANSITION**, not target.
+**Classification:** Module navigation in cadastro chrome = **legacy access path**, not product identity.
 
 ---
 
@@ -59,7 +59,7 @@ Module paths (`/CadastroEmpresas`) map under **Operations → {Capability}** —
 
 ## 5. Implementation boundary
 
-Changing navigation UI = **future implementation** after BOS shell exists. This document is **SSOT for when that work begins**. No route changes in D-073 remediation.
+BOS MVP shipped Program 3.9 (G307). Cadastro routes preserved; module sidebar includes **Business OS** return link.
 
 ---
 

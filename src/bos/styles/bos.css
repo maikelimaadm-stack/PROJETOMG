@@ -1,0 +1,147 @@
+.bos-shell {
+  --bos-accent: #0284c7;
+  --bos-accent-soft: #e0f2fe;
+}
+
+.bos-main {
+  width: 100%;
+}
+
+.bos-home {
+  margin: 0 auto;
+  max-width: 80rem;
+  padding: 1.5rem 1rem 3rem;
+}
+
+@media (min-width: 1024px) {
+  .bos-home {
+    padding: 2rem 1.5rem 4rem;
+  }
+}
+
+.bos-hero {
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 45%, #0369a1 100%);
+  color: #f8fafc;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .bos-hero {
+    padding: 2rem 2.25rem;
+  }
+}
+
+.bos-hero-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+@media (min-width: 768px) {
+  .bos-hero-title {
+    font-size: 1.875rem;
+  }
+}
+
+.bos-hero-subtitle {
+  margin-top: 0.5rem;
+  max-width: 42rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: rgba(248, 250, 252, 0.85);
+}
+
+.bos-section {
+  margin-bottom: 2rem;
+}
+
+.bos-section-heading {
+  margin-bottom: 1rem;
+}
+
+.bos-section-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.bos-section-subtitle {
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.bos-page {
+  margin: 0 auto;
+  max-width: 48rem;
+  padding: 1.5rem 1rem 3rem;
+}
+
+.bos-page-title {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.bos-page-lead {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #475569;
+}
+
+.bos-notice {
+  margin-top: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #fde68a;
+  background: #fffbeb;
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  color: #92400e;
+}
+
+.bos-form-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.bos-label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #334155;
+}
+
+.bos-input,
+.bos-textarea {
+  margin-top: 0.375rem;
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.375rem;
+  background: #fff;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: #0f172a;
+}
+
+.bos-textarea {
+  min-height: 7rem;
+  resize: vertical;
+}
+
+.bos-preview-box {
+  margin-top: 1.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  padding: 1rem;
+  font-size: 0.8125rem;
+  color: #334155;
+}
+
+.bos-card {
+  background: #fff;
+}

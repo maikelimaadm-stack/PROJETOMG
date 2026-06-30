@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ChevronDown, ChevronRight, FolderOpen } from "lucide-react";
+import { ChevronDown, ChevronRight, FolderOpen, Home } from "lucide-react";
 import {
   SidebarContent,
   SidebarGroup,
@@ -87,6 +87,14 @@ export default function ErpSidebarNav() {
       <SidebarGroup className="p-0">
         <SidebarGroupContent>
           <SidebarMenu className="gap-0.5">
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild className="erp-sidebar-sub-link h-9 rounded-md px-3 text-[13px] font-medium">
+                <Link to="/">
+                  <Home className="h-4 w-4 shrink-0" strokeWidth={1.75} />
+                  <span>Business OS</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
             {ERP_MENU_SECTIONS.map((section) => (
               <ErpSidebarGroup
                 key={section.id}

@@ -99,7 +99,8 @@
 | **3.8.7** | **Enterprise Vision Alignment Audit** | D-072 | **complete (audit)** | 3.8.6 ✅ |
 | **—** | **Platform Remediation & Product Alignment** | D-073 | **complete** | 3.8.7 ✅ |
 | **3.8.8** | **Product Identity Freeze** | D-074 | **complete (frozen)** | 3.8.7 ✅ |
-| **3.9** | **Business Workflow** | D-063 | **authorized — under D-074 identity** | 3.8.8 ✅ |
+| **3.9** | **Business Operating Shell MVP** | D-075 | **complete (G307)** | 3.8.8 ✅ |
+| **3.10** | **Business Workflow** | D-063 | **planned** | 3.9 ✅ |
 | 3.3-impl | Business Computation impl | D-058 | planned | G303B |
 | 4.x | Enterprise Memory / Intelligence impl | D-060 | planned | Post Resolver |
 
@@ -119,7 +120,9 @@
             → 3.8 Business Computed Fields (G306) ✅
               → 3.8.5 Enterprise Vision Compliance Audit (D-069) ✅
                 → 3.8.6 Enterprise Platform Deep Audit (D-070) ✅
-                  → 3.9 Business Workflow ← NEXT
+                  → 3.8.8 Product Identity Freeze (D-074) ✅
+                    → 3.9 Business Operating Shell MVP (G307) ✅
+                      → 3.10 Business Workflow ← NEXT
                 → 4.x Enterprise Intelligence programs (D-060)
 ```
 

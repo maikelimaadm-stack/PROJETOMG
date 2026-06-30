@@ -1,7 +1,16 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-30 (D-074 Product Identity Freeze)
+**Last updated:** 2026-06-30 (D-075 BOS MVP)
+
+---
+
+## 2026-06-30 — Program 3.9: Business Operating Shell MVP (D-075)
+
+**Scope:** First BOS UI surface · routing · identity gates · **no Foundation/Runtime/API/DB changes**  
+**Deliverable:** `src/bos/**` · [PROGRAM-3.9-BOS-MVP-REPORT.md](./PROGRAM-3.9-BOS-MVP-REPORT.md)  
+**Decision:** D-075 · **Gate:** G307 17/17  
+**Identity:** D-074 preserved — default home = BOS; Empresas preserved; Formula Builder guarded
 
 ---
 

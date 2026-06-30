@@ -39,6 +39,7 @@
 | G285–G303A | Studio programs | UX through Formula Builder |
 | **G305** | Studio (active) | **Intent Resolver Implementation** (Program 3.7) |
 | **G306** | Studio (active) | **Business Computed Fields** (Program 3.8) |
+| **G307** | Product (active) | **Business Operating Shell MVP** (Program 3.9) |
 | **G303B** | Studio (planned) | Business Computation implementation |
 | **G304** | Studio (architecture) | Intent Resolver architecture reference (D-064) — implementation certified by **G305** |
 | **G401–G402** | Deploy pipeline | Renumbered from G303/G304 deploy (D-062) |
@@ -87,6 +88,7 @@
 | G303A | Formula Builder | 3.2 | D-056 | `gate-studio-formula-builder.mjs` | active |
 | **G305** | Business Intent Resolver Implementation | 3.7 | D-067 | `gate-studio-intent-resolver.mjs` | **active** |
 | **G306** | Business Computed Fields | 3.8 | D-068 | `gate-business-computed-fields.mjs` | **active** |
+| **G307** | Business Operating Shell MVP | 3.9 | D-075 | `gate-business-operating-shell.mjs` | **active** |
 
 ---
 

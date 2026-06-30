@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FolderOpen, Pin } from "lucide-react";
+import { FolderOpen, Home, Pin } from "lucide-react";
 import { ERP_MENU_SECTIONS, isRouteActive } from "@/shared/navigation/erpMenuConfig";
 import { useMgEmpresasChrome } from "./MgEmpresasChromeContext";
 
@@ -24,6 +24,10 @@ export default function MgPrototypeSidebar({
       onMouseLeave={onMouseLeave}
     >
       <div className="erp-scrollbar flex-1 space-y-0.5 overflow-y-auto px-2 py-2">
+        <Link to="/" className="ni mb-1">
+          <Home className="h-4 w-4 shrink-0" />
+          <span className="nl">Business OS</span>
+        </Link>
         {ERP_MENU_SECTIONS.map((section) => (
           <React.Fragment key={section.id}>
             <div
