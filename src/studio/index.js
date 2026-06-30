@@ -150,6 +150,22 @@ export {
   createEvaluationScheduler,
 } from "./evaluation/index.js";
 export {
+  STUDIO_COMPUTATION_VERSION,
+  OFFICIAL_COMPUTATION_ENGINES,
+  COMPUTATION_DOCUMENT_VERSION,
+  COMPUTATION_AST_VERSION,
+  COMPUTATION_GRAPH_VERSION,
+  EXECUTION_GRAPH_VERSION,
+  COMPUTATION_IR_VERSION,
+  createComputationEngine,
+  createComputationDocument,
+  createComputationGraph,
+  createExecutionGraph,
+  createStudioContext,
+  createRuntimeContext,
+  createComputationContext,
+} from "./computation/index.js";
+export {
   UNIVERSAL_COMPONENTS_VERSION,
   UniversalExplorer,
   UniversalInspector,
