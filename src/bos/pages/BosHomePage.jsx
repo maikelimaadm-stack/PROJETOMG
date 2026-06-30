@@ -44,6 +44,13 @@ import {
   DecisionEvidenceSection,
   DecisionWhySection,
 } from "@/bos/components/DecisionSections";
+import {
+  EvolutionTimelineSection,
+  EvolutionMaturitySection,
+  EvolutionProgressSection,
+  EvolutionMilestonesSection,
+  EvolutionWhySection,
+} from "@/bos/components/EvolutionSections";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import {
   buildIntelligenceHomeProjection,
@@ -208,6 +215,29 @@ export default function BosHomePage() {
       <DecisionEvidenceSection
         highlights={intelligence.decisionEvidence}
         history={intelligence.decisionHistory}
+      />
+
+      <EvolutionTimelineSection
+        summary={intelligence.evolutionSummary}
+        timeline={intelligence.evolutionTimeline}
+      />
+      <EvolutionMaturitySection
+        maturityLevel={intelligence.evolutionMaturity}
+        capabilities={intelligence.evolutionMaturityByCapability}
+      />
+      <EvolutionProgressSection
+        plans={intelligence.evolutionPlans}
+        progressSummary={intelligence.evolutionProgressSummary}
+        nextSteps={intelligence.evolutionNextSteps}
+      />
+      <EvolutionMilestonesSection
+        milestones={intelligence.evolutionMilestones}
+        suggestedPaths={intelligence.evolutionSuggestedPaths}
+      />
+      <EvolutionWhySection
+        highlights={intelligence.evolutionWhyRecommended}
+        periodComparison={intelligence.evolutionPeriodComparison}
+        decisionImpact={intelligence.evolutionDecisionImpact}
       />
 
       <ActivityTeaserSection items={activity} />

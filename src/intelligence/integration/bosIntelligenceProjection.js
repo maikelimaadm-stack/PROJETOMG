@@ -3,6 +3,12 @@ import { bridgeMemoryToIntelligence } from "../memory/engine/memoryToIntelligenc
 import { buildKnowledgeGraphBosProjection } from "../knowledge/graph/knowledgeToBosProjection.js";
 import { buildConsultingEngineBosProjection } from "../consulting/engine/consultingToBosProjection.js";
 import { buildDecisionEngineBosProjection } from "../decision/engine/decisionToBosProjection.js";
+import { buildEvolutionEngineBosProjection } from "../evolution/engine/evolutionToBosProjection.js";
+import {
+  bridgeEvolutionToConsulting,
+  bridgeEvolutionToDecision,
+  bridgeEvolutionToIntent,
+} from "../evolution/engine/evolutionToIntelligenceBridges.js";
 import {
   bridgeConsultingToDecision,
   bridgeConsultingToEvolution,
@@ -22,6 +28,7 @@ export function buildIntelligenceHomeProjection(tenantId = "default") {
   const knowledgeProjection = buildKnowledgeGraphBosProjection(tenantId);
   const consultingProjection = buildConsultingEngineBosProjection(tenantId);
   const decisionProjection = buildDecisionEngineBosProjection(tenantId);
+  const evolutionProjection = buildEvolutionEngineBosProjection(tenantId);
   const observation = processObservationLayer(tenantId);
   const improvements = listImprovementOpportunities(tenantId);
 
@@ -74,6 +81,19 @@ export function buildIntelligenceHomeProjection(tenantId = "default") {
     decisionHistory: decisionProjection.decisionHistory,
     decisionWhyImportant: decisionProjection.whyImportant,
     decisionNextAction: decisionProjection.nextAction,
+    hasEvolution: evolutionProjection.hasEvolution,
+    evolutionSummary: evolutionProjection.summary,
+    evolutionTimeline: evolutionProjection.evolutionTimeline,
+    evolutionMaturity: evolutionProjection.maturityLevel,
+    evolutionMaturityByCapability: evolutionProjection.maturityByCapability,
+    evolutionPlans: evolutionProjection.evolutionPlans,
+    evolutionMilestones: evolutionProjection.milestones,
+    evolutionSuggestedPaths: evolutionProjection.suggestedPaths,
+    evolutionProgressSummary: evolutionProjection.progressSummary,
+    evolutionNextSteps: evolutionProjection.nextSteps,
+    evolutionWhyRecommended: evolutionProjection.whyRecommended,
+    evolutionPeriodComparison: evolutionProjection.periodComparison,
+    evolutionDecisionImpact: evolutionProjection.accumulatedDecisionImpact,
     knowledgeBridges: Object.freeze({
       consulting: bridgeKnowledgeToConsulting(tenantId),
       decision: bridgeKnowledgeToDecision(tenantId),
@@ -87,6 +107,11 @@ export function buildIntelligenceHomeProjection(tenantId = "default") {
     decisionBridges: Object.freeze({
       evolution: bridgeDecisionToEvolution(tenantId),
       intent: bridgeDecisionToIntent(tenantId),
+    }),
+    evolutionBridges: Object.freeze({
+      consulting: bridgeEvolutionToConsulting(tenantId),
+      decision: bridgeEvolutionToDecision(tenantId),
+      intent: bridgeEvolutionToIntent(tenantId),
     }),
   });
 }

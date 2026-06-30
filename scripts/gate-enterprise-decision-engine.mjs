@@ -152,7 +152,7 @@ gate(
 
 gate(
   "G313 — Future engine bridges ready",
-  bridgeDecisionToEvolution(tenantA).evolutionEngineReady === false &&
+  bridgeDecisionToEvolution(tenantA).evolutionEngineReady === true &&
     bridgeDecisionToIntent(tenantA).intentBridgeReady === false
 );
 

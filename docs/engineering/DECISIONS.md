@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-081 Decision Engine MVP)
+**Last updated:** 2026-06-30 (D-082 Evolution Engine MVP)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -981,6 +981,18 @@
 | **Decision** | Implement first **Decision Engine** consuming Memory + Knowledge Graph + Consulting. Tenant-scoped alternatives, scenarios, confidence, approval workflow, BOS projections. Decisions belong to enterprise — supportive, never autonomous. Gate **G313**. |
 | **Evidence** | `src/intelligence/decision/engine/**` · [PROGRAM-3.15-DECISION-ENGINE-REPORT.md](./PROGRAM-3.15-DECISION-ENGINE-REPORT.md) |
 | **Consequences** | Decision support MVP live; Evolution consumes bridges; human approval required |
+
+---
+
+## D-082 — Evolution Engine MVP (Program 3.16)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Implement first **Evolution Engine** consuming full intelligence stack. Tenant-scoped maturity, timeline, progress, roadmaps, BOS projections. Evolution belongs to enterprise — measurable, never autonomous. Gate **G314**. |
+| **Evidence** | `src/intelligence/evolution/engine/**` · [PROGRAM-3.16-EVOLUTION-ENGINE-REPORT.md](./PROGRAM-3.16-EVOLUTION-ENGINE-REPORT.md) |
+| **Consequences** | Evolution MVP live; Business DNA prepared via seeds; organizational growth trackable on BOS |
 
 ---
 

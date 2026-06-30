@@ -4,6 +4,7 @@ import { buildKnowledgeSeedsRegistry } from "./knowledgeSeedsRegistry.js";
 import { retrieveKnowledgeByContext } from "./knowledgeRetrieval.js";
 import { runConsultingEngine } from "../../consulting/engine/runConsultingEngine.js";
 import { runDecisionEngine } from "../../decision/engine/runDecisionEngine.js";
+import { runEvolutionEngine } from "../../evolution/engine/runEvolutionEngine.js";
 
 export function bridgeKnowledgeToConsulting(tenantId = "default") {
   const consulting = runConsultingEngine(tenantId);
@@ -36,6 +37,7 @@ export function bridgeKnowledgeToDecision(tenantId = "default") {
 }
 
 export function bridgeKnowledgeToEvolution(tenantId = "default") {
+  const evolution = runEvolutionEngine(tenantId);
   return Object.freeze({
     tenantId,
     bridgedAt: new Date().toISOString(),
@@ -44,7 +46,8 @@ export function bridgeKnowledgeToEvolution(tenantId = "default") {
       relationshipKind: "pattern.recurs.in.operation",
       limit: 10,
     }),
-    evolutionEngineReady: false,
+    evolutionSummary: evolution.summary,
+    evolutionEngineReady: true,
     autoEvolutionForbidden: true,
   });
 }

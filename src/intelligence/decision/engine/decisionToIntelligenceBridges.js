@@ -1,16 +1,17 @@
 import { summarizeDecisionEngine } from "./decisionSummarization.js";
 import { buildDecisionSeedsRegistry } from "./decisionSeedsRegistry.js";
 import { retrieveDecisionsByContext } from "./decisionRetrieval.js";
+import { runEvolutionEngine } from "../../evolution/engine/runEvolutionEngine.js";
 
 export function bridgeDecisionToEvolution(tenantId = "default") {
-  const retrieved = retrieveDecisionsByContext(tenantId);
+  const evolution = runEvolutionEngine(tenantId);
   return Object.freeze({
     tenantId,
     bridgedAt: new Date().toISOString(),
-    approvedDecisions: retrieved.documents.filter((d) => d.lifecycleState === "approved"),
     seeds: buildDecisionSeedsRegistry(tenantId),
     summary: summarizeDecisionEngine(tenantId),
-    evolutionEngineReady: false,
+    evolutionSummary: evolution.summary,
+    evolutionEngineReady: true,
     autoEvolutionForbidden: true,
   });
 }

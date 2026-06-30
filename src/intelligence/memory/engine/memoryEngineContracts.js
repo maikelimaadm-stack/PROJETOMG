@@ -35,7 +35,7 @@ export const MEMORY_ENGINE_EXTENSION_POINTS = Object.freeze([
   Object.freeze({ id: "knowledge.graph", implemented: true }),
   Object.freeze({ id: "consulting.engine", implemented: true }),
   Object.freeze({ id: "decision.engine", implemented: true }),
-  Object.freeze({ id: "evolution.engine", implemented: false }),
+  Object.freeze({ id: "evolution.engine", implemented: true }),
   Object.freeze({ id: "ai.chat.assistant", implemented: false, forbiddenForBusinessUser: true }),
 ]);
 

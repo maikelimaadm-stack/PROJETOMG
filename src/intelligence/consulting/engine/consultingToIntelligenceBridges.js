@@ -3,6 +3,7 @@ import { buildConsultingSeedsRegistry } from "./consultingSeedsRegistry.js";
 import { retrieveConsultingByContext } from "./consultingRetrieval.js";
 import { listImprovementPlans } from "./consultingEngineStore.js";
 import { runDecisionEngine } from "../../decision/engine/runDecisionEngine.js";
+import { runEvolutionEngine } from "../../evolution/engine/runEvolutionEngine.js";
 
 export function bridgeConsultingToDecision(tenantId = "default") {
   const decision = runDecisionEngine(tenantId);
@@ -18,13 +19,15 @@ export function bridgeConsultingToDecision(tenantId = "default") {
 }
 
 export function bridgeConsultingToEvolution(tenantId = "default") {
+  const evolution = runEvolutionEngine(tenantId);
   const plans = listImprovementPlans(tenantId, { limit: 10 });
   return Object.freeze({
     tenantId,
     bridgedAt: new Date().toISOString(),
     improvementPlans: plans,
     seeds: buildConsultingSeedsRegistry(tenantId),
-    evolutionEngineReady: false,
+    evolutionSummary: evolution.summary,
+    evolutionEngineReady: true,
     autoEvolutionForbidden: true,
   });
 }
