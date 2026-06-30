@@ -39,6 +39,7 @@
 | **Business Derivation Architecture** | **[MAK-BUSINESS-DERIVATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-DERIVATION-ARCHITECTURE.md)** (**D-063** — Program 3.6) |
 | **Business Intent Resolver Architecture** | **[MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md)** (**D-064** — Program 3.6.5) |
 | **Business Language Architecture** | **[MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md](../architecture/MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md)** (**D-065** — Program 3.6.8) |
+| **Business Asset Authoring Principles** | **[MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md](../architecture/MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md)** (**D-068** — Program 3.8) |
 | **Enterprise Organization Architecture** | **[MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md](../architecture/MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md)** (**D-066** — Program 3.6.9) |
 | Business Object Model | [MAK-BUSINESS-OBJECT-MODEL.md](../architecture/MAK-BUSINESS-OBJECT-MODEL.md) |
 | Knowledge Architecture | [MAK-KNOWLEDGE-ARCHITECTURE.md](../architecture/MAK-KNOWLEDGE-ARCHITECTURE.md) |

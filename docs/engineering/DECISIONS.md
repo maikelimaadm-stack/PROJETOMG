@@ -816,6 +816,18 @@
 
 ---
 
+## D-068 — Business Computed Fields + Business Asset Authoring Principles (Program 3.8)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Implement the **first official Business Asset** — **Business Computed Field** — under `src/studio/business/`. The asset belongs to **business**, not Field Studio, Formula Builder, Runtime, or Resolver. Official pipeline: Business Language → Intent → Resolver → **Business Computed Field** → Formula Document (projection) → Computation Document → AST → Evaluation → Runtime. Scope: Business Computed Field, Document, Metadata, Lifecycle, Validation, Lineage, Diagnostics, Explainability, Versioning, Compatibility, Policies, Contracts, Preview, Synchronization, Regeneration. Register gate **G306**. Register permanent **Business Asset Authoring Principles** (Dual Authoring, User Choice, Assisted Creation, Business Freedom, Human in Control, Reusable Assets, Technology Transparency, Explainable Platform, **Continuous Business Improvement**) in [MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md](../architecture/MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md) — principles only, no additional implementation. Authorize **Program 3.9 — Business Workflow**. **No Foundation, Runtime, Studio, Resolver, MDP, or roadmap changes.** |
+| **Evidence** | `src/studio/business/` · `scripts/gate-business-computed-fields.mjs` (G306) · [MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md](../architecture/MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md) |
+| **Consequences** | First Business Asset certified; Studios edit assets only; Runtime receives derived projections; permanent authoring principles registered; Program 3.9 authorized |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

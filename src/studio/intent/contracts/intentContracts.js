@@ -14,7 +14,11 @@ export const RESOLVER_CONTEXT_VERSION = "mak-resolver-context-v1";
 
 export const DERIVATION_DOCUMENT_VERSION = "mak-derivation-document-v1";
 
+export const DERIVATION_KIND_COMPUTED_FIELD = "compute.computed_field";
+
 export const DERIVATION_KIND_FORMULA = "compute.formula";
+
+export const ARTIFACT_TYPE_BUSINESS_COMPUTED_FIELD = "business.computed_field";
 
 export const DERIVATION_CATEGORY_COMPUTATION = "Computation";
 

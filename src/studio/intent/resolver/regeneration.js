@@ -10,6 +10,11 @@ export function diffResolverResults(previous, next) {
   const nextExpr = next.formulaDocument?.expressionSource ?? "";
   if (prevExpr !== nextExpr) fields.push("expressionSource");
   if (previous.intentDocument?.revision !== next.intentDocument?.revision) fields.push("intentRevision");
+  if (
+    previous.businessComputedField?.contentHash !== next.businessComputedField?.contentHash
+  ) {
+    fields.push("businessComputedField");
+  }
 
   return Object.freeze({
     kind: fields.length ? "incremental" : "none",

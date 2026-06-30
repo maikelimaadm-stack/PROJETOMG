@@ -69,6 +69,8 @@
 | **BD-14** | Invalidation explicit | Stale derivations marked invalid — never silent drift |
 | **BD-15** | Technology Transparency | Business user never sees derivation internals ([Platform Vision](../vision/MAK-2035-PLATFORM-VISION.md)) |
 
+**Authoring principles (D-068):** Dual Authoring, User Choice, Assisted Creation, Business Freedom, Human in Control, Reusable Assets, Explainable Platform — see [MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md](./MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md).
+
 ---
 
 ## 3. Permanent architectural concepts

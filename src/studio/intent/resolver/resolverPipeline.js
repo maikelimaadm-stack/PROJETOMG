@@ -5,7 +5,7 @@ import { resolveCapabilities } from "./capabilityResolution.js";
 import { validateCapabilities } from "./capabilityValidation.js";
 import { checkCapabilityCompatibility } from "./capabilityCompatibility.js";
 import { planDerivations } from "./derivationPlanning.js";
-import { executeFormulaDerivation } from "./formulaDerivation.js";
+import { executeComputedFieldDerivation } from "./computedFieldDerivation.js";
 import { buildExplainabilityReport } from "./explainability.js";
 import { createResolverTelemetry } from "./telemetry.js";
 import { createResolverResult } from "./regeneration.js";
@@ -31,8 +31,8 @@ function createDiagnostic(code, message, severity = "blocking", extra = {}) {
 }
 
 /**
- * Official Resolver Pipeline — sole resolution path (D-064).
- * Produces Formula Document derivation only in Program 3.7.
+ * Official Resolver Pipeline — sole resolution path (D-064/D-068).
+ * Produces Business Computed Field → Formula Document projection.
  */
 export function runResolverPipeline(intentDocument, options = {}) {
   const stageLatency = {};
@@ -113,21 +113,34 @@ export function runResolverPipeline(intentDocument, options = {}) {
   let pipeline = null;
   let derivationDocument = null;
   let metadata = null;
+  let businessComputedField = null;
+  let businessComputedDocument = null;
+  let businessExplainability = null;
+  let businessPreview = null;
+  let runtimeProjection = null;
 
   const t5 = Date.now();
   for (const entry of derivationPlan.executable) {
-    if (entry.derivationKind === "compute.formula") {
-      const executed = executeFormulaDerivation(entry, intentDocument, session, context);
+    if (entry.derivationKind === "compute.computed_field") {
+      const executed = executeComputedFieldDerivation(entry, intentDocument, session, context);
       derivations.push(executed.derivationDocument);
+      businessComputedField = executed.businessComputedField;
+      businessComputedDocument = executed.businessComputedDocument;
       formulaDocument = executed.formulaDocument;
       pipeline = executed.pipeline;
       derivationDocument = executed.derivationDocument;
       metadata = executed.metadata;
+      businessExplainability = executed.explainability;
+      businessPreview = executed.preview;
+      runtimeProjection = executed.runtimeProjection;
+      for (const d of executed.diagnostics ?? []) {
+        if (d.severity === "blocking") diagnostics.push(createDiagnostic(d.code, d.message, d.severity));
+      }
       if (!executed.pipeline.validation?.ok) {
         diagnostics.push(
           createDiagnostic(
             "DERIVATION_FAILED",
-            "Formula derivation validation failed.",
+            "Business Computed Field projection validation failed.",
             "blocking"
           )
         );
@@ -185,6 +198,11 @@ export function runResolverPipeline(intentDocument, options = {}) {
     derivationDocument,
     derivations,
     metadata,
+    businessComputedField,
+    businessComputedDocument,
+    businessExplainability,
+    businessPreview,
+    runtimeProjection,
     formulaDocument,
     computationDocument: pipeline?.computationDocument ?? null,
     expressionAst: pipeline?.expressionAst ?? null,

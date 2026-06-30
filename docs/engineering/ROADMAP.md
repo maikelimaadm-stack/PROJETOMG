@@ -176,8 +176,8 @@ Architecture: [MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](../architecture/MA
 | **3.6.8** | Business Language Architecture | ✅ Complete docs (D-065) |
 | **3.6.9** | Enterprise Digital Organization Architecture | ✅ Complete docs (D-066) — **final structural architecture** |
 | **3.7** | Business Intent Resolver (Implementation) | ✅ Complete (D-067, G305) |
-| **3.8** | Business Computed Fields | **Next** |
-| **3.7+** | Business Computed Fields | After Resolver |
+| **3.8** | Business Computed Fields | ✅ Complete (D-068, G306) |
+| **3.9** | Business Workflow | **Next** |
 
 | Studio | Prerequisite | Status |
 |--------|--------------|--------|

@@ -3,7 +3,7 @@
 **Status:** Official — Single source of truth for project continuity  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Updated by:** Program 3.7 — Business Intent Resolver Implementation (D-067)  
+**Updated by:** Program 3.8 — Business Computed Fields (D-068)  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md); supersedes chat history
 
 > **Rule:** Any AI or developer session must read this file (via [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md)) before starting work. Do not rely on prior chat context.
@@ -14,8 +14,8 @@
 
 | Field | Value |
 |-------|-------|
-| **Architecture state** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) · **Resolver implemented** (D-067, G305) |
-| **Implementation phase** | **Continuous implementation** — Program 3.8 next |
+| **Architecture state** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) · **First Business Asset certified** (D-068, G306) |
+| **Implementation phase** | **Continuous implementation** — Program 3.9 next |
 | **Consolidation baseline** | Program 3.5C complete — all P0 debt resolved |
 | **Implementation authorized** | **Yes** — from consolidated baseline |
 
@@ -54,7 +54,7 @@
 | **Current architecture level** | **L5 Experience Authoring** + **L6 Vision documented** |
 | **Master Architecture** | v1.0.0 — [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md) |
 | **Studio Architecture** | v1.15.0 — [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) |
-| **Current architecture stage** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) — **continuous implementation phase** · Program 3.7 immediate |
+| **Current architecture stage** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) — **continuous implementation phase** |
 
 ---
 
@@ -63,11 +63,11 @@
 | Field | Value |
 |-------|-------|
 | **Current program** | **Program 3 — Studio Intelligence** |
-| **Last completed program** | **Program 3.7** — Business Intent Resolver Implementation (D-067, G305) |
-| **Last certified implementation** | **Program 3.7** — Business Intent Resolver (G305) |
-| **Last decision** | **D-067** — Business Intent Resolver Implementation |
-| **Roadmap position** | **Program 3.8 — Business Computed Fields** |
-| **Next official mission** | **Program 3.8** — Business Computed Fields |
+| **Last completed program** | **Program 3.8** — Business Computed Fields (D-068, G306) |
+| **Last certified implementation** | **Program 3.8** — Business Computed Field (G306) |
+| **Last decision** | **D-068** — Business Computed Fields + Business Asset Authoring Principles |
+| **Roadmap position** | **Program 3.9 — Business Workflow** |
+| **Next official mission** | **Program 3.9** — Business Workflow |
 
 Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md)
 
@@ -87,7 +87,8 @@ Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md)
 | **3.6.8** Business Language Architecture (D-065) | ✅ |
 | **3.6.9** Enterprise Digital Organization Architecture (D-066) | ✅ |
 | **3.7** Business Intent Resolver Implementation (D-067, G305) | ✅ |
-| **Próximo passo** | **Program 3.8** — Business Computed Fields |
+| **3.8** Business Computed Fields (D-068, G306) | ✅ |
+| **Próximo passo** | **Program 3.9** — Business Workflow |
 
 **Registries:** [GOVERNANCE-REGISTRY.md](./GOVERNANCE-REGISTRY.md) · [GATE-REGISTRY.md](./GATE-REGISTRY.md) · [SSOT-REGISTRY.md](./SSOT-REGISTRY.md)
 
@@ -113,49 +114,39 @@ Programs **2.0 through 2.3.5** and **2.3.X** are **complete and frozen** in `mai
 | **Computation Engine** | G302 | ✅ |
 | **Formula Builder** | G303A | ✅ |
 | **Intent Resolver** | **G305** | ✅ **Program 3.7 — certified (D-067)** |
+| **Business Computed Field** | **G306** | ✅ **Program 3.8 — certified (D-068)** |
 | Business Computation impl | G303B | planned |
 
 **Routes:** `/studio`, `/studio/prototype`, `/studio/empresas/layout`, `/studio/empresas/field`, `/studio/empresas/formula`
 
 ---
 
-## Governance Status
+## Permanent Business Asset Rule (D-068)
 
-| Check | Command | Expected |
-|-------|---------|----------|
-| Build | `npm run build` | Pass |
-| Lint | `npm run lint` | Pass |
-| Full governance | `npm run verify:governance` | Pass |
-| CI mirror | `npm run verify:ci` | Pass |
-| Stability cycles | `npm run verify:governance:cycles` | 5/5 pass |
-| Deploy pipeline gates | **G401 + G402** | ✅ CI + RULE-DEPLOY-002 |
+| Rule | Status |
+|------|--------|
+| No new features developed for Studios | **Active** |
+| All new capabilities = Business Assets | **Active** — Computed Field first |
+| Studios edit assets only | **Active** |
+| Runtime executes derived projections only | **Active** |
+| Resolver derives assets only | **Active** |
 
----
-
-## Gates Reference
-
-| Category | Range | Last active |
-|----------|-------|-------------|
-| Studio programs | G285–G303A | **G303A** |
-| Deploy pipeline | **G401–G402** | **G402** |
-| **Next expected** | Intent Resolver | **G304** (exclusive — D-062) |
-
-SSOT: [GATE-REGISTRY.md](./GATE-REGISTRY.md)
+Authoring principles: [MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md](../architecture/MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md)
 
 ---
 
-## Mandatory Documentation Links
+## Key architecture documents
 
-| Priority | Document | Path |
-|----------|----------|------|
-| 1 | AI entry | [README_AI.md](../../README_AI.md) |
-| 2 | Project status | This file |
-| 3 | Governance registry | [GOVERNANCE-REGISTRY.md](./GOVERNANCE-REGISTRY.md) |
-| 4 | Gate registry | [GATE-REGISTRY.md](./GATE-REGISTRY.md) |
-| 5 | Remediation report | [ARCHITECTURE-REMEDIATION-REPORT.md](./ARCHITECTURE-REMEDIATION-REPORT.md) |
-| 6 | Intent Authoring arch | [MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md) |
-| 7 | **Business Derivation Architecture** | [MAK-BUSINESS-DERIVATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-DERIVATION-ARCHITECTURE.md) |
+| # | Document |
+|---|----------|
+| 1 | [MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md) |
+| 2 | [MAK-BUSINESS-DERIVATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-DERIVATION-ARCHITECTURE.md) |
+| 3 | [MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md) |
+| 4 | [MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md](../architecture/MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md) |
+| 5 | [MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md) |
+| 6 | [MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md](../architecture/MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md) |
+| 7 | [MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md](../architecture/MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md) |
 
 ---
 
-*This document must be updated at the end of every mission that changes program status, version, release, or roadmap position.*
+*Position SSOT — update on every program completion. Do not duplicate in chat.*

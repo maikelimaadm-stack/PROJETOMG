@@ -49,6 +49,7 @@ const requiredFiles = [
   "resolver/capabilityValidation.js",
   "resolver/capabilityCompatibility.js",
   "resolver/derivationPlanning.js",
+  "resolver/computedFieldDerivation.js",
   "resolver/formulaDerivation.js",
   "resolver/derivationMetadata.js",
   "resolver/lineage.js",
@@ -87,10 +88,11 @@ gate(
 );
 
 gate(
-  "G305 — Formula-only derivation; extension points for other kinds",
+  "G305 — Business Computed Field derivation; extension points for other kinds",
   RESOLVER_EXTENSION_POINTS.length >= 5 &&
     RESOLVER_EXTENSION_POINTS.every((e) => e.implemented === false) &&
-    read(path.join(INTENT, "resolver/derivationPlanning.js")).includes("DERIVATION_KIND_FORMULA")
+    read(path.join(INTENT, "resolver/derivationPlanning.js")).includes("DERIVATION_KIND_COMPUTED_FIELD") &&
+    read(path.join(INTENT, "resolver/computedFieldDerivation.js")).includes("executeComputedFieldDerivation")
 );
 
 // End-to-end pipeline
@@ -115,9 +117,11 @@ gate(
 );
 
 gate(
-  "G305 — Derivation → Formula Document projection",
-  e2e.formulaDocument?.schemaVersion === "mak-formula-document-v1" &&
+  "G305 — Derivation → Business Computed Field → Formula Document projection",
+  e2e.businessComputedField?.id &&
+    e2e.formulaDocument?.schemaVersion === "mak-formula-document-v1" &&
     e2e.formulaDocument?.metadata?.derivedFromIntent === true &&
+    e2e.formulaDocument?.metadata?.derivedFromBusinessComputedField === true &&
     e2e.formulaDocument?.expressionSource?.includes("price")
 );
 

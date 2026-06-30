@@ -1,7 +1,31 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-30 (Program 3.7 Business Intent Resolver Implementation — D-067)
+**Last updated:** 2026-06-30 (Program 3.8 Business Computed Fields — D-068)
+
+---
+
+## 2026-06-30 — Program 3.8: Business Computed Fields + Authoring Principles
+
+**Scope:** First official Business Asset — Business Computed Field · G306 21/21 · Mission Brief SSOT principles  
+**Deliverables:** `src/studio/business/` · Resolver pipeline · [MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md](../architecture/MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md) (BAAP-0..13)  
+**Decision:** D-068 — Business Computed Field certified; Program 3.9 authorized  
+**Validation:** build · lint · verify:governance · verify:ci · verify:governance:cycles · G306 21/21
+
+### Certificação Obrigatória (10 perguntas — Program 3.8)
+
+| # | Pergunta | Resposta | Justificativa |
+|---|----------|----------|---------------|
+| 1 | Business Computed Field tornou-se Business Asset oficial? | **SIM** | `business.asset.computed_field` · G306 |
+| 2 | É reutilizável em toda a plataforma? | **SIM** | `reusable: true` · cross-module policy |
+| 3 | Não pertence a nenhum Studio? | **SIM** | `studioOwned: false` · `src/studio/business/` |
+| 4 | Toda criação passa pelo Intent Resolver? | **SIM** | `executeComputedFieldDerivation` único path |
+| 5 | Existe bypass arquitetural? | **NÃO** | G306 verifica designers |
+| 6 | Runtime recebe exclusivamente projeções derivadas? | **SIM** | `runtimeProjection.runtimeReceives === derived_projection_only` |
+| 7 | Rastreabilidade Intent → Runtime? | **SIM** | lineage 4+ nós · derivationPath completo |
+| 8 | Versionamento completo? | **SIM** | revision + contentHash + audit trail |
+| 9 | Explainability completa? | **SIM** | problemSolved · impacts · explainBeforeExecute |
+| 10 | Program 3.9 Business Workflow liberado? | **SIM** | D-068 autoriza |
 
 ---
 
