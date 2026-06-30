@@ -3,7 +3,7 @@
 **Status:** Official — Hierarchical index of all authoritative documentation  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Mission:** Program 2.3.Y — Project Transition & Continuity Preparation
+**Mission:** Program 3.1.5 — Enterprise Platform Vision (D-057)
 
 > Use with [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md) for onboarding. Chat history is not listed here because it is not authoritative.
 
@@ -28,14 +28,24 @@
 
 ---
 
-## L1 — Master Architecture
+## L1 — Master Architecture & Enterprise Vision
 
 | Document | Path |
 |----------|------|
 | MAK 2035 Master Architecture | [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md) |
+| **MAK 2035 Platform Vision (EOS)** | **[MAK-2035-PLATFORM-VISION.md](../vision/MAK-2035-PLATFORM-VISION.md)** (**D-057**) |
+| Business Intent Architecture | [MAK-BUSINESS-INTENT-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-ARCHITECTURE.md) |
+| Business Object Model | [MAK-BUSINESS-OBJECT-MODEL.md](../architecture/MAK-BUSINESS-OBJECT-MODEL.md) |
+| Knowledge Architecture | [MAK-KNOWLEDGE-ARCHITECTURE.md](../architecture/MAK-KNOWLEDGE-ARCHITECTURE.md) |
+| Intelligence Architecture | [MAK-INTELLIGENCE-ARCHITECTURE.md](../architecture/MAK-INTELLIGENCE-ARCHITECTURE.md) |
+| Digital Twin Architecture | [MAK-DIGITAL-TWIN-ARCHITECTURE.md](../architecture/MAK-DIGITAL-TWIN-ARCHITECTURE.md) |
+| Business Capabilities | [MAK-BUSINESS-CAPABILITIES.md](../architecture/MAK-BUSINESS-CAPABILITIES.md) |
+| Continuous Improvement Architecture | [MAK-CONTINUOUS-IMPROVEMENT-ARCHITECTURE.md](../architecture/MAK-CONTINUOUS-IMPROVEMENT-ARCHITECTURE.md) |
 | MAK Studio Architecture | [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) |
 | MAK Studio UX Framework | [MAK-STUDIO-UX-FRAMEWORK.md](../architecture/MAK-STUDIO-UX-FRAMEWORK.md) |
 | Platform Language Standard | [MAK-PLATFORM-LANGUAGE-STANDARD.md](../architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md) |
+| Studio Computation Architecture | [MAK-STUDIO-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-STUDIO-COMPUTATION-ARCHITECTURE.md) |
+| Platform Evolution | [MAK-PLATFORM-EVOLUTION.md](../architecture/MAK-PLATFORM-EVOLUTION.md) |
 
 ---
 
@@ -100,7 +110,7 @@
 | Briefs | `IFM-PHASE-*.md` | [IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md](./IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
 | Certification | `IFM-PROGRAM-*-CERTIFICATION-REPORT.md` | [IFM-PROGRAM-2.3.5-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.5-CERTIFICATION-REPORT.md) |
 | IFM reports | `IFM-*-REPORT.md` | MDP, audit, repo health reports |
-| Vision | [MAK-2040-VISION-BACKLOG.md](../vision/MAK-2040-VISION-BACKLOG.md) | Long-term backlog |
+| Vision | [MAK-2035-PLATFORM-VISION.md](../vision/MAK-2035-PLATFORM-VISION.md) · [MAK-2040-VISION-BACKLOG.md](../vision/MAK-2040-VISION-BACKLOG.md) | Long-term vision + backlog |
 
 ---
 
