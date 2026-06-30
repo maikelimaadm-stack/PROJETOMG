@@ -46,8 +46,8 @@ jobs:
       - name: Governance gates (G109-G136)
         run: npm run gate:governance
 
-      - name: Backend bootstrap gate (G303)
-        run: npm run gate:backend-bootstrap
+      - name: Deploy pipeline gates (G303 + G304)
+        run: npm run gate:deploy-pipeline
 
   capability-gates:
     name: Capability gates (${{ matrix.capability }})

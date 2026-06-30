@@ -1,3 +1,5 @@
+# DEPRECATED (RULE-DEPLOY-002): bypasses PR → CI → Railway → Smoke flow.
+# Do not extend. Scheduled for removal after Program 2.3.X.1 hardening.
 name: Sync main for deploy
 
 on:
