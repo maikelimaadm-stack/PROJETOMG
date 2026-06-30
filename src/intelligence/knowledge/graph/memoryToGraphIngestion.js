@@ -6,6 +6,7 @@ import { indexKnowledgeSemantically } from "./semanticIndexing.js";
 import { indexKnowledgeLineage } from "./lineageIndexing.js";
 import { appendKnowledgeAuditEntry } from "./knowledgeAuditTrail.js";
 import { listEnterpriseMemoryRecords } from "../../memory/engine/enterpriseMemoryStore.js";
+import { ingestKnowledgeGraphToConsulting } from "../../consulting/engine/graphToConsultingIngestion.js";
 
 /** Ingest memory record into Knowledge Graph */
 export function ingestMemoryRecordToKnowledgeGraph(record) {
@@ -108,6 +109,12 @@ export function ingestMemoryRecordToKnowledgeGraph(record) {
     action: "ingested_from_memory",
     nodeId: primaryNode.nodeId,
   });
+
+  try {
+    ingestKnowledgeGraphToConsulting(tenantId, { node: primaryNode, edges });
+  } catch {
+    /* observational — never block business operation */
+  }
 
   return Object.freeze({ node: primaryNode, edges });
 }

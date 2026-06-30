@@ -26,15 +26,16 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Current Release** | `v0.4.0-RC2` (pending owner tag) |
 | **Current Program** | Program 3 — Studio Intelligence |
 | **Architecture State** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) · **Product Identity FROZEN (D-074)** |
-| **Decision** | D-079 — Enterprise Knowledge Graph MVP (Program 3.13) |
-| **Phase** | **BOS + Workflow + Intelligence + Memory + Knowledge Graph live** |
+| **Decision** | D-080 — Consulting Engine MVP (Program 3.14) |
+| **Phase** | **BOS + Workflow + Intelligence + Memory + Knowledge Graph + Consulting live** |
 | **Product Identity SSOT (supreme)** | [MAK-PRODUCT-IDENTITY-FREEZE.md](./docs/architecture/MAK-PRODUCT-IDENTITY-FREEZE.md) |
 | **BOS Architecture** | [MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md) |
 | **Business Workflow Report** | [PROGRAM-3.10-BUSINESS-WORKFLOW-REPORT.md](./docs/engineering/PROGRAM-3.10-BUSINESS-WORKFLOW-REPORT.md) |
 | **Intelligence Foundation Report** | [PROGRAM-3.11-ENTERPRISE-INTELLIGENCE-FOUNDATION-REPORT.md](./docs/engineering/PROGRAM-3.11-ENTERPRISE-INTELLIGENCE-FOUNDATION-REPORT.md) |
 | **Memory Engine Report** | [PROGRAM-3.12-ENTERPRISE-MEMORY-ENGINE-REPORT.md](./docs/engineering/PROGRAM-3.12-ENTERPRISE-MEMORY-ENGINE-REPORT.md) |
 | **Knowledge Graph Report** | [PROGRAM-3.13-ENTERPRISE-KNOWLEDGE-GRAPH-REPORT.md](./docs/engineering/PROGRAM-3.13-ENTERPRISE-KNOWLEDGE-GRAPH-REPORT.md) |
-| **Next Official Mission** | **Program 3.14+** — Consulting / Decision / Evolution engines |
+| **Consulting Engine Report** | [PROGRAM-3.14-CONSULTING-ENGINE-REPORT.md](./docs/engineering/PROGRAM-3.14-CONSULTING-ENGINE-REPORT.md) |
+| **Next Official Mission** | **Program 3.15+** — Decision / Evolution engines |
 
 > **Governance rule (D-062):** Register all new D-xxx, G-xxx, Programs, SSOT docs in [GOVERNANCE-REGISTRY.md](./docs/engineering/GOVERNANCE-REGISTRY.md).
 

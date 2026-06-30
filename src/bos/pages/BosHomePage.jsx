@@ -31,6 +31,12 @@ import {
   KnowledgeContextShortcutsSection,
   KnowledgeWhyRelatedSection,
 } from "@/bos/components/KnowledgeSections";
+import {
+  ConsultingOpportunitiesSection,
+  ConsultingRecommendationsSection,
+  ConsultingPlansSection,
+  ConsultingEvidenceSection,
+} from "@/bos/components/ConsultingSections";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import {
   buildIntelligenceHomeProjection,
@@ -169,6 +175,20 @@ export default function BosHomePage() {
       <KnowledgeDecisionLinksSection links={intelligence.decisionOutcomeLinks} />
       <KnowledgeContextShortcutsSection shortcuts={intelligence.contextShortcuts} />
       <KnowledgeWhyRelatedSection highlights={intelligence.whyRelated} />
+
+      <ConsultingOpportunitiesSection
+        summary={intelligence.consultingSummary}
+        opportunities={intelligence.consultingOpportunities}
+      />
+      <ConsultingRecommendationsSection
+        recommendations={intelligence.consultingRecommendations}
+        priorities={intelligence.consultingPriorities}
+      />
+      <ConsultingPlansSection
+        plans={intelligence.consultingPlans}
+        evolutionTracking={intelligence.consultingEvolutionTracking}
+      />
+      <ConsultingEvidenceSection highlights={intelligence.consultingEvidence} />
 
       <ActivityTeaserSection items={activity} />
     </div>

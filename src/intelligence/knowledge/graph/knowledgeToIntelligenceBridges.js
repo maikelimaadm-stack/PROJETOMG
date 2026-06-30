@@ -2,14 +2,17 @@ import { KNOWLEDGE_NODE_KINDS } from "./knowledgeGraphContracts.js";
 import { summarizeKnowledgeGraph } from "./knowledgeSummarization.js";
 import { buildKnowledgeSeedsRegistry } from "./knowledgeSeedsRegistry.js";
 import { retrieveKnowledgeByContext } from "./knowledgeRetrieval.js";
+import { runConsultingEngine } from "../../consulting/engine/runConsultingEngine.js";
 
 export function bridgeKnowledgeToConsulting(tenantId = "default") {
+  const consulting = runConsultingEngine(tenantId);
   return Object.freeze({
     tenantId,
     bridgedAt: new Date().toISOString(),
     summary: summarizeKnowledgeGraph(tenantId),
     seeds: buildKnowledgeSeedsRegistry(tenantId),
-    consultingEngineReady: false,
+    consultingSummary: consulting.summary,
+    consultingEngineReady: true,
     autonomousAdviceForbidden: true,
   });
 }

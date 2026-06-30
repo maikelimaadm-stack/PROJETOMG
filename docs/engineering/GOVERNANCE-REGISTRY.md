@@ -70,7 +70,7 @@ L6 Implementation        → scripts/gate-*.mjs, src/
 | **Consolidation mission** | Program 3.5C — D-062 |
 | **Prior audit** | Program 3.5B — D-061 |
 | **State after 3.5C** | **ARCHITECTURE CONSOLIDATED** |
-| **Next implementation** | **Program 3.14+** — Knowledge Graph live (D-079, G311) |
+| **Next implementation** | **Program 3.15+** — Consulting live (D-080, G312) |
 
 ---
 
