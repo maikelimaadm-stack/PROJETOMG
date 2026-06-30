@@ -17,7 +17,7 @@
 | **Current version** | `0.4.0-rc.2` (`package.json`) |
 | **Current release** | **`v0.4.0-RC2`** (pending owner tag on `36677dbf`) |
 | **Current release candidate** | `v0.4.0-RC2` — Operational stabilization complete (Programs 2.3.X.0–X.4) |
-| **Main branch HEAD** | **`e0a8c70a`** — verify: `git rev-parse --short main` on latest pull |
+| **Main branch HEAD** | **`cd8caca5`** — verify: `git rev-parse --short main` on latest pull |
 
 ---
 
