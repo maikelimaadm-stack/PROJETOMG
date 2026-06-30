@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-30  
-**Verified by:** Program 3.1 Studio Computation Engine (D-055, G302)  
+**Verified by:** Program 3.2 Formula Builder (D-056, G303A)  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -41,7 +41,7 @@ Audits: [IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md](./IFM-D028-ENTERPRISE-RE
 
 | Program | Priority | Brief |
 |---------|----------|-------|
-| **Program 2 — MAK Studio** | P1 — **Foundation frozen ✅ (D-052); Computation Engine infra ✅ (D-055, G302); Formula Builder next (3.2)** | [MAK-STUDIO-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-STUDIO-COMPUTATION-ARCHITECTURE.md) · `src/studio/computation/` |
+| **Program 2 — MAK Studio** | P1 — **Computation Engine ✅ (D-055, G302); Formula Builder ✅ (D-056, G303A); Computed Fields next (3.3)** | `src/studio/designers/formula/` · `src/studio/computation/` |
 | **Program 1E — Runtime Bridge** | ✅ Phase 1 complete | [IFM-PHASE-1E-CERTIFICATION-REPORT.md](./IFM-PHASE-1E-CERTIFICATION-REPORT.md) |
 | **Program 1F — Enterprise Readiness** | Doc only | [ROADMAP.md § Program 1F](./ROADMAP.md#program-1f--enterprise-readiness-documentation-only) |
 
@@ -159,7 +159,7 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 
 | Capability | Status |
 |------------|--------|
-| MAK Studio Shell / Designers | **Foundation frozen ✅ (D-052)** · **Computation Engine infra ✅ (D-055, G302)** · **Formula Builder next (Program 3.2)** |
+| MAK Studio Shell / Designers | **Foundation frozen ✅ (D-052)** · **Formula Builder ✅ (D-056, G303A)** · **Computed Fields next (Program 3.3)** |
 | Marketplace | Not started (`ClienteModulo` = feature flags only) |
 | Knowledge Platform | Not started |
 | AI Platform | Not started |

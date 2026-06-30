@@ -25,6 +25,7 @@ export function registerFieldEditor(catalog = getEditorCatalog()) {
     panels: [
       { id: "field.canvas", label: "Lista de Campos", slot: "workspace" },
       { id: "field.properties", label: "Property Grid", slot: "right" },
+      { id: "field.formula-bridge", label: "Formula Builder", slot: "bottom" },
     ],
     commands: [
       { id: "field.addField", label: "Criar campo" },

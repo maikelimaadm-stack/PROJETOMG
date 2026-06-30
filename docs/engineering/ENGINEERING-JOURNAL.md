@@ -1,7 +1,19 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-30 (Program 3.1 Studio Computation Engine — D-055, G302)
+**Last updated:** 2026-06-30 (Program 3.2 Formula Builder — D-056, G303A)
+
+---
+
+## 2026-06-30 — Program 3.2: Formula Builder
+
+**Scope:** First visual formula authoring environment — consumes Computation Engine exclusively  
+**Deliverables:** `src/studio/designers/formula/` (Shell, Document, Editor, Toolbar, Explorer, Inspector, Preview, Diagnostics, Suggestions, Validation Panel) · Field Studio adapter `designers/field/computation/` · Gate **G303A**  
+**Decision:** D-056 — visual authoring without parallel parser/evaluator; all edits via `applyFormulaDocumentEdit` → Computation pipeline  
+**Certification:** G303A 16/16 · G302 updated · route `/studio/empresas/formula`
+
+**Validation:** build · lint · verify:governance · verify:ci · verify:governance:cycles (5)  
+**Next:** **Program 3.3** — Computed Fields
 
 ---
 

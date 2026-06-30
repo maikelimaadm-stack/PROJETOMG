@@ -46,6 +46,8 @@ import { registerLayoutDesigner } from "@/studio/designers/layout/registerLayout
 import { registerLayoutEditor } from "@/studio/designers/layout/editor/layoutEditorRegistration.jsx";
 import { registerFieldDesigner } from "@/studio/designers/field/registerFieldDesigner.js";
 import { registerFieldEditor } from "@/studio/designers/field/editor/fieldEditorRegistration.jsx";
+import { registerFormulaDesigner } from "@/studio/designers/formula/registerFormulaDesigner.js";
+import { registerFormulaEditor } from "@/studio/designers/formula/editor/formulaEditorRegistration.jsx";
 
 const DEFAULT_COMMANDS = [
   { id: "view.toggleLeftDock", label: "Alternar dock esquerdo", category: "View" },
@@ -290,6 +292,10 @@ export function StudioProductionShellProvider({ children, moduleId: moduleIdProp
     if (designerId === "field") {
       registerFieldDesigner();
       registerFieldEditor(editor.registry);
+    }
+    if (designerId === "formula") {
+      registerFormulaDesigner();
+      registerFormulaEditor(editor.registry);
     }
   }, [designerId, editor.registry]);
 
