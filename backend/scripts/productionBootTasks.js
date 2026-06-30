@@ -110,6 +110,18 @@ export const runProductionBootTasks = async (logger = console) => {
 
   await runScript("Garantir tabelas CADCPS", "scripts/ensureCadcpsTables.js", logger);
 
+  try {
+    const { ensureMdpSchema, verifyMdpSchemaReady } = await import("./ensureMdpSchema.js");
+    const mdpState = await verifyMdpSchemaReady();
+    if (!mdpState.ready || mdpState.entityCount === 0) {
+      await ensureMdpSchema({ log: logger });
+    }
+    logMessage(logger, "info", "[boot] Schema MDP: OK");
+  } catch (error) {
+    const msg = `[boot] Schema MDP falhou: ${error.message}`;
+    logMessage(logger, "error", msg);
+  }
+
   if (String(process.env.SEED_SKIP || "").toLowerCase() !== "true") {
     await runScript("Seed bootstrap", "scripts/seedBootstrap.js", logger);
   }
