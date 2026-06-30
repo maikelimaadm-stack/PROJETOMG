@@ -22,8 +22,8 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | Field | Value |
 |-------|-------|
 | **Foundation** | **Frozen** — Enterprise V10.2.0 + Studio Foundation (D-052) |
-| **Current Version** | `0.4.0-rc.1` |
-| **Current Release** | `v0.4.0-RC1` |
+| **Current Version** | `0.4.0-rc.2` |
+| **Current Release** | `v0.4.0-RC2` (pending owner tag) |
 | **Current Program** | Program 2 — MAK Studio |
 | **Last Decision** | **D-052** — Studio Foundation Freeze |
 | **Roadmap Position** | Phase 4 → **2.3.6 Computation Engine authorized** |

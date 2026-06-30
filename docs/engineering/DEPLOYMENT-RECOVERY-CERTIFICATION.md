@@ -2,7 +2,8 @@
 
 **Mission:** Deployment Recovery Certification  
 **Date:** 2026-06-30  
-**Status:** ✅ **Certified with conditions** — deploy pipeline recovered; MDP production follow-up required  
+**Status:** ✅ **CERTIFIED** — all production smoke checks pass (24/24)  
+**Updated:** 2026-06-30 post Program 2.3.X.4  
 **Authority:** Closes operational stabilization cycle (Programs 2.3.X.0 → 2.3.X.3)  
 **Related:** [RAILWAY-ROOT-CAUSE-REPORT.md](./RAILWAY-ROOT-CAUSE-REPORT.md) · [DEPLOYMENT-PIPELINE-AUDIT.md](./DEPLOYMENT-PIPELINE-AUDIT.md) · [DEPLOYMENT-PLATFORM-HARDENING.md](./DEPLOYMENT-PLATFORM-HARDENING.md) · [RULE-DEPLOY-002.md](./RULE-DEPLOY-002.md)
 
@@ -200,52 +201,27 @@ PR #332 is **already merged**. Recommended sequence:
 
 ### 1. Backend operacional?
 
-**Parcialmente — core sim, MDP não.**
-
-| Layer | Status |
-|-------|--------|
-| Boot, health, DB, Supabase | ✅ |
-| Auth, session, empresas | ✅ |
-| CADCPS telas | ✅ |
-| CADCPS campos, MDP API | ❌ HTTP 500 |
+**Sim.** Health, auth, empresas, CADCPS, MDP — todos endpoints smoke ✅ (24/24).
 
 ### 2. Railway operacional?
 
-**Sim.**
-
-Deploy **Success** on `7ad7c11d`. Healthcheck `/` passing. Production URL responding.
+**Sim.** Deploy Success em `36677dbf` (PR #335).
 
 ### 3. Pipeline estabilizado?
 
-**Sim.**
-
-RC-001 fixed. G303 + G304 in CI. Single workflow. RULE-DEPLOY-002 documented. Legacy bypass removed.
+**Sim.** RC-001 + RC-LATENT-001 closed. G303 + G304 active.
 
 ### 4. Existe alguma regressão?
 
-**Sim — MDP/CADCPS campos em produção (HTTP 500).**
-
-Not caused by RC-001 hotfix. Latent MDP schema/migration gap after first successful deploy of MDP-integrated code. Core ERP paths unaffected.
+**Não.** Smoke certification 24/24 pós Program 2.3.X.4.
 
 ### 5. Existe alguma pendência P0?
 
-**Sim — duas categorias:**
-
-| ID | Pendência | Plataforma |
-|----|-----------|------------|
-| **RC-LATENT-001** | MDP migrations/schema on production DB — CADCPS campos + MDP API return 500 | Railway / Supabase |
-| **PLAT-GH-001** | Branch protection on `main` not configured | GitHub (see DEPLOYMENT-PLATFORM-HARDENING.md) |
-| **PLAT-RW-001** | Wait for CI likely disabled | Railway |
-
-RC-001 itself: **✅ closed**.
+**Não** em produção funcional. Pendências **P1 platform** (branch protection, Wait for CI) permanecem em DEPLOYMENT-PLATFORM-HARDENING.md — não bloqueiam Program 2.3.6.
 
 ### 6. Projeto liberado para retomada do desenvolvimento?
 
-**Sim — Program 2.3.6 authorized.**
-
-Operational stabilization cycle **2.3.X is officially closed**. Development may resume on **Studio Computation Engine (2.3.6)**.
-
-**Caveat:** Production MDP/CADCPS authoring remains broken until **RC-LATENT-001** is resolved. Schedule as immediate parallel hotfix or first task before production Studio/MDP demos.
+**Sim.** Program 2.3.X **officially closed**. **Program 2.3.6 authorized.**
 
 ---
 

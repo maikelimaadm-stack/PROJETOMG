@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-30  
-**Verified by:** Program 2.3.Y Project Transition & Continuity (D-053)  
+**Verified by:** Program 2.3.X.4 Production Recovery Final (RC-LATENT-001)  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -40,7 +40,7 @@ Audits: [IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md](./IFM-D028-ENTERPRISE-RE
 
 | Program | Priority | Brief |
 |---------|----------|-------|
-| **Program 2 — MAK Studio** | P1 — **Foundation frozen ✅ (D-052); 2.3.6 Computation Engine authorized** | [2.3.X Stabilization Report](./IFM-PROGRAM-2.3.X-REPOSITORY-STABILIZATION-REPORT.md) · [2.3.6 Brief](./IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
+| **Program 2 — MAK Studio** | P1 — **Foundation frozen ✅ (D-052); 2.3.6 Computation Engine authorized after 2.3.X closure** | [Deployment Recovery Certification](./DEPLOYMENT-RECOVERY-CERTIFICATION.md) · [2.3.6 Brief](./IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
 | **Program 1E — Runtime Bridge** | ✅ Phase 1 complete | [IFM-PHASE-1E-CERTIFICATION-REPORT.md](./IFM-PHASE-1E-CERTIFICATION-REPORT.md) |
 | **Program 1F — Enterprise Readiness** | Doc only | [ROADMAP.md § Program 1F](./ROADMAP.md#program-1f--enterprise-readiness-documentation-only) |
 
