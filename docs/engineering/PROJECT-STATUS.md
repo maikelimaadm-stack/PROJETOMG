@@ -3,7 +3,7 @@
 **Status:** Official — Single source of truth for project continuity  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Updated by:** Program 3.6.9 — Enterprise Digital Organization Architecture (D-066)  
+**Updated by:** Program 3.7 — Business Intent Resolver Implementation (D-067)  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md); supersedes chat history
 
 > **Rule:** Any AI or developer session must read this file (via [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md)) before starting work. Do not rely on prior chat context.
@@ -14,7 +14,8 @@
 
 | Field | Value |
 |-------|-------|
-| **Architecture state** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) · Continuous implementation phase |
+| **Architecture state** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) · **Resolver implemented** (D-067, G305) |
+| **Implementation phase** | **Continuous implementation** — Program 3.8 next |
 | **Consolidation baseline** | Program 3.5C complete — all P0 debt resolved |
 | **Implementation authorized** | **Yes** — from consolidated baseline |
 
@@ -62,11 +63,11 @@
 | Field | Value |
 |-------|-------|
 | **Current program** | **Program 3 — Studio Intelligence** |
-| **Last completed program** | **Program 3.6.9** — Enterprise Digital Organization Architecture (D-066, docs) |
-| **Last certified implementation** | **Program 3.2** — Formula Builder (G303A) |
-| **Last decision** | **D-066** — Enterprise Digital Organization Architecture |
-| **Roadmap position** | **Continuous Implementation** — Program 3.7 Resolver (G304) **immediate** |
-| **Next official mission** | **Program 3.7** — Business Intent Resolver Implementation (G304) · **no new structural architecture** |
+| **Last completed program** | **Program 3.7** — Business Intent Resolver Implementation (D-067, G305) |
+| **Last certified implementation** | **Program 3.7** — Business Intent Resolver (G305) |
+| **Last decision** | **D-067** — Business Intent Resolver Implementation |
+| **Roadmap position** | **Program 3.8 — Business Computed Fields** |
+| **Next official mission** | **Program 3.8** — Business Computed Fields |
 
 Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md)
 
@@ -85,7 +86,8 @@ Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md)
 | **3.6.5** Business Intent Resolver Architecture (D-064) | ✅ |
 | **3.6.8** Business Language Architecture (D-065) | ✅ |
 | **3.6.9** Enterprise Digital Organization Architecture (D-066) | ✅ |
-| **Próximo passo** | **Program 3.7** — Business Intent Resolver Implementation (G304) · **continuous implementation phase** |
+| **3.7** Business Intent Resolver Implementation (D-067, G305) | ✅ |
+| **Próximo passo** | **Program 3.8** — Business Computed Fields |
 
 **Registries:** [GOVERNANCE-REGISTRY.md](./GOVERNANCE-REGISTRY.md) · [GATE-REGISTRY.md](./GATE-REGISTRY.md) · [SSOT-REGISTRY.md](./SSOT-REGISTRY.md)
 
@@ -110,7 +112,7 @@ Programs **2.0 through 2.3.5** and **2.3.X** are **complete and frozen** in `mai
 | Expression → Evaluation stack | G298–G301 | ✅ |
 | **Computation Engine** | G302 | ✅ |
 | **Formula Builder** | G303A | ✅ |
-| **Intent Resolver** | **G304** | ⏳ **Program 3.7 — next implementation** |
+| **Intent Resolver** | **G305** | ✅ **Program 3.7 — certified (D-067)** |
 | Business Computation impl | G303B | planned |
 
 **Routes:** `/studio`, `/studio/prototype`, `/studio/empresas/layout`, `/studio/empresas/field`, `/studio/empresas/formula`

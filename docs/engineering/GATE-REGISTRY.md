@@ -37,8 +37,9 @@
 | G156–G261 | Config engines | V13–V20 capability packs |
 | G262–G284 | Studio foundation | SDK, design system, governance |
 | G285–G303A | Studio programs | UX through Formula Builder |
+| **G305** | Studio (active) | **Intent Resolver Implementation** (Program 3.7) |
 | **G303B** | Studio (planned) | Business Computation implementation |
-| **G304** | Studio (planned) | **Intent Resolver — exclusive ID** (D-059, D-062) |
+| **G304** | Studio (architecture) | Intent Resolver architecture reference (D-064) — implementation certified by **G305** |
 | **G401–G402** | Deploy pipeline | Renumbered from G303/G304 deploy (D-062) |
 | ~~G303~~ (deploy) | — | **Superseded → G401** |
 | ~~G304~~ (deploy) | — | **Superseded → G402** |
@@ -83,6 +84,7 @@
 | G301 | Evaluation Engine | 2.3.5 | D-051 | `gate-studio-evaluation-engine.mjs` | active |
 | G302 | Computation Engine | 3.1 | D-055 | `gate-studio-computation-engine.mjs` | active |
 | G303A | Formula Builder | 3.2 | D-056 | `gate-studio-formula-builder.mjs` | active |
+| **G305** | Business Intent Resolver Implementation | 3.7 | D-067 | `gate-studio-intent-resolver.mjs` | **active** |
 
 ---
 
@@ -91,7 +93,7 @@
 | ID | Name | Objective | Program | Decision | Status |
 |----|------|-----------|---------|----------|--------|
 | **G303B** | Business Computation Layer | Business Computation path; Intent SSOT wiring; no parallel engines | 3.3 impl | D-058 | **planned** |
-| **G304** | Business Intent Resolver | Intent Document schema; Resolver exclusivity; no designer bypass; Dependency integration; lineage | 3.5 | D-059 | **planned** |
+| **G304** | Business Intent Resolver (architecture) | Architecture contract reference (D-064); **implementation gate = G305** | 3.6.5 | D-064 | **architecture-only** |
 
 > **G304 is exclusively reserved for Intent Resolver** per D-062. Deploy gates use G401/G402.
 

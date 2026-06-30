@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-066 Enterprise Digital Organization Architecture)
+**Last updated:** 2026-06-30 (D-067 Business Intent Resolver Implementation)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -801,6 +801,18 @@
 | **Decision** | Adopt permanent **Enterprise Digital Organization Architecture** — official SSOT defining the enterprise as a **Digital Organism**. Register all permanent concepts: Enterprise Organization, Business Organization, Departments, Teams, Roles, Responsibilities, Business Units, Processes, Capabilities, Policies, Knowledge, Goals, Objectives, KPIs, Metrics, Resources, Assets, Risks, Compliance, Approvals, Decision Chains, Organizational Relationships, Operational Networks, Communication Flows, Responsibility Matrix, Business Ownership, Organizational Evolution, Enterprise Topology, Organizational Metadata, Identity, Versioning, Lifecycle. Register official policies for departmental relationships, shared responsibilities, and organizational ownership of processes, workflows, dashboards, automations. Register integration with Business DNA, Enterprise Memory, Knowledge Graph, Process Mining, Consulting Engine, Decision Engine, Evolution Engine. **Enterprise Organization** is official root Business Object (`organization.enterprise`). **Documentation only** — no code, API, runtime, Foundation, Studio, or implementation. **Final structural architecture freeze:** no new structural architecture programs after D-066; platform enters **continuous implementation phase** with Program 3.7 — Business Intent Resolver Implementation (G304). MAK is officially an **Enterprise Operating System** — not a traditional module-centric ERP. |
 | **Evidence** | [MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md](../architecture/MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md) |
 | **Consequences** | Last structural architecture mission complete; full Intent-driven + organizational stack frozen; continuous implementation authorized; all intelligence operates on organizational graph |
+
+---
+
+## D-067 — Business Intent Resolver Implementation (Program 3.7)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Implement first functional **Business Intent Resolver** under `src/studio/intent/` — sole authorized resolution path. Scope: Resolver Session, Context, Pipeline, Capability Resolution/Validation/Compatibility, Derivation Planning, Diagnostics, Explainability, Metadata, Lineage, Telemetry; end-to-end pipeline Business Language → Intent → Resolver → Derivation → Formula Document → Computation → AST → Evaluation preview; **Formula Document derivation only** — other kinds as extension points. Integrate with Computation Engine (no designer bypass). Register gate **G305**. Authorize **Program 3.8 — Business Computed Fields**. **No new structural architecture.** |
+| **Evidence** | `src/studio/intent/` · `scripts/gate-studio-intent-resolver.mjs` (G305 16/16) |
+| **Consequences** | Continuous implementation phase begins; Resolver functional; G305 active; Program 3.8 authorized |
 
 ---
 

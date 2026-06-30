@@ -166,7 +166,25 @@ export {
   createComputationContext,
 } from "./computation/index.js";
 export {
-  UNIVERSAL_COMPONENTS_VERSION,
+  BUSINESS_INTENT_DOCUMENT_VERSION,
+  INTENT_RESOLVER_VERSION,
+  INTENT_RESOLVER_ENGINE_ID,
+  RESOLVER_DOCUMENT_VERSION,
+  RESOLVER_RESULT_VERSION,
+  DERIVATION_KIND_FORMULA,
+  createBusinessIntentDocument,
+  validateBusinessIntentDocument,
+  createBusinessLanguageInput,
+  businessLanguageToIntent,
+  createIntentResolver,
+  getIntentResolver,
+  resolveIntentDocument,
+  resolveFromBusinessLanguage,
+  runResolverPipeline,
+  RESOLVER_PIPELINE_STAGES,
+  RESOLVER_EXTENSION_POINTS,
+} from "./intent/index.js";
+export {
   UniversalExplorer,
   UniversalInspector,
   UniversalPropertyGrid,
