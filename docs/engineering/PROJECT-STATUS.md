@@ -3,7 +3,7 @@
 **Status:** Official — Single source of truth for project continuity  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Updated by:** Program 3.6.5 — Business Intent Resolver Architecture (D-064)  
+**Updated by:** Program 3.6.8 — Business Language Architecture (D-065)  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md); supersedes chat history
 
 > **Rule:** Any AI or developer session must read this file (via [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md)) before starting work. Do not rely on prior chat context.
@@ -53,7 +53,7 @@
 | **Current architecture level** | **L5 Experience Authoring** + **L6 Vision documented** |
 | **Master Architecture** | v1.0.0 — [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md) |
 | **Studio Architecture** | v1.15.0 — [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) |
-| **Current architecture stage** | **ARCHITECTURE CONSOLIDATED** — Resolver Architecture defined (D-064); Intent Resolver **Implementation** next (3.7) |
+| **Current architecture stage** | **ARCHITECTURE COMPLETE** — Business Language defined (D-065); Intent Resolver **Implementation** immediate next (3.7) |
 
 ---
 
@@ -62,11 +62,11 @@
 | Field | Value |
 |-------|-------|
 | **Current program** | **Program 3 — Studio Intelligence** |
-| **Last completed program** | **Program 3.6.5** — Business Intent Resolver Architecture (D-064, docs) |
+| **Last completed program** | **Program 3.6.8** — Business Language Architecture (D-065, docs) |
 | **Last certified implementation** | **Program 3.2** — Formula Builder (G303A) |
-| **Last decision** | **D-064** — Business Intent Resolver Architecture |
-| **Roadmap position** | **Program 3.7 — Business Intent Resolver Implementation** (G304) |
-| **Next official mission** | **Program 3.7** — Business Intent Resolver Implementation (G304) · uses [Resolver Architecture](../architecture/MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md) + [Derivation Architecture](../architecture/MAK-BUSINESS-DERIVATION-ARCHITECTURE.md) |
+| **Last decision** | **D-065** — Business Language Architecture |
+| **Roadmap position** | **Program 3.7 — Business Intent Resolver Implementation** (G304) — **immediate** |
+| **Next official mission** | **Program 3.7** — Business Intent Resolver Implementation (G304) · **no new architecture before delivery** |
 
 Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md)
 
@@ -83,7 +83,8 @@ Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md)
 | **3.5C** Architecture Remediation (D-062) | ✅ |
 | **3.6** Business Derivation Architecture (D-063) | ✅ |
 | **3.6.5** Business Intent Resolver Architecture (D-064) | ✅ |
-| **Próximo passo** | **Program 3.7** — Business Intent Resolver Implementation (G304) |
+| **3.6.8** Business Language Architecture (D-065) | ✅ |
+| **Próximo passo** | **Program 3.7** — Business Intent Resolver Implementation (G304) — **architecture frozen** |
 
 **Registries:** [GOVERNANCE-REGISTRY.md](./GOVERNANCE-REGISTRY.md) · [GATE-REGISTRY.md](./GATE-REGISTRY.md) · [SSOT-REGISTRY.md](./SSOT-REGISTRY.md)
 
