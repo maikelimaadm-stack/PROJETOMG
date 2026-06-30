@@ -840,6 +840,18 @@
 
 ---
 
+## D-070 — Enterprise Platform Deep Audit (Program 3.8.6)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Conduct mandatory **Enterprise Platform Deep Audit** (Program 3.8.6) — largest platform audit to date. Documentation-only evidence-based audit across Foundation, Runtime, Studio, Business Layer, Enterprise Layer, Intelligence, Business Assets, Business Objects, UX journeys, parameterization, future programs, and technical debt. Produce eleven audit reports: ENTERPRISE-PLATFORM-DEEP-AUDIT (master), PLATFORM-IMPLEMENTATION-AUDIT, BUSINESS-ASSET-AUDIT, BUSINESS-OBJECT-AUDIT, USER-JOURNEY-DEEP-AUDIT, ENTERPRISE-INTELLIGENCE-AUDIT, ARCHITECTURE-CONFORMANCE-REPORT, PARAMETERIZATION-AUDIT, TECHNICAL-DEBT-MASTER-REGISTER, PROGRAM-IMPLEMENTATION-MAP, EXAMPLES-AND-SCENARIOS. Answer central question: conditional YES on architecture trajectory; NO if code/UX frozen today. Classify all findings P0–P3. **Does not block Program 3.9**; informs parallel P0 tracks (Runtime Unification, Business Language UX). **No code, API, database, Foundation, Runtime, Studio, or implementation changes.** |
+| **Evidence** | `docs/engineering/ENTERPRISE-PLATFORM-DEEP-AUDIT.md` · full 3.8.6 audit suite (11 documents) |
+| **Consequences** | Complete platform evidence baseline; 20 certification answers; consolidated debt register; Program 3.9 scope informed |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |
