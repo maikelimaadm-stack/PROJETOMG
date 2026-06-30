@@ -58,6 +58,14 @@ export function buildFieldPropertyFields(field) {
   }
 
   fields.push(
+    {
+      propertyId: "expressionSource",
+      label: "Fórmula (preview)",
+      type: "string",
+      value: field.expressionSource ?? field.presentation?.expressionDraft ?? "",
+      group: "Fórmula",
+      readOnly: true,
+    },
     { propertyId: "readOnly", label: "Somente leitura", type: "boolean", value: Boolean(field.readOnly), group: "Flags" },
     {
       propertyId: "visibleForm",

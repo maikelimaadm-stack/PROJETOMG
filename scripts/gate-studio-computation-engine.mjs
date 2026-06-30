@@ -146,8 +146,18 @@ gate(
   "G302 — Field computation models (infra contracts)",
   read(path.join(COMP, "fieldModels/fieldComputationModels.js")).includes("computed") &&
     read(path.join(COMP, "fieldModels/fieldComputationModels.js")).includes("derived") &&
-    !exists(path.join(DESIGNERS, "field/computation/"))
+    exists(path.join(DESIGNERS, "field/computation/fieldComputationSetup.js"))
 );
+
+const allowedComputationConsumers = [
+  "designers/field/computation/",
+  "designers/formula/core/formulaCoreSetup.js",
+  "designers/formula/core/formulaPipeline.js",
+];
+const isAllowedConsumer = (relPath) => {
+  const norm = relPath.replace(/\\/g, "/");
+  return allowedComputationConsumers.some((p) => norm.includes(p));
+};
 
 const designerDirs = fs.readdirSync(DESIGNERS).filter((d) => fs.statSync(path.join(DESIGNERS, d)).isDirectory());
 const forbiddenDesignerPatterns = [
@@ -168,16 +178,16 @@ designerDirs.forEach((designerId) => {
     fs.readdirSync(folder, { withFileTypes: true }).forEach((entry) => {
       const full = path.join(folder, entry.name);
       if (entry.isDirectory()) {
-        if (entry.name === "computation" && designerId === "field") return;
         walk(full);
         return;
       }
       if (!/\.(js|jsx)$/.test(entry.name)) return;
-      if (full.includes(`${designerId}/computation/`) && designerId === "field") return;
+      const rel = path.relative(ROOT, full);
+      if (isAllowedConsumer(rel)) return;
       const content = read(full);
       forbiddenDesignerPatterns.forEach((pattern) => {
-        if (pattern.test(content) && !content.includes("@/studio/computation")) {
-          parallelViolations.push(path.relative(ROOT, full));
+        if (pattern.test(content) && !content.includes("@/studio/computation") && !content.includes("../../../computation/")) {
+          parallelViolations.push(rel);
         }
       });
     });
@@ -213,10 +223,9 @@ gate(
 );
 
 gate(
-  "G302 — No Formula Builder / Computed Fields UI in scope",
-  !exists(path.join(COMP, "../designers/field/computation/")) &&
-    !read(path.join(DESIGNERS, "field/canvas/FieldCanvas.jsx")).includes("ComputedFieldEditor") &&
-    !read(path.join(DESIGNERS, "field/canvas/FieldCanvas.jsx")).includes("FormulaBuilder")
+  "G302 — No Computed Fields UI in scope (Formula Builder via G303A)",
+  !read(path.join(DESIGNERS, "field/canvas/FieldCanvas.jsx")).includes("ComputedFieldEditor") &&
+    exists(path.join(DESIGNERS, "formula/components/FormulaBuilderShell.jsx"))
 );
 
 gate(

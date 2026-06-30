@@ -30,6 +30,7 @@ import {
 } from "../dependency/fieldDependencySetup.js";
 import { getFieldTypeSystem } from "../typeSystem/fieldTypeSetup.js";
 import { getFieldEvaluationEngine } from "../evaluation/fieldEvaluationSetup.js";
+import { getFieldComputationEngine } from "../computation/fieldComputationSetup.js";
 
 let fieldDocumentEngine = null;
 let fieldAstEngine = null;
@@ -145,6 +146,7 @@ export function validateFieldDocumentStructure(document) {
   getFieldDependencyEngine();
   getFieldTypeSystem();
   getFieldEvaluationEngine();
+  getFieldComputationEngine();
   return getFieldValidationEngine().validate(document);
 }
 

@@ -670,6 +670,18 @@
 
 ---
 
+## D-056 — Formula Builder (Program 3.2)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Implement **Formula Builder** as the official visual formula authoring environment for MAK Studio. Consumes exclusively Computation Engine (D-055), Expression, Dependency, Type System, and Evaluation engines. Formula Document mutations only via `applyFormulaDocumentEdit`; pipeline syncs Formula Document → Computation Document → Expression AST → Execution Graph → Preview. Gate **G303A** enforces no parallel parser/evaluator and no direct AST access in UI. Extension points stubbed for Formula Assist, AI, NL, Marketplace, Templates. **Authorize** Program 3.3 Computed Fields. |
+| **Evidence** | `src/studio/designers/formula/` · `scripts/gate-studio-formula-builder.mjs` · `src/studio/designers/field/computation/` |
+| **Consequences** | Authors build formulas visually without manual syntax; Computed/Derived Fields UI (3.3) binds to same pipeline |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

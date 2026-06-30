@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { listSmartFieldTemplates, listSmartFieldTemplateCategories } from "../templates/smartFieldTemplates.js";
 import { listBusinessFieldTypes, listBusinessFieldTypeCategories } from "../businessTypes/businessTypeCatalog.js";
 import { collectActiveFields } from "../fieldPropertyFields.js";
+import { openFieldFormulaBuilderUrl } from "../computation/fieldComputationSetup.js";
 
 const BASIC_FIELD_TYPES = Object.freeze(["string", "number", "boolean", "date", "text", "select"]);
 
@@ -127,6 +128,17 @@ export function FieldCanvas({
                 {cat}
               </button>
             ))}
+          </div>
+        )}
+
+        {selectedFieldNodeId && (
+          <div className="mt-2 flex justify-end">
+            <a
+              href={openFieldFormulaBuilderUrl(fieldDocument?.moduleId ?? "empresas", selectedFieldNodeId)}
+              className="rounded border border-primary bg-primary/5 px-2 py-1 text-[11px] font-medium text-primary hover:bg-primary/10"
+            >
+              Abrir Formula Builder
+            </a>
           </div>
         )}
 

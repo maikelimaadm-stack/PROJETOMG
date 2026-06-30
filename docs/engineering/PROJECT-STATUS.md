@@ -107,8 +107,9 @@ Programs **2.0 through 2.3.5** and **2.3.X** are **complete and frozen** in `mai
 | Type System | G300 | ✅ |
 | Evaluation Engine | G301 | ✅ |
 | **Computation Engine** | G302 | ✅ |
+| **Formula Builder** | G303A | ✅ |
 
-**Routes:** `/studio`, `/studio/prototype`, `/studio/empresas/layout`, `/studio/empresas/field`
+**Routes:** `/studio`, `/studio/prototype`, `/studio/empresas/layout`, `/studio/empresas/field`, `/studio/empresas/formula`
 
 ---
 
@@ -160,8 +161,8 @@ Programs **2.0 through 2.3.5** and **2.3.X** are **complete and frozen** in `mai
 | Foundation / module | G31–G142 | — |
 | Config engines V13–V20 | G156–G261 | G261 |
 | Studio architecture | G279–G284 | G284 |
-| Studio programs | G285–G302 | **G302** (Computation Engine) |
-| **Next expected** | Program 3.2 | Formula Builder |
+| Studio programs | G285–G303A | **G303A** (Formula Builder) |
+| **Next expected** | Program 3.3 | Computed Fields |
 
 Full gate scripts: `scripts/gate-*.mjs` · invoked via `npm run gate:capabilities`
 
