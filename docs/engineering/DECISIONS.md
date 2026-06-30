@@ -678,7 +678,7 @@
 | **Status** | Accepted |
 | **Decision** | Implement **Formula Builder** as the official visual formula authoring environment for MAK Studio. Consumes exclusively Computation Engine (D-055), Expression, Dependency, Type System, and Evaluation engines. Formula Document mutations only via `applyFormulaDocumentEdit`; pipeline syncs Formula Document → Computation Document → Expression AST → Execution Graph → Preview. Gate **G303A** enforces no parallel parser/evaluator and no direct AST access in UI. Extension points stubbed for Formula Assist, AI, NL, Marketplace, Templates. **Authorize** Program 3.3 Computed Fields. |
 | **Evidence** | `src/studio/designers/formula/` · `scripts/gate-studio-formula-builder.mjs` · `src/studio/designers/field/computation/` |
-| **Consequences** | Authors build formulas visually without manual syntax; Computed/Derived Fields UI (3.3) binds to same pipeline |
+| **Consequences** | Authors build formulas visually without manual syntax; Business Computation Layer (3.3) sits above Formula Builder; Business Computed Fields (next) binds to same pipeline |
 
 ---
 
@@ -690,7 +690,19 @@
 | **Status** | Accepted |
 | **Decision** | Adopt permanent **Enterprise Business Platform Vision** — MAK evolves from ERP positioning to **Enterprise Operating System (EOS)** at the vision layer. Register 8 architecture/vision documents: Business Intent, Business Object Model, Knowledge, Intelligence, Digital Twin, Business Capabilities, Continuous Improvement, Platform Vision. Register 7 mandatory principles: Business Asset, Business Capability, Business First, Technology Transparency, AI Acceleration, Universal Reuse, Business Intelligence (vision). **Documentation only** — no code, API, database, Runtime, Foundation, or Studio behavior changes. All future implementation must remain compatible with Master Architecture L0–L7. |
 | **Evidence** | [MAK-2035-PLATFORM-VISION.md](../vision/MAK-2035-PLATFORM-VISION.md) · `docs/architecture/MAK-BUSINESS-*.md` · `MAK-KNOWLEDGE-ARCHITECTURE.md` · `MAK-INTELLIGENCE-ARCHITECTURE.md` · `MAK-DIGITAL-TWIN-ARCHITECTURE.md` · `MAK-CONTINUOUS-IMPROVEMENT-ARCHITECTURE.md` |
-| **Consequences** | Future Studio Intelligence, Knowledge, AI, Marketplace, and Twin programs have official north star; current Programs 3.2+ unchanged; implementation resumes at Program 3.3 Computed Fields |
+| **Consequences** | Future Studio Intelligence, Knowledge, AI, Marketplace, and Twin programs have official north star; Program 3.3 Business Computation Layer builds on Business Intent SSOT |
+
+---
+
+## D-058 — Business Computation Layer (Program 3.3)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Adopt permanent **Business Computation Layer** — business-language authoring surface above Formula Builder (D-056). Register **Business Computation Document** (`mak-business-computation-document-v1`), computation kind catalog, derivation pipeline (Intent → Business Computation → Formula Builder → Computation Engine → Runtime), and permanent principles: Business Intent SSOT, unified derivation (Formulas, Workflows, Automations, Dashboards, Reports, Integrations, AI), Business Capabilities as reusable assets, Universal Business Assets, Business Pattern Library, Business DNA, Process Mining (architecture hooks only). **Documentation only** — no code, API, runtime, Foundation, MDP, AI, NLP, or natural language interpretation. Gate **G303B** planned for implementation. **Authorize** Business Computed Fields as first implementation mission. |
+| **Evidence** | [MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md) |
+| **Consequences** | Users work in business language only (guided authoring); Formula Builder remains technical layer; all engines reused; next mission implements Business Computed Fields on this architecture |
 
 ---
 

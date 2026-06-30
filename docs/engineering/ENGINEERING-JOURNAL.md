@@ -1,7 +1,19 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-30 (Program 3.1.5 Enterprise Business Platform Vision — D-057)
+**Last updated:** 2026-06-30 (Program 3.3 Business Computation Layer — D-058)
+
+---
+
+## 2026-06-30 — Program 3.3: Business Computation Layer
+
+**Scope:** Permanent business authoring architecture — **zero code, API, runtime, Foundation, AI, NLP, or NL interpretation**  
+**Deliverables:** [MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md) · Business Computation Document contract · derivation pipeline · principles (Intent SSOT, Universal Assets, Pattern Library, Business DNA, Process Mining hooks) · gate plan **G303B**  
+**Decision:** D-058 — Business Computation Layer above Formula Builder; Formula Builder unchanged as technical layer  
+**Certification:** Documentation-only · 7 mandatory architecture questions answered · no gates · no implementation
+
+**Validation:** N/A (docs-only mission)  
+**Next:** **Business Computed Fields** — first implementation on Business Computation architecture
 
 ---
 
@@ -13,7 +25,7 @@
 **Certification:** Documentation-only · no gates · no implementation
 
 **Validation:** N/A (docs-only mission)  
-**Next:** **Program 3.3** — Computed Fields (implementation resumes)
+**Next:** **Program 3.3** — Business Computation Layer
 
 ---
 
