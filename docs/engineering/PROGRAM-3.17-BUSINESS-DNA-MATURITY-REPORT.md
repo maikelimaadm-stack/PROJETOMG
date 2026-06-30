@@ -4,7 +4,7 @@
 **Version:** 1.0.0  
 **Effective date:** 2026-06-30  
 **Decision:** D-083  
-**Gate:** G315 (20/20)  
+**Gate:** G315 (24/24)  
 **Identity authority:** D-074 (frozen)
 
 ---
@@ -56,7 +56,7 @@ Pipeline: **Memory → Knowledge → Consulting → Decision → Evolution → B
 
 | Check | Result |
 |-------|--------|
-| G315 | ✅ 20/20 |
+| G315 | ✅ 24/24 |
 | build | ✅ |
 | lint | ✅ |
 | verify:governance | ✅ |
