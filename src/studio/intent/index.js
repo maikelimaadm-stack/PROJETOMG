@@ -34,6 +34,8 @@ export { runResolverPipeline, RESOLVER_PIPELINE_STAGES } from "./resolver/resolv
 
 export { RESOLVER_EXTENSION_POINTS } from "./resolver/extensionPoints.js";
 
+export { CAPABILITY_CATALOG } from "./catalog/capabilityCatalog.js";
+
 import { createIntentResolver } from "./resolver/createIntentResolver.js";
 
 export default createIntentResolver;

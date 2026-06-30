@@ -18,6 +18,9 @@ import {
   resolveIntentDocument,
   RESOLVER_EXTENSION_POINTS,
   RESOLVER_PIPELINE_STAGES,
+  DERIVATION_KIND_COMPUTED_FIELD,
+  DERIVATION_KIND_FORMULA,
+  CAPABILITY_CATALOG,
 } from "../src/studio/intent/index.js";
 import { collectStudioFiles } from "../src/studio/governance/architectureRules.js";
 import { FORBIDDEN_FOUNDATION_PATTERNS } from "../src/studio/governance/studioArchitectureConstants.js";
@@ -93,6 +96,12 @@ gate(
     RESOLVER_EXTENSION_POINTS.every((e) => e.implemented === false) &&
     read(path.join(INTENT, "resolver/derivationPlanning.js")).includes("DERIVATION_KIND_COMPUTED_FIELD") &&
     read(path.join(INTENT, "resolver/computedFieldDerivation.js")).includes("executeComputedFieldDerivation")
+);
+
+gate(
+  "G305 — Capability catalog SSOT includes formula + computed_field kinds",
+  CAPABILITY_CATALOG[0]?.derivationKinds?.includes(DERIVATION_KIND_FORMULA) &&
+    CAPABILITY_CATALOG[0]?.derivationKinds?.includes(DERIVATION_KIND_COMPUTED_FIELD)
 );
 
 // End-to-end pipeline

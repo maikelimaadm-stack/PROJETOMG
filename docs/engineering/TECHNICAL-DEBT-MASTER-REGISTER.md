@@ -96,7 +96,7 @@ Category: Code · Architecture · Documentation · Governance · Runtime · UX �
 | EPDA-P1-03 | Metadata stubs imply completeness | False maturity | Wrong priorities | Forward-looking contracts | Misleading PMI | Documentation |
 | AD-P1-02 | No gate for Foundation formula evaluators | Untested legacy path | Production bugs | G298 scope = Studio only | Silent failures | Governance |
 | AD-P1-05 | Program 3.x absent from ROADMAP | Planning drift | Wrong sequencing | ROADMAP lag | Contributor confusion | Governance |
-| PARAM-C03 | derivationKind catalog mismatch | Capability checks fail | Wrong derivations | Catalog not synced | Silent bugs | Parametrização |
+| PARAM-C03 | derivationKind catalog mismatch | Capability checks fail | Wrong derivations | Catalog not synced | Silent bugs | Parametrização | **✅ Resolved D-071** |
 | PARAM-C04 | CRB cache vs live MDP | Stale metadata | Wrong runtime behavior | Committed cache | Prod/CI divergence | Runtime |
 
 ---

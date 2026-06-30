@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-067 Business Intent Resolver Implementation)
+**Last updated:** 2026-06-30 (D-071 Platform Sanitization Cycle 1)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -849,6 +849,18 @@
 | **Decision** | Conduct mandatory **Enterprise Platform Deep Audit** (Program 3.8.6) — largest platform audit to date. Documentation-only evidence-based audit across Foundation, Runtime, Studio, Business Layer, Enterprise Layer, Intelligence, Business Assets, Business Objects, UX journeys, parameterization, future programs, and technical debt. Produce eleven audit reports: ENTERPRISE-PLATFORM-DEEP-AUDIT (master), PLATFORM-IMPLEMENTATION-AUDIT, BUSINESS-ASSET-AUDIT, BUSINESS-OBJECT-AUDIT, USER-JOURNEY-DEEP-AUDIT, ENTERPRISE-INTELLIGENCE-AUDIT, ARCHITECTURE-CONFORMANCE-REPORT, PARAMETERIZATION-AUDIT, TECHNICAL-DEBT-MASTER-REGISTER, PROGRAM-IMPLEMENTATION-MAP, EXAMPLES-AND-SCENARIOS. Answer central question: conditional YES on architecture trajectory; NO if code/UX frozen today. Classify all findings P0–P3. **Does not block Program 3.9**; informs parallel P0 tracks (Runtime Unification, Business Language UX). **No code, API, database, Foundation, Runtime, Studio, or implementation changes.** |
 | **Evidence** | `docs/engineering/ENTERPRISE-PLATFORM-DEEP-AUDIT.md` · full 3.8.6 audit suite (11 documents) |
 | **Consequences** | Complete platform evidence baseline; 20 certification answers; consolidated debt register; Program 3.9 scope informed |
+
+---
+
+## D-071 — Platform Sanitization Cycle 1
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Execute **Platform Sanitization Cycle 1** after Program 3.8.6 audit. Correct **only** items classified as BUG or DÍVIDA TÉCNICA that pass mandatory gates 1–10. **Do not** advance Program 3.9 or anticipate roadmap. Cycle 1 scope: (1) fix capability catalog / compatibility SSOT for `compute.formula` + `compute.computed_field` (PARAM-C03); (2) add G305 gate check; (3) register [INTENT-DERIVATION-KIND-SSOT.md](./INTENT-DERIVATION-KIND-SSOT.md); (4) document seed/E2E alignment in `backend/.env.example`. **No UI change · No Runtime behavior change · No Foundation change.** |
+| **Evidence** | [PLATFORM-SANITIZATION-CYCLE-1-REPORT.md](./PLATFORM-SANITIZATION-CYCLE-1-REPORT.md) · `capabilityCatalog.js` · G305 |
+| **Consequences** | PARAM-C03 resolved; sanitization methodology established; Program 3.9 remains next but blocked until post-sanitization audit certifies classifications |
 
 ---
 
