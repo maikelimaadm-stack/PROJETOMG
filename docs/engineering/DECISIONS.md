@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-083 Business DNA & Maturity MVP)
+**Last updated:** 2026-06-30 (D-084 Segmentation, Templates & Advanced Maturity MVP)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -1005,6 +1005,18 @@
 | **Decision** | Implement first **Business DNA Engine** consuming full intelligence stack. Tenant-scoped operational identity, capability maturity, fingerprint, patterns, authorized portfolio aggregation, BOS projections. Business DNA belongs to enterprise — descriptive, never autonomous or individual profiling. Gate **G315**. |
 | **Evidence** | `src/intelligence/dna/engine/**` · [PROGRAM-3.17-BUSINESS-DNA-MATURITY-REPORT.md](./PROGRAM-3.17-BUSINESS-DNA-MATURITY-REPORT.md) |
 | **Consequences** | Organizational identity live on BOS; portfolio layer ready for multi-empresa clients; segmentation/benchmarking foundation prepared |
+
+---
+
+## D-084 — Segmentation, Templates & Advanced Maturity MVP (Program 3.18)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Implement first **Business Segmentation Engine** consuming Business DNA + full intelligence stack. Tenant-scoped operational segments, template matching, advanced maturity scoring, authorized group benchmarking, BOS projections. Segmentation belongs to enterprise — classifies and explains, never autonomous or individual profiling. Gate **G316**. |
+| **Evidence** | `src/intelligence/segmentation/engine/**` · [PROGRAM-3.18-SEGMENTATION-TEMPLATES-MATURITY-REPORT.md](./PROGRAM-3.18-SEGMENTATION-TEMPLATES-MATURITY-REPORT.md) |
+| **Consequences** | Segment classification live on BOS; template library for acceleration; authorized benchmarking and pattern replication prepared |
 
 ---
 

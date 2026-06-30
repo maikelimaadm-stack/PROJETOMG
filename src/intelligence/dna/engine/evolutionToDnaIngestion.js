@@ -14,6 +14,7 @@ import { explainDnaProfile, explainDnaFingerprint } from "./businessDnaExplainab
 import { registerBusinessDnaSeed } from "./businessDnaSeedsRegistry.js";
 import { appendDnaAuditEntry } from "./businessDnaAuditTrail.js";
 import { BUSINESS_DNA_ENGINE_VERSION, DNA_OWNERSHIP } from "./businessDnaContracts.js";
+import { ingestDnaToSegmentation } from "../../segmentation/engine/dnaToSegmentationIngestion.js";
 
 /** Analyze full intelligence stack and produce Business DNA artifacts */
 export function analyzeBusinessDnaContext(tenantId = "default") {
@@ -66,6 +67,12 @@ export function analyzeBusinessDnaContext(tenantId = "default") {
     entityId: profile.profileId,
     entityType: "analysis",
   });
+
+  try {
+    ingestDnaToSegmentation(tenantId);
+  } catch {
+    // non-blocking — segmentation must not break DNA pipeline
+  }
 
   return Object.freeze({
     tenantId,

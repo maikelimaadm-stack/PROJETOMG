@@ -41,6 +41,7 @@ export const DNA_OWNERSHIP = Object.freeze({
 });
 
 export const DNA_ENGINE_EXTENSION_POINTS = Object.freeze([
+  Object.freeze({ id: "business.segmentation", implemented: true, consumes: ["business.dna"] }),
   Object.freeze({ id: "ai.chat.assistant", implemented: false, forbiddenForBusinessUser: true }),
 ]);
 

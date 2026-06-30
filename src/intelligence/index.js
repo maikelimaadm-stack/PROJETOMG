@@ -229,12 +229,49 @@ export {
   bridgeDnaToConsulting,
   bridgeDnaToDecision,
   bridgeDnaToEvolution,
+  bridgeDnaToSegmentation,
 } from "./dna/engine/businessDnaToIntelligenceBridges.js";
 export { buildBusinessDnaSeedsRegistry } from "./dna/engine/businessDnaSeedsRegistry.js";
 export { buildPortfolioView } from "./dna/engine/portfolioView.js";
 export { aggregateGroupMaturity, resolveAuthorizedGroupScope } from "./dna/engine/groupMaturityAggregation.js";
 export { buildCorporateBenchmarking, buildCrossCompanyComparison } from "./dna/engine/corporateBenchmarking.js";
 export { runBusinessDnaEngine } from "./dna/engine/runBusinessDnaEngine.js";
+
+export {
+  SEGMENTATION_ENGINE_VERSION,
+  OPERATIONAL_SEGMENTS,
+  SEGMENTATION_ENGINE_EXTENSION_POINTS,
+} from "./segmentation/engine/segmentationEngineContracts.js";
+export {
+  listSegmentationProfiles,
+  listSegmentationClassifications,
+  listTemplateMatches,
+  getSegmentationEngineStoreInfo,
+} from "./segmentation/engine/segmentationEngineStore.js";
+export { assembleSegmentationContext } from "./segmentation/engine/segmentationContextAssembly.js";
+export {
+  analyzeSegmentationContext,
+  ingestDnaToSegmentation,
+  replaySegmentationFromStack,
+} from "./segmentation/engine/dnaToSegmentationIngestion.js";
+export { retrieveSegmentationByContext, retrieveLatestSegmentation } from "./segmentation/engine/segmentationRetrieval.js";
+export { summarizeSegmentationEngine } from "./segmentation/engine/segmentationSummarization.js";
+export { buildSegmentationBosProjection } from "./segmentation/engine/segmentationToBosProjection.js";
+export {
+  bridgeSegmentationToConsulting,
+  bridgeSegmentationToDecision,
+  bridgeSegmentationToEvolution,
+} from "./segmentation/engine/segmentationToIntelligenceBridges.js";
+export { buildTemplateLibrary } from "./segmentation/engine/templateLibrary.js";
+export { getTemplateCatalog } from "./segmentation/engine/templateCatalog.js";
+export { computeAdvancedMaturityScore } from "./segmentation/engine/advancedMaturityScoring.js";
+export { buildAdvancedMaturityRadar } from "./segmentation/engine/advancedMaturityRadar.js";
+export { buildMaturityBenchmarks } from "./segmentation/engine/maturityBenchmarks.js";
+export { compareMaturityProgress } from "./segmentation/engine/maturityProgressComparison.js";
+export { buildAuthorizedGroupComparison } from "./segmentation/engine/authorizedGroupComparison.js";
+export { buildCorporatePatternSuggestions } from "./segmentation/engine/corporatePatternSuggestions.js";
+export { buildSegmentSeedsRegistry } from "./segmentation/engine/segmentSeedsRegistry.js";
+export { runSegmentationEngine } from "./segmentation/engine/runSegmentationEngine.js";
 
 export default {
   version: "mak-enterprise-intelligence-v1",

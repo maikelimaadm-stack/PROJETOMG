@@ -3,7 +3,7 @@
 **Status:** Official — Single source of truth for project continuity  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Updated by:** Program 3.17 — Business DNA & Maturity MVP (D-083)  
+**Updated by:** Program 3.18 — Segmentation, Templates & Advanced Maturity MVP (D-084)  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md); supersedes chat history
 
 > **Rule:** Any AI or developer session must read this file (via [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md)) before starting work. Do not rely on prior chat context.
@@ -15,7 +15,7 @@
 | Field | Value |
 |-------|-------|
 | **Architecture state** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) · **First Business Asset certified** (D-068, G306) |
-| **Implementation phase** | **Business DNA Engine live (D-083, G315)** — under D-074 identity |
+| **Implementation phase** | **Segmentation Engine live (D-084, G316)** — under D-074 identity |
 | **Implementation authorized** | **Yes** — [MAK-PRODUCT-IDENTITY-FREEZE.md](../architecture/MAK-PRODUCT-IDENTITY-FREEZE.md) |
 | **Primary user surface** | **BOS home (`/`)** — [MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](../architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md) |
 
@@ -63,9 +63,9 @@
 | Field | Value |
 |-------|-------|
 | **Current program** | **Program 3 — Studio Intelligence** |
-| **Last completed mission** | **Program 3.17** — Business DNA & Maturity MVP (D-083, G315) |
-| **Last decision** | **D-083** — Business DNA Engine implemented |
-| **Next official mission** | **Program 3.18+** — Segmentation / templates / advanced maturity |
+| **Last completed mission** | **Program 3.18** — Segmentation, Templates & Advanced Maturity MVP (D-084, G316) |
+| **Last decision** | **D-084** — Business Segmentation Engine implemented |
+| **Next official mission** | **Program 3.19+** — Recommendation / replication |
 
 Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md)
 

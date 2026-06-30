@@ -6,10 +6,19 @@ import { buildDecisionEngineBosProjection } from "../decision/engine/decisionToB
 import { buildEvolutionEngineBosProjection } from "../evolution/engine/evolutionToBosProjection.js";
 import { buildBusinessDnaBosProjection } from "../dna/engine/businessDnaToBosProjection.js";
 import { buildPortfolioView } from "../dna/engine/portfolioView.js";
+import { buildSegmentationBosProjection } from "../segmentation/engine/segmentationToBosProjection.js";
+import { buildAuthorizedGroupComparison } from "../segmentation/engine/authorizedGroupComparison.js";
+import { buildCorporatePatternSuggestions } from "../segmentation/engine/corporatePatternSuggestions.js";
+import {
+  bridgeSegmentationToConsulting,
+  bridgeSegmentationToDecision,
+  bridgeSegmentationToEvolution,
+} from "../segmentation/engine/segmentationToIntelligenceBridges.js";
 import {
   bridgeDnaToConsulting,
   bridgeDnaToDecision,
   bridgeDnaToEvolution,
+  bridgeDnaToSegmentation,
 } from "../dna/engine/businessDnaToIntelligenceBridges.js";
 import {
   bridgeEvolutionToConsulting,
@@ -38,6 +47,7 @@ export function buildIntelligenceHomeProjection(tenantId = "default", options = 
   const decisionProjection = buildDecisionEngineBosProjection(tenantId);
   const evolutionProjection = buildEvolutionEngineBosProjection(tenantId);
   const dnaProjection = buildBusinessDnaBosProjection(tenantId);
+  const segmentationProjection = buildSegmentationBosProjection(tenantId, options);
   const portfolioProjection = options.groupId
     ? buildPortfolioView(options.groupId, tenantId)
     : null;
@@ -125,6 +135,24 @@ export function buildIntelligenceHomeProjection(tenantId = "default", options = 
     dnaWhereNeedsEvolution: dnaProjection.whereNeedsEvolution,
     dnaMaturityTimeline: dnaProjection.maturityTimeline,
     dnaPortfolio: portfolioProjection,
+    hasSegmentation: segmentationProjection.hasSegmentation,
+    segmentationSummary: segmentationProjection.summary,
+    segmentLabel: segmentationProjection.segmentLabel,
+    segmentNarrative: segmentationProjection.segmentNarrative,
+    compatibleTemplates: segmentationProjection.compatibleTemplates,
+    segmentationMaturityRadar: segmentationProjection.maturityRadar,
+    advancedMaturityScore: segmentationProjection.advancedMaturityScore,
+    segmentationPriorityCapabilities: segmentationProjection.priorityCapabilities,
+    maturityProgress: segmentationProjection.maturityProgress,
+    segmentationBenchmarks: segmentationProjection.benchmarks,
+    accelerationSuggestions: segmentationProjection.accelerationSuggestions,
+    segmentationGroupComparison: options.groupId
+      ? buildAuthorizedGroupComparison(options.groupId, tenantId)
+      : segmentationProjection.groupComparison,
+    corporatePatternSuggestions: options.groupId
+      ? buildCorporatePatternSuggestions(options.groupId, tenantId)
+      : segmentationProjection.patternSuggestions,
+    templateHeadline: segmentationProjection.templateHeadline,
     knowledgeBridges: Object.freeze({
       consulting: bridgeKnowledgeToConsulting(tenantId),
       decision: bridgeKnowledgeToDecision(tenantId),
@@ -149,6 +177,12 @@ export function buildIntelligenceHomeProjection(tenantId = "default", options = 
       consulting: bridgeDnaToConsulting(tenantId),
       decision: bridgeDnaToDecision(tenantId),
       evolution: bridgeDnaToEvolution(tenantId),
+      segmentation: bridgeDnaToSegmentation(tenantId),
+    }),
+    segmentationBridges: Object.freeze({
+      consulting: bridgeSegmentationToConsulting(tenantId),
+      decision: bridgeSegmentationToDecision(tenantId),
+      evolution: bridgeSegmentationToEvolution(tenantId),
     }),
   });
 }

@@ -26,8 +26,8 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Current Release** | `v0.4.0-RC2` (pending owner tag) |
 | **Current Program** | Program 3 — Studio Intelligence |
 | **Architecture State** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) · **Product Identity FROZEN (D-074)** |
-| **Decision** | D-083 — Business DNA & Maturity MVP (Program 3.17) |
-| **Phase** | **Full intelligence stack live: Memory → Knowledge → Consulting → Decision → Evolution → Business DNA** |
+| **Decision** | D-084 — Segmentation, Templates & Advanced Maturity MVP (Program 3.18) |
+| **Phase** | **Full intelligence stack live: Memory → Knowledge → Consulting → Decision → Evolution → Business DNA → Segmentation** |
 | **Product Identity SSOT (supreme)** | [MAK-PRODUCT-IDENTITY-FREEZE.md](./docs/architecture/MAK-PRODUCT-IDENTITY-FREEZE.md) |
 | **BOS Architecture** | [MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md) |
 | **Business Workflow Report** | [PROGRAM-3.10-BUSINESS-WORKFLOW-REPORT.md](./docs/engineering/PROGRAM-3.10-BUSINESS-WORKFLOW-REPORT.md) |
@@ -38,7 +38,8 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Decision Engine Report** | [PROGRAM-3.15-DECISION-ENGINE-REPORT.md](./docs/engineering/PROGRAM-3.15-DECISION-ENGINE-REPORT.md) |
 | **Evolution Engine Report** | [PROGRAM-3.16-EVOLUTION-ENGINE-REPORT.md](./docs/engineering/PROGRAM-3.16-EVOLUTION-ENGINE-REPORT.md) |
 | **Business DNA Report** | [PROGRAM-3.17-BUSINESS-DNA-MATURITY-REPORT.md](./docs/engineering/PROGRAM-3.17-BUSINESS-DNA-MATURITY-REPORT.md) |
-| **Next Official Mission** | **Program 3.18+** — Segmentation / templates / advanced maturity |
+| **Segmentation Report** | [PROGRAM-3.18-SEGMENTATION-TEMPLATES-MATURITY-REPORT.md](./docs/engineering/PROGRAM-3.18-SEGMENTATION-TEMPLATES-MATURITY-REPORT.md) |
+| **Next Official Mission** | **Program 3.19+** — Recommendation / replication |
 
 > **Governance rule (D-062):** Register all new D-xxx, G-xxx, Programs, SSOT docs in [GOVERNANCE-REGISTRY.md](./docs/engineering/GOVERNANCE-REGISTRY.md).
 
