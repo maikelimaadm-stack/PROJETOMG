@@ -114,7 +114,8 @@
 | **3.21** | **Continuous Improvement & Optimization Loop MVP** | D-087 | **complete (G319)** | 3.20 ✅ |
 | **3.22** | **Portfolio Intelligence & Command Center MVP** | D-088 | **complete (G320)** | 3.21 ✅ |
 | **3.23** | **Platform Governance & Portfolio Control Center MVP** | D-089 | **complete (G321)** | 3.22 ✅ |
-| **3.24+** | **Next intelligence layer** | — | **planned** | 3.23 ✅ |
+| **3.24** | **Compliance, Retention & Audit Fortress MVP** | D-090 | **complete (G322)** | 3.23 ✅ |
+| **3.25+** | **Next intelligence layer** | — | **planned** | 3.24 ✅ |
 | 3.3-impl | Business Computation impl | D-058 | planned | G303B |
 | 4.x | Enterprise Memory / Intelligence impl | D-060 | planned | Post Resolver |
 
@@ -150,6 +151,7 @@
                                             → 3.21 Continuous Improvement & Optimization (G319) ✅
                                               → 3.22 Portfolio Intelligence & Command Center (G320) ✅
                                                 → 3.23 Platform Governance & Portfolio Control (G321) ✅
+                                                  → 3.24 Compliance, Retention & Audit Fortress (G322) ✅
                 → 4.x Enterprise Intelligence programs (D-060)
 ```
 

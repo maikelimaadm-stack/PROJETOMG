@@ -14,6 +14,7 @@ import { buildImprovementBosProjection } from "../improvement/engine/improvement
 import { buildOptimizationBosProjection } from "../optimization/engine/optimizationToBosProjection.js";
 import { buildPortfolioIntelligenceBosProjection } from "../portfolio/engine/portfolioToBosProjection.js";
 import { buildPlatformGovernanceBosProjection } from "../governance/engine/governanceToBosProjection.js";
+import { buildFortressBosProjection } from "../fortress/engine/fortressToBosProjection.js";
 import { buildAuthorizedGroupComparison } from "../segmentation/engine/authorizedGroupComparison.js";
 import { buildCorporatePatternSuggestions } from "../segmentation/engine/corporatePatternSuggestions.js";
 import {
@@ -51,6 +52,13 @@ import {
   bridgeGovernanceToDecision,
   bridgeGovernanceToPortfolioIntelligence,
 } from "../governance/engine/governanceToIntelligenceBridges.js";
+import {
+  bridgeFortressToConsulting,
+  bridgeFortressToDecision,
+  bridgeFortressToIntelligence,
+} from "../fortress/engine/fortressToIntelligenceBridges.js";
+import { bridgeFortressToGovernance } from "../fortress/engine/fortressToGovernanceBridge.js";
+import { bridgeFortressToPortfolio } from "../fortress/engine/fortressToPortfolioBridge.js";
 import {
   bridgeDnaToConsulting,
   bridgeDnaToDecision,
@@ -97,6 +105,9 @@ export function buildIntelligenceHomeProjection(tenantId = "default", options = 
     : null;
   const platformGovernanceProjection = options.groupId
     ? buildPlatformGovernanceBosProjection(options.groupId, tenantId, options)
+    : null;
+  const fortressProjection = options.groupId
+    ? buildFortressBosProjection(options.groupId, tenantId, options)
     : null;
   const portfolioProjection = options.groupId
     ? buildPortfolioView(options.groupId, tenantId)
@@ -278,6 +289,19 @@ export function buildIntelligenceHomeProjection(tenantId = "default", options = 
     governanceAlerts: platformGovernanceProjection?.governanceAlerts ?? [],
     visibilityZones: platformGovernanceProjection?.visibilityZones ?? null,
     rolePermissionMatrix: platformGovernanceProjection?.rolePermissionMatrix ?? [],
+    hasFortress: fortressProjection?.hasFortress ?? false,
+    fortressSummary: fortressProjection?.summary ?? null,
+    fortressComplianceStatus: fortressProjection?.complianceStatus ?? null,
+    activeComplianceRules: fortressProjection?.activeComplianceRules ?? [],
+    retentionByType: fortressProjection?.retentionByType ?? [],
+    archivedData: fortressProjection?.archivedData ?? [],
+    legalHolds: fortressProjection?.legalHolds ?? [],
+    auditedEvents: fortressProjection?.auditedEvents ?? [],
+    registeredExceptions: fortressProjection?.registeredExceptions ?? [],
+    exposureBlocks: fortressProjection?.exposureBlocks ?? [],
+    purgeSummary: fortressProjection?.purgeSummary ?? null,
+    fortressAlerts: fortressProjection?.fortressAlerts ?? [],
+    tenantComplianceView: fortressProjection?.tenantComplianceView ?? [],
     knowledgeBridges: Object.freeze({
       consulting: bridgeKnowledgeToConsulting(tenantId),
       decision: bridgeKnowledgeToDecision(tenantId),
@@ -341,6 +365,15 @@ export function buildIntelligenceHomeProjection(tenantId = "default", options = 
           portfolio: bridgeGovernanceToPortfolioIntelligence(options.groupId, tenantId),
           consulting: bridgeGovernanceToConsulting(options.groupId, tenantId),
           decision: bridgeGovernanceToDecision(options.groupId, tenantId),
+        })
+      : null,
+    fortressBridges: options.groupId
+      ? Object.freeze({
+          governance: bridgeFortressToGovernance(options.groupId, tenantId),
+          portfolio: bridgeFortressToPortfolio(options.groupId, tenantId),
+          consulting: bridgeFortressToConsulting(options.groupId, tenantId),
+          decision: bridgeFortressToDecision(options.groupId, tenantId),
+          intelligence: bridgeFortressToIntelligence(options.groupId, tenantId),
         })
       : null,
   });

@@ -103,6 +103,12 @@ import {
   RetentionComplianceSection,
   GovernanceAuditSection,
 } from "@/bos/components/BusinessGovernanceSections";
+import {
+  FortressComplianceSection,
+  FortressRetentionSection,
+  FortressAuditSection,
+  FortressExposureSection,
+} from "@/bos/components/BusinessFortressSections";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import {
   buildIntelligenceHomeProjection,
@@ -448,6 +454,27 @@ export default function BosHomePage() {
         auditHistory={intelligence.auditHistory}
         alerts={intelligence.governanceAlerts}
         visibilityZones={intelligence.visibilityZones}
+      />
+
+      <FortressComplianceSection
+        complianceStatus={intelligence.fortressComplianceStatus}
+        rules={intelligence.activeComplianceRules}
+        summary={intelligence.fortressSummary}
+      />
+      <FortressRetentionSection
+        retentionByType={intelligence.retentionByType}
+        archivedData={intelligence.archivedData}
+        legalHolds={intelligence.legalHolds}
+      />
+      <FortressAuditSection
+        auditedEvents={intelligence.auditedEvents}
+        exceptions={intelligence.registeredExceptions}
+        purgeSummary={intelligence.purgeSummary}
+      />
+      <FortressExposureSection
+        exposureBlocks={intelligence.exposureBlocks}
+        alerts={intelligence.fortressAlerts}
+        tenantCompliance={intelligence.tenantComplianceView}
       />
 
       <ActivityTeaserSection items={activity} />

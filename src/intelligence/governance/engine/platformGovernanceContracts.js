@@ -46,6 +46,7 @@ export const GOVERNANCE_OWNERSHIP = Object.freeze({
 });
 
 export const PLATFORM_GOVERNANCE_EXTENSION_POINTS = Object.freeze([
+  Object.freeze({ id: "business.compliance_fortress", implemented: true, consumes: ["governance.engine"] }),
   Object.freeze({ id: "ai.chat.assistant", implemented: false, forbiddenForBusinessUser: true }),
 ]);
 

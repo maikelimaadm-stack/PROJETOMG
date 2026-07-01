@@ -485,6 +485,35 @@ export { enforceCrossTenantAccessGuard } from "./governance/engine/crossTenantAc
 export { enforceDataExposureGuard } from "./governance/engine/dataExposureGuard.js";
 export { runPlatformGovernanceEngine } from "./governance/engine/runPlatformGovernanceEngine.js";
 
+export {
+  COMPLIANCE_FORTRESS_VERSION,
+  RETENTION_FORTRESS_VERSION,
+  AUDIT_FORTRESS_VERSION,
+  FORTRESS_EXTENSION_POINTS,
+} from "./fortress/engine/complianceFortressContracts.js";
+export {
+  listComplianceDocs,
+  listRetentionRules,
+  listAuditEvents,
+  getFortressStoreInfo,
+} from "./fortress/engine/fortressStore.js";
+export { assembleComplianceContext } from "./fortress/engine/complianceContextAssembly.js";
+export {
+  analyzeComplianceFortressContext,
+  ingestGovernanceToFortress,
+} from "./fortress/engine/governanceToFortressIngestion.js";
+export { retrieveFortressByContext, retrieveLatestFortress } from "./fortress/engine/fortressRetrieval.js";
+export { summarizeFortressEngine } from "./fortress/engine/fortressSummarization.js";
+export { buildFortressBosProjection } from "./fortress/engine/fortressToBosProjection.js";
+export { bridgeFortressToGovernance } from "./fortress/engine/fortressToGovernanceBridge.js";
+export { bridgeFortressToPortfolio } from "./fortress/engine/fortressToPortfolioBridge.js";
+export {
+  bridgeFortressToConsulting,
+  bridgeFortressToDecision,
+  bridgeFortressToIntelligence,
+} from "./fortress/engine/fortressToIntelligenceBridges.js";
+export { runComplianceFortressEngine } from "./fortress/engine/runComplianceFortressEngine.js";
+
 export default {
   version: "mak-enterprise-intelligence-v1",
 };
