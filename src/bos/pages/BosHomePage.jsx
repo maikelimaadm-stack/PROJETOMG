@@ -60,6 +60,14 @@ import {
   BusinessDnaGrowthSignalsSection,
   BusinessDnaPortfolioSection,
 } from "@/bos/components/BusinessDnaSections";
+import {
+  SegmentationProfileSection,
+  CompatibleTemplatesSection,
+  AdvancedMaturitySection,
+  SegmentationBenchmarksSection,
+  AccelerationSuggestionsSection,
+  SegmentationGroupSection,
+} from "@/bos/components/BusinessSegmentationSections";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import {
   buildIntelligenceHomeProjection,
@@ -272,6 +280,28 @@ export default function BosHomePage() {
       <BusinessDnaMilestonesSection milestones={intelligence.dnaMilestones} />
       <BusinessDnaGrowthSignalsSection signals={intelligence.dnaGrowthSignals} />
       <BusinessDnaPortfolioSection portfolio={intelligence.dnaPortfolio} />
+
+      <SegmentationProfileSection
+        segmentLabel={intelligence.segmentLabel}
+        narrative={intelligence.segmentNarrative}
+        summary={intelligence.segmentationSummary}
+      />
+      <CompatibleTemplatesSection
+        templates={intelligence.compatibleTemplates}
+        headline={intelligence.templateHeadline}
+      />
+      <AdvancedMaturitySection
+        score={intelligence.advancedMaturityScore}
+        radar={intelligence.segmentationMaturityRadar}
+        priorityCapabilities={intelligence.segmentationPriorityCapabilities}
+        progress={intelligence.maturityProgress}
+      />
+      <SegmentationBenchmarksSection benchmarks={intelligence.segmentationBenchmarks} />
+      <AccelerationSuggestionsSection suggestions={intelligence.accelerationSuggestions} />
+      <SegmentationGroupSection
+        groupComparison={intelligence.segmentationGroupComparison}
+        patternSuggestions={intelligence.corporatePatternSuggestions}
+      />
 
       <ActivityTeaserSection items={activity} />
     </div>

@@ -3,6 +3,7 @@
  */
 import { summarizeBusinessDnaEngine } from "./businessDnaSummarization.js";
 import { retrieveLatestBusinessDna } from "./businessDnaRetrieval.js";
+import { runSegmentationEngine } from "../../segmentation/engine/runSegmentationEngine.js";
 
 export function bridgeDnaToConsulting(tenantId = "default") {
   const summary = summarizeBusinessDnaEngine(tenantId);
@@ -47,4 +48,16 @@ export function bridgeDnaToEvolution(tenantId = "default") {
   });
 }
 
-export default { bridgeDnaToConsulting, bridgeDnaToDecision, bridgeDnaToEvolution };
+export function bridgeDnaToSegmentation(tenantId = "default") {
+  const segmentation = runSegmentationEngine(tenantId);
+  return Object.freeze({
+    tenantId,
+    bridgedAt: new Date().toISOString(),
+    summary: segmentation.summary,
+    segmentationEngineReady: true,
+    autonomousSegmentationForbidden: true,
+    individualProfilingForbidden: true,
+  });
+}
+
+export default { bridgeDnaToConsulting, bridgeDnaToDecision, bridgeDnaToEvolution, bridgeDnaToSegmentation };
