@@ -26,8 +26,8 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Current Release** | `v0.4.0-RC2` (pending owner tag) |
 | **Current Program** | Program 3 — Studio Intelligence |
 | **Architecture State** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) · **Product Identity FROZEN (D-074)** |
-| **Decision** | D-091 — Data Lifecycle, Archive & Controlled Expunge MVP (Program 3.25) |
-| **Phase** | **Full stack: Memory → … → Governance → Fortress → Lifecycle** |
+| **Decision** | D-092 — Data Lifecycle Persistence & Approval Workflow MVP (Program 3.26) |
+| **Phase** | **Full stack: Memory → … → Governance → Fortress → Lifecycle → Persistence** |
 | **Product Identity SSOT (supreme)** | [MAK-PRODUCT-IDENTITY-FREEZE.md](./docs/architecture/MAK-PRODUCT-IDENTITY-FREEZE.md) |
 | **BOS Architecture** | [MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md) |
 | **Business Workflow Report** | [PROGRAM-3.10-BUSINESS-WORKFLOW-REPORT.md](./docs/engineering/PROGRAM-3.10-BUSINESS-WORKFLOW-REPORT.md) |
@@ -46,7 +46,8 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Platform Governance Report** | [PROGRAM-3.23-PLATFORM-GOVERNANCE-PORTFOLIO-CONTROL-REPORT.md](./docs/engineering/PROGRAM-3.23-PLATFORM-GOVERNANCE-PORTFOLIO-CONTROL-REPORT.md) |
 | **Compliance Fortress Report** | [PROGRAM-3.24-COMPLIANCE-RETENTION-AUDIT-FORTRESS-REPORT.md](./docs/engineering/PROGRAM-3.24-COMPLIANCE-RETENTION-AUDIT-FORTRESS-REPORT.md) |
 | **Data Lifecycle Report** | [PROGRAM-3.25-DATA-LIFECYCLE-ARCHIVE-EXPUNGE-REPORT.md](./docs/engineering/PROGRAM-3.25-DATA-LIFECYCLE-ARCHIVE-EXPUNGE-REPORT.md) |
-| **Next Official Mission** | **Program 3.26+** — Next intelligence layer |
+| **Lifecycle Persistence Report** | [PROGRAM-3.26-LIFECYCLE-PERSISTENCE-APPROVAL-REPORT.md](./docs/engineering/PROGRAM-3.26-LIFECYCLE-PERSISTENCE-APPROVAL-REPORT.md) |
+| **Next Official Mission** | **Program 3.27+** — Next intelligence layer |
 
 > **Governance rule (D-062):** Register all new D-xxx, G-xxx, Programs, SSOT docs in [GOVERNANCE-REGISTRY.md](./docs/engineering/GOVERNANCE-REGISTRY.md).
 

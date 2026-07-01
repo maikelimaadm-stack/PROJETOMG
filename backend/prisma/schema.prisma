@@ -54,6 +54,7 @@ model Cliente {
   modulos            ClienteModulo[]
   preferencias       UsuarioPreferencia[]
   mdpEntities        MdpEntity[]
+  lifecycleApprovals LifecycleApprovalRequest[]
 
   @@index([nome])
   @@index([cpf_cnpj])
@@ -1195,4 +1196,103 @@ model MdpEnvironmentPin {
   @@unique([cliente_id, module_id, environment, base_template_id])
   @@index([module_id, environment])
   @@map("mdp_environment_pin")
+}
+
+enum LifecycleActionType {
+  archive
+  expunge
+  legal_hold
+  release_hold
+}
+
+enum LifecycleApprovalStatus {
+  pending
+  approved
+  rejected
+  blocked
+  queued
+  executing
+  executed
+}
+
+enum LifecycleExecutionStatus {
+  queued
+  processing
+  completed
+  failed
+  blocked
+}
+
+model LifecycleApprovalRequest {
+  id                      String                  @id @default(cuid())
+  cliente_id              String                  @db.VarChar(64)
+  group_id                String                  @db.VarChar(128)
+  tenant_id               String                  @db.VarChar(128)
+  action_type             LifecycleActionType
+  label                   String                  @db.VarChar(255)
+  summary                 String?
+  status                  LifecycleApprovalStatus @default(pending)
+  data_category           String?                 @db.VarChar(64)
+  policy_valid            Boolean                 @default(true)
+  human_approval_required Boolean                 @default(true)
+  approved_by             String?                 @db.VarChar(120)
+  rejected_by             String?                 @db.VarChar(120)
+  rejection_reason        String?
+  storage_target          String?                 @db.VarChar(255)
+  backup_snapshot         String?                 @db.VarChar(255)
+  metadata                Json?
+  recorded_at             DateTime                @default(now())
+  decided_at              DateTime?
+  executed_at             DateTime?
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+
+  cliente    Cliente                  @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+  executions LifecycleExecutionJob[]
+  audits     LifecycleAuditEntry[]
+
+  @@index([cliente_id, group_id, status])
+  @@index([tenant_id, status])
+  @@map("lifecycle_approval_request")
+}
+
+model LifecycleExecutionJob {
+  id           String                   @id @default(cuid())
+  request_id   String                   @db.VarChar(64)
+  group_id     String                   @db.VarChar(128)
+  tenant_id    String                   @db.VarChar(128)
+  action_type  LifecycleActionType
+  label        String                   @db.VarChar(255)
+  summary      String?
+  status       LifecycleExecutionStatus @default(queued)
+  result_state String?                  @db.VarChar(64)
+  queued_at    DateTime                 @default(now())
+  started_at   DateTime?
+  completed_at DateTime?
+  createdAt    DateTime                 @default(now())
+  updatedAt    DateTime                 @updatedAt
+
+  request LifecycleApprovalRequest @relation(fields: [request_id], references: [id], onDelete: Cascade)
+
+  @@index([group_id, status])
+  @@index([request_id])
+  @@map("lifecycle_execution_job")
+}
+
+model LifecycleAuditEntry {
+  id             String   @id @default(cuid())
+  request_id     String?  @db.VarChar(64)
+  group_id       String   @db.VarChar(128)
+  tenant_id      String?  @db.VarChar(128)
+  action         String   @db.VarChar(120)
+  entity_type    String?  @db.VarChar(64)
+  actor_id       String?  @db.VarChar(120)
+  human_approved Boolean  @default(false)
+  summary        String?
+  recorded_at    DateTime @default(now())
+
+  request LifecycleApprovalRequest? @relation(fields: [request_id], references: [id], onDelete: SetNull)
+
+  @@index([group_id, recorded_at])
+  @@map("lifecycle_audit_entry")
 }

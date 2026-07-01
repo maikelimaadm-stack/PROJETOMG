@@ -16,6 +16,7 @@ import { buildPortfolioIntelligenceBosProjection } from "../portfolio/engine/por
 import { buildPlatformGovernanceBosProjection } from "../governance/engine/governanceToBosProjection.js";
 import { buildFortressBosProjection } from "../fortress/engine/fortressToBosProjection.js";
 import { buildLifecycleBosProjection } from "../lifecycle/engine/lifecycleToBosProjection.js";
+import { buildLifecyclePersistenceBosProjection } from "../lifecycle/persistence/lifecyclePersistenceToBosProjection.js";
 import { buildAuthorizedGroupComparison } from "../segmentation/engine/authorizedGroupComparison.js";
 import { buildCorporatePatternSuggestions } from "../segmentation/engine/corporatePatternSuggestions.js";
 import {
@@ -69,6 +70,14 @@ import { bridgeLifecycleToGovernance } from "../lifecycle/engine/lifecycleToGove
 import { bridgeLifecycleToFortress } from "../lifecycle/engine/lifecycleToFortressBridge.js";
 import { bridgeLifecycleToPortfolio } from "../lifecycle/engine/lifecycleToPortfolioBridge.js";
 import {
+  bridgePersistenceToConsulting,
+  bridgePersistenceToDecision,
+  bridgePersistenceToIntelligence,
+} from "../lifecycle/persistence/lifecyclePersistenceToIntelligenceBridges.js";
+import { bridgePersistenceToGovernance } from "../lifecycle/persistence/lifecyclePersistenceToGovernanceBridge.js";
+import { bridgePersistenceToFortress } from "../lifecycle/persistence/lifecyclePersistenceToFortressBridge.js";
+import { bridgePersistenceToPortfolio } from "../lifecycle/persistence/lifecyclePersistenceToPortfolioBridge.js";
+import {
   bridgeDnaToConsulting,
   bridgeDnaToDecision,
   bridgeDnaToEvolution,
@@ -120,6 +129,9 @@ export function buildIntelligenceHomeProjection(tenantId = "default", options = 
     : null;
   const lifecycleProjection = options.groupId
     ? buildLifecycleBosProjection(options.groupId, tenantId, options)
+    : null;
+  const lifecyclePersistenceProjection = options.groupId
+    ? buildLifecyclePersistenceBosProjection(options.groupId, tenantId, options)
     : null;
   const portfolioProjection = options.groupId
     ? buildPortfolioView(options.groupId, tenantId)
@@ -329,6 +341,21 @@ export function buildIntelligenceHomeProjection(tenantId = "default", options = 
     lifecycleExpirationAlerts: lifecycleProjection?.expirationAlerts ?? [],
     lifecycleDataStates: lifecycleProjection?.dataStates ?? [],
     lifecycleControlCenter: lifecycleProjection?.controlCenter ?? null,
+    hasLifecyclePersistence: lifecyclePersistenceProjection?.hasPersistence ?? false,
+    lifecyclePersistenceSummary: lifecyclePersistenceProjection?.summary ?? null,
+    lifecyclePersistencePendingApprovals: lifecyclePersistenceProjection?.pendingApprovals ?? [],
+    lifecyclePersistenceApprovedActions: lifecyclePersistenceProjection?.approvedActions ?? [],
+    lifecyclePersistenceRejectedActions: lifecyclePersistenceProjection?.rejectedActions ?? [],
+    lifecyclePersistenceArchiveRequests: lifecyclePersistenceProjection?.archiveRequests ?? [],
+    lifecyclePersistenceExpungeRequests: lifecyclePersistenceProjection?.expungeRequests ?? [],
+    lifecyclePersistenceActiveHolds: lifecyclePersistenceProjection?.activeHolds ?? [],
+    lifecyclePersistenceExecutionQueue: lifecyclePersistenceProjection?.executionQueue ?? [],
+    lifecyclePersistenceDurableAudit: lifecyclePersistenceProjection?.durableAuditTrail ?? [],
+    lifecyclePersistenceStorageIntegration: lifecyclePersistenceProjection?.storageIntegration ?? [],
+    lifecyclePersistenceBackupIntegration: lifecyclePersistenceProjection?.backupIntegration ?? [],
+    lifecyclePersistenceBlockReasons: lifecyclePersistenceProjection?.blockReasons ?? [],
+    lifecyclePersistenceControlCenter: lifecyclePersistenceProjection?.controlCenter ?? null,
+    lifecyclePersistenceDurable: lifecyclePersistenceProjection?.durable ?? false,
     knowledgeBridges: Object.freeze({
       consulting: bridgeKnowledgeToConsulting(tenantId),
       decision: bridgeKnowledgeToDecision(tenantId),
@@ -411,6 +438,16 @@ export function buildIntelligenceHomeProjection(tenantId = "default", options = 
           consulting: bridgeLifecycleToConsulting(options.groupId, tenantId),
           decision: bridgeLifecycleToDecision(options.groupId, tenantId),
           intelligence: bridgeLifecycleToIntelligence(options.groupId, tenantId),
+        })
+      : null,
+    lifecyclePersistenceBridges: options.groupId
+      ? Object.freeze({
+          governance: bridgePersistenceToGovernance(options.groupId, tenantId),
+          fortress: bridgePersistenceToFortress(options.groupId, tenantId),
+          portfolio: bridgePersistenceToPortfolio(options.groupId, tenantId),
+          consulting: bridgePersistenceToConsulting(options.groupId, tenantId),
+          decision: bridgePersistenceToDecision(options.groupId, tenantId),
+          intelligence: bridgePersistenceToIntelligence(options.groupId, tenantId),
         })
       : null,
   });

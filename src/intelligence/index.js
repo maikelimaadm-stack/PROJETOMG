@@ -554,6 +554,37 @@ export {
 } from "./lifecycle/engine/expungeEngine.js";
 export { applyLegalHold, releaseLegalHold } from "./lifecycle/engine/legalHoldEngine.js";
 
+export {
+  LIFECYCLE_PERSISTENCE_VERSION,
+  APPROVAL_WORKFLOW_VERSION,
+  LIFECYCLE_EXECUTION_QUEUE_VERSION,
+  LIFECYCLE_PERSISTENCE_EXTENSION_POINTS,
+} from "./lifecycle/persistence/lifecyclePersistenceContracts.js";
+export { getDurableStoreInfo } from "./lifecycle/persistence/durableLifecycleStore.js";
+export {
+  analyzeLifecyclePersistenceContext,
+  ingestLifecycleToPersistence,
+} from "./lifecycle/persistence/lifecycleToPersistenceIngestion.js";
+export { retrievePersistentLifecycle } from "./lifecycle/persistence/lifecyclePersistenceRetrieval.js";
+export { summarizeLifecyclePersistence } from "./lifecycle/persistence/lifecyclePersistenceSummaries.js";
+export { buildLifecyclePersistenceBosProjection } from "./lifecycle/persistence/lifecyclePersistenceToBosProjection.js";
+export {
+  approveLifecycleRequest,
+  rejectLifecycleRequest,
+  createApprovalRequest,
+} from "./lifecycle/persistence/approvalWorkflowEngine.js";
+export { processExecutionQueue } from "./lifecycle/persistence/lifecycleExecutionQueue.js";
+export { assembleLifecycleExecutionContext } from "./lifecycle/persistence/lifecycleExecutionContextAssembly.js";
+export { runLifecyclePersistenceEngine } from "./lifecycle/persistence/runLifecyclePersistenceEngine.js";
+export { bridgePersistenceToGovernance } from "./lifecycle/persistence/lifecyclePersistenceToGovernanceBridge.js";
+export { bridgePersistenceToFortress } from "./lifecycle/persistence/lifecyclePersistenceToFortressBridge.js";
+export { bridgePersistenceToPortfolio } from "./lifecycle/persistence/lifecyclePersistenceToPortfolioBridge.js";
+export {
+  bridgePersistenceToConsulting,
+  bridgePersistenceToDecision,
+  bridgePersistenceToIntelligence,
+} from "./lifecycle/persistence/lifecyclePersistenceToIntelligenceBridges.js";
+
 export default {
   version: "mak-enterprise-intelligence-v1",
 };
