@@ -33,6 +33,7 @@ import {
   LEGAL_HOLD_ENGINE_VERSION,
   LIFECYCLE_OWNERSHIP,
 } from "./dataLifecycleContracts.js";
+import { ingestLifecycleToPersistence } from "../persistence/lifecycleToPersistenceIngestion.js";
 
 export function analyzeDataLifecycleContext(groupId, tenantId = "default", options = {}) {
   const ctx = assembleLifecycleContext(groupId, tenantId, options);
@@ -99,6 +100,12 @@ export function analyzeDataLifecycleContext(groupId, tenantId = "default", optio
     entityId: lifecycleDoc.document?.documentId ?? null,
     entityType: "lifecycle",
   });
+
+  try {
+    ingestLifecycleToPersistence(groupId, tenantId, { ...options, lifecycleDocumentId: lifecycleDoc.document?.documentId });
+  } catch {
+    /* non-blocking persistence ingestion */
+  }
 
   return Object.freeze({
     groupId,

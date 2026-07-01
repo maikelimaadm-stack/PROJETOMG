@@ -86,27 +86,82 @@ export function LifecycleArchiveHoldSection({ archivedRecords = [], legalHolds =
   );
 }
 
-export function LifecycleApprovalSection({ pendingApprovals = [], expungeableRecords = [], blockReasons = [] }) {
-  if (!pendingApprovals.length && !expungeableRecords.length && !blockReasons.length) return null;
+export function LifecycleApprovalSection({
+  pendingApprovals = [],
+  expungeableRecords = [],
+  blockReasons = [],
+  onApprove,
+  onReject,
+  approvedActions = [],
+  rejectedActions = [],
+}) {
+  if (
+    !pendingApprovals.length &&
+    !expungeableRecords.length &&
+    !blockReasons.length &&
+    !approvedActions.length &&
+    !rejectedActions.length
+  ) {
+    return null;
+  }
   return (
     <section className="bos-section" aria-labelledby="bos-lifecycle-approval-title">
       <div className="bos-section-heading">
         <h2 id="bos-lifecycle-approval-title" className="bos-section-title">
           Aprovações e expurgo controlado
         </h2>
-        <p className="bos-section-subtitle">Ações sensíveis aguardando aprovação humana ou bloqueadas por política.</p>
+        <p className="bos-section-subtitle">Aprove ou rejeite ações sensíveis com trilha durável de auditoria.</p>
       </div>
       {pendingApprovals.length ? (
         <Card className="bos-card mb-3 border-amber-100 bg-amber-50/20">
-          <CardContent className="py-3">
-            <p className="text-sm font-medium text-slate-900">Aprovações pendentes</p>
+          <CardContent className="divide-y divide-slate-100 p-0">
             {pendingApprovals.map((item) => (
-              <p key={item.id} className="text-xs text-slate-600">
-                {item.label}: {item.context}
-              </p>
+              <div key={item.id} className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-900">{item.label}</p>
+                  <p className="text-xs text-slate-600">{item.context}</p>
+                  {item.because ? <p className="text-xs text-amber-700">{item.because}</p> : null}
+                </div>
+                {onApprove && onReject ? (
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700"
+                      onClick={() => onApprove(item.id)}
+                    >
+                      Aprovar
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                      onClick={() => onReject(item.id)}
+                    >
+                      Rejeitar
+                    </button>
+                  </div>
+                ) : null}
+              </div>
             ))}
           </CardContent>
         </Card>
+      ) : null}
+      {approvedActions.length ? (
+        <div className="mb-3 flex flex-wrap gap-2">
+          {approvedActions.map((item) => (
+            <span key={item.id} className="rounded-full bg-emerald-50 px-3 py-1 text-xs text-emerald-800">
+              Aprovado: {item.label}
+            </span>
+          ))}
+        </div>
+      ) : null}
+      {rejectedActions.length ? (
+        <div className="mb-3 flex flex-wrap gap-2">
+          {rejectedActions.map((item) => (
+            <span key={item.id} className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-700">
+              Rejeitado: {item.label}
+            </span>
+          ))}
+        </div>
       ) : null}
       {blockReasons.length ? (
         <div className="mb-3 flex flex-wrap gap-2">
@@ -133,8 +188,22 @@ export function LifecycleApprovalSection({ pendingApprovals = [], expungeableRec
   );
 }
 
-export function LifecycleAuditSection({ lifecycleHistory = [], auditTrailByDocument = [], expirationAlerts = [] }) {
-  if (!lifecycleHistory.length && !auditTrailByDocument.length && !expirationAlerts.length) return null;
+export function LifecycleAuditSection({
+  lifecycleHistory = [],
+  auditTrailByDocument = [],
+  expirationAlerts = [],
+  durableAuditTrail = [],
+  executionQueue = [],
+}) {
+  if (
+    !lifecycleHistory.length &&
+    !auditTrailByDocument.length &&
+    !expirationAlerts.length &&
+    !durableAuditTrail.length &&
+    !executionQueue.length
+  ) {
+    return null;
+  }
   return (
     <section className="bos-section" aria-labelledby="bos-lifecycle-audit-title">
       <div className="bos-section-heading">
@@ -154,6 +223,30 @@ export function LifecycleAuditSection({ lifecycleHistory = [], auditTrailByDocum
                 </p>
                 <p className="text-xs text-slate-600">{item.context}</p>
               </div>
+            ))}
+          </CardContent>
+        </Card>
+      ) : null}
+      {executionQueue.length ? (
+        <Card className="bos-card mb-3 border-indigo-100 bg-indigo-50/20">
+          <CardContent className="py-3">
+            <p className="text-sm font-medium text-slate-900">Fila de execução</p>
+            {executionQueue.map((item) => (
+              <p key={item.id} className="text-xs text-slate-600">
+                {item.label}: {item.status} — {item.context}
+              </p>
+            ))}
+          </CardContent>
+        </Card>
+      ) : null}
+      {durableAuditTrail.length ? (
+        <Card className="bos-card mb-3 border-slate-200/80">
+          <CardContent className="py-3">
+            <p className="text-sm font-medium text-slate-900">Trilha de auditoria durável</p>
+            {durableAuditTrail.map((item) => (
+              <p key={item.id} className="text-xs text-slate-600">
+                {item.label}: {item.context}{item.approved ? " — aprovado" : ""}
+              </p>
             ))}
           </CardContent>
         </Card>

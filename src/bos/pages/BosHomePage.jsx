@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { Button } from "@/shared/ui/button";
 import { buildBosCapabilities } from "@/bos/config/bosCapabilityCatalog";
 import { buildBosAssetTypes } from "@/bos/config/bosAssetCatalog";
@@ -122,11 +122,17 @@ import {
 } from "@/intelligence/integration/bosIntelligenceProjection.js";
 import { findAuthorizedGroupIdForTenant } from "@/intelligence/dna/engine/businessDnaStore.js";
 import { captureBosHomeViewed } from "@/intelligence/integration/intelligenceEventBridge.js";
+import {
+  approvePersistentLifecycleRequest,
+  rejectPersistentLifecycleRequest,
+} from "@/intelligence/lifecycle/persistence/lifecyclePersistenceActions.js";
 
 export default function BosHomePage() {
   const { user, cliente } = useAuth();
   const tenantId = String(cliente?.id ?? "default");
   const groupId = findAuthorizedGroupIdForTenant(tenantId);
+
+  const [lifecycleRefresh, setLifecycleRefresh] = useState(0);
 
   useEffect(() => {
     captureBosHomeViewed(tenantId, user?.usuario ?? "business-user");
@@ -134,7 +140,27 @@ export default function BosHomePage() {
 
   const intelligence = useMemo(
     () => buildIntelligenceHomeProjection(tenantId, groupId ? { groupId } : {}),
-    [tenantId, groupId]
+    [tenantId, groupId, lifecycleRefresh]
+  );
+
+  const handleApproveLifecycle = useCallback(
+    (requestId) => {
+      approvePersistentLifecycleRequest(requestId, user?.usuario ?? "administrador");
+      setLifecycleRefresh((n) => n + 1);
+    },
+    [user?.usuario]
+  );
+
+  const handleRejectLifecycle = useCallback(
+    (requestId) => {
+      rejectPersistentLifecycleRequest(
+        requestId,
+        user?.usuario ?? "administrador",
+        "Rejeitado pelo administrador no BOS."
+      );
+      setLifecycleRefresh((n) => n + 1);
+    },
+    [user?.usuario]
   );
 
   const capabilities = buildBosCapabilities();
@@ -495,17 +521,33 @@ export default function BosHomePage() {
         retentionPolicies={intelligence.lifecycleRetentionPolicies}
       />
       <LifecycleApprovalSection
-        pendingApprovals={intelligence.lifecyclePendingApprovals}
+        pendingApprovals={
+          intelligence.lifecyclePersistencePendingApprovals?.length
+            ? intelligence.lifecyclePersistencePendingApprovals
+            : intelligence.lifecyclePendingApprovals
+        }
         expungeableRecords={intelligence.lifecycleExpungeableRecords}
-        blockReasons={intelligence.lifecycleBlockReasons}
+        blockReasons={
+          intelligence.lifecyclePersistenceBlockReasons?.length
+            ? intelligence.lifecyclePersistenceBlockReasons
+            : intelligence.lifecycleBlockReasons
+        }
+        approvedActions={intelligence.lifecyclePersistenceApprovedActions}
+        rejectedActions={intelligence.lifecyclePersistenceRejectedActions}
+        onApprove={handleApproveLifecycle}
+        onReject={handleRejectLifecycle}
       />
       <LifecycleAuditSection
         lifecycleHistory={intelligence.lifecycleHistory}
         auditTrailByDocument={intelligence.lifecycleAuditTrail}
         expirationAlerts={intelligence.lifecycleExpirationAlerts}
+        durableAuditTrail={intelligence.lifecyclePersistenceDurableAudit}
+        executionQueue={intelligence.lifecyclePersistenceExecutionQueue}
       />
       <LifecycleControlCenterSection
-        controlCenter={intelligence.lifecycleControlCenter}
+        controlCenter={
+          intelligence.lifecyclePersistenceControlCenter ?? intelligence.lifecycleControlCenter
+        }
         dataStates={intelligence.lifecycleDataStates}
       />
 

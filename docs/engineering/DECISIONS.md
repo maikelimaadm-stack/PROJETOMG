@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-091 Data Lifecycle, Archive & Controlled Expunge MVP)
+**Last updated:** 2026-06-30 (D-092 Data Lifecycle Persistence & Approval Workflow MVP)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -1101,6 +1101,18 @@
 | **Decision** | Implement first **Data Lifecycle Engine** with durable persistence, controlled archive/hold/expunge execution, human approval workflow, full audit trail, and BOS projections. Consumes Compliance Fortress + full intelligence stack. Gate **G323**. |
 | **Evidence** | `src/intelligence/lifecycle/engine/**` · [PROGRAM-3.25-DATA-LIFECYCLE-ARCHIVE-EXPUNGE-REPORT.md](./PROGRAM-3.25-DATA-LIFECYCLE-ARCHIVE-EXPUNGE-REPORT.md) |
 | **Consequences** | Operational data lifecycle on BOS; no state change without audit trail; no expunge/archive without policy and approval |
+
+---
+
+## D-092 — Data Lifecycle Persistence & Approval Workflow MVP (Program 3.26)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Implement **Lifecycle Backend Persistence** and **Approval Workflow Engine** with durable store, execution queue, storage/backup adapters, interactive BOS approve/reject, and Prisma backend models. Gate **G324**. |
+| **Evidence** | `src/intelligence/lifecycle/persistence/**` · `backend/src/modules/lifecycle/**` · [PROGRAM-3.26-LIFECYCLE-PERSISTENCE-APPROVAL-REPORT.md](./PROGRAM-3.26-LIFECYCLE-PERSISTENCE-APPROVAL-REPORT.md) |
+| **Consequences** | Lifecycle exits local MVP; human approval visible on BOS; execution queue with durable audit trail |
 
 ---
 

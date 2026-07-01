@@ -10,6 +10,7 @@ import { registerCadastroRoutes } from "../modules/cadastro/routes.js";
 import { registerMetricsRoutes } from "../modules/metrics/routes.js";
 import { registerClienteModuloRoutes } from "../modules/clienteModulo/routes.js";
 import { registerMdpRoutes } from "../modules/mdp/routes.js";
+import { registerLifecycleRoutes } from "../modules/lifecycle/routes.js";
 import { verifyDatabaseConnection } from "../database/prismaClient.js";
 import { isSupabaseStorageConfigured, verifySupabaseStorageConnection } from "../integrations/supabase/adminClient.js";
 
@@ -26,6 +27,7 @@ const coreModules = new Set([
   "clienteModulo",
   "metrics",
   "mdp",
+  "lifecycle",
   "preferences",
   "idGlobal",
   "sequencias",
@@ -206,6 +208,7 @@ export const registerRoutes = async (app) => {
     registerClienteModuloRoutes(app),
     registerCadastroRoutes(app),
     registerMdpRoutes(app),
+    registerLifecycleRoutes(app),
   ]);
   await registerGeneratedModuleRoutes(app);
   const { registerLatencyDebugRoutes } = await import("../modules/debug/latencyRoutes.js");
