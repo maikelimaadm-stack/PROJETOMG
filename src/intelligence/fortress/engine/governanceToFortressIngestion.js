@@ -31,6 +31,7 @@ import {
   AUDIT_FORTRESS_VERSION,
   FORTRESS_OWNERSHIP,
 } from "./complianceFortressContracts.js";
+import { ingestFortressToLifecycle } from "../../lifecycle/engine/fortressToLifecycleIngestion.js";
 
 export function analyzeComplianceFortressContext(groupId, tenantId = "default", options = {}) {
   const complianceCtx = assembleComplianceContext(groupId, tenantId, options);
@@ -91,6 +92,12 @@ export function analyzeComplianceFortressContext(groupId, tenantId = "default", 
     entityId: complianceDoc.document?.documentId ?? null,
     entityType: "fortress",
   });
+
+  try {
+    ingestFortressToLifecycle(groupId, tenantId, { ...options, fortressDocumentId: complianceDoc.document?.documentId });
+  } catch {
+    /* non-blocking lifecycle ingestion */
+  }
 
   return Object.freeze({
     groupId,

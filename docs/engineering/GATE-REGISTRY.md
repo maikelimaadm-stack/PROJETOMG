@@ -55,6 +55,7 @@
 | **G320** | Product (active) | **Portfolio Intelligence & Command Center MVP** (Program 3.22) |
 | **G321** | Product (active) | **Platform Governance & Portfolio Control Center MVP** (Program 3.23) |
 | **G322** | Product (active) | **Compliance, Retention & Audit Fortress MVP** (Program 3.24) |
+| **G323** | Product (active) | **Data Lifecycle, Archive & Controlled Expunge MVP** (Program 3.25) |
 | **G303B** | Studio (planned) | Business Computation implementation |
 | **G304** | Studio (architecture) | Intent Resolver architecture reference (D-064) — implementation certified by **G305** |
 | **G401–G402** | Deploy pipeline | Renumbered from G303/G304 deploy (D-062) |
@@ -119,6 +120,7 @@
 | **G320** | Portfolio Intelligence & Command Center MVP | 3.22 | D-088 | `gate-enterprise-portfolio-intelligence-command-center.mjs` | **active** |
 | **G321** | Platform Governance & Portfolio Control Center MVP | 3.23 | D-089 | `gate-enterprise-platform-governance-portfolio-control.mjs` | **active** |
 | **G322** | Compliance, Retention & Audit Fortress MVP | 3.24 | D-090 | `gate-enterprise-compliance-retention-audit-fortress.mjs` | **active** |
+| **G323** | Data Lifecycle, Archive & Controlled Expunge MVP | 3.25 | D-091 | `gate-enterprise-data-lifecycle-archive-expunge.mjs` | **active** |
 
 ---
 

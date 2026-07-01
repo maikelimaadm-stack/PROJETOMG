@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-090 Compliance, Retention & Audit Fortress MVP)
+**Last updated:** 2026-06-30 (D-091 Data Lifecycle, Archive & Controlled Expunge MVP)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -1089,6 +1089,18 @@
 | **Decision** | Implement first **Compliance, Retention & Audit Fortress** consuming Platform Governance + full intelligence stack. Explicit retention rules, controlled purge, legal hold, archive, audit trail, BOS projections. Gate **G322**. |
 | **Evidence** | `src/intelligence/fortress/engine/**` · [PROGRAM-3.24-COMPLIANCE-RETENTION-AUDIT-FORTRESS-REPORT.md](./PROGRAM-3.24-COMPLIANCE-RETENTION-AUDIT-FORTRESS-REPORT.md) |
 | **Consequences** | Structural compliance protection on BOS; no purge without policy and audit; no retention without explicit rule |
+
+---
+
+## D-091 — Data Lifecycle, Archive & Controlled Expunge MVP (Program 3.25)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Implement first **Data Lifecycle Engine** with durable persistence, controlled archive/hold/expunge execution, human approval workflow, full audit trail, and BOS projections. Consumes Compliance Fortress + full intelligence stack. Gate **G323**. |
+| **Evidence** | `src/intelligence/lifecycle/engine/**` · [PROGRAM-3.25-DATA-LIFECYCLE-ARCHIVE-EXPUNGE-REPORT.md](./PROGRAM-3.25-DATA-LIFECYCLE-ARCHIVE-EXPUNGE-REPORT.md) |
+| **Consequences** | Operational data lifecycle on BOS; no state change without audit trail; no expunge/archive without policy and approval |
 
 ---
 

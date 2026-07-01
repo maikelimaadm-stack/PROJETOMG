@@ -109,6 +109,13 @@ import {
   FortressAuditSection,
   FortressExposureSection,
 } from "@/bos/components/BusinessFortressSections";
+import {
+  LifecycleStatusSection,
+  LifecycleArchiveHoldSection,
+  LifecycleApprovalSection,
+  LifecycleAuditSection,
+  LifecycleControlCenterSection,
+} from "@/bos/components/BusinessLifecycleSections";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import {
   buildIntelligenceHomeProjection,
@@ -475,6 +482,31 @@ export default function BosHomePage() {
         exposureBlocks={intelligence.exposureBlocks}
         alerts={intelligence.fortressAlerts}
         tenantCompliance={intelligence.tenantComplianceView}
+      />
+
+      <LifecycleStatusSection
+        lifecycleStatus={intelligence.lifecycleStatusView}
+        lifecycleByType={intelligence.lifecycleByType}
+        summary={intelligence.lifecycleSummary}
+      />
+      <LifecycleArchiveHoldSection
+        archivedRecords={intelligence.lifecycleArchivedRecords}
+        legalHolds={intelligence.lifecycleLegalHolds}
+        retentionPolicies={intelligence.lifecycleRetentionPolicies}
+      />
+      <LifecycleApprovalSection
+        pendingApprovals={intelligence.lifecyclePendingApprovals}
+        expungeableRecords={intelligence.lifecycleExpungeableRecords}
+        blockReasons={intelligence.lifecycleBlockReasons}
+      />
+      <LifecycleAuditSection
+        lifecycleHistory={intelligence.lifecycleHistory}
+        auditTrailByDocument={intelligence.lifecycleAuditTrail}
+        expirationAlerts={intelligence.lifecycleExpirationAlerts}
+      />
+      <LifecycleControlCenterSection
+        controlCenter={intelligence.lifecycleControlCenter}
+        dataStates={intelligence.lifecycleDataStates}
       />
 
       <ActivityTeaserSection items={activity} />
