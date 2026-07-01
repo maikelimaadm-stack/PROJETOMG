@@ -55,6 +55,7 @@ export const RECOMMENDATION_OWNERSHIP = Object.freeze({
 });
 
 export const RECOMMENDATION_ENGINE_EXTENSION_POINTS = Object.freeze([
+  Object.freeze({ id: "business.adoption", implemented: true, consumes: ["recommendation.engine"] }),
   Object.freeze({ id: "ai.chat.assistant", implemented: false, forbiddenForBusinessUser: true }),
 ]);
 

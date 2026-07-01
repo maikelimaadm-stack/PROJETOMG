@@ -1,5 +1,6 @@
 import { summarizeRecommendationEngine } from "./recommendationSummarization.js";
 import { retrieveLatestRecommendations } from "./recommendationRetrieval.js";
+import { runAdoptionEngine } from "../../adoption/engine/runAdoptionEngine.js";
 
 export function bridgeRecommendationToConsulting(tenantId = "default") {
   const summary = summarizeRecommendationEngine(tenantId);
@@ -39,8 +40,21 @@ export function bridgeRecommendationToEvolution(tenantId = "default") {
   });
 }
 
+export function bridgeRecommendationToAdoption(tenantId = "default") {
+  const adoption = runAdoptionEngine(tenantId);
+  return Object.freeze({
+    tenantId,
+    bridgedAt: new Date().toISOString(),
+    adoptionSummary: adoption.summary?.headline,
+    adoptionEngineReady: true,
+    humanApprovalRequired: true,
+    autonomousExecutionForbidden: true,
+  });
+}
+
 export default {
   bridgeRecommendationToConsulting,
   bridgeRecommendationToDecision,
   bridgeRecommendationToEvolution,
+  bridgeRecommendationToAdoption,
 };

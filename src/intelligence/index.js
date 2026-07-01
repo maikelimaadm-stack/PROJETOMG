@@ -304,9 +304,66 @@ export {
   bridgeRecommendationToConsulting,
   bridgeRecommendationToDecision,
   bridgeRecommendationToEvolution,
+  bridgeRecommendationToAdoption,
 } from "./recommendation/engine/recommendationToIntelligenceBridges.js";
 export { buildReplicationSeedsRegistry } from "./recommendation/engine/replicationSeedsRegistry.js";
 export { runRecommendationEngine } from "./recommendation/engine/runRecommendationEngine.js";
+
+export {
+  ADOPTION_ENGINE_VERSION,
+  ADOPTION_STATUS_TYPES,
+  ADOPTION_ENGINE_EXTENSION_POINTS,
+} from "./adoption/engine/adoptionEngineContracts.js";
+export {
+  listAdoptions,
+  listAdoptionPlans,
+  listAdoptionMilestones,
+  getAdoptionEngineStoreInfo,
+} from "./adoption/engine/adoptionEngineStore.js";
+export { assembleAdoptionContext } from "./adoption/engine/adoptionContextAssembly.js";
+export {
+  analyzeAdoptionContext,
+  ingestRecommendationToAdoption,
+  replayAdoptionFromStack,
+} from "./adoption/engine/recommendationToAdoptionIngestion.js";
+export {
+  retrieveAdoptionsByContext,
+  retrieveLatestAdoptions,
+} from "./adoption/engine/adoptionRetrieval.js";
+export { summarizeAdoptionEngine } from "./adoption/engine/adoptionSummarization.js";
+export { buildAdoptionBosProjection } from "./adoption/engine/adoptionToBosProjection.js";
+export {
+  bridgeAdoptionToConsulting,
+  bridgeAdoptionToDecision,
+  bridgeAdoptionToEvolution,
+} from "./adoption/engine/adoptionToIntelligenceBridges.js";
+export { runAdoptionEngine } from "./adoption/engine/runAdoptionEngine.js";
+
+export {
+  CORPORATE_INTELLIGENCE_VERSION,
+  CORPORATE_INTELLIGENCE_EXTENSION_POINTS,
+} from "./corporate/engine/corporateIntelligenceContracts.js";
+export {
+  listCorporateViews,
+  listCorporateBenchmarks,
+  getCorporateIntelligenceStoreInfo,
+} from "./corporate/engine/corporateIntelligenceStore.js";
+export { assembleCorporateIntelligenceContext } from "./corporate/engine/corporateIntelligenceContextAssembly.js";
+export {
+  analyzeCorporateIntelligenceContext,
+  ingestAdoptionToCorporateIntelligence,
+} from "./corporate/engine/adoptionToCorporateIngestion.js";
+export {
+  retrieveCorporateIntelligenceByContext,
+  retrieveLatestCorporateIntelligence,
+} from "./corporate/engine/corporateIntelligenceRetrieval.js";
+export { summarizeCorporateIntelligenceEngine } from "./corporate/engine/corporateIntelligenceSummarization.js";
+export { buildCorporateIntelligenceBosProjection } from "./corporate/engine/corporateIntelligenceToBosProjection.js";
+export { buildAuthorizedGroupInsights } from "./corporate/engine/authorizedGroupInsights.js";
+export { buildGroupAdoptionComparison } from "./corporate/engine/groupAdoptionComparison.js";
+export { trackReplicationAdoption } from "./corporate/engine/replicationAdoptionTracking.js";
+export { trackRecommendationOutcomes } from "./corporate/engine/recommendationOutcomeTracking.js";
+export { runCorporateIntelligenceEngine } from "./corporate/engine/runCorporateIntelligenceEngine.js";
 
 export default {
   version: "mak-enterprise-intelligence-v1",

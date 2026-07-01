@@ -8,6 +8,8 @@ import { buildBusinessDnaBosProjection } from "../dna/engine/businessDnaToBosPro
 import { buildPortfolioView } from "../dna/engine/portfolioView.js";
 import { buildSegmentationBosProjection } from "../segmentation/engine/segmentationToBosProjection.js";
 import { buildRecommendationBosProjection } from "../recommendation/engine/recommendationToBosProjection.js";
+import { buildAdoptionBosProjection } from "../adoption/engine/adoptionToBosProjection.js";
+import { buildCorporateIntelligenceBosProjection } from "../corporate/engine/corporateIntelligenceToBosProjection.js";
 import { buildAuthorizedGroupComparison } from "../segmentation/engine/authorizedGroupComparison.js";
 import { buildCorporatePatternSuggestions } from "../segmentation/engine/corporatePatternSuggestions.js";
 import {
@@ -20,7 +22,13 @@ import {
   bridgeRecommendationToConsulting,
   bridgeRecommendationToDecision,
   bridgeRecommendationToEvolution,
+  bridgeRecommendationToAdoption,
 } from "../recommendation/engine/recommendationToIntelligenceBridges.js";
+import {
+  bridgeAdoptionToConsulting,
+  bridgeAdoptionToDecision,
+  bridgeAdoptionToEvolution,
+} from "../adoption/engine/adoptionToIntelligenceBridges.js";
 import {
   bridgeDnaToConsulting,
   bridgeDnaToDecision,
@@ -56,6 +64,10 @@ export function buildIntelligenceHomeProjection(tenantId = "default", options = 
   const dnaProjection = buildBusinessDnaBosProjection(tenantId);
   const segmentationProjection = buildSegmentationBosProjection(tenantId, options);
   const recommendationProjection = buildRecommendationBosProjection(tenantId, options);
+  const adoptionProjection = buildAdoptionBosProjection(tenantId, options);
+  const corporateProjection = options.groupId
+    ? buildCorporateIntelligenceBosProjection(options.groupId, tenantId, options)
+    : null;
   const portfolioProjection = options.groupId
     ? buildPortfolioView(options.groupId, tenantId)
     : null;
@@ -169,6 +181,27 @@ export function buildIntelligenceHomeProjection(tenantId = "default", options = 
     replicationSummary: recommendationProjection.replicationSummary,
     recommendationNextSteps: recommendationProjection.nextSteps,
     recommendationWhy: recommendationProjection.whyRecommended,
+    hasAdoptions: adoptionProjection.hasAdoptions,
+    adoptionSummary: adoptionProjection.summary,
+    adoptedRecommendations: adoptionProjection.adoptedRecommendations,
+    rejectedRecommendations: adoptionProjection.rejectedRecommendations,
+    adoptionPlansInProgress: adoptionProjection.plansInProgress,
+    adoptionMilestones: adoptionProjection.milestones,
+    replicatedPracticesAdopted: adoptionProjection.replicatedPractices,
+    adoptionValidatedOutcomes: adoptionProjection.validatedOutcomes,
+    adoptionPendingValidation: adoptionProjection.pendingValidation,
+    adoptionTimeline: adoptionProjection.adoptionTimeline,
+    adoptionProgressPercent: adoptionProjection.overallProgressPercent,
+    hasCorporateIntelligence: corporateProjection?.hasCorporateIntelligence ?? false,
+    corporateSummary: corporateProjection?.summary ?? null,
+    corporateView: corporateProjection?.corporateView ?? null,
+    corporateBenchmarks: corporateProjection?.benchmarks ?? [],
+    corporateReferences: corporateProjection?.references ?? [],
+    corporateVariances: corporateProjection?.variances ?? [],
+    corporateOpportunities: corporateProjection?.opportunities ?? [],
+    corporateCompanyComparisons: corporateProjection?.companyComparisons ?? [],
+    corporateGroupInsights: corporateProjection?.groupInsights ?? [],
+    corporateHealthScore: corporateProjection?.healthScore ?? null,
     knowledgeBridges: Object.freeze({
       consulting: bridgeKnowledgeToConsulting(tenantId),
       decision: bridgeKnowledgeToDecision(tenantId),
@@ -205,6 +238,12 @@ export function buildIntelligenceHomeProjection(tenantId = "default", options = 
       consulting: bridgeRecommendationToConsulting(tenantId),
       decision: bridgeRecommendationToDecision(tenantId),
       evolution: bridgeRecommendationToEvolution(tenantId),
+      adoption: bridgeRecommendationToAdoption(tenantId),
+    }),
+    adoptionBridges: Object.freeze({
+      consulting: bridgeAdoptionToConsulting(tenantId),
+      decision: bridgeAdoptionToDecision(tenantId),
+      evolution: bridgeAdoptionToEvolution(tenantId),
     }),
   });
 }
