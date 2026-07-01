@@ -111,7 +111,8 @@
 | **3.18** | **Segmentation, Templates & Advanced Maturity MVP** | D-084 | **complete (G316)** | 3.17 ✅ |
 | **3.19** | **Recommendation & Replication MVP** | D-085 | **complete (G317)** | 3.18 ✅ |
 | **3.20** | **Adoption Tracking & Corporate Intelligence MVP** | D-086 | **complete (G318)** | 3.19 ✅ |
-| **3.21+** | **Continuous corporate intelligence / next layer** | — | **planned** | 3.20 ✅ |
+| **3.21** | **Continuous Improvement & Optimization Loop MVP** | D-087 | **complete (G319)** | 3.20 ✅ |
+| **3.22+** | **Next intelligence layer** | — | **planned** | 3.21 ✅ |
 | 3.3-impl | Business Computation impl | D-058 | planned | G303B |
 | 4.x | Enterprise Memory / Intelligence impl | D-060 | planned | Post Resolver |
 
@@ -144,6 +145,7 @@
                                       → 3.18 Segmentation, Templates & Advanced Maturity (G316) ✅
                                         → 3.19 Recommendation & Replication (G317) ✅
                                           → 3.20 Adoption & Corporate Intelligence (G318) ✅
+                                            → 3.21 Continuous Improvement & Optimization (G319) ✅
                                           → 3.20+ Adoption tracking ← NEXT
                 → 4.x Enterprise Intelligence programs (D-060)
 ```

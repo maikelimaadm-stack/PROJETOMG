@@ -12,6 +12,7 @@ import { registerAdoptionVersion } from "./adoptionVersioning.js";
 import { appendAdoptionAuditEntry } from "./adoptionAuditTrail.js";
 import { ADOPTION_ENGINE_VERSION, ADOPTION_OWNERSHIP, ADOPTION_STATUS_TYPES } from "./adoptionEngineContracts.js";
 import { ingestAdoptionToCorporateIntelligence } from "../../corporate/engine/adoptionToCorporateIngestion.js";
+import { ingestAdoptionToImprovement } from "../../improvement/engine/adoptionToImprovementIngestion.js";
 
 export function analyzeAdoptionContext(tenantId = "default", options = {}) {
   const ctx = assembleAdoptionContext(tenantId, options);
@@ -72,6 +73,12 @@ export function analyzeAdoptionContext(tenantId = "default", options = {}) {
     }
   } catch {
     // non-blocking — corporate intelligence must not break adoption pipeline
+  }
+
+  try {
+    ingestAdoptionToImprovement(tenantId, options);
+  } catch {
+    // non-blocking — improvement must not break adoption pipeline
   }
 
   return Object.freeze({

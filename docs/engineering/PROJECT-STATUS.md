@@ -3,7 +3,7 @@
 **Status:** Official — Single source of truth for project continuity  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Updated by:** Program 3.20 — Adoption Tracking & Corporate Intelligence MVP (D-086)  
+**Updated by:** Program 3.21 — Continuous Improvement & Optimization Loop MVP (D-087)  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md); supersedes chat history
 
 > **Rule:** Any AI or developer session must read this file (via [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md)) before starting work. Do not rely on prior chat context.
@@ -15,7 +15,7 @@
 | Field | Value |
 |-------|-------|
 | **Architecture state** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) · **First Business Asset certified** (D-068, G306) |
-| **Implementation phase** | **Adoption Tracking & Corporate Intelligence live (D-086, G318)** — under D-074 identity |
+| **Implementation phase** | **Continuous Improvement & Optimization Loop live (D-087, G319)** — under D-074 identity |
 | **Implementation authorized** | **Yes** — [MAK-PRODUCT-IDENTITY-FREEZE.md](../architecture/MAK-PRODUCT-IDENTITY-FREEZE.md) |
 | **Primary user surface** | **BOS home (`/`)** — [MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](../architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md) |
 
@@ -63,9 +63,9 @@
 | Field | Value |
 |-------|-------|
 | **Current program** | **Program 3 — Studio Intelligence** |
-| **Last completed mission** | **Program 3.20** — Adoption Tracking & Corporate Intelligence MVP (D-086, G318) |
-| **Last decision** | **D-086** — Adoption Tracking & Corporate Intelligence Engine implemented |
-| **Next official mission** | **Program 3.21+** — Continuous corporate intelligence / next layer |
+| **Last completed mission** | **Program 3.21** — Continuous Improvement & Optimization Loop MVP (D-087, G319) |
+| **Last decision** | **D-087** — Continuous Improvement & Optimization Loop Engine implemented |
+| **Next official mission** | **Program 3.22+** — Next intelligence layer |
 
 Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md)
 

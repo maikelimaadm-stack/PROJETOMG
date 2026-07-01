@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-086 Adoption Tracking & Corporate Intelligence MVP)
+**Last updated:** 2026-06-30 (D-087 Continuous Improvement & Optimization Loop MVP)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -1041,6 +1041,18 @@
 | **Decision** | Implement first **Adoption Tracking Engine** and **Corporate Intelligence Engine** consuming Recommendation & Replication + full intelligence stack. Tenant-scoped adoption tracking, authorized corporate aggregation, human approval required, BOS projections. Gate **G318**. |
 | **Evidence** | `src/intelligence/adoption/engine/**` · `src/intelligence/corporate/engine/**` · [PROGRAM-3.20-ADOPTION-CORPORATE-INTELLIGENCE-REPORT.md](./PROGRAM-3.20-ADOPTION-CORPORATE-INTELLIGENCE-REPORT.md) |
 | **Consequences** | Adoption tracking and corporate intelligence live on BOS; no autonomous execution; no cross-tenant mixing without authorization |
+
+---
+
+## D-087 — Continuous Improvement & Optimization Loop MVP (Program 3.21)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Implement first **Continuous Improvement Engine** and **Optimization Loop Engine** consuming Adoption + Corporate Intelligence + full intelligence stack. Tenant-scoped improvement cycles, optimization loops with human approval, BOS feedback loop. Gate **G319**. |
+| **Evidence** | `src/intelligence/improvement/engine/**` · `src/intelligence/optimization/engine/**` · [PROGRAM-3.21-CONTINUOUS-IMPROVEMENT-OPTIMIZATION-REPORT.md](./PROGRAM-3.21-CONTINUOUS-IMPROVEMENT-OPTIMIZATION-REPORT.md) |
+| **Consequences** | Closed loop Recommendation → Adoption → Improvement → Optimization on BOS; no autonomous optimization |
 
 ---
 

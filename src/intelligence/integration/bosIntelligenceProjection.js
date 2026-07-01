@@ -10,6 +10,8 @@ import { buildSegmentationBosProjection } from "../segmentation/engine/segmentat
 import { buildRecommendationBosProjection } from "../recommendation/engine/recommendationToBosProjection.js";
 import { buildAdoptionBosProjection } from "../adoption/engine/adoptionToBosProjection.js";
 import { buildCorporateIntelligenceBosProjection } from "../corporate/engine/corporateIntelligenceToBosProjection.js";
+import { buildImprovementBosProjection } from "../improvement/engine/improvementToBosProjection.js";
+import { buildOptimizationBosProjection } from "../optimization/engine/optimizationToBosProjection.js";
 import { buildAuthorizedGroupComparison } from "../segmentation/engine/authorizedGroupComparison.js";
 import { buildCorporatePatternSuggestions } from "../segmentation/engine/corporatePatternSuggestions.js";
 import {
@@ -28,7 +30,15 @@ import {
   bridgeAdoptionToConsulting,
   bridgeAdoptionToDecision,
   bridgeAdoptionToEvolution,
+  bridgeAdoptionToImprovement,
 } from "../adoption/engine/adoptionToIntelligenceBridges.js";
+import {
+  bridgeImprovementToConsulting,
+  bridgeImprovementToDecision,
+  bridgeImprovementToEvolution,
+  bridgeImprovementToRecommendation,
+  bridgeImprovementToAdoption,
+} from "../improvement/engine/improvementToIntelligenceBridges.js";
 import {
   bridgeDnaToConsulting,
   bridgeDnaToDecision,
@@ -68,6 +78,8 @@ export function buildIntelligenceHomeProjection(tenantId = "default", options = 
   const corporateProjection = options.groupId
     ? buildCorporateIntelligenceBosProjection(options.groupId, tenantId, options)
     : null;
+  const improvementProjection = buildImprovementBosProjection(tenantId, options);
+  const optimizationProjection = buildOptimizationBosProjection(tenantId, options);
   const portfolioProjection = options.groupId
     ? buildPortfolioView(options.groupId, tenantId)
     : null;
@@ -202,6 +214,22 @@ export function buildIntelligenceHomeProjection(tenantId = "default", options = 
     corporateCompanyComparisons: corporateProjection?.companyComparisons ?? [],
     corporateGroupInsights: corporateProjection?.groupInsights ?? [],
     corporateHealthScore: corporateProjection?.healthScore ?? null,
+    hasImprovement: improvementProjection.hasImprovement,
+    improvementSummary: improvementProjection.summary,
+    activeImprovementCycles: improvementProjection.activeImprovementCycles,
+    improvementOpportunities: improvementProjection.improvementOpportunities,
+    validatedImprovements: improvementProjection.validatedImprovements,
+    pendingEffectImprovements: improvementProjection.pendingEffectImprovements,
+    recurringImprovementPatterns: improvementProjection.recurringImprovementPatterns,
+    improvementBenchmarks: improvementProjection.improvementBenchmarks,
+    accumulatedImprovementImpact: improvementProjection.accumulatedImpact,
+    improvementNextSteps: improvementProjection.improvementNextSteps,
+    hasOptimization: optimizationProjection.hasOptimization,
+    optimizationSummary: optimizationProjection.summary,
+    activeOptimizationLoops: optimizationProjection.activeOptimizationLoops,
+    optimizationOpportunities: optimizationProjection.optimizationOpportunities,
+    optimizationBenchmarks: optimizationProjection.optimizationBenchmarks,
+    operationalFeedbackLoop: optimizationProjection.operationalFeedbackLoop,
     knowledgeBridges: Object.freeze({
       consulting: bridgeKnowledgeToConsulting(tenantId),
       decision: bridgeKnowledgeToDecision(tenantId),
@@ -244,6 +272,14 @@ export function buildIntelligenceHomeProjection(tenantId = "default", options = 
       consulting: bridgeAdoptionToConsulting(tenantId),
       decision: bridgeAdoptionToDecision(tenantId),
       evolution: bridgeAdoptionToEvolution(tenantId),
+      improvement: bridgeAdoptionToImprovement(tenantId),
+    }),
+    improvementBridges: Object.freeze({
+      recommendation: bridgeImprovementToRecommendation(tenantId),
+      adoption: bridgeImprovementToAdoption(tenantId),
+      consulting: bridgeImprovementToConsulting(tenantId),
+      decision: bridgeImprovementToDecision(tenantId),
+      evolution: bridgeImprovementToEvolution(tenantId),
     }),
   });
 }

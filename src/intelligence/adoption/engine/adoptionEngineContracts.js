@@ -45,6 +45,7 @@ export const ADOPTION_OWNERSHIP = Object.freeze({
 
 export const ADOPTION_ENGINE_EXTENSION_POINTS = Object.freeze([
   Object.freeze({ id: "business.corporate_intelligence", implemented: true, consumes: ["adoption.engine"] }),
+  Object.freeze({ id: "business.continuous_improvement", implemented: true, consumes: ["adoption.engine"] }),
   Object.freeze({ id: "ai.chat.assistant", implemented: false, forbiddenForBusinessUser: true }),
 ]);
 

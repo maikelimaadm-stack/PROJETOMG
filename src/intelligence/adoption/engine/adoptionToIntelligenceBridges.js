@@ -1,5 +1,6 @@
 import { summarizeAdoptionEngine } from "./adoptionSummarization.js";
 import { retrieveLatestAdoptions } from "./adoptionRetrieval.js";
+import { runImprovementEngine } from "../../improvement/engine/runImprovementEngine.js";
 
 export function bridgeAdoptionToConsulting(tenantId = "default") {
   const summary = summarizeAdoptionEngine(tenantId);
@@ -38,8 +39,21 @@ export function bridgeAdoptionToEvolution(tenantId = "default") {
   });
 }
 
+export function bridgeAdoptionToImprovement(tenantId = "default") {
+  const improvement = runImprovementEngine(tenantId);
+  return Object.freeze({
+    tenantId,
+    bridgedAt: new Date().toISOString(),
+    improvementSummary: improvement.summary?.headline,
+    improvementEngineReady: true,
+    humanApprovalRequired: true,
+    autonomousExecutionForbidden: true,
+  });
+}
+
 export default {
   bridgeAdoptionToConsulting,
   bridgeAdoptionToDecision,
   bridgeAdoptionToEvolution,
+  bridgeAdoptionToImprovement,
 };
