@@ -12,7 +12,10 @@ export function BosShell({
   onLogout,
 }) {
   return (
-    <div className="bos-shell flex min-h-screen flex-col bg-slate-50" data-surface="business-operating-shell">
+    <div
+      className="bos-shell flex h-screen max-h-screen flex-col overflow-hidden bg-slate-50"
+      data-surface="business-operating-shell"
+    >
       <BosHeader
         user={user}
         cliente={cliente}
@@ -22,7 +25,7 @@ export function BosShell({
         onSelectEmpresa={onSelectEmpresa}
         onLogout={onLogout}
       />
-      <main className="bos-main flex-1">{children}</main>
+      <main className="bos-main erp-scrollbar min-h-0 flex-1 overflow-y-auto">{children}</main>
     </div>
   );
 }

@@ -5,6 +5,8 @@
 
 .bos-main {
   width: 100%;
+  min-height: 0;
+  overscroll-behavior: contain;
 }
 
 .bos-home {
