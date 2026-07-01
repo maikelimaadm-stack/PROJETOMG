@@ -11,6 +11,7 @@ import { explainRecommendation } from "./recommendationExplainability.js";
 import { registerReplicationSeed } from "./replicationSeedsRegistry.js";
 import { appendRecommendationAuditEntry } from "./recommendationAuditTrail.js";
 import { RECOMMENDATION_ENGINE_VERSION, RECOMMENDATION_OWNERSHIP } from "./recommendationEngineContracts.js";
+import { ingestRecommendationToAdoption } from "../../adoption/engine/recommendationToAdoptionIngestion.js";
 
 export function analyzeRecommendationContext(tenantId = "default", options = {}) {
   const ctx = assembleRecommendationContext(tenantId, options);
@@ -33,6 +34,12 @@ export function analyzeRecommendationContext(tenantId = "default", options = {})
     entityId: recommendations[0]?.recommendationId ?? null,
     entityType: "analysis",
   });
+
+  try {
+    ingestRecommendationToAdoption(tenantId, options);
+  } catch {
+    // non-blocking — adoption must not break recommendation pipeline
+  }
 
   return Object.freeze({
     tenantId,

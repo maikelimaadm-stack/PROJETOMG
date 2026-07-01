@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-085 Recommendation & Replication MVP)
+**Last updated:** 2026-06-30 (D-086 Adoption Tracking & Corporate Intelligence MVP)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -1029,6 +1029,18 @@
 | **Decision** | Implement first **Recommendation & Replication Engine** consuming Business DNA + Segmentation + full intelligence stack. Tenant-scoped recommendations, assisted replication within authorized scope, human approval required, BOS projections. Gate **G317**. |
 | **Evidence** | `src/intelligence/recommendation/engine/**` · [PROGRAM-3.19-RECOMMENDATION-REPLICATION-REPORT.md](./PROGRAM-3.19-RECOMMENDATION-REPLICATION-REPORT.md) |
 | **Consequences** | Corporate recommendations live on BOS; assisted replication prepared; no autonomous execution |
+
+---
+
+## D-086 — Adoption Tracking & Corporate Intelligence MVP (Program 3.20)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Implement first **Adoption Tracking Engine** and **Corporate Intelligence Engine** consuming Recommendation & Replication + full intelligence stack. Tenant-scoped adoption tracking, authorized corporate aggregation, human approval required, BOS projections. Gate **G318**. |
+| **Evidence** | `src/intelligence/adoption/engine/**` · `src/intelligence/corporate/engine/**` · [PROGRAM-3.20-ADOPTION-CORPORATE-INTELLIGENCE-REPORT.md](./PROGRAM-3.20-ADOPTION-CORPORATE-INTELLIGENCE-REPORT.md) |
+| **Consequences** | Adoption tracking and corporate intelligence live on BOS; no autonomous execution; no cross-tenant mixing without authorization |
 
 ---
 

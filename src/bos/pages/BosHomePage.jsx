@@ -74,6 +74,13 @@ import {
   ReplicablePracticesSection,
   RecommendationWhySection,
 } from "@/bos/components/BusinessRecommendationSections";
+import {
+  AdoptedRecommendationsSection,
+  RejectedRecommendationsSection,
+  AdoptionProgressSection,
+  AdoptionImpactSection,
+  CorporateIntelligenceSection,
+} from "@/bos/components/BusinessAdoptionSections";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import {
   buildIntelligenceHomeProjection,
@@ -321,6 +328,32 @@ export default function BosHomePage() {
       <RecommendationWhySection
         highlights={intelligence.recommendationWhy}
         nextSteps={intelligence.recommendationNextSteps}
+      />
+
+      <AdoptedRecommendationsSection
+        adoptions={intelligence.adoptedRecommendations}
+        summary={intelligence.adoptionSummary}
+      />
+      <RejectedRecommendationsSection rejections={intelligence.rejectedRecommendations} />
+      <AdoptionProgressSection
+        progressPercent={intelligence.adoptionProgressPercent}
+        milestones={intelligence.adoptionMilestones}
+        plans={intelligence.adoptionPlansInProgress}
+      />
+      <AdoptionImpactSection
+        validatedOutcomes={intelligence.adoptionValidatedOutcomes}
+        pendingValidation={intelligence.adoptionPendingValidation}
+      />
+      <CorporateIntelligenceSection
+        corporateView={intelligence.corporateView}
+        benchmarks={intelligence.corporateBenchmarks}
+        references={intelligence.corporateReferences}
+        variances={intelligence.corporateVariances}
+        opportunities={intelligence.corporateOpportunities}
+        companyComparisons={intelligence.corporateCompanyComparisons}
+        groupInsights={intelligence.corporateGroupInsights}
+        summary={intelligence.corporateSummary}
+        healthScore={intelligence.corporateHealthScore}
       />
 
       <ActivityTeaserSection items={activity} />
