@@ -514,6 +514,46 @@ export {
 } from "./fortress/engine/fortressToIntelligenceBridges.js";
 export { runComplianceFortressEngine } from "./fortress/engine/runComplianceFortressEngine.js";
 
+export {
+  DATA_LIFECYCLE_VERSION,
+  ARCHIVE_ENGINE_VERSION,
+  EXPUNGE_ENGINE_VERSION,
+  LEGAL_HOLD_ENGINE_VERSION,
+  LIFECYCLE_EXTENSION_POINTS,
+} from "./lifecycle/engine/dataLifecycleContracts.js";
+export {
+  listLifecycleDocs,
+  listLifecycleRules,
+  listLifecycleEvents,
+  getLifecycleStoreInfo,
+} from "./lifecycle/engine/lifecycleStore.js";
+export { assembleLifecycleContext } from "./lifecycle/engine/lifecycleContextAssembly.js";
+export {
+  analyzeDataLifecycleContext,
+  ingestFortressToLifecycle,
+} from "./lifecycle/engine/fortressToLifecycleIngestion.js";
+export { retrieveLifecycleByContext, retrieveLatestLifecycle } from "./lifecycle/engine/lifecycleRetrieval.js";
+export { summarizeLifecycleEngine } from "./lifecycle/engine/lifecycleSummarization.js";
+export { buildLifecycleBosProjection } from "./lifecycle/engine/lifecycleToBosProjection.js";
+export { bridgeLifecycleToGovernance } from "./lifecycle/engine/lifecycleToGovernanceBridge.js";
+export { bridgeLifecycleToFortress } from "./lifecycle/engine/lifecycleToFortressBridge.js";
+export { bridgeLifecycleToPortfolio } from "./lifecycle/engine/lifecycleToPortfolioBridge.js";
+export {
+  bridgeLifecycleToConsulting,
+  bridgeLifecycleToDecision,
+  bridgeLifecycleToIntelligence,
+} from "./lifecycle/engine/lifecycleToIntelligenceBridges.js";
+export { runDataLifecycleEngine } from "./lifecycle/engine/runDataLifecycleEngine.js";
+export {
+  requestArchiveExecution,
+  executeArchiveWithApproval,
+} from "./lifecycle/engine/archiveEngine.js";
+export {
+  requestExpungeExecution,
+  executeExpungeWithApproval,
+} from "./lifecycle/engine/expungeEngine.js";
+export { applyLegalHold, releaseLegalHold } from "./lifecycle/engine/legalHoldEngine.js";
+
 export default {
   version: "mak-enterprise-intelligence-v1",
 };

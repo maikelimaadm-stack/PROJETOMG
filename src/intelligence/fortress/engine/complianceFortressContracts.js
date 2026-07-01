@@ -44,6 +44,7 @@ export const FORTRESS_OWNERSHIP = Object.freeze({
 });
 
 export const FORTRESS_EXTENSION_POINTS = Object.freeze([
+  Object.freeze({ id: "business.data_lifecycle", implemented: true, consumes: ["fortress.engine"] }),
   Object.freeze({ id: "ai.chat.assistant", implemented: false, forbiddenForBusinessUser: true }),
 ]);
 
