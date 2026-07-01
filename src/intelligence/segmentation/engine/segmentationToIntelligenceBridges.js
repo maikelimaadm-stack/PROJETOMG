@@ -3,6 +3,7 @@
  */
 import { summarizeSegmentationEngine } from "./segmentationSummarization.js";
 import { retrieveLatestSegmentation } from "./segmentationRetrieval.js";
+import { runRecommendationEngine } from "../../recommendation/engine/runRecommendationEngine.js";
 
 export function bridgeSegmentationToConsulting(tenantId = "default") {
   const summary = summarizeSegmentationEngine(tenantId);
@@ -43,8 +44,21 @@ export function bridgeSegmentationToEvolution(tenantId = "default") {
   });
 }
 
+export function bridgeSegmentationToRecommendation(tenantId = "default") {
+  const recommendation = runRecommendationEngine(tenantId);
+  return Object.freeze({
+    tenantId,
+    bridgedAt: new Date().toISOString(),
+    summary: recommendation.summary,
+    recommendationEngineReady: true,
+    humanApprovalRequired: true,
+    autonomousRecommendationForbidden: true,
+  });
+}
+
 export default {
   bridgeSegmentationToConsulting,
   bridgeSegmentationToDecision,
   bridgeSegmentationToEvolution,
+  bridgeSegmentationToRecommendation,
 };

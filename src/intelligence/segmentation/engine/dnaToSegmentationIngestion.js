@@ -11,6 +11,7 @@ import { explainSegmentationProfile } from "./segmentationExplainability.js";
 import { registerSegmentSeed } from "./segmentSeedsRegistry.js";
 import { appendSegmentationAuditEntry } from "./segmentationAuditTrail.js";
 import { SEGMENTATION_ENGINE_VERSION, SEGMENTATION_OWNERSHIP } from "./segmentationEngineContracts.js";
+import { ingestSegmentationToRecommendation } from "../../recommendation/engine/segmentationToRecommendationIngestion.js";
 
 export function analyzeSegmentationContext(tenantId = "default", options = {}) {
   const ctx = assembleSegmentationContext(tenantId);
@@ -35,6 +36,12 @@ export function analyzeSegmentationContext(tenantId = "default", options = {}) {
     entityId: segmentResult.profile.profileId,
     entityType: "analysis",
   });
+
+  try {
+    ingestSegmentationToRecommendation(tenantId, options);
+  } catch {
+    // non-blocking — recommendation must not break segmentation pipeline
+  }
 
   return Object.freeze({
     tenantId,

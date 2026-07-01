@@ -261,6 +261,7 @@ export {
   bridgeSegmentationToConsulting,
   bridgeSegmentationToDecision,
   bridgeSegmentationToEvolution,
+  bridgeSegmentationToRecommendation,
 } from "./segmentation/engine/segmentationToIntelligenceBridges.js";
 export { buildTemplateLibrary } from "./segmentation/engine/templateLibrary.js";
 export { getTemplateCatalog } from "./segmentation/engine/templateCatalog.js";
@@ -272,6 +273,40 @@ export { buildAuthorizedGroupComparison } from "./segmentation/engine/authorized
 export { buildCorporatePatternSuggestions } from "./segmentation/engine/corporatePatternSuggestions.js";
 export { buildSegmentSeedsRegistry } from "./segmentation/engine/segmentSeedsRegistry.js";
 export { runSegmentationEngine } from "./segmentation/engine/runSegmentationEngine.js";
+
+export {
+  RECOMMENDATION_ENGINE_VERSION,
+  REPLICATION_ENGINE_VERSION,
+  RECOMMENDATION_SIGNAL_TYPES,
+  RECOMMENDATION_ENGINE_EXTENSION_POINTS,
+} from "./recommendation/engine/recommendationEngineContracts.js";
+export {
+  listRecommendations,
+  listRecommendationSignals,
+  listReplications,
+  getRecommendationEngineStoreInfo,
+} from "./recommendation/engine/recommendationEngineStore.js";
+export { assembleRecommendationContext } from "./recommendation/engine/recommendationContextAssembly.js";
+export {
+  analyzeRecommendationContext,
+  ingestSegmentationToRecommendation,
+  replayRecommendationFromStack,
+} from "./recommendation/engine/segmentationToRecommendationIngestion.js";
+export {
+  retrieveRecommendationsByContext,
+  retrieveReplicationsByContext,
+  retrieveLatestRecommendations,
+} from "./recommendation/engine/recommendationRetrieval.js";
+export { summarizeRecommendationEngine } from "./recommendation/engine/recommendationSummarization.js";
+export { summarizeReplicationEngine } from "./recommendation/engine/replicationSummarization.js";
+export { buildRecommendationBosProjection } from "./recommendation/engine/recommendationToBosProjection.js";
+export {
+  bridgeRecommendationToConsulting,
+  bridgeRecommendationToDecision,
+  bridgeRecommendationToEvolution,
+} from "./recommendation/engine/recommendationToIntelligenceBridges.js";
+export { buildReplicationSeedsRegistry } from "./recommendation/engine/replicationSeedsRegistry.js";
+export { runRecommendationEngine } from "./recommendation/engine/runRecommendationEngine.js";
 
 export default {
   version: "mak-enterprise-intelligence-v1",

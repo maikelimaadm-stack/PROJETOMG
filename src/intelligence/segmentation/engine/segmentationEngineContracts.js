@@ -47,6 +47,7 @@ export const SEGMENTATION_OWNERSHIP = Object.freeze({
 });
 
 export const SEGMENTATION_ENGINE_EXTENSION_POINTS = Object.freeze([
+  Object.freeze({ id: "business.recommendation", implemented: true, consumes: ["segmentation.engine"] }),
   Object.freeze({ id: "ai.chat.assistant", implemented: false, forbiddenForBusinessUser: true }),
 ]);
 

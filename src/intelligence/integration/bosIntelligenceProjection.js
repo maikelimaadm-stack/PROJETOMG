@@ -7,13 +7,20 @@ import { buildEvolutionEngineBosProjection } from "../evolution/engine/evolution
 import { buildBusinessDnaBosProjection } from "../dna/engine/businessDnaToBosProjection.js";
 import { buildPortfolioView } from "../dna/engine/portfolioView.js";
 import { buildSegmentationBosProjection } from "../segmentation/engine/segmentationToBosProjection.js";
+import { buildRecommendationBosProjection } from "../recommendation/engine/recommendationToBosProjection.js";
 import { buildAuthorizedGroupComparison } from "../segmentation/engine/authorizedGroupComparison.js";
 import { buildCorporatePatternSuggestions } from "../segmentation/engine/corporatePatternSuggestions.js";
 import {
   bridgeSegmentationToConsulting,
   bridgeSegmentationToDecision,
   bridgeSegmentationToEvolution,
+  bridgeSegmentationToRecommendation,
 } from "../segmentation/engine/segmentationToIntelligenceBridges.js";
+import {
+  bridgeRecommendationToConsulting,
+  bridgeRecommendationToDecision,
+  bridgeRecommendationToEvolution,
+} from "../recommendation/engine/recommendationToIntelligenceBridges.js";
 import {
   bridgeDnaToConsulting,
   bridgeDnaToDecision,
@@ -48,6 +55,7 @@ export function buildIntelligenceHomeProjection(tenantId = "default", options = 
   const evolutionProjection = buildEvolutionEngineBosProjection(tenantId);
   const dnaProjection = buildBusinessDnaBosProjection(tenantId);
   const segmentationProjection = buildSegmentationBosProjection(tenantId, options);
+  const recommendationProjection = buildRecommendationBosProjection(tenantId, options);
   const portfolioProjection = options.groupId
     ? buildPortfolioView(options.groupId, tenantId)
     : null;
@@ -153,6 +161,14 @@ export function buildIntelligenceHomeProjection(tenantId = "default", options = 
       ? buildCorporatePatternSuggestions(options.groupId, tenantId)
       : segmentationProjection.patternSuggestions,
     templateHeadline: segmentationProjection.templateHeadline,
+    hasRecommendations: recommendationProjection.hasRecommendations,
+    recommendationSummary: recommendationProjection.summary,
+    priorityRecommendations: recommendationProjection.priorityRecommendations,
+    suggestedImprovementPlans: recommendationProjection.suggestedPlans,
+    replicablePractices: recommendationProjection.replicablePractices,
+    replicationSummary: recommendationProjection.replicationSummary,
+    recommendationNextSteps: recommendationProjection.nextSteps,
+    recommendationWhy: recommendationProjection.whyRecommended,
     knowledgeBridges: Object.freeze({
       consulting: bridgeKnowledgeToConsulting(tenantId),
       decision: bridgeKnowledgeToDecision(tenantId),
@@ -183,6 +199,12 @@ export function buildIntelligenceHomeProjection(tenantId = "default", options = 
       consulting: bridgeSegmentationToConsulting(tenantId),
       decision: bridgeSegmentationToDecision(tenantId),
       evolution: bridgeSegmentationToEvolution(tenantId),
+      recommendation: bridgeSegmentationToRecommendation(tenantId),
+    }),
+    recommendationBridges: Object.freeze({
+      consulting: bridgeRecommendationToConsulting(tenantId),
+      decision: bridgeRecommendationToDecision(tenantId),
+      evolution: bridgeRecommendationToEvolution(tenantId),
     }),
   });
 }

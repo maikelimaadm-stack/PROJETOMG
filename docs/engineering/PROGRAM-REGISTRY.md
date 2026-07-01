@@ -109,7 +109,8 @@
 | **3.16** | **Evolution Engine MVP** | D-082 | **complete (G314)** | 3.15 ✅ |
 | **3.17** | **Business DNA & Maturity MVP** | D-083 | **complete (G315)** | 3.16 ✅ |
 | **3.18** | **Segmentation, Templates & Advanced Maturity MVP** | D-084 | **complete (G316)** | 3.17 ✅ |
-| **3.19+** | **Recommendation / replication programs** | D-060 | **planned** | 3.18 ✅ |
+| **3.19** | **Recommendation & Replication MVP** | D-085 | **complete (G317)** | 3.18 ✅ |
+| **3.20+** | **Adoption tracking / corporate intelligence** | D-060 | **planned** | 3.19 ✅ |
 | 3.3-impl | Business Computation impl | D-058 | planned | G303B |
 | 4.x | Enterprise Memory / Intelligence impl | D-060 | planned | Post Resolver |
 
@@ -140,7 +141,8 @@
                                   → 3.16 Evolution Engine MVP (G314) ✅
                                     → 3.17 Business DNA & Maturity MVP (G315) ✅
                                       → 3.18 Segmentation, Templates & Advanced Maturity (G316) ✅
-                                        → 3.19+ Recommendation / replication ← NEXT
+                                        → 3.19 Recommendation & Replication (G317) ✅
+                                          → 3.20+ Adoption tracking ← NEXT
                 → 4.x Enterprise Intelligence programs (D-060)
 ```
 
