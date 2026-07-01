@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-087 Continuous Improvement & Optimization Loop MVP)
+**Last updated:** 2026-06-30 (D-088 Portfolio Intelligence & Command Center MVP)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -1053,6 +1053,18 @@
 | **Decision** | Implement first **Continuous Improvement Engine** and **Optimization Loop Engine** consuming Adoption + Corporate Intelligence + full intelligence stack. Tenant-scoped improvement cycles, optimization loops with human approval, BOS feedback loop. Gate **G319**. |
 | **Evidence** | `src/intelligence/improvement/engine/**` · `src/intelligence/optimization/engine/**` · [PROGRAM-3.21-CONTINUOUS-IMPROVEMENT-OPTIMIZATION-REPORT.md](./PROGRAM-3.21-CONTINUOUS-IMPROVEMENT-OPTIMIZATION-REPORT.md) |
 | **Consequences** | Closed loop Recommendation → Adoption → Improvement → Optimization on BOS; no autonomous optimization |
+
+---
+
+## D-088 — Portfolio Intelligence & Command Center MVP (Program 3.22)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Implement first **Portfolio Intelligence Engine** and **Corporate Command Center** consuming Optimization Loop + full intelligence stack. Authorized group-scoped aggregation only, explainable executive view, BOS command center projections. Gate **G320**. |
+| **Evidence** | `src/intelligence/portfolio/engine/**` · [PROGRAM-3.22-PORTFOLIO-INTELLIGENCE-COMMAND-CENTER-REPORT.md](./PROGRAM-3.22-PORTFOLIO-INTELLIGENCE-COMMAND-CENTER-REPORT.md) |
+| **Consequences** | Multi-company executive view live on BOS with tenant isolation; no cross-tenant mixing without authorization; no autonomous corporate command |
 
 ---
 

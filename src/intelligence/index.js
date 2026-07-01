@@ -214,6 +214,8 @@ export {
   registerAuthorizedGroupScope,
   getAuthorizedGroupScope,
   isTenantAuthorizedInGroup,
+  findAuthorizedGroupIdForTenant,
+  listAuthorizedGroupScopes,
 } from "./dna/engine/businessDnaStore.js";
 export { assembleBusinessDnaContext } from "./dna/engine/businessDnaContextAssembly.js";
 export { computeDnaCapabilityMaturity } from "./dna/engine/businessDnaMaturityModel.js";
@@ -422,6 +424,35 @@ export { buildOptimizationSeedsRegistry } from "./optimization/engine/optimizati
 export { trackOptimizationProgress } from "./optimization/engine/optimizationTracking.js";
 export { runOptimizationEngine } from "./optimization/engine/runOptimizationEngine.js";
 export { bridgeAdoptionToImprovement } from "./adoption/engine/adoptionToIntelligenceBridges.js";
+
+export {
+  PORTFOLIO_INTELLIGENCE_VERSION,
+  PORTFOLIO_INTELLIGENCE_EXTENSION_POINTS,
+} from "./portfolio/engine/portfolioIntelligenceContracts.js";
+export {
+  listPortfolioViews,
+  listPortfolioDashboards,
+  listPortfolioBenchmarks,
+  getPortfolioIntelligenceStoreInfo,
+} from "./portfolio/engine/portfolioIntelligenceStore.js";
+export { assemblePortfolioContext } from "./portfolio/engine/portfolioContextAssembly.js";
+export { authorizePortfolioScope } from "./portfolio/engine/portfolioScopeAuthorization.js";
+export {
+  analyzePortfolioIntelligenceContext,
+  ingestOptimizationToPortfolio,
+} from "./portfolio/engine/optimizationToPortfolioIngestion.js";
+export {
+  retrievePortfolioByContext,
+  retrieveLatestPortfolioIntelligence,
+} from "./portfolio/engine/portfolioRetrieval.js";
+export { summarizePortfolioIntelligenceEngine } from "./portfolio/engine/portfolioSummarization.js";
+export { buildPortfolioIntelligenceBosProjection } from "./portfolio/engine/portfolioToBosProjection.js";
+export {
+  bridgePortfolioToConsulting,
+  bridgePortfolioToDecision,
+  bridgePortfolioToEvolution,
+} from "./portfolio/engine/portfolioToIntelligenceBridges.js";
+export { runPortfolioIntelligenceEngine } from "./portfolio/engine/runPortfolioIntelligenceEngine.js";
 
 export default {
   version: "mak-enterprise-intelligence-v1",

@@ -182,6 +182,19 @@ export function isTenantAuthorizedInGroup(groupId, tenantId) {
   return scope.authorizedTenantIds.includes(tenantId);
 }
 
+export function listAuthorizedGroupScopes() {
+  return readGroupScopes();
+}
+
+/** Resolve first authorized group containing tenant — portfolio/command center entry point */
+export function findAuthorizedGroupIdForTenant(tenantId) {
+  const scopes = readGroupScopes();
+  for (const [groupId, scope] of Object.entries(scopes)) {
+    if (scope.authorizedTenantIds?.includes(tenantId)) return groupId;
+  }
+  return null;
+}
+
 export function createDnaProfile(partial) {
   return Object.freeze({
     schemaVersion: BUSINESS_DNA_PROFILE_SCHEMA_VERSION,

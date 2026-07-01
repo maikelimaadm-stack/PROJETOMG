@@ -12,6 +12,7 @@ import { buildAdoptionBosProjection } from "../adoption/engine/adoptionToBosProj
 import { buildCorporateIntelligenceBosProjection } from "../corporate/engine/corporateIntelligenceToBosProjection.js";
 import { buildImprovementBosProjection } from "../improvement/engine/improvementToBosProjection.js";
 import { buildOptimizationBosProjection } from "../optimization/engine/optimizationToBosProjection.js";
+import { buildPortfolioIntelligenceBosProjection } from "../portfolio/engine/portfolioToBosProjection.js";
 import { buildAuthorizedGroupComparison } from "../segmentation/engine/authorizedGroupComparison.js";
 import { buildCorporatePatternSuggestions } from "../segmentation/engine/corporatePatternSuggestions.js";
 import {
@@ -39,6 +40,11 @@ import {
   bridgeImprovementToRecommendation,
   bridgeImprovementToAdoption,
 } from "../improvement/engine/improvementToIntelligenceBridges.js";
+import {
+  bridgePortfolioToConsulting,
+  bridgePortfolioToDecision,
+  bridgePortfolioToEvolution,
+} from "../portfolio/engine/portfolioToIntelligenceBridges.js";
 import {
   bridgeDnaToConsulting,
   bridgeDnaToDecision,
@@ -80,6 +86,9 @@ export function buildIntelligenceHomeProjection(tenantId = "default", options = 
     : null;
   const improvementProjection = buildImprovementBosProjection(tenantId, options);
   const optimizationProjection = buildOptimizationBosProjection(tenantId, options);
+  const portfolioIntelligenceProjection = options.groupId
+    ? buildPortfolioIntelligenceBosProjection(options.groupId, tenantId, options)
+    : null;
   const portfolioProjection = options.groupId
     ? buildPortfolioView(options.groupId, tenantId)
     : null;
@@ -230,6 +239,23 @@ export function buildIntelligenceHomeProjection(tenantId = "default", options = 
     optimizationOpportunities: optimizationProjection.optimizationOpportunities,
     optimizationBenchmarks: optimizationProjection.optimizationBenchmarks,
     operationalFeedbackLoop: optimizationProjection.operationalFeedbackLoop,
+    hasPortfolioIntelligence: portfolioIntelligenceProjection?.hasPortfolioIntelligence ?? false,
+    portfolioSummary: portfolioIntelligenceProjection?.summary ?? null,
+    portfolioCommandCenter: portfolioIntelligenceProjection?.commandCenter ?? null,
+    portfolioCompanyHealth: portfolioIntelligenceProjection?.companyHealth ?? [],
+    portfolioRankings: portfolioIntelligenceProjection?.portfolioRankings ?? [],
+    portfolioReferences: portfolioIntelligenceProjection?.portfolioReferences ?? [],
+    portfolioVariances: portfolioIntelligenceProjection?.portfolioVariances ?? [],
+    portfolioOpportunities: portfolioIntelligenceProjection?.portfolioOpportunities ?? [],
+    portfolioAlerts: portfolioIntelligenceProjection?.portfolioAlerts ?? [],
+    portfolioBenchmarks: portfolioIntelligenceProjection?.portfolioBenchmarks ?? [],
+    portfolioTrends: portfolioIntelligenceProjection?.portfolioTrends ?? [],
+    corporateStandardization: portfolioIntelligenceProjection?.corporateStandardization ?? [],
+    groupCapabilityRadar: portfolioIntelligenceProjection?.groupCapabilityRadar ?? null,
+    groupEvolutionTimeline: portfolioIntelligenceProjection?.groupEvolutionTimeline ?? [],
+    portfolioLeaderCompany: portfolioIntelligenceProjection?.leaderCompany ?? null,
+    portfolioAboveStandardCount: portfolioIntelligenceProjection?.aboveStandardCount ?? null,
+    portfolioBelowStandardCount: portfolioIntelligenceProjection?.belowStandardCount ?? null,
     knowledgeBridges: Object.freeze({
       consulting: bridgeKnowledgeToConsulting(tenantId),
       decision: bridgeKnowledgeToDecision(tenantId),
@@ -281,6 +307,13 @@ export function buildIntelligenceHomeProjection(tenantId = "default", options = 
       decision: bridgeImprovementToDecision(tenantId),
       evolution: bridgeImprovementToEvolution(tenantId),
     }),
+    portfolioBridges: options.groupId
+      ? Object.freeze({
+          consulting: bridgePortfolioToConsulting(options.groupId, tenantId),
+          decision: bridgePortfolioToDecision(options.groupId, tenantId),
+          evolution: bridgePortfolioToEvolution(options.groupId, tenantId),
+        })
+      : null,
   });
 }
 

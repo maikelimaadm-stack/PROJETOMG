@@ -26,8 +26,8 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Current Release** | `v0.4.0-RC2` (pending owner tag) |
 | **Current Program** | Program 3 — Studio Intelligence |
 | **Architecture State** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) · **Product Identity FROZEN (D-074)** |
-| **Decision** | D-087 — Continuous Improvement & Optimization Loop MVP (Program 3.21) |
-| **Phase** | **Full stack: Memory → … → Adoption → Continuous Improvement → Optimization Loop** |
+| **Decision** | D-088 — Portfolio Intelligence & Command Center MVP (Program 3.22) |
+| **Phase** | **Full stack: Memory → … → Optimization Loop → Portfolio Command Center** |
 | **Product Identity SSOT (supreme)** | [MAK-PRODUCT-IDENTITY-FREEZE.md](./docs/architecture/MAK-PRODUCT-IDENTITY-FREEZE.md) |
 | **BOS Architecture** | [MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md) |
 | **Business Workflow Report** | [PROGRAM-3.10-BUSINESS-WORKFLOW-REPORT.md](./docs/engineering/PROGRAM-3.10-BUSINESS-WORKFLOW-REPORT.md) |
@@ -42,7 +42,8 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Recommendation Report** | [PROGRAM-3.19-RECOMMENDATION-REPLICATION-REPORT.md](./docs/engineering/PROGRAM-3.19-RECOMMENDATION-REPLICATION-REPORT.md) |
 | **Adoption & Corporate Intelligence Report** | [PROGRAM-3.20-ADOPTION-CORPORATE-INTELLIGENCE-REPORT.md](./docs/engineering/PROGRAM-3.20-ADOPTION-CORPORATE-INTELLIGENCE-REPORT.md) |
 | **Continuous Improvement Report** | [PROGRAM-3.21-CONTINUOUS-IMPROVEMENT-OPTIMIZATION-REPORT.md](./docs/engineering/PROGRAM-3.21-CONTINUOUS-IMPROVEMENT-OPTIMIZATION-REPORT.md) |
-| **Next Official Mission** | **Program 3.22+** — Next intelligence layer |
+| **Portfolio Intelligence Report** | [PROGRAM-3.22-PORTFOLIO-INTELLIGENCE-COMMAND-CENTER-REPORT.md](./docs/engineering/PROGRAM-3.22-PORTFOLIO-INTELLIGENCE-COMMAND-CENTER-REPORT.md) |
+| **Next Official Mission** | **Program 3.23+** — Next intelligence layer |
 
 > **Governance rule (D-062):** Register all new D-xxx, G-xxx, Programs, SSOT docs in [GOVERNANCE-REGISTRY.md](./docs/engineering/GOVERNANCE-REGISTRY.md).
 

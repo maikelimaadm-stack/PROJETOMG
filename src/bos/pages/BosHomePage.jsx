@@ -87,23 +87,33 @@ import {
   ImprovementImpactSection,
   OperationalFeedbackLoopSection,
 } from "@/bos/components/BusinessImprovementSections";
+import {
+  PortfolioCommandCenterSection,
+  MultiCompanyHealthSection,
+  PortfolioRankingsSection,
+  PortfolioTrendsSection,
+  PortfolioReferencesSection,
+  PortfolioAlertsSection,
+} from "@/bos/components/BusinessPortfolioSections";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import {
   buildIntelligenceHomeProjection,
 } from "@/intelligence/integration/bosIntelligenceProjection.js";
+import { findAuthorizedGroupIdForTenant } from "@/intelligence/dna/engine/businessDnaStore.js";
 import { captureBosHomeViewed } from "@/intelligence/integration/intelligenceEventBridge.js";
 
 export default function BosHomePage() {
   const { user, cliente } = useAuth();
   const tenantId = String(cliente?.id ?? "default");
+  const groupId = findAuthorizedGroupIdForTenant(tenantId);
 
   useEffect(() => {
     captureBosHomeViewed(tenantId, user?.usuario ?? "business-user");
   }, [tenantId, user?.usuario]);
 
   const intelligence = useMemo(
-    () => buildIntelligenceHomeProjection(tenantId),
-    [tenantId]
+    () => buildIntelligenceHomeProjection(tenantId, groupId ? { groupId } : {}),
+    [tenantId, groupId]
   );
 
   const capabilities = buildBosCapabilities();
@@ -379,6 +389,36 @@ export default function BosHomePage() {
         feedbackLoop={intelligence.operationalFeedbackLoop}
         patterns={intelligence.recurringImprovementPatterns}
         benchmarks={[...(intelligence.improvementBenchmarks ?? []), ...(intelligence.optimizationBenchmarks ?? [])]}
+      />
+
+      <PortfolioCommandCenterSection
+        commandCenter={intelligence.portfolioCommandCenter}
+        summary={intelligence.portfolioSummary}
+        healthScore={intelligence.portfolioCommandCenter?.healthScore}
+        belowStandardCount={intelligence.portfolioBelowStandardCount}
+        aboveStandardCount={intelligence.portfolioAboveStandardCount}
+      />
+      <MultiCompanyHealthSection
+        companies={intelligence.portfolioCompanyHealth}
+        benchmarks={intelligence.portfolioBenchmarks}
+      />
+      <PortfolioRankingsSection
+        rankings={intelligence.portfolioRankings}
+        leader={intelligence.portfolioLeaderCompany}
+      />
+      <PortfolioTrendsSection
+        trends={intelligence.portfolioTrends}
+        evolutionTimeline={intelligence.groupEvolutionTimeline}
+      />
+      <PortfolioReferencesSection
+        references={intelligence.portfolioReferences}
+        variances={intelligence.portfolioVariances}
+        opportunities={intelligence.portfolioOpportunities}
+      />
+      <PortfolioAlertsSection
+        alerts={intelligence.portfolioAlerts}
+        standardization={intelligence.corporateStandardization}
+        capabilityRadar={intelligence.groupCapabilityRadar}
       />
 
       <ActivityTeaserSection items={activity} />
