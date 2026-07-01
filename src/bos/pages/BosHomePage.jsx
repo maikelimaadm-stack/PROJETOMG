@@ -95,6 +95,14 @@ import {
   PortfolioReferencesSection,
   PortfolioAlertsSection,
 } from "@/bos/components/BusinessPortfolioSections";
+import {
+  GovernanceControlCenterSection,
+  PortfolioControlCenterSection,
+  AuthorizedGroupScopesSection,
+  GovernancePoliciesSection,
+  RetentionComplianceSection,
+  GovernanceAuditSection,
+} from "@/bos/components/BusinessGovernanceSections";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import {
   buildIntelligenceHomeProjection,
@@ -419,6 +427,27 @@ export default function BosHomePage() {
         alerts={intelligence.portfolioAlerts}
         standardization={intelligence.corporateStandardization}
         capabilityRadar={intelligence.groupCapabilityRadar}
+      />
+
+      <GovernanceControlCenterSection
+        controlCenter={intelligence.governanceControlCenter}
+        summary={intelligence.governanceSummary}
+        complianceStatus={intelligence.complianceStatus}
+      />
+      <PortfolioControlCenterSection portfolioControl={intelligence.portfolioControlCenter} />
+      <AuthorizedGroupScopesSection scopes={intelligence.authorizedGroupScopes} />
+      <GovernancePoliciesSection
+        policies={intelligence.activePolicies}
+        permissions={intelligence.governancePermissions}
+      />
+      <RetentionComplianceSection
+        retentions={intelligence.retentionPolicies}
+        compliance={intelligence.complianceStatus}
+      />
+      <GovernanceAuditSection
+        auditHistory={intelligence.auditHistory}
+        alerts={intelligence.governanceAlerts}
+        visibilityZones={intelligence.visibilityZones}
       />
 
       <ActivityTeaserSection items={activity} />
