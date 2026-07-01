@@ -9,6 +9,7 @@ import { buildOptimizationMilestones } from "./optimizationMilestones.js";
 import { buildOptimizationBenchmarkRegistry } from "./optimizationBenchmarkRegistry.js";
 import { appendOptimizationAuditEntry } from "./optimizationAuditTrail.js";
 import { OPTIMIZATION_ENGINE_VERSION, OPTIMIZATION_OWNERSHIP } from "./optimizationEngineContracts.js";
+import { ingestOptimizationToPortfolio } from "../../portfolio/engine/optimizationToPortfolioIngestion.js";
 
 export function analyzeOptimizationContext(tenantId = "default", options = {}) {
   const ctx = assembleOptimizationContext(tenantId, options);
@@ -24,6 +25,18 @@ export function analyzeOptimizationContext(tenantId = "default", options = {}) {
     entityId: loops[0]?.loopId ?? null,
     entityType: "analysis",
   });
+
+  if (options.groupId) {
+    try {
+      ingestOptimizationToPortfolio(options.groupId, tenantId, {
+        ...options,
+        optimizationLoopId: loops[0]?.loopId ?? null,
+        loops,
+      });
+    } catch {
+      /* non-blocking portfolio ingestion */
+    }
+  }
 
   return Object.freeze({
     tenantId,

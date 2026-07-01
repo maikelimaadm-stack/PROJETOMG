@@ -112,7 +112,8 @@
 | **3.19** | **Recommendation & Replication MVP** | D-085 | **complete (G317)** | 3.18 ✅ |
 | **3.20** | **Adoption Tracking & Corporate Intelligence MVP** | D-086 | **complete (G318)** | 3.19 ✅ |
 | **3.21** | **Continuous Improvement & Optimization Loop MVP** | D-087 | **complete (G319)** | 3.20 ✅ |
-| **3.22+** | **Next intelligence layer** | — | **planned** | 3.21 ✅ |
+| **3.22** | **Portfolio Intelligence & Command Center MVP** | D-088 | **complete (G320)** | 3.21 ✅ |
+| **3.23+** | **Next intelligence layer** | — | **planned** | 3.22 ✅ |
 | 3.3-impl | Business Computation impl | D-058 | planned | G303B |
 | 4.x | Enterprise Memory / Intelligence impl | D-060 | planned | Post Resolver |
 
@@ -146,7 +147,7 @@
                                         → 3.19 Recommendation & Replication (G317) ✅
                                           → 3.20 Adoption & Corporate Intelligence (G318) ✅
                                             → 3.21 Continuous Improvement & Optimization (G319) ✅
-                                          → 3.20+ Adoption tracking ← NEXT
+                                              → 3.22 Portfolio Intelligence & Command Center (G320) ✅
                 → 4.x Enterprise Intelligence programs (D-060)
 ```
 

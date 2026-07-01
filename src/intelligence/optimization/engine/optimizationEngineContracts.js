@@ -42,6 +42,7 @@ export const OPTIMIZATION_OWNERSHIP = Object.freeze({
 });
 
 export const OPTIMIZATION_ENGINE_EXTENSION_POINTS = Object.freeze([
+  Object.freeze({ id: "business.portfolio_intelligence", implemented: true, consumes: ["optimization.engine"] }),
   Object.freeze({ id: "ai.chat.assistant", implemented: false, forbiddenForBusinessUser: true }),
 ]);
 
