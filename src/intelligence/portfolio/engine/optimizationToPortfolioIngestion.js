@@ -32,6 +32,7 @@ import { buildPortfolioLineage } from "./portfolioLineage.js";
 import { registerPortfolioVersion } from "./portfolioVersioning.js";
 import { appendPortfolioAuditEntry } from "./portfolioAuditTrail.js";
 import { PORTFOLIO_INTELLIGENCE_VERSION, PORTFOLIO_OWNERSHIP } from "./portfolioIntelligenceContracts.js";
+import { ingestPortfolioToGovernance } from "../../governance/engine/portfolioToGovernanceIngestion.js";
 
 export function analyzePortfolioIntelligenceContext(groupId, tenantId = "default", options = {}) {
   const ctx = assemblePortfolioContext(groupId, tenantId, options);
@@ -122,6 +123,12 @@ export function analyzePortfolioIntelligenceContext(groupId, tenantId = "default
     entityId: view.viewId,
     entityType: "view",
   });
+
+  try {
+    ingestPortfolioToGovernance(groupId, tenantId, { ...options, portfolioViewId: view.viewId });
+  } catch {
+    /* non-blocking governance ingestion */
+  }
 
   return Object.freeze({
     groupId,

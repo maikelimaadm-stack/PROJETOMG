@@ -454,6 +454,37 @@ export {
 } from "./portfolio/engine/portfolioToIntelligenceBridges.js";
 export { runPortfolioIntelligenceEngine } from "./portfolio/engine/runPortfolioIntelligenceEngine.js";
 
+export {
+  PLATFORM_GOVERNANCE_VERSION,
+  PLATFORM_GOVERNANCE_EXTENSION_POINTS,
+} from "./governance/engine/platformGovernanceContracts.js";
+export {
+  listGovernanceDocuments,
+  listGovernanceScopes,
+  listGovernancePolicies,
+  getPlatformGovernanceStoreInfo,
+} from "./governance/engine/platformGovernanceStore.js";
+export { assembleGovernanceContext } from "./governance/engine/governanceContextAssembly.js";
+export {
+  analyzePlatformGovernanceContext,
+  ingestPortfolioToGovernance,
+} from "./governance/engine/portfolioToGovernanceIngestion.js";
+export {
+  retrieveGovernanceByContext,
+  retrieveLatestGovernance,
+} from "./governance/engine/governanceRetrieval.js";
+export { summarizePlatformGovernanceEngine } from "./governance/engine/governanceSummarization.js";
+export { buildPlatformGovernanceBosProjection } from "./governance/engine/governanceToBosProjection.js";
+export { bridgeGovernanceToPortfolio } from "./governance/engine/governanceToPortfolioBridge.js";
+export {
+  bridgeGovernanceToConsulting,
+  bridgeGovernanceToDecision,
+  bridgeGovernanceToPortfolioIntelligence,
+} from "./governance/engine/governanceToIntelligenceBridges.js";
+export { enforceCrossTenantAccessGuard } from "./governance/engine/crossTenantAccessGuard.js";
+export { enforceDataExposureGuard } from "./governance/engine/dataExposureGuard.js";
+export { runPlatformGovernanceEngine } from "./governance/engine/runPlatformGovernanceEngine.js";
+
 export default {
   version: "mak-enterprise-intelligence-v1",
 };

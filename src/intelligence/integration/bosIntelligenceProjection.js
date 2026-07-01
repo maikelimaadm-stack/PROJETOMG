@@ -13,6 +13,7 @@ import { buildCorporateIntelligenceBosProjection } from "../corporate/engine/cor
 import { buildImprovementBosProjection } from "../improvement/engine/improvementToBosProjection.js";
 import { buildOptimizationBosProjection } from "../optimization/engine/optimizationToBosProjection.js";
 import { buildPortfolioIntelligenceBosProjection } from "../portfolio/engine/portfolioToBosProjection.js";
+import { buildPlatformGovernanceBosProjection } from "../governance/engine/governanceToBosProjection.js";
 import { buildAuthorizedGroupComparison } from "../segmentation/engine/authorizedGroupComparison.js";
 import { buildCorporatePatternSuggestions } from "../segmentation/engine/corporatePatternSuggestions.js";
 import {
@@ -45,6 +46,11 @@ import {
   bridgePortfolioToDecision,
   bridgePortfolioToEvolution,
 } from "../portfolio/engine/portfolioToIntelligenceBridges.js";
+import {
+  bridgeGovernanceToConsulting,
+  bridgeGovernanceToDecision,
+  bridgeGovernanceToPortfolioIntelligence,
+} from "../governance/engine/governanceToIntelligenceBridges.js";
 import {
   bridgeDnaToConsulting,
   bridgeDnaToDecision,
@@ -88,6 +94,9 @@ export function buildIntelligenceHomeProjection(tenantId = "default", options = 
   const optimizationProjection = buildOptimizationBosProjection(tenantId, options);
   const portfolioIntelligenceProjection = options.groupId
     ? buildPortfolioIntelligenceBosProjection(options.groupId, tenantId, options)
+    : null;
+  const platformGovernanceProjection = options.groupId
+    ? buildPlatformGovernanceBosProjection(options.groupId, tenantId, options)
     : null;
   const portfolioProjection = options.groupId
     ? buildPortfolioView(options.groupId, tenantId)
@@ -256,6 +265,19 @@ export function buildIntelligenceHomeProjection(tenantId = "default", options = 
     portfolioLeaderCompany: portfolioIntelligenceProjection?.leaderCompany ?? null,
     portfolioAboveStandardCount: portfolioIntelligenceProjection?.aboveStandardCount ?? null,
     portfolioBelowStandardCount: portfolioIntelligenceProjection?.belowStandardCount ?? null,
+    hasPlatformGovernance: platformGovernanceProjection?.hasPlatformGovernance ?? false,
+    governanceSummary: platformGovernanceProjection?.summary ?? null,
+    governanceControlCenter: platformGovernanceProjection?.governanceControlCenter ?? null,
+    portfolioControlCenter: platformGovernanceProjection?.portfolioControlCenter ?? null,
+    authorizedGroupScopes: platformGovernanceProjection?.authorizedGroupScopes ?? [],
+    activePolicies: platformGovernanceProjection?.activePolicies ?? [],
+    governancePermissions: platformGovernanceProjection?.governancePermissions ?? [],
+    retentionPolicies: platformGovernanceProjection?.retentionPolicies ?? [],
+    complianceStatus: platformGovernanceProjection?.complianceStatus ?? [],
+    auditHistory: platformGovernanceProjection?.auditHistory ?? [],
+    governanceAlerts: platformGovernanceProjection?.governanceAlerts ?? [],
+    visibilityZones: platformGovernanceProjection?.visibilityZones ?? null,
+    rolePermissionMatrix: platformGovernanceProjection?.rolePermissionMatrix ?? [],
     knowledgeBridges: Object.freeze({
       consulting: bridgeKnowledgeToConsulting(tenantId),
       decision: bridgeKnowledgeToDecision(tenantId),
@@ -312,6 +334,13 @@ export function buildIntelligenceHomeProjection(tenantId = "default", options = 
           consulting: bridgePortfolioToConsulting(options.groupId, tenantId),
           decision: bridgePortfolioToDecision(options.groupId, tenantId),
           evolution: bridgePortfolioToEvolution(options.groupId, tenantId),
+        })
+      : null,
+    governanceBridges: options.groupId
+      ? Object.freeze({
+          portfolio: bridgeGovernanceToPortfolioIntelligence(options.groupId, tenantId),
+          consulting: bridgeGovernanceToConsulting(options.groupId, tenantId),
+          decision: bridgeGovernanceToDecision(options.groupId, tenantId),
         })
       : null,
   });

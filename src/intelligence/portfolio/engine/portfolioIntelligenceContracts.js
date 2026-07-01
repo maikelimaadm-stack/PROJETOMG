@@ -37,6 +37,7 @@ export const PORTFOLIO_OWNERSHIP = Object.freeze({
 });
 
 export const PORTFOLIO_INTELLIGENCE_EXTENSION_POINTS = Object.freeze([
+  Object.freeze({ id: "business.platform_governance", implemented: true, consumes: ["portfolio.intelligence"] }),
   Object.freeze({ id: "ai.chat.assistant", implemented: false, forbiddenForBusinessUser: true }),
 ]);
 

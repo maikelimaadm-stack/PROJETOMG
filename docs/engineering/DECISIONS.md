@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-088 Portfolio Intelligence & Command Center MVP)
+**Last updated:** 2026-06-30 (D-089 Platform Governance & Portfolio Control Center MVP)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -1065,6 +1065,18 @@
 | **Decision** | Implement first **Portfolio Intelligence Engine** and **Corporate Command Center** consuming Optimization Loop + full intelligence stack. Authorized group-scoped aggregation only, explainable executive view, BOS command center projections. Gate **G320**. |
 | **Evidence** | `src/intelligence/portfolio/engine/**` · [PROGRAM-3.22-PORTFOLIO-INTELLIGENCE-COMMAND-CENTER-REPORT.md](./PROGRAM-3.22-PORTFOLIO-INTELLIGENCE-COMMAND-CENTER-REPORT.md) |
 | **Consequences** | Multi-company executive view live on BOS with tenant isolation; no cross-tenant mixing without authorization; no autonomous corporate command |
+
+---
+
+## D-089 — Platform Governance & Portfolio Control Center MVP (Program 3.23)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Implement first **Platform Governance Engine** and **Portfolio Control Center** consuming Portfolio Intelligence + full intelligence stack. Authorized scope management, permissions, policies, retention, audit, compliance with BOS projections. Gate **G321**. |
+| **Evidence** | `src/intelligence/governance/engine/**` · [PROGRAM-3.23-PLATFORM-GOVERNANCE-PORTFOLIO-CONTROL-REPORT.md](./PROGRAM-3.23-PLATFORM-GOVERNANCE-PORTFOLIO-CONTROL-REPORT.md) |
+| **Consequences** | Secure platform governance live on BOS; policy changes require audit; no autonomous policy execution; tenant isolation protected |
 
 ---
 
