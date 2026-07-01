@@ -51,6 +51,7 @@
 | **G316** | Product (active) | **Segmentation, Templates & Advanced Maturity MVP** (Program 3.18) |
 | **G317** | Product (active) | **Recommendation & Replication MVP** (Program 3.19) |
 | **G318** | Product (active) | **Adoption Tracking & Corporate Intelligence MVP** (Program 3.20) |
+| **G319** | Product (active) | **Continuous Improvement & Optimization Loop MVP** (Program 3.21) |
 | **G303B** | Studio (planned) | Business Computation implementation |
 | **G304** | Studio (architecture) | Intent Resolver architecture reference (D-064) — implementation certified by **G305** |
 | **G401–G402** | Deploy pipeline | Renumbered from G303/G304 deploy (D-062) |
@@ -111,6 +112,7 @@
 | **G316** | Segmentation, Templates & Advanced Maturity MVP | 3.18 | D-084 | `gate-enterprise-segmentation.mjs` | **active** |
 | **G317** | Recommendation & Replication MVP | 3.19 | D-085 | `gate-enterprise-recommendation-replication.mjs` | **active** |
 | **G318** | Adoption Tracking & Corporate Intelligence MVP | 3.20 | D-086 | `gate-enterprise-adoption-corporate-intelligence.mjs` | **active** |
+| **G319** | Continuous Improvement & Optimization Loop MVP | 3.21 | D-087 | `gate-enterprise-continuous-improvement-optimization.mjs` | **active** |
 
 ---
 

@@ -81,6 +81,12 @@ import {
   AdoptionImpactSection,
   CorporateIntelligenceSection,
 } from "@/bos/components/BusinessAdoptionSections";
+import {
+  ImprovementCyclesSection,
+  OptimizationOpportunitiesSection,
+  ImprovementImpactSection,
+  OperationalFeedbackLoopSection,
+} from "@/bos/components/BusinessImprovementSections";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import {
   buildIntelligenceHomeProjection,
@@ -354,6 +360,25 @@ export default function BosHomePage() {
         groupInsights={intelligence.corporateGroupInsights}
         summary={intelligence.corporateSummary}
         healthScore={intelligence.corporateHealthScore}
+      />
+
+      <ImprovementCyclesSection
+        cycles={intelligence.activeImprovementCycles}
+        summary={intelligence.improvementSummary}
+      />
+      <OptimizationOpportunitiesSection
+        opportunities={intelligence.optimizationOpportunities}
+        summary={intelligence.optimizationSummary}
+      />
+      <ImprovementImpactSection
+        validated={intelligence.validatedImprovements}
+        pending={intelligence.pendingEffectImprovements}
+        accumulatedImpact={intelligence.accumulatedImprovementImpact}
+      />
+      <OperationalFeedbackLoopSection
+        feedbackLoop={intelligence.operationalFeedbackLoop}
+        patterns={intelligence.recurringImprovementPatterns}
+        benchmarks={[...(intelligence.improvementBenchmarks ?? []), ...(intelligence.optimizationBenchmarks ?? [])]}
       />
 
       <ActivityTeaserSection items={activity} />

@@ -365,6 +365,64 @@ export { trackReplicationAdoption } from "./corporate/engine/replicationAdoption
 export { trackRecommendationOutcomes } from "./corporate/engine/recommendationOutcomeTracking.js";
 export { runCorporateIntelligenceEngine } from "./corporate/engine/runCorporateIntelligenceEngine.js";
 
+export {
+  IMPROVEMENT_ENGINE_VERSION,
+  IMPROVEMENT_SIGNAL_TYPES,
+  IMPROVEMENT_ENGINE_EXTENSION_POINTS,
+} from "./improvement/engine/improvementEngineContracts.js";
+export {
+  listImprovementLoops,
+  getImprovementEngineStoreInfo,
+} from "./improvement/engine/improvementEngineStore.js";
+export { assembleImprovementContext } from "./improvement/engine/improvementContextAssembly.js";
+export {
+  analyzeImprovementContext,
+  ingestAdoptionToImprovement,
+  replayImprovementFromStack,
+} from "./improvement/engine/adoptionToImprovementIngestion.js";
+export {
+  retrieveImprovementsByContext,
+  retrieveLatestImprovements,
+} from "./improvement/engine/improvementRetrieval.js";
+export { summarizeImprovementEngine } from "./improvement/engine/improvementSummarization.js";
+export { buildImprovementBosProjection } from "./improvement/engine/improvementToBosProjection.js";
+export {
+  bridgeImprovementToRecommendation,
+  bridgeImprovementToAdoption,
+  bridgeImprovementToConsulting,
+  bridgeImprovementToDecision,
+  bridgeImprovementToEvolution,
+} from "./improvement/engine/improvementToIntelligenceBridges.js";
+export { buildImprovementSeedsRegistry } from "./improvement/engine/improvementSeedsRegistry.js";
+export { trackImprovementProgress } from "./improvement/engine/improvementTracking.js";
+export { runImprovementEngine } from "./improvement/engine/runImprovementEngine.js";
+
+export {
+  OPTIMIZATION_ENGINE_VERSION,
+  OPTIMIZATION_SIGNAL_TYPES,
+  OPTIMIZATION_ENGINE_EXTENSION_POINTS,
+} from "./optimization/engine/optimizationEngineContracts.js";
+export {
+  listOptimizationLoops,
+  listOptimizationOpportunities,
+  getOptimizationEngineStoreInfo,
+} from "./optimization/engine/optimizationEngineStore.js";
+export { assembleOptimizationContext } from "./optimization/engine/optimizationContextAssembly.js";
+export {
+  analyzeOptimizationContext,
+  ingestImprovementToOptimization,
+} from "./optimization/engine/improvementToOptimizationIngestion.js";
+export {
+  retrieveOptimizationsByContext,
+  retrieveLatestOptimizations,
+} from "./optimization/engine/optimizationRetrieval.js";
+export { summarizeOptimizationEngine } from "./optimization/engine/optimizationSummarization.js";
+export { buildOptimizationBosProjection } from "./optimization/engine/optimizationToBosProjection.js";
+export { buildOptimizationSeedsRegistry } from "./optimization/engine/optimizationSeedsRegistry.js";
+export { trackOptimizationProgress } from "./optimization/engine/optimizationTracking.js";
+export { runOptimizationEngine } from "./optimization/engine/runOptimizationEngine.js";
+export { bridgeAdoptionToImprovement } from "./adoption/engine/adoptionToIntelligenceBridges.js";
+
 export default {
   version: "mak-enterprise-intelligence-v1",
 };

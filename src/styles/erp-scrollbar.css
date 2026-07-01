@@ -59,6 +59,8 @@
 .cadastro-emp-scope :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll),
 .mg-empresas-scope :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll),
 .erp-shell :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll),
+.bos-shell :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll),
+.bos-main,
 html,
 body {
   overscroll-behavior: contain;
