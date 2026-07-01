@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-084 Segmentation, Templates & Advanced Maturity MVP)
+**Last updated:** 2026-06-30 (D-085 Recommendation & Replication MVP)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -1016,7 +1016,19 @@
 | **Status** | Accepted |
 | **Decision** | Implement first **Business Segmentation Engine** consuming Business DNA + full intelligence stack. Tenant-scoped operational segments, template matching, advanced maturity scoring, authorized group benchmarking, BOS projections. Segmentation belongs to enterprise — classifies and explains, never autonomous or individual profiling. Gate **G316**. |
 | **Evidence** | `src/intelligence/segmentation/engine/**` · [PROGRAM-3.18-SEGMENTATION-TEMPLATES-MATURITY-REPORT.md](./PROGRAM-3.18-SEGMENTATION-TEMPLATES-MATURITY-REPORT.md) |
-| **Consequences** | Segment classification live on BOS; template library for acceleration; authorized benchmarking and pattern replication prepared |
+| **Consequences** | Segment classification live on BOS; template library for acceleration; authorized benchmarking prepared |
+
+---
+
+## D-085 — Recommendation & Replication MVP (Program 3.19)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Implement first **Recommendation & Replication Engine** consuming Business DNA + Segmentation + full intelligence stack. Tenant-scoped recommendations, assisted replication within authorized scope, human approval required, BOS projections. Gate **G317**. |
+| **Evidence** | `src/intelligence/recommendation/engine/**` · [PROGRAM-3.19-RECOMMENDATION-REPLICATION-REPORT.md](./PROGRAM-3.19-RECOMMENDATION-REPLICATION-REPORT.md) |
+| **Consequences** | Corporate recommendations live on BOS; assisted replication prepared; no autonomous execution |
 
 ---
 

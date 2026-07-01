@@ -68,6 +68,12 @@ import {
   AccelerationSuggestionsSection,
   SegmentationGroupSection,
 } from "@/bos/components/BusinessSegmentationSections";
+import {
+  PriorityRecommendationsSection,
+  SuggestedPlansSection,
+  ReplicablePracticesSection,
+  RecommendationWhySection,
+} from "@/bos/components/BusinessRecommendationSections";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import {
   buildIntelligenceHomeProjection,
@@ -301,6 +307,20 @@ export default function BosHomePage() {
       <SegmentationGroupSection
         groupComparison={intelligence.segmentationGroupComparison}
         patternSuggestions={intelligence.corporatePatternSuggestions}
+      />
+
+      <PriorityRecommendationsSection
+        recommendations={intelligence.priorityRecommendations}
+        summary={intelligence.recommendationSummary}
+      />
+      <SuggestedPlansSection plans={intelligence.suggestedImprovementPlans} />
+      <ReplicablePracticesSection
+        practices={intelligence.replicablePractices}
+        summary={intelligence.replicationSummary}
+      />
+      <RecommendationWhySection
+        highlights={intelligence.recommendationWhy}
+        nextSteps={intelligence.recommendationNextSteps}
       />
 
       <ActivityTeaserSection items={activity} />
