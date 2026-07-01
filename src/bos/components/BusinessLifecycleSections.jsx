@@ -319,3 +319,161 @@ export function LifecycleControlCenterSection({ controlCenter, dataStates = [] }
     </section>
   );
 }
+
+export function LifecycleSyncSection({
+  syncStatus,
+  syncedApprovals = [],
+  pendingExecutions = [],
+  divergences = [],
+  storageConfirmed = [],
+  backupsTriggered = [],
+  persistedAudits = [],
+  syncFailures = [],
+  syncRetries = [],
+  adminAlerts = [],
+  reviewCenter,
+  integrationHealth,
+  summary,
+}) {
+  if (
+    !syncStatus &&
+    !summary &&
+    !syncedApprovals.length &&
+    !pendingExecutions.length &&
+    !divergences.length &&
+    !storageConfirmed.length &&
+    !backupsTriggered.length &&
+    !persistedAudits.length &&
+    !syncFailures.length &&
+    !syncRetries.length &&
+    !adminAlerts.length &&
+    !reviewCenter &&
+    !integrationHealth
+  ) {
+    return null;
+  }
+
+  return (
+    <section className="bos-section" aria-labelledby="bos-lifecycle-sync-title">
+      <div className="bos-section-heading">
+        <h2 id="bos-lifecycle-sync-title" className="bos-section-title">
+          Sincronização operacional
+        </h2>
+        <p className="bos-section-subtitle">
+          Estado de sincronização entre aprovações, execuções, storage, backup e auditoria persistente.
+        </p>
+      </div>
+      {summary ? <p className="mb-3 text-sm text-slate-700">{summary}</p> : null}
+      {syncStatus ? (
+        <Card className="bos-card mb-3 border-teal-100 bg-teal-50/20">
+          <CardContent className="py-4">
+            <p className="text-sm font-medium text-slate-900">{syncStatus.label}</p>
+            <p className="text-xs text-slate-600">{syncStatus.context}</p>
+            {syncStatus.because ? <p className="mt-2 text-xs text-teal-700">Por quê: {syncStatus.because}</p> : null}
+          </CardContent>
+        </Card>
+      ) : null}
+      {integrationHealth ? (
+        <Card className="bos-card mb-3 border-slate-200/80">
+          <CardContent className="py-3">
+            <p className="text-sm font-medium text-slate-900">{integrationHealth.label}</p>
+            <p className="text-xs text-slate-600">{integrationHealth.context}</p>
+          </CardContent>
+        </Card>
+      ) : null}
+      {divergences.length ? (
+        <div className="mb-3 flex flex-wrap gap-2">
+          {divergences.map((item) => (
+            <span key={item.id} className="rounded-full bg-red-50 px-3 py-1 text-xs text-red-800">
+              Divergência: {item.label}
+            </span>
+          ))}
+        </div>
+      ) : null}
+      {syncFailures.length ? (
+        <div className="mb-3 flex flex-wrap gap-2">
+          {syncFailures.map((item) => (
+            <span key={item.id} className="rounded-full bg-amber-50 px-3 py-1 text-xs text-amber-800">
+              Falha: {item.label}
+            </span>
+          ))}
+        </div>
+      ) : null}
+      {syncRetries.length ? (
+        <div className="mb-3 flex flex-wrap gap-2">
+          {syncRetries.map((item) => (
+            <span key={item.id} className="rounded-full bg-violet-50 px-3 py-1 text-xs text-violet-800">
+              Reprocessamento: {item.label}
+            </span>
+          ))}
+        </div>
+      ) : null}
+      {adminAlerts.length ? (
+        <div className="mb-3 flex flex-wrap gap-2">
+          {adminAlerts.map((item) => (
+            <span key={item.id} className="rounded-full bg-indigo-50 px-3 py-1 text-xs text-indigo-800">
+              Alerta: {item.label}
+            </span>
+          ))}
+        </div>
+      ) : null}
+      {syncedApprovals.length ? (
+        <div className="mb-3 flex flex-wrap gap-2">
+          {syncedApprovals.map((item) => (
+            <span key={item.id} className="rounded-full bg-emerald-50 px-3 py-1 text-xs text-emerald-800">
+              Sincronizado: {item.label}
+            </span>
+          ))}
+        </div>
+      ) : null}
+      {pendingExecutions.length ? (
+        <div className="mb-3 flex flex-wrap gap-2">
+          {pendingExecutions.map((item) => (
+            <span key={item.id} className="rounded-full bg-sky-50 px-3 py-1 text-xs text-sky-800">
+              Pendente: {item.label}
+            </span>
+          ))}
+        </div>
+      ) : null}
+      {storageConfirmed.length ? (
+        <div className="mb-3 flex flex-wrap gap-2">
+          {storageConfirmed.map((item) => (
+            <span key={item.id} className="rounded-full bg-teal-50 px-3 py-1 text-xs text-teal-800">
+              Storage: {item.label}
+            </span>
+          ))}
+        </div>
+      ) : null}
+      {backupsTriggered.length ? (
+        <div className="mb-3 flex flex-wrap gap-2">
+          {backupsTriggered.map((item) => (
+            <span key={item.id} className="rounded-full bg-cyan-50 px-3 py-1 text-xs text-cyan-800">
+              Backup: {item.label}
+            </span>
+          ))}
+        </div>
+      ) : null}
+      {persistedAudits.length ? (
+        <Card className="bos-card border-slate-200/80">
+          <CardContent className="py-3">
+            <p className="text-sm font-medium text-slate-900">Auditorias persistidas</p>
+            {persistedAudits.map((item) => (
+              <p key={item.id} className="text-xs text-slate-600">
+                {item.label}: {item.context}
+              </p>
+            ))}
+          </CardContent>
+        </Card>
+      ) : null}
+      {reviewCenter ? (
+        <Card className="bos-card mt-3 border-indigo-100 bg-indigo-50/20">
+          <CardContent className="py-3">
+            <p className="text-sm font-medium text-slate-900">{reviewCenter.label}</p>
+            <p className="text-xs text-slate-600">{reviewCenter.context}</p>
+            {reviewCenter.because ? <p className="text-xs text-indigo-600">{reviewCenter.because}</p> : null}
+          </CardContent>
+        </Card>
+      ) : null}
+    </section>
+  );
+}

@@ -23,6 +23,28 @@ export async function registerLifecycleRoutes(app) {
     const reason = request.body?.reason ?? "Rejeitado pelo administrador.";
     return rejectRequestBackend(request.params.id, actorId, reason);
   });
+
+  app.get("/api/lifecycle/sync/:groupId", async (request, reply) => {
+    const clienteId = request.user?.cliente_id;
+    if (!clienteId) return reply.code(401).send({ error: "Não autenticado." });
+    const { getSyncSnapshot } = await import("./lifecycleSyncService.js");
+    return getSyncSnapshot(clienteId, request.params.groupId);
+  });
+
+  app.post("/api/lifecycle/sync/:groupId/push", async (request, reply) => {
+    const clienteId = request.user?.cliente_id;
+    if (!clienteId) return reply.code(401).send({ error: "Não autenticado." });
+    const { pushSyncBatchBackend } = await import("./lifecycleSyncService.js");
+    const tenantId = request.body?.tenantId ?? request.user?.tenant_id ?? "default";
+    return pushSyncBatchBackend(clienteId, request.params.groupId, tenantId, request.body ?? {});
+  });
+
+  app.post("/api/lifecycle/sync/:groupId/reconcile", async (request, reply) => {
+    const clienteId = request.user?.cliente_id;
+    if (!clienteId) return reply.code(401).send({ error: "Não autenticado." });
+    const { reconcileSyncBackend } = await import("./lifecycleSyncService.js");
+    return reconcileSyncBackend(clienteId, request.params.groupId);
+  });
 }
 
 export default registerLifecycleRoutes;

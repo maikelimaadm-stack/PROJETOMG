@@ -115,6 +115,7 @@ import {
   LifecycleApprovalSection,
   LifecycleAuditSection,
   LifecycleControlCenterSection,
+  LifecycleSyncSection,
 } from "@/bos/components/BusinessLifecycleSections";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import {
@@ -549,6 +550,21 @@ export default function BosHomePage() {
           intelligence.lifecyclePersistenceControlCenter ?? intelligence.lifecycleControlCenter
         }
         dataStates={intelligence.lifecycleDataStates}
+      />
+      <LifecycleSyncSection
+        summary={intelligence.lifecycleSyncSummary}
+        syncStatus={intelligence.lifecycleSyncStatus}
+        syncedApprovals={intelligence.lifecycleSyncSyncedApprovals}
+        pendingExecutions={intelligence.lifecycleSyncPendingExecutions}
+        divergences={intelligence.lifecycleSyncDivergences}
+        storageConfirmed={intelligence.lifecycleSyncStorageConfirmed}
+        backupsTriggered={intelligence.lifecycleSyncBackupsTriggered}
+        persistedAudits={intelligence.lifecycleSyncPersistedAudits}
+        syncFailures={intelligence.lifecycleSyncFailures}
+        syncRetries={intelligence.lifecycleSyncRetries}
+        adminAlerts={intelligence.lifecycleSyncAdminAlerts}
+        reviewCenter={intelligence.lifecycleSyncReviewCenter}
+        integrationHealth={intelligence.lifecycleSyncIntegrationHealth}
       />
 
       <ActivityTeaserSection items={activity} />

@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-092 Data Lifecycle Persistence & Approval Workflow MVP)
+**Last updated:** 2026-06-30 (D-093 Lifecycle Sync, Storage Integration & Audit Operations MVP)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -1113,6 +1113,18 @@
 | **Decision** | Implement **Lifecycle Backend Persistence** and **Approval Workflow Engine** with durable store, execution queue, storage/backup adapters, interactive BOS approve/reject, and Prisma backend models. Gate **G324**. |
 | **Evidence** | `src/intelligence/lifecycle/persistence/**` · `backend/src/modules/lifecycle/**` · [PROGRAM-3.26-LIFECYCLE-PERSISTENCE-APPROVAL-REPORT.md](./PROGRAM-3.26-LIFECYCLE-PERSISTENCE-APPROVAL-REPORT.md) |
 | **Consequences** | Lifecycle exits local MVP; human approval visible on BOS; execution queue with durable audit trail |
+
+---
+
+## D-093 — Lifecycle Sync, Storage Integration & Audit Operations MVP (Program 3.27)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Implement **Lifecycle Sync Engine** with frontend↔backend sync pipeline, storage/backup sync adapters, audit operations, notification registry, and BOS operational projections. Gate **G325**. |
+| **Evidence** | `src/intelligence/lifecycle/sync/**` · `backend/src/modules/lifecycle/lifecycleSync*.js` · [PROGRAM-3.27-LIFECYCLE-SYNC-STORAGE-AUDIT-REPORT.md](./PROGRAM-3.27-LIFECYCLE-SYNC-STORAGE-AUDIT-REPORT.md) |
+| **Consequences** | Lifecycle persistence syncs with backend; divergences visible on BOS; storage/backup/audit operations explainable |
 
 ---
 
