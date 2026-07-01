@@ -25,6 +25,7 @@ import { upsertGovernanceAlert } from "./platformGovernanceStore.js";
 import { appendGovernanceAuditEntry } from "./governanceAuditTrail.js";
 import { buildGovernanceSummary } from "./governanceSummaryEngine.js";
 import { PLATFORM_GOVERNANCE_VERSION, GOVERNANCE_OWNERSHIP } from "./platformGovernanceContracts.js";
+import { ingestGovernanceToFortress } from "../../fortress/engine/governanceToFortressIngestion.js";
 
 export function analyzePlatformGovernanceContext(groupId, tenantId = "default", options = {}) {
   const ctx = assembleGovernanceContext(groupId, tenantId, options);
@@ -83,6 +84,12 @@ export function analyzePlatformGovernanceContext(groupId, tenantId = "default", 
     entityId: document.document?.documentId ?? null,
     entityType: "governance_document",
   });
+
+  try {
+    ingestGovernanceToFortress(groupId, tenantId, { ...options, governanceDocumentId: document.document?.documentId });
+  } catch {
+    /* non-blocking fortress ingestion */
+  }
 
   return Object.freeze({
     groupId,

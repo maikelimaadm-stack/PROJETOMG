@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-089 Platform Governance & Portfolio Control Center MVP)
+**Last updated:** 2026-06-30 (D-090 Compliance, Retention & Audit Fortress MVP)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -1077,6 +1077,18 @@
 | **Decision** | Implement first **Platform Governance Engine** and **Portfolio Control Center** consuming Portfolio Intelligence + full intelligence stack. Authorized scope management, permissions, policies, retention, audit, compliance with BOS projections. Gate **G321**. |
 | **Evidence** | `src/intelligence/governance/engine/**` · [PROGRAM-3.23-PLATFORM-GOVERNANCE-PORTFOLIO-CONTROL-REPORT.md](./PROGRAM-3.23-PLATFORM-GOVERNANCE-PORTFOLIO-CONTROL-REPORT.md) |
 | **Consequences** | Secure platform governance live on BOS; policy changes require audit; no autonomous policy execution; tenant isolation protected |
+
+---
+
+## D-090 — Compliance, Retention & Audit Fortress MVP (Program 3.24)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Implement first **Compliance, Retention & Audit Fortress** consuming Platform Governance + full intelligence stack. Explicit retention rules, controlled purge, legal hold, archive, audit trail, BOS projections. Gate **G322**. |
+| **Evidence** | `src/intelligence/fortress/engine/**` · [PROGRAM-3.24-COMPLIANCE-RETENTION-AUDIT-FORTRESS-REPORT.md](./PROGRAM-3.24-COMPLIANCE-RETENTION-AUDIT-FORTRESS-REPORT.md) |
+| **Consequences** | Structural compliance protection on BOS; no purge without policy and audit; no retention without explicit rule |
 
 ---
 
