@@ -42,12 +42,14 @@ describe('Foundation C.3 — Runtime Bundle pipeline', () => {
       registry: instance.registry,
     });
 
-    assert.equal(result.bundle.status, 'ready');
+    assert.equal(result.bundle.status, 'runtime-ready');
     assert.equal(result.registry.isFrozen, true);
     assert.ok(result.registry.countEntries() > 0);
-    assert.ok(result.bundle.metrics.bootstrapMs >= 0);
-    assert.ok(result.bundle.metrics.validationsExecuted > 0);
-    assert.ok(result.bundle.metrics.registryObjectCount > 0);
+    assert.ok(result.dependencyGraph);
+    assert.ok(result.router);
+    assert.ok(result.navigationTable);
+    assert.ok(result.bundle.metrics.dependencyResolveMs >= 0);
+    assert.ok(result.bundle.metrics.routeCount >= 1);
   });
 
   it('hydrateWithBundle transitions instance to RT-3', async () => {
@@ -60,5 +62,34 @@ describe('Foundation C.3 — Runtime Bundle pipeline', () => {
     assert.equal(hydrated.instance.status, 'hydrated');
     assert.equal(hydrated.bundle.crb.moduleId, 'empresas');
     assert.ok(hydrated.registry.has('renderer', 'view-1'));
+    assert.equal(hydrated.bundle.status, 'runtime-ready');
+  });
+});
+
+describe('Foundation C.4 — Runtime Ready pipeline', () => {
+  it('Dependency Resolver → Runtime Router → Runtime Ready', async () => {
+    const instance = await bootstrap(validConfig);
+    const crb = buildEmpresasCrbFixture({ tenantId: 'tenant-a' });
+    const pin = buildEnvironmentPinFromCrb(crb);
+    const loader = createLoader();
+    loader.registerBundle(crb.bundleId, crb);
+
+    const result = await loadRuntimeBundle({
+      context: instance.context,
+      pin,
+      loader,
+      registry: instance.registry,
+    });
+
+    assert.equal(result.bundle.status, 'runtime-ready');
+    assert.ok(result.dependencyGraph.initOrder.length > 0);
+    assert.equal(result.navigationTable.routeCount, 1);
+
+    const match = result.router.match('/empresas', pin.applicationId, crb.moduleId);
+    assert.equal(match?.screenId, 'route-1');
+
+    assert.ok(result.bundle.metrics.graphMaxDepth >= 0);
+    assert.ok(result.bundle.metrics.dependencyCount >= 0);
+    assert.ok(result.bundle.metrics.routeRegisterMs >= 0);
   });
 });
