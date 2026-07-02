@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/platform_version",
+  "title": "platform_version",
+  "description": "MMM payload schema for objectType 'platform_version' (Group A)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-a-platform-tenant.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/iot_device",
+  "title": "iot_device",
+  "description": "MMM payload schema for objectType 'iot_device' (Group G)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-g-integration.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

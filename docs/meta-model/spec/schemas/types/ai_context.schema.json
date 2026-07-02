@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/ai_context",
+  "title": "ai_context",
+  "description": "MMM payload schema for objectType 'ai_context' (Group K)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-k-intelligence-ai.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

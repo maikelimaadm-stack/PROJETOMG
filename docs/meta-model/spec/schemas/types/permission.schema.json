@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/permission",
+  "title": "permission",
+  "description": "MMM payload schema for objectType 'permission' (Group A)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-a-platform-tenant.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "resourceType": {
+          "type": "string"
+        },
+        "resourceRef": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        },
+        "effect": {
+          "enum": [
+            "allow",
+            "deny"
+          ]
+        }
+      },
+      "required": [
+        "resourceType",
+        "resourceRef",
+        "action",
+        "effect"
+      ],
+      "additionalProperties": true
+    }
+  ]
+}

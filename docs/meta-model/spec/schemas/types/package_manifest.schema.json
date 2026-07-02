@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/package_manifest",
+  "title": "package_manifest",
+  "description": "MMM payload schema for objectType 'package_manifest' (Group J)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-j-package-versioning.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

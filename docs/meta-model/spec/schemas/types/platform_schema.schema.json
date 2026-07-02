@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/platform_schema",
+  "title": "platform_schema",
+  "description": "MMM payload schema for objectType 'platform_schema' (Group A)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-a-platform-tenant.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "string"
+        },
+        "targetObjectType": {
+          "type": "string"
+        },
+        "jsonSchema": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "jsonSchema"
+      ],
+      "additionalProperties": true
+    }
+  ]
+}

@@ -1,0 +1,418 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/_definitions",
+  "title": "MMM shared JSON Schema definitions",
+  "$defs": {
+    "Uuid": {
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "DateTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ObjectRef": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable objectId reference"
+    },
+    "LabelSet": {
+      "type": "object",
+      "properties": {
+        "locale": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 10
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 4000
+        },
+        "helpText": {
+          "type": "string",
+          "maxLength": 4000
+        }
+      },
+      "required": [
+        "locale",
+        "label"
+      ],
+      "additionalProperties": false
+    },
+    "Scope": {
+      "type": "object",
+      "properties": {
+        "applicationId": {
+          "$ref": "#/$defs/ObjectRef"
+        },
+        "moduleId": {
+          "$ref": "#/$defs/ObjectRef"
+        },
+        "companyId": {
+          "$ref": "#/$defs/ObjectRef"
+        },
+        "ouId": {
+          "$ref": "#/$defs/ObjectRef"
+        }
+      },
+      "additionalProperties": false
+    },
+    "LineageSource": {
+      "type": "string",
+      "enum": [
+        "studio",
+        "business_language",
+        "ai",
+        "marketplace",
+        "import",
+        "system"
+      ]
+    },
+    "Lineage": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "#/$defs/LineageSource"
+        },
+        "sourceRef": {
+          "type": "string"
+        },
+        "parentVersion": {
+          "type": "string"
+        },
+        "templateRef": {
+          "$ref": "#/$defs/ObjectRef"
+        },
+        "packageId": {
+          "type": "string"
+        },
+        "intentId": {
+          "type": "string"
+        },
+        "aiCandidateId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "LifecycleStatus": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "review",
+        "approved",
+        "published",
+        "active",
+        "deprecated",
+        "archived",
+        "rejected",
+        "deleted"
+      ]
+    },
+    "Dependencies": {
+      "type": "object",
+      "properties": {
+        "possess": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ObjectRef"
+          }
+        },
+        "use": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ObjectRef"
+          }
+        },
+        "reference": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ObjectRef"
+          }
+        },
+        "depend": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ObjectRef"
+          }
+        },
+        "inherit": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "objectId": {
+                "$ref": "#/$defs/ObjectRef"
+              },
+              "version": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "objectId"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ObjectTypeEnum": {
+      "type": "string",
+      "description": "227 taxonomy values; see object-type-manifest.json (226 with PlatformSchema)",
+      "enum": [
+        "access_policy",
+        "action",
+        "action_bar",
+        "action_chain",
+        "aggregation",
+        "ai_candidate",
+        "ai_context",
+        "ai_prompt",
+        "api",
+        "api_endpoint",
+        "api_method",
+        "api_parameter",
+        "api_response",
+        "application",
+        "application_version",
+        "approval_step",
+        "attachment",
+        "audit_trail_view",
+        "automation",
+        "base_template",
+        "branch_block",
+        "business_asset",
+        "business_asset_version",
+        "business_intent",
+        "business_intent_document",
+        "business_language",
+        "business_object",
+        "business_object_definition",
+        "business_object_version",
+        "business_objective",
+        "business_process",
+        "business_rule",
+        "business_synonym",
+        "business_term",
+        "button",
+        "calculated_column",
+        "calendar",
+        "calendar_event",
+        "capability",
+        "capability_group",
+        "card",
+        "chart",
+        "chat",
+        "client_target",
+        "command",
+        "comment",
+        "company",
+        "compiled_bundle",
+        "compliance_rule",
+        "computation",
+        "condition",
+        "conditional_visibility",
+        "confirmation",
+        "conflict_resolution",
+        "connector",
+        "connector_config",
+        "connector_type",
+        "constraint",
+        "dashboard",
+        "dashboard_page",
+        "data_category",
+        "data_source",
+        "decision",
+        "definition_version",
+        "derivation",
+        "derivation_plan",
+        "design_token",
+        "detail",
+        "dialog",
+        "document",
+        "document_template",
+        "drawer",
+        "drill_down",
+        "entity",
+        "entity_kind",
+        "environment_pin",
+        "event",
+        "event_bus_subscription",
+        "event_handler",
+        "explainability",
+        "expression",
+        "extension",
+        "extension_point",
+        "external_data_source",
+        "feature",
+        "field",
+        "field_group",
+        "field_option",
+        "filter",
+        "filter_field",
+        "form",
+        "formatter",
+        "formula",
+        "function",
+        "gallery",
+        "governance_policy",
+        "grid",
+        "group",
+        "health_signal",
+        "help_text",
+        "home_surface",
+        "icon",
+        "inbox",
+        "index",
+        "indicator",
+        "industry_pack",
+        "insight",
+        "integration",
+        "integration_flow",
+        "integration_mapping",
+        "intent_catalog",
+        "intent_template",
+        "iot_device",
+        "iot_stream",
+        "iot_trigger",
+        "kanban",
+        "kanban_card",
+        "kanban_column",
+        "kanban_swimlane",
+        "knowledge_edge",
+        "knowledge_node",
+        "kpi",
+        "label",
+        "layout",
+        "lifecycle_action",
+        "list",
+        "lookup",
+        "loop_block",
+        "map",
+        "map_layer",
+        "map_marker",
+        "mask",
+        "maturity_score",
+        "memory_record",
+        "menu",
+        "menu_item",
+        "message_queue",
+        "module",
+        "module_dependency",
+        "module_version",
+        "navigation",
+        "notification",
+        "observation",
+        "organization_unit",
+        "package",
+        "package_dependency",
+        "package_license",
+        "package_manifest",
+        "package_review",
+        "package_version",
+        "page",
+        "pagination",
+        "panel",
+        "parallel_block",
+        "permission",
+        "persistence_mapping",
+        "pivot_table",
+        "placeholder",
+        "platform",
+        "platform_capability",
+        "platform_locale",
+        "platform_policy",
+        "platform_schema",
+        "platform_version",
+        "process",
+        "process_edge",
+        "process_node",
+        "publish_log",
+        "query",
+        "query_field",
+        "recommendation",
+        "refresh_policy",
+        "relationship",
+        "relationship_binding",
+        "renderer",
+        "report",
+        "report_parameter",
+        "report_section",
+        "resource_scope",
+        "responsive_rule",
+        "retention_policy",
+        "role",
+        "role_permission",
+        "rollup",
+        "route",
+        "rule",
+        "schedule",
+        "screen",
+        "script",
+        "section",
+        "segment_profile",
+        "sequence",
+        "signature",
+        "snapshot",
+        "sort",
+        "sync_profile",
+        "sync_rule",
+        "tab",
+        "template",
+        "tenant",
+        "tenant_branding",
+        "tenant_locale",
+        "tenant_plan",
+        "tenant_settings",
+        "theme",
+        "timeline",
+        "timeline_item",
+        "timeout_policy",
+        "toolbar",
+        "tree",
+        "tree_node",
+        "trigger",
+        "user",
+        "user_group",
+        "user_role",
+        "validation",
+        "validation_group",
+        "validation_rule",
+        "view",
+        "webhook",
+        "webhook_event",
+        "widget",
+        "workflow",
+        "workflow_step",
+        "workflow_transition",
+        "workflow_trigger",
+        "record"
+      ]
+    },
+    "PayloadMetadata": {
+      "type": "object",
+      "properties": {
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "documentationRef": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

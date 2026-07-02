@@ -32,7 +32,8 @@
 | [ROADMAP.md](./ROADMAP.md) | Program 4.02 → 4.xx evolution (**MMM roadmap SSOT**) |
 | [ATTENTION-POINTS.md](./ATTENTION-POINTS.md) | Known gaps summary |
 | [DIVERGENCE-REGISTER.md](./DIVERGENCE-REGISTER.md) | **Alignment register (4.01.2)** |
-| [ENVELOPE-SPEC.md](./ENVELOPE-SPEC.md) | Universal envelope outline (pre-4.02) |
+| [ENVELOPE-SPEC.md](./ENVELOPE-SPEC.md) | Envelope outline (pointer) |
+| **[spec/](./spec/)** | **Normative specification (4.02)** |
 
 ---
 

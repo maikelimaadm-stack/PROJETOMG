@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/capability_group",
+  "title": "capability_group",
+  "description": "MMM payload schema for objectType 'capability_group' (Group B)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-b-application-topology.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

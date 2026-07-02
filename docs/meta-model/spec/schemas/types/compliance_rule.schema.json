@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/compliance_rule",
+  "title": "compliance_rule",
+  "description": "MMM payload schema for objectType 'compliance_rule' (Group K)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-k-intelligence-ai.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/data_category",
+  "title": "data_category",
+  "description": "MMM payload schema for objectType 'data_category' (Group C)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-c-data-model.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

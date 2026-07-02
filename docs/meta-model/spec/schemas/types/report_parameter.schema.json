@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/report_parameter",
+  "title": "report_parameter",
+  "description": "MMM payload schema for objectType 'report_parameter' (Group E)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-e-analytics.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

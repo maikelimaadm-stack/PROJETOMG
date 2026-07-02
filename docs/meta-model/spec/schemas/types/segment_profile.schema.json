@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/segment_profile",
+  "title": "segment_profile",
+  "description": "MMM payload schema for objectType 'segment_profile' (Group K)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-k-intelligence-ai.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

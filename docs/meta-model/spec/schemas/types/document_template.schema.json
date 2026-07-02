@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/document_template",
+  "title": "document_template",
+  "description": "MMM payload schema for objectType 'document_template' (Group H)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-h-specialized-views.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

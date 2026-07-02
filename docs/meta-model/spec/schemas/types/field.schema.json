@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/field",
+  "title": "field",
+  "description": "MMM payload schema for objectType 'field' (Group C)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-c-data-model.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "dataType": {
+          "type": "string"
+        },
+        "referenceBoRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataType"
+      ],
+      "additionalProperties": true
+    }
+  ]
+}

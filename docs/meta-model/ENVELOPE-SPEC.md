@@ -1,7 +1,7 @@
 # MMM Universal Envelope — Specification Outline
 
-**Status:** Official — Pre-4.02 outline (full JSON Schema in Program 4.02)  
-**Version:** 0.9.0 (outline)  
+**Status:** Official — Pre-4.02 outline · **Superseded by:** [spec/mmm-envelope-v1.schema.json](./spec/mmm-envelope-v1.schema.json) (v1.0.0)  
+**Version:** 1.0.0 (outline retired)  
 **Effective date:** 2026-06-30  
 **Mission:** Program 4.01.2 — alignment before PlatformSchema  
 **Decision:** D-MMM-03  

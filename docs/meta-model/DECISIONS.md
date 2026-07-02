@@ -240,12 +240,27 @@ Este documento é o **único owner** de decisões MMM. Platform DECISIONS.md ref
 
 ---
 
+## D-MMM-17 — MMM Formal Specification v1 (Program 4.02)
+
+**Status:** Accepted  
+**Date:** 2026-06-30  
+**Program:** 4.02
+
+**Decision:** Especificação normativa v1 entregue em `docs/meta-model/spec/`: 226 PlatformSchema JSON Schemas, `mmm-envelope-v1`, `mmm-api-v1` OpenAPI, manifest, validation rules, derivation map, G421 spec.
+
+**Consequences:** Program 4.03+ implement against `mmm-spec-v1`; no runtime changes in 4.02.
+
+**See:** [spec/SPECIFICATION-OVERVIEW.md](./spec/SPECIFICATION-OVERVIEW.md)
+
+---
+
 ## Versionamento
 
 | Version | Date | Change |
 |---------|------|--------|
 | 1.0.0 | 2026-06-30 | D-MMM-01 through D-MMM-15 |
 | 1.1.0 | 2026-06-30 | D-MMM-16 taxonomy count correction |
+| 1.2.0 | 2026-06-30 | D-MMM-17 formal specification v1 |
 
 ## Próximos passos
 

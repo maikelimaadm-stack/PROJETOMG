@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/envelope",
+  "title": "MMM Universal Envelope",
+  "description": "Canonical envelope for all MMM objects — mmm-envelope-v1",
+  "type": "object",
+  "properties": {
+    "envelopeVersion": { "const": "mmm-envelope-v1" },
+    "objectId": { "$ref": "schemas/_definitions.schema.json#/$defs/Uuid" },
+    "objectType": { "$ref": "schemas/_definitions.schema.json#/$defs/ObjectTypeEnum" },
+    "tenantId": { "type": "string", "minLength": 1 },
+    "scope": { "$ref": "schemas/_definitions.schema.json#/$defs/Scope" },
+    "status": { "$ref": "schemas/_definitions.schema.json#/$defs/LifecycleStatus" },
+    "labels": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "schemas/_definitions.schema.json#/$defs/LabelSet" }
+    },
+    "lineage": { "$ref": "schemas/_definitions.schema.json#/$defs/Lineage" },
+    "payload": { "type": "object" },
+    "dependencies": { "$ref": "schemas/_definitions.schema.json#/$defs/Dependencies" },
+    "revision": { "type": "integer", "minimum": 1 },
+    "createdAt": { "$ref": "schemas/_definitions.schema.json#/$defs/DateTime" },
+    "updatedAt": { "$ref": "schemas/_definitions.schema.json#/$defs/DateTime" },
+    "createdBy": { "type": "string" },
+    "updatedBy": { "type": "string" }
+  },
+  "required": [
+    "envelopeVersion",
+    "objectId",
+    "objectType",
+    "tenantId",
+    "scope",
+    "status",
+    "labels",
+    "lineage",
+    "payload",
+    "revision",
+    "createdAt",
+    "updatedAt"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": { "properties": { "objectType": { "const": "record" } } },
+      "then": { "description": "record is taxonomy-only; must not be persisted as MMM SSOT" }
+    }
+  ]
+}

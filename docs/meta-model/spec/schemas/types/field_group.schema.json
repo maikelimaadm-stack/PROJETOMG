@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/field_group",
+  "title": "field_group",
+  "description": "MMM payload schema for objectType 'field_group' (Group C)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-c-data-model.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

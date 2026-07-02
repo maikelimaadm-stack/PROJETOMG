@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/home_surface",
+  "title": "home_surface",
+  "description": "MMM payload schema for objectType 'home_surface' (Group B)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-b-application-topology.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

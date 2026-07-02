@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/ai_candidate",
+  "title": "ai_candidate",
+  "description": "MMM payload schema for objectType 'ai_candidate' (Group K)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-k-intelligence-ai.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "candidateType": {
+          "enum": [
+            "intent",
+            "derivation_plan",
+            "mmm_object_draft"
+          ]
+        },
+        "proposedPayload": {
+          "type": "object"
+        },
+        "humanReviewRequired": {
+          "const": true
+        }
+      },
+      "required": [
+        "candidateType",
+        "proposedPayload"
+      ],
+      "additionalProperties": true
+    }
+  ]
+}

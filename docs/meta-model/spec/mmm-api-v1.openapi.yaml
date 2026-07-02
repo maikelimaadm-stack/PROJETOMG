@@ -1,0 +1,325 @@
+openapi: 3.1.0
+info:
+  title: MAK Universal Meta Model API
+  version: mmm-api-v1
+  description: |
+    Normative REST contract for MMM object CRUD and batch operations.
+    Implementation target Program 4.03+. Transitional path `/api/mdp/*` deprecated.
+  contact:
+    name: MAK Platform Architecture
+specVersion: "1.0.0"
+decision: D-MMM-17
+
+servers:
+  - url: /api/mmm/v1
+    description: MMM API v1 (future implementation)
+
+tags:
+  - name: objects
+    description: MMM envelope CRUD
+  - name: batch
+    description: Derivation and batch writes
+  - name: schema
+    description: PlatformSchema introspection
+  - name: publish
+    description: Publish scope triggers (delegates to Publish Engine in 4.04)
+
+paths:
+  /objects:
+    get:
+      tags: [objects]
+      operationId: listObjects
+      summary: List MMM objects by scope filter
+      parameters:
+        - name: tenantId
+          in: query
+          required: true
+          schema: { type: string }
+        - name: objectType
+          in: query
+          schema: { type: string }
+        - name: moduleId
+          in: query
+          schema: { type: string }
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, review, approved, published, active, deprecated, archived, rejected, deleted]
+        - name: cursor
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+      responses:
+        "200":
+          description: Paginated envelope list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObjectListResponse"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+    post:
+      tags: [objects]
+      operationId: createObject
+      summary: Create MMM object (draft)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MmmEnvelope"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MmmEnvelope"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /objects/{objectId}:
+    get:
+      tags: [objects]
+      operationId: getObject
+      parameters:
+        - $ref: "#/components/parameters/objectId"
+      responses:
+        "200":
+          description: Envelope
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MmmEnvelope"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    put:
+      tags: [objects]
+      operationId: replaceObject
+      summary: Full replace (revision required)
+      parameters:
+        - $ref: "#/components/parameters/objectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MmmEnvelope"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MmmEnvelope"
+        "409":
+          $ref: "#/components/responses/RevisionConflict"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+    patch:
+      tags: [objects]
+      operationId: patchObject
+      summary: Partial update (payload and/or status transition)
+      parameters:
+        - $ref: "#/components/parameters/objectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MmmEnvelopePatch"
+      responses:
+        "200":
+          description: Updated
+        "409":
+          $ref: "#/components/responses/RevisionConflict"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+    delete:
+      tags: [objects]
+      operationId: softDeleteObject
+      summary: Soft delete (status → deleted)
+      parameters:
+        - $ref: "#/components/parameters/objectId"
+      responses:
+        "204":
+          description: Deleted
+
+  /objects/batch:
+    post:
+      tags: [batch]
+      operationId: batchCreateObjects
+      summary: Batch create from Derivation Engine (C-03)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BatchCreateRequest"
+      responses:
+        "201":
+          description: Batch created (all or nothing)
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /schemas:
+    get:
+      tags: [schema]
+      operationId: listSchemas
+      summary: List PlatformSchema registry entries
+      responses:
+        "200":
+          description: Manifest summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchemaManifestResponse"
+
+  /schemas/{objectType}:
+    get:
+      tags: [schema]
+      operationId: getSchema
+      parameters:
+        - name: objectType
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: JSON Schema for payload
+          content:
+            application/json:
+              schema: { type: object }
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /publish:
+    post:
+      tags: [publish]
+      operationId: requestPublish
+      summary: Trigger publish scope (async — Program 4.04)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublishScopeRequest"
+      responses:
+        "202":
+          description: Publish accepted
+
+components:
+  parameters:
+    objectId:
+      name: objectId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+
+  responses:
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Forbidden:
+      description: Denied (fail-closed)
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    ValidationError:
+      description: Schema or semantic validation failed
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ValidationError" }
+    RevisionConflict:
+      description: Optimistic lock revision mismatch
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+
+  schemas:
+    MmmEnvelope:
+      type: object
+      description: See mmm-envelope-v1.schema.json
+      required: [envelopeVersion, objectId, objectType, tenantId, scope, status, labels, lineage, payload, revision, createdAt, updatedAt]
+
+    MmmEnvelopePatch:
+      type: object
+      properties:
+        revision: { type: integer }
+        status: { type: string }
+        labels: { type: array, items: { type: object } }
+        payload: { type: object }
+        dependencies: { type: object }
+
+    BatchCreateRequest:
+      type: object
+      required: [derivationPlanId, objects, confirmationRef]
+      properties:
+        derivationPlanId: { type: string }
+        confirmationRef: { type: string }
+        objects:
+          type: array
+          minItems: 1
+          items: { $ref: "#/components/schemas/MmmEnvelope" }
+
+    PublishScopeRequest:
+      type: object
+      required: [tenantId, environment]
+      properties:
+        tenantId: { type: string }
+        applicationId: { type: string }
+        moduleId: { type: string }
+        objectIds: { type: array, items: { type: string } }
+        environment: { type: string, enum: [staging, production] }
+
+    ObjectListResponse:
+      type: object
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/MmmEnvelope" } }
+        nextCursor: { type: string }
+
+    SchemaManifestResponse:
+      type: object
+      properties:
+        manifestVersion: { type: string }
+        platformSchemaCount: { type: integer, const: 226 }
+        objectTypes: { type: array, items: { type: object } }
+
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code: { type: string }
+        message: { type: string }
+
+    ValidationError:
+      allOf:
+        - $ref: "#/components/schemas/Error"
+        - type: object
+          properties:
+            violations:
+              type: array
+              items:
+                type: object
+                properties:
+                  path: { type: string }
+                  rule: { type: string }
+                  message: { type: string }
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []

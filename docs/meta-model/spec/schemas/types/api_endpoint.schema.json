@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/api_endpoint",
+  "title": "api_endpoint",
+  "description": "MMM payload schema for objectType 'api_endpoint' (Group G)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-g-integration.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

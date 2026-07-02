@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/memory_record",
+  "title": "memory_record",
+  "description": "MMM payload schema for objectType 'memory_record' (Group K)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-k-intelligence-ai.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/entity",
+  "title": "entity",
+  "description": "MMM payload schema for objectType 'entity' (Group C)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-c-data-model.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/filter",
+  "title": "filter",
+  "description": "MMM payload schema for objectType 'filter' (Group D)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-d-presentation.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}
