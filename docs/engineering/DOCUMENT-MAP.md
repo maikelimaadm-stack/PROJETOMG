@@ -93,7 +93,19 @@
 | Foundation Roadmap · Final Audit | [18-FOUNDATION-ROADMAP.md](../platform-architecture/18-FOUNDATION-ROADMAP.md) · [19-AUDIT-FINAL.md](../platform-architecture/19-AUDIT-FINAL.md) |
 | Decisions · Contracts · Divergences | [DECISIONS.md](../platform-architecture/DECISIONS.md) (D-PA-01+) · [CONTRACTS.md](../platform-architecture/CONTRACTS.md) · [DIVERGENCE-REGISTER.md](../platform-architecture/DIVERGENCE-REGISTER.md) |
 
-> **Implementation freeze (D-PA-19):** Only **Foundation C — Runtime Bridge** is authorized for code. See [19-AUDIT-FINAL.md](../platform-architecture/19-AUDIT-FINAL.md).
+> **Implementation freeze (D-PA-19, D-PB-21):** Only **Foundation C — Runtime Bridge** authorized after B.5 merge. See [25-AUDIT-FINAL.md](../platform-behavior/25-AUDIT-FINAL.md).
+
+---
+
+## L1e — Platform Behavior (Foundation B.5, D-PB)
+
+| Document | Path |
+|----------|------|
+| **Platform Behavior Hub (SSOT)** | **[docs/platform-behavior/README.md](../platform-behavior/README.md)** |
+| Lifecycles 01–15 | [01-PLATFORM-LIFECYCLE.md](../platform-behavior/01-PLATFORM-LIFECYCLE.md) through [15-DEPLOYMENT-LIFECYCLE.md](../platform-behavior/15-DEPLOYMENT-LIFECYCLE.md) |
+| Universal models 16–24 | [16-UNIVERSAL-STATE-MACHINE.md](../platform-behavior/16-UNIVERSAL-STATE-MACHINE.md) through [24-CROSS-CUTTING-CONCERNS.md](../platform-behavior/24-CROSS-CUTTING-CONCERNS.md) |
+| Final audit | [25-AUDIT-FINAL.md](../platform-behavior/25-AUDIT-FINAL.md) |
+| Decisions · Contracts | [DECISIONS.md](../platform-behavior/DECISIONS.md) (D-PB-01+) · [CONTRACTS.md](../platform-behavior/CONTRACTS.md) |
 
 ---
 

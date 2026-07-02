@@ -145,6 +145,7 @@
 | ID | Name | Objective | Program | Decision | Status |
 |----|------|-----------|---------|----------|--------|
 | **G421** | MMM PlatformSchema Coverage | 226 payload schemas + envelope + manifest + persistence wiring | 4.03 | D-MMM-17 | **active** |
+| **G422** | MMM Publish Pipeline C-1→C-16 | Compile, sign, persist CRB v2, pin, rollback | 4.04 | D-MMM-17 | **active** |
 
 Spec: [G421-SPEC.md](../meta-model/spec/G421-SPEC.md)
 

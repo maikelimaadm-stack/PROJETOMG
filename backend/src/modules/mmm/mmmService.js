@@ -335,7 +335,7 @@ export const mmmService = {
       envelope,
       integrityHash,
       reason: "update",
-      actorId: scope.login ?? scope.userId ?? null,
+      actorId: scope.user?.login ?? scope.userId ?? null,
     });
     return {
       snapshotId: snapshot.snapshot_id,
@@ -406,14 +406,9 @@ export const mmmService = {
     return rowToEnvelope(updated);
   },
 
-  async requestPublish(body) {
-    return {
-      accepted: true,
-      status: "queued",
-      message: "Publish scope accepted — full Publish Engine deferred to Program 4.04",
-      tenantId: body?.tenantId,
-      environment: body?.environment,
-    };
+  async requestPublish(body, scope) {
+    const { mmmPublishService } = await import("./publish/mmmPublishService.js");
+    return mmmPublishService.publishScope(body, scope);
   },
 
   formatValidationError(error) {

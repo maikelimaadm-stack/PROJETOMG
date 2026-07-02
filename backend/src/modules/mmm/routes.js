@@ -7,6 +7,10 @@ import {
   mmmEnvelopeReplaceSchema,
   mmmListQuerySchema,
   mmmPublishSchema,
+  mmmPublishPinSchema,
+  mmmPublishPinQuerySchema,
+  mmmPublishRollbackSchema,
+  mmmPublishVersionsQuerySchema,
   mmmRollbackSchema,
   parseOrThrow,
 } from "./mmmValidators.js";
@@ -115,9 +119,64 @@ export const registerMmmRoutes = async (app) => {
 
   app.post("/api/mmm/v1/publish", { preHandler: app.authenticate }, async (request, reply) => {
     try {
+      const scope = await loadAccessScope(request);
       const payload = parseOrThrow(mmmPublishSchema, request.body || {});
-      const result = await mmmService.requestPublish(payload);
+      const result = await mmmService.requestPublish(payload, scope);
       return reply.code(202).send(result);
+    } catch (error) {
+      return handleError(reply, error);
+    }
+  });
+
+  app.post("/api/mmm/v1/publish/pin", { preHandler: app.authenticate }, async (request, reply) => {
+    try {
+      const scope = await loadAccessScope(request);
+      const payload = parseOrThrow(mmmPublishPinSchema, request.body || {});
+      const { mmmPublishService } = await import("./publish/mmmPublishService.js");
+      return await mmmPublishService.pinEnvironment(payload, scope);
+    } catch (error) {
+      return handleError(reply, error);
+    }
+  });
+
+  app.post("/api/mmm/v1/publish/rollback", { preHandler: app.authenticate }, async (request, reply) => {
+    try {
+      const scope = await loadAccessScope(request);
+      const payload = parseOrThrow(mmmPublishRollbackSchema, request.body || {});
+      const { mmmPublishService } = await import("./publish/mmmPublishService.js");
+      return await mmmPublishService.rollback(payload, scope);
+    } catch (error) {
+      return handleError(reply, error);
+    }
+  });
+
+  app.get("/api/mmm/v1/publish/versions", { preHandler: app.authenticate }, async (request, reply) => {
+    try {
+      const scope = await loadAccessScope(request);
+      const query = parseOrThrow(mmmPublishVersionsQuerySchema, request.query || {});
+      const { mmmPublishService } = await import("./publish/mmmPublishService.js");
+      return await mmmPublishService.listDefinitionVersions(query, scope);
+    } catch (error) {
+      return handleError(reply, error);
+    }
+  });
+
+  app.get("/api/mmm/v1/publish/pins", { preHandler: app.authenticate }, async (request, reply) => {
+    try {
+      const scope = await loadAccessScope(request);
+      const query = parseOrThrow(mmmPublishPinQuerySchema, request.query || {});
+      const { mmmPublishService } = await import("./publish/mmmPublishService.js");
+      return await mmmPublishService.getEnvironmentPin(query, scope);
+    } catch (error) {
+      return handleError(reply, error);
+    }
+  });
+
+  app.get("/api/mmm/v1/publish/bundles/:bundleId", { preHandler: app.authenticate }, async (request, reply) => {
+    try {
+      const scope = await loadAccessScope(request);
+      const { mmmPublishService } = await import("./publish/mmmPublishService.js");
+      return await mmmPublishService.getBundle(request.params.bundleId, scope);
     } catch (error) {
       return handleError(reply, error);
     }

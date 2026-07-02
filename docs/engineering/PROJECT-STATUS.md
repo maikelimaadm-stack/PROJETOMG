@@ -3,7 +3,7 @@
 **Status:** Official — Single source of truth for project continuity  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Updated by:** Foundation Architecture Audit (D-PA-01+)  
+**Updated by:** Foundation B.5 — Platform Behavior Specification (D-PB-01+)  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md); supersedes chat history
 
 > **Rule:** Any AI or developer session must read this file (via [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md)) before starting work. Do not rely on prior chat context.
@@ -14,10 +14,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Architecture state** | **PLATFORM ARCHITECTURE SSOT COMPLETE** (D-PA-01+) · **Foundation B (MMM 4.01–4.04) complete** |
-| **Implementation phase** | **GLOBAL IMPLEMENTATION FREEZE** (D-PA-19) — documentation-only except authorized foundation |
-| **Implementation authorized** | **Foundation C — Runtime Bridge only** — [18-FOUNDATION-ROADMAP.md](../platform-architecture/18-FOUNDATION-ROADMAP.md) · [19-AUDIT-FINAL.md](../platform-architecture/19-AUDIT-FINAL.md) |
+| **Architecture state** | **THREE PILLARS COMPLETE** — meta-model + platform-architecture + platform-behavior (B.5) |
+| **Implementation phase** | **Foundation C authorized** (D-PB-21) — Runtime Bridge only |
+| **Implementation authorized** | **Foundation C — Runtime Bridge** — [18-FOUNDATION-ROADMAP.md](../platform-architecture/18-FOUNDATION-ROADMAP.md) · [25-AUDIT-FINAL.md](../platform-behavior/25-AUDIT-FINAL.md) |
 | **Platform architecture SSOT** | [docs/platform-architecture/README.md](../platform-architecture/README.md) |
+| **Platform behavior SSOT** | [docs/platform-behavior/README.md](../platform-behavior/README.md) |
 | **Primary user surface** | **BOS home (`/`)** — [MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](../architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md) · validated in [11-BOS.md](../platform-architecture/11-BOS.md) |
 
 ---
@@ -63,14 +64,12 @@
 
 | Field | Value |
 |-------|-------|
-| **Current foundation** | **Foundation C — Runtime Bridge** (maps to Program 4.05) |
-| **Last completed mission (Intelligence)** | **Program 3.27** — Lifecycle Sync (D-093, G325) |
-| **Last completed mission (MMM)** | **Program 4.04** — MMM Publish Engine v2 (G422) when merged |
-| **Last completed mission (Architecture)** | **Foundation Architecture Audit** — `docs/platform-architecture/` (D-PA-01+) |
-| **Last decision (Architecture)** | **D-PA-19** — Global implementation freeze; Foundation C only |
+| **Current foundation** | **Foundation C — Runtime Bridge** (Program 4.05) |
+| **Last completed mission (Behavior)** | **Foundation B.5** — Platform Behavior Specification (D-PB-01+) |
+| **Last decision (Behavior)** | **D-PB-21** — Foundation C authorized after B.5 PASS |
 | **Next official mission** | **Foundation C** — Universal CRB Runtime Bridge |
 
-Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md) · Foundation sequence: [18-FOUNDATION-ROADMAP.md](../platform-architecture/18-FOUNDATION-ROADMAP.md) · MMM roadmap: [meta-model/ROADMAP.md](../meta-model/ROADMAP.md)
+Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md) · Foundation sequence: [18-FOUNDATION-ROADMAP.md](../platform-architecture/18-FOUNDATION-ROADMAP.md) · Behavior SSOT: [platform-behavior/](../platform-behavior/) · MMM roadmap: [meta-model/ROADMAP.md](../meta-model/ROADMAP.md)
 
 ---
 
@@ -99,8 +98,9 @@ Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md) · Foundatio
 | **4.01.2** Alignment & Divergence Resolution | ✅ |
 | **4.02** MMM Specification | ✅ |
 | **4.03** MMM Persistence | ✅ |
-| **4.04** MMM Publish Engine v2 | ✅ (when merged) |
+| **4.04** MMM Publish Engine v2 | ✅ |
 | **Foundation Architecture Audit** | ✅ — [platform-architecture/](../platform-architecture/) |
+| **Foundation B.5 Platform Behavior** | ✅ — [platform-behavior/](../platform-behavior/) |
 | **Próximo passo** | **Foundation C** — Runtime Bridge (Program 4.05) |
 
 **Registries:** [GOVERNANCE-REGISTRY.md](./GOVERNANCE-REGISTRY.md) · [GATE-REGISTRY.md](./GATE-REGISTRY.md) · [SSOT-REGISTRY.md](./SSOT-REGISTRY.md) · [meta-model/](../meta-model/)

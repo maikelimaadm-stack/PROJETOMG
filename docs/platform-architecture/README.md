@@ -6,7 +6,7 @@
 **Mission:** Foundation Architecture Audit — documentation only  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md) and [Product Identity Freeze](../architecture/MAK-PRODUCT-IDENTITY-FREEZE.md) (D-074); **supersedes layer presentation** in derived docs for implementation sequencing
 
-> **Rule:** No implementation (code, migrations, APIs) proceeds until [19-AUDIT-FINAL.md](./19-AUDIT-FINAL.md) certification and [18-FOUNDATION-ROADMAP.md](./18-FOUNDATION-ROADMAP.md) gate for the target foundation is **PASS**.
+> **Rule:** No implementation proceeds until [19-AUDIT-FINAL.md](./19-AUDIT-FINAL.md) (architecture) and [25-AUDIT-FINAL.md](../platform-behavior/25-AUDIT-FINAL.md) (behavior) certify **PASS** for the target foundation.
 
 ---
 

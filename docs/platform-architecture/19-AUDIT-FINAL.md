@@ -8,14 +8,16 @@
 
 **Is the platform ready to resume writing code?**
 
-### Answer: **CONDITIONAL YES**
+### Answer: **CONDITIONAL YES** (after B.5 merge)
 
 | Condition | Status |
 |-----------|--------|
 | Complete platform architecture documented | ✅ |
+| Complete platform behavior documented | ✅ B.5 |
 | All gaps closed with D-PA decisions | ✅ |
 | MMM foundation (B) complete | ✅ |
 | Implementation freeze lifted globally | ❌ **Still frozen except Foundation C** |
+| Foundation B.5 behavior audit PASS | ✅ |
 | Foundation C scope authorized | ✅ **Runtime Bridge only** |
 
 **Implementation may resume ONLY for Foundation C** per [18-FOUNDATION-ROADMAP.md](./18-FOUNDATION-ROADMAP.md). All other foundations remain **blocked** until their predecessor gate PASS.
@@ -89,8 +91,9 @@ Any PR that implements features outside the **currently authorized Foundation** 
 | Field | Value |
 |-------|-------|
 | Architecture SSOT | `docs/platform-architecture/` |
+| Behavior SSOT | `docs/platform-behavior/` |
 | MMM SSOT | `docs/meta-model/` (unchanged) |
-| Next authorized code | **Foundation C — Runtime Bridge** |
+| Next authorized code | **Foundation C — Runtime Bridge** (requires B.5 merged) |
 | Global freeze | **Active** except Foundation C |
 
 ---

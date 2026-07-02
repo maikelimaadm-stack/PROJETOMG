@@ -62,6 +62,9 @@ model Cliente {
   lifecycleBackupActions LifecycleBackupAction[]
   mmmObjects             MmmObject[]
   mmmObjectAudits        MmmObjectAudit[]
+  mmmDefinitionVersions  MmmDefinitionVersion[]
+  mmmPublishLogs         MmmPublishLog[]
+  mmmEnvironmentPins     MmmEnvironmentPin[]
 
   @@index([nome])
   @@index([cpf_cnpj])
@@ -1521,4 +1524,152 @@ model MmmObjectAudit {
   @@index([object_row_id, created_at])
   @@index([cliente_id, created_at])
   @@map("mmm_object_audit")
+}
+
+// --- MAK UNIVERSAL META MODEL (MMM) — Publish Engine v2 (Program 4.04) ---
+
+enum MmmDefinitionVersionStatus {
+  draft
+  published
+  deprecated
+  archived
+  rolled_back
+}
+
+enum MmmEnvironment {
+  staging
+  production
+}
+
+enum MmmPublishAction {
+  publish
+  rollback
+  pin
+  compile
+}
+
+enum MmmPublishSnapshotType {
+  environment
+  backup
+  deployment
+}
+
+model MmmDefinitionVersion {
+  id                String                     @id @default(cuid())
+  cliente_id        String                     @db.VarChar(64)
+  tenant_id         String                     @db.VarChar(128)
+  module_id         String                     @db.VarChar(128)
+  application_id    String?                    @db.VarChar(128)
+  base_template_id  String                     @default("modelobase1") @db.VarChar(64)
+  semver            String                     @db.VarChar(32)
+  revision          Int                        @default(1)
+  pipeline_version  String                     @default("mmm-publish-v1") @db.VarChar(32)
+  status            MmmDefinitionVersionStatus @default(published)
+  content_hash      String                     @db.VarChar(64)
+  integrity_hash    String                     @db.VarChar(64)
+  signature_ref     String?                    @db.VarChar(256)
+  parent_version_id String?                    @db.VarChar(64)
+  scope             Json
+  object_count      Int                        @default(0)
+  published_at      DateTime?
+  published_by      String?                    @db.VarChar(64)
+  changelog         String?
+  created_at        DateTime                   @default(now())
+  updated_at        DateTime                   @updatedAt
+
+  parent_version   MmmDefinitionVersion?  @relation("MmmVersionChain", fields: [parent_version_id], references: [id], onDelete: SetNull)
+  child_versions   MmmDefinitionVersion[] @relation("MmmVersionChain")
+  cliente          Cliente                @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+  compiled_bundles MmmCompiledBundle[]
+  snapshots        MmmPublishSnapshot[]
+  publish_logs     MmmPublishLog[]
+  environment_pins MmmEnvironmentPin[]
+
+  @@index([cliente_id, tenant_id, module_id, status])
+  @@index([module_id, revision])
+  @@map("mmm_definition_version")
+}
+
+model MmmCompiledBundle {
+  id                    String   @id @default(cuid())
+  bundle_id             String   @unique @db.VarChar(128)
+  definition_version_id String   @db.VarChar(64)
+  tenant_id             String   @db.VarChar(128)
+  module_id             String   @db.VarChar(128)
+  base_template_id      String   @default("modelobase1") @db.VarChar(64)
+  crb_version           String   @default("mmm-crb-v1") @db.VarChar(32)
+  content_hash          String   @db.VarChar(64)
+  integrity_hash        String   @db.VarChar(64)
+  signature_ref         String?  @db.VarChar(256)
+  payload               Json
+  created_at            DateTime @default(now())
+
+  definition_version MmmDefinitionVersion @relation(fields: [definition_version_id], references: [id], onDelete: Cascade)
+
+  @@unique([definition_version_id, module_id, base_template_id])
+  @@index([tenant_id, module_id])
+  @@index([content_hash])
+  @@map("mmm_compiled_bundle")
+}
+
+model MmmPublishSnapshot {
+  id                    String                 @id @default(cuid())
+  snapshot_id           String                 @unique @db.VarChar(128)
+  definition_version_id String                 @db.VarChar(64)
+  tenant_id             String                 @db.VarChar(128)
+  module_id             String                 @db.VarChar(128)
+  snapshot_type         MmmPublishSnapshotType @default(backup)
+  integrity_hash        String                 @db.VarChar(64)
+  payload               Json
+  created_at            DateTime               @default(now())
+  created_by            String?                @db.VarChar(64)
+
+  definition_version MmmDefinitionVersion @relation(fields: [definition_version_id], references: [id], onDelete: Cascade)
+
+  @@index([definition_version_id, snapshot_type])
+  @@index([module_id, created_at])
+  @@map("mmm_publish_snapshot")
+}
+
+model MmmEnvironmentPin {
+  id                    String         @id @default(cuid())
+  cliente_id            String         @db.VarChar(64)
+  tenant_id             String         @db.VarChar(128)
+  module_id             String         @db.VarChar(128)
+  application_id        String?        @db.VarChar(128)
+  environment           MmmEnvironment
+  base_template_id      String         @default("modelobase1") @db.VarChar(64)
+  definition_version_id String         @db.VarChar(64)
+  bundle_id             String         @db.VarChar(128)
+  pinned_at             DateTime       @default(now())
+  pinned_by             String?        @db.VarChar(64)
+
+  cliente            Cliente              @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+  definition_version MmmDefinitionVersion @relation(fields: [definition_version_id], references: [id], onDelete: Restrict)
+
+  @@unique([cliente_id, tenant_id, module_id, environment, base_template_id])
+  @@index([module_id, environment])
+  @@map("mmm_environment_pin")
+}
+
+model MmmPublishLog {
+  id                    String           @id @default(cuid())
+  definition_version_id String           @db.VarChar(64)
+  cliente_id            String           @db.VarChar(64)
+  tenant_id             String           @db.VarChar(128)
+  module_id             String           @db.VarChar(128)
+  action                MmmPublishAction
+  from_version_id       String?          @db.VarChar(64)
+  to_version_id         String?          @db.VarChar(64)
+  environment           MmmEnvironment?
+  metadata              Json?
+  usuario_id            String?          @db.VarChar(64)
+  created_at            DateTime         @default(now())
+
+  definition_version MmmDefinitionVersion @relation(fields: [definition_version_id], references: [id], onDelete: Cascade)
+  cliente            Cliente              @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+
+  @@index([definition_version_id, created_at])
+  @@index([cliente_id, module_id, created_at])
+  @@map("mmm_publish_log")
 }
