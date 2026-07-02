@@ -24,13 +24,14 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Foundation** | **Frozen** — Enterprise V10.2.0 + Studio Foundation (D-052) |
 | **Current Version** | `0.4.0-rc.2` |
 | **Current Release** | `v0.4.0-RC2` (pending owner tag) |
-| **Current Program** | **Program 4 — Universal Meta Model** (4.01.1 constitution complete) |
-| **Architecture State** | **MMM foundation documented** (D-MMM-15) · Product Identity FROZEN (D-074) |
-| **Decision (platform)** | D-093 — Lifecycle Sync (Program 3.27) |
-| **Decision (MMM)** | D-MMM-15 — `docs/meta-model/` official SSOT |
-| **Phase** | **Program 4.02 next** — MMM Specification (PlatformSchema) — documentation/implementação conforme autorização |
+| **Current Program** | **Foundation C — Runtime Bridge** (Program 4.05) |
+| **Architecture State** | **Platform Architecture SSOT complete** (D-PA) · **Implementation frozen** except Foundation C |
+| **Decision (platform)** | D-PA-19 — Global freeze; Foundation C (Runtime Bridge) only |
+| **Platform Architecture SSOT** | [docs/platform-architecture/README.md](./docs/platform-architecture/README.md) |
+| **Phase** | **Foundation C next** — Runtime Bridge (Program 4.05) |
 | **MMM SSOT** | [docs/meta-model/README.md](./docs/meta-model/README.md) |
 | **MMM Roadmap** | [docs/meta-model/ROADMAP.md](./docs/meta-model/ROADMAP.md) (**≠** `docs/engineering/ROADMAP.md`) |
+| **Foundation Roadmap** | [18-FOUNDATION-ROADMAP.md](./docs/platform-architecture/18-FOUNDATION-ROADMAP.md) |
 | **Product Identity SSOT (supreme)** | [MAK-PRODUCT-IDENTITY-FREEZE.md](./docs/architecture/MAK-PRODUCT-IDENTITY-FREEZE.md) |
 | **BOS Architecture** | [MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md) |
 | **Business Workflow Report** | [PROGRAM-3.10-BUSINESS-WORKFLOW-REPORT.md](./docs/engineering/PROGRAM-3.10-BUSINESS-WORKFLOW-REPORT.md) |
@@ -51,7 +52,7 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Data Lifecycle Report** | [PROGRAM-3.25-DATA-LIFECYCLE-ARCHIVE-EXPUNGE-REPORT.md](./docs/engineering/PROGRAM-3.25-DATA-LIFECYCLE-ARCHIVE-EXPUNGE-REPORT.md) |
 | **Lifecycle Persistence Report** | [PROGRAM-3.26-LIFECYCLE-PERSISTENCE-APPROVAL-REPORT.md](./docs/engineering/PROGRAM-3.26-LIFECYCLE-PERSISTENCE-APPROVAL-REPORT.md) |
 | **Lifecycle Sync Report** | [PROGRAM-3.27-LIFECYCLE-SYNC-STORAGE-AUDIT-REPORT.md](./docs/engineering/PROGRAM-3.27-LIFECYCLE-SYNC-STORAGE-AUDIT-REPORT.md) |
-| **Next Official Mission** | **Program 4.02** — MMM Specification (PlatformSchema) — after governance merge + owner authorization |
+| **Next Official Mission** | **Foundation C** — Universal CRB Runtime Bridge |
 
 > **Governance rule (D-062):** Register all new D-xxx, G-xxx, Programs, SSOT docs in [GOVERNANCE-REGISTRY.md](./docs/engineering/GOVERNANCE-REGISTRY.md).
 
@@ -78,6 +79,7 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | 14 | **Gate Registry** | [GATE-REGISTRY.md](./docs/engineering/GATE-REGISTRY.md) |
 | 15 | **Enterprise Organization Architecture** | [MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md](./docs/architecture/MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md) |
 | 16 | **Universal Meta Model (Program 4.xx)** | [docs/meta-model/README.md](./docs/meta-model/README.md) (**mandatory before any Program 4 implementation**) |
+| 17 | **Platform Architecture (D-PA)** | [docs/platform-architecture/README.md](./docs/platform-architecture/README.md) (**mandatory before any cross-layer implementation**) |
 
 Full details: [PROJECT-STATUS.md](./docs/engineering/PROJECT-STATUS.md)
 
@@ -97,6 +99,7 @@ Before altering **any** file, read and verify:
 | 4 | **Roadmap** | `docs/engineering/ROADMAP.md` |
 | 5 | **Decisions** | `docs/engineering/DECISIONS.md` |
 | 6 | **Master Architecture** | `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
+| 6b | **Platform Architecture SSOT** | `docs/platform-architecture/README.md` |
 | 7 | **Engineering Principles** | `docs/architecture/MAK-ENGINEERING-PRINCIPLES.md` |
 | 8 | **MAK Studio Architecture** | `docs/architecture/MAK-STUDIO-ARCHITECTURE.md` |
 | 8b | **MAK Studio UX Framework** | `docs/architecture/MAK-STUDIO-UX-FRAMEWORK.md` |

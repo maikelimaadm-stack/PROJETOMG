@@ -3,7 +3,7 @@
 **Status:** Official — Single source of truth for project continuity  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Updated by:** Program 4.02 — MMM Specification (D-MMM-17)  
+**Updated by:** Foundation Architecture Audit (D-PA-01+)  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md); supersedes chat history
 
 > **Rule:** Any AI or developer session must read this file (via [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md)) before starting work. Do not rely on prior chat context.
@@ -14,10 +14,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Architecture state** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) · **First Business Asset certified** (D-068, G306) |
-| **Implementation phase** | **MMM foundation documented (4.01.1)** · Intelligence track through 3.27 complete |
-| **Implementation authorized** | **Program 4.02+ only after explicit authorization** — [docs/meta-model/ROADMAP.md](../meta-model/ROADMAP.md) |
-| **Primary user surface** | **BOS home (`/`)** — [MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](../architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md) |
+| **Architecture state** | **PLATFORM ARCHITECTURE SSOT COMPLETE** (D-PA-01+) · **Foundation B (MMM 4.01–4.04) complete** |
+| **Implementation phase** | **GLOBAL IMPLEMENTATION FREEZE** (D-PA-19) — documentation-only except authorized foundation |
+| **Implementation authorized** | **Foundation C — Runtime Bridge only** — [18-FOUNDATION-ROADMAP.md](../platform-architecture/18-FOUNDATION-ROADMAP.md) · [19-AUDIT-FINAL.md](../platform-architecture/19-AUDIT-FINAL.md) |
+| **Platform architecture SSOT** | [docs/platform-architecture/README.md](../platform-architecture/README.md) |
+| **Primary user surface** | **BOS home (`/`)** — [MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](../architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md) · validated in [11-BOS.md](../platform-architecture/11-BOS.md) |
 
 ---
 
@@ -54,7 +55,7 @@
 | **Current architecture level** | **L5 Experience Authoring** + **L6 Vision documented** |
 | **Master Architecture** | v1.0.0 — [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md) |
 | **Studio Architecture** | v1.15.0 — [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) |
-| **Current architecture stage** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) — **continuous implementation phase** |
+| **Current architecture stage** | **PLATFORM ARCHITECTURE SSOT COMPLETE** (D-PA) — **Foundation C authorized** |
 
 ---
 
@@ -62,13 +63,14 @@
 
 | Field | Value |
 |-------|-------|
-| **Current program** | **Program 4 — Universal Meta Model** (persistence layer shipped in 4.03) |
+| **Current foundation** | **Foundation C — Runtime Bridge** (maps to Program 4.05) |
 | **Last completed mission (Intelligence)** | **Program 3.27** — Lifecycle Sync (D-093, G325) |
-| **Last completed mission (MMM)** | **Program 4.03** — MMM Persistence (D-MMM-01, D-MMM-17, G421) |
-| **Last decision (MMM)** | **D-MMM-17** — Spec v1 implemented in persistence layer (`/api/mmm/v1`) |
-| **Next official mission** | **Program 4.04** — MMM Publish Engine |
+| **Last completed mission (MMM)** | **Program 4.04** — MMM Publish Engine v2 (G422) when merged |
+| **Last completed mission (Architecture)** | **Foundation Architecture Audit** — `docs/platform-architecture/` (D-PA-01+) |
+| **Last decision (Architecture)** | **D-PA-19** — Global implementation freeze; Foundation C only |
+| **Next official mission** | **Foundation C** — Universal CRB Runtime Bridge |
 
-Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md) · MMM roadmap: [meta-model/ROADMAP.md](../meta-model/ROADMAP.md)
+Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md) · Foundation sequence: [18-FOUNDATION-ROADMAP.md](../platform-architecture/18-FOUNDATION-ROADMAP.md) · MMM roadmap: [meta-model/ROADMAP.md](../meta-model/ROADMAP.md)
 
 ---
 
@@ -96,7 +98,10 @@ Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md) · MMM roadm
 | **4.01.1** Meta Model Constitution | ✅ |
 | **4.01.2** Alignment & Divergence Resolution | ✅ |
 | **4.02** MMM Specification | ✅ |
-| **Próximo passo** | **Program 4.04** — MMM Publish Engine |
+| **4.03** MMM Persistence | ✅ |
+| **4.04** MMM Publish Engine v2 | ✅ (when merged) |
+| **Foundation Architecture Audit** | ✅ — [platform-architecture/](../platform-architecture/) |
+| **Próximo passo** | **Foundation C** — Runtime Bridge (Program 4.05) |
 
 **Registries:** [GOVERNANCE-REGISTRY.md](./GOVERNANCE-REGISTRY.md) · [GATE-REGISTRY.md](./GATE-REGISTRY.md) · [SSOT-REGISTRY.md](./SSOT-REGISTRY.md) · [meta-model/](../meta-model/)
 

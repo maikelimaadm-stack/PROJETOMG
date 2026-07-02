@@ -1139,6 +1139,16 @@
 
 ---
 
+## Platform Architecture Decisions (D-PA)
+
+**SSOT:** [docs/platform-architecture/DECISIONS.md](../platform-architecture/DECISIONS.md) — **D-PA-01 through D-PA-25** (Foundation Architecture Audit, 2026-06-30).
+
+Key decisions: canonical **L0–L10** layers (D-PA-01); MMM as **Foundation B** (D-PA-02); Runtime consumes **CRB only** (D-PA-03); **global implementation freeze** with **Foundation C only** authorized (D-PA-19).
+
+Do not duplicate D-PA entries here — amend the platform-architecture SSOT and register in [GOVERNANCE-REGISTRY.md](./GOVERNANCE-REGISTRY.md).
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |
