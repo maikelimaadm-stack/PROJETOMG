@@ -3,6 +3,7 @@ import { RegistryCollection } from './RegistryCollection.js';
 import { RegistryLookup } from './RegistryLookup.js';
 import { RegistryResolver } from './RegistryResolver.js';
 import { RegistryValidation } from './RegistryValidation.js';
+import { REGISTRY_TYPES } from './registryTypes.js';
 
 /**
  * Universal in-memory registry (M04).
@@ -53,6 +54,27 @@ export class RegistryManager {
    */
   keys(type) {
     return this._lookup.keys(type);
+  }
+
+  /**
+   * Rollback support (C.3 hydrate) — only when registry is not frozen.
+   * @param {import('./registryTypes.js').RegistryType} type
+   * @param {string} key
+   */
+  unregister(type, key) {
+    if (this._frozen) {
+      throw new RegistryError('MAK-L3-REGISTRY-003', 'Registry is frozen — unregister rejected');
+    }
+    this._collection.remove(type, key);
+  }
+
+  /** @returns {number} */
+  countEntries() {
+    let total = 0;
+    for (const type of REGISTRY_TYPES) {
+      total += this.keys(type).length;
+    }
+    return total;
   }
 
   /** Post-hydrate freeze (RT-3) — callable in tests; wired in C.3 hydrate */

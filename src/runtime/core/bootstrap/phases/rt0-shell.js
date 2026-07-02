@@ -1,5 +1,6 @@
 import { createContext } from '../../context/createContext.js';
 import { createEmptyServiceLocator } from '../../../infra/service-locator/serviceLocator.js';
+import { createRegistry } from '../../registry/registryManager.js';
 import { startSpan } from '../../../infra/observability/tracer.js';
 
 /**
@@ -29,9 +30,12 @@ export async function runRt0Shell(config) {
   /** @type {import('../../types/context.js').RuntimeInstance} */
   const instance = {
     context,
+    config,
     phase: 'RT-0',
     status: 'shell-ready',
     accessScope: context.accessScope,
+    registry: createRegistry(),
+    bundle: null,
     /** @type {ReturnType<typeof createEmptyServiceLocator>} */
     _serviceLocator: serviceLocator,
     /** @type {typeof span | null} */

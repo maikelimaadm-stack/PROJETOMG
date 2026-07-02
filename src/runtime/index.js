@@ -1,4 +1,5 @@
-export { bootstrap, hydrate, destroy, RuntimeBootstrapError } from './core/bootstrap/bootstrap.js';
+export { bootstrap, hydrate, hydrateWithBundle, destroy, RuntimeBootstrapError } from './core/bootstrap/bootstrap.js';
+export { loadRuntimeBundle } from './core/bootstrap/loadRuntimeBundle.js';
 export { createContext, createEmptyAccessScope } from './core/context/createContext.js';
 export { RuntimeContext } from './core/context/RuntimeContext.js';
 export { ContextError } from './core/context/errors.js';
@@ -10,3 +11,7 @@ export { WebSessionManager } from './core/session/webSession.js';
 export { RuntimeSession } from './core/session/RuntimeSession.js';
 export { SessionError } from './core/session/errors.js';
 export { createMockL1Auth } from './core/session/mockL1Auth.js';
+export { createLoader, LoaderManager, LoaderError } from './core/loader/loaderManager.js';
+export { LoaderContext } from './core/loader/LoaderContext.js';
+export { createCrbLoader, CRBLoader, CrbError } from './core/crb/crbLoader.js';
+export { captureRuntimeMetrics } from './infra/observability/runtimeMetrics.js';
