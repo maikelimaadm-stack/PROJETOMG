@@ -5,3 +5,5 @@ export * from './registry.js';
 export * from './crb.js';
 export * from './loader.js';
 export * from './metrics.js';
+export * from './dependency.js';
+export * from './router.js';

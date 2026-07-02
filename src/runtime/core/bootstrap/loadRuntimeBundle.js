@@ -2,19 +2,14 @@ import { createRegistry } from '../registry/registryManager.js';
 import { createLoader } from '../loader/loaderManager.js';
 import { LoaderContext } from '../loader/LoaderContext.js';
 import { createCrbLoader } from '../crb/crbLoader.js';
-import { BundleResolver } from '../crb/BundleResolver.js';
 import { BundleLifecycle } from '../crb/BundleLifecycle.js';
 import { CrbError } from '../crb/errors.js';
+import { createDependencyResolver } from '../dependency/dependencyResolver.js';
+import { createRuntimeRouter } from '../router/runtimeRouter.js';
 import { captureRuntimeMetrics } from '../../infra/observability/runtimeMetrics.js';
 
 /**
- * Full C.3 pipeline: Loader → CRB verify → Registry hydrate → RuntimeBundle.
- * @param {Object} params
- * @param {import('../context/RuntimeContext.js').RuntimeContext} params.context
- * @param {import('../../types/crb.js').EnvironmentPin} params.pin
- * @param {import('../loader/loaderManager.js').LoaderManager} [params.loader]
- * @param {import('../registry/registryManager.js').RegistryManager} [params.registry]
- * @param {import('../crb/crbLoader.js').CRBLoader} [params.crbLoader]
+ * Full C.4 pipeline: Loader → CRB → Registry → Dependency → Router → Runtime Ready.
  */
 export async function loadRuntimeBundle({
   context,
@@ -22,10 +17,15 @@ export async function loadRuntimeBundle({
   loader = createLoader(),
   registry = createRegistry(),
   crbLoader = createCrbLoader(pin.environment),
+  dependencyResolver = createDependencyResolver(),
+  router = createRuntimeRouter(),
 }) {
   const bootstrapStarted = performance.now();
   let crbLoadMs = 0;
   let hydrationMs = 0;
+  let dependencyResolveMs = 0;
+  let dagBuildMs = 0;
+  let routeRegisterMs = 0;
   let validationsExecuted = 0;
 
   const loaderCtx = new LoaderContext({
@@ -50,11 +50,25 @@ export async function loadRuntimeBundle({
   hydrationMs = hydration.hydrationMs;
   registry.freeze();
 
+  const depStarted = performance.now();
+  const graph = dependencyResolver.resolveFromCrb(crb, crb.moduleId ? [crb.moduleId] : []);
+  dependencyResolveMs = performance.now() - depStarted;
+  dagBuildMs = dependencyResolver.lastDagBuildMs;
+
+  const navTable = router.registerFromCrb(crb, pin.applicationId);
+  routeRegisterMs = router.lastRegisterMs;
+
   const metrics = captureRuntimeMetrics({
     bootstrapMs: performance.now() - bootstrapStarted,
     crbLoadMs,
     hydrationMs,
+    dependencyResolveMs,
+    dagBuildMs,
+    routeRegisterMs,
     registryObjectCount: registry.countEntries(),
+    routeCount: navTable.routeCount,
+    dependencyCount: graph.dependencyCount,
+    graphMaxDepth: graph.maxDepth,
     validationsExecuted,
   });
 
@@ -62,7 +76,15 @@ export async function loadRuntimeBundle({
   const bundle = {
     crb,
     pin,
-    status: 'ready',
+    status: 'runtime-ready',
+    dependencyGraph: {
+      nodes: graph.nodes,
+      initOrder: graph.initOrder,
+      dependencyCount: graph.dependencyCount,
+      maxDepth: graph.maxDepth,
+      valid: true,
+    },
+    navigationTable: navTable,
     metrics,
   };
 
@@ -71,8 +93,12 @@ export async function loadRuntimeBundle({
     registry,
     loader,
     crbLoader,
+    dependencyResolver,
+    dependencyGraph: graph,
+    router,
+    navigationTable: navTable,
     lifecycle: BundleLifecycle.READY,
   };
 }
 
-export { BundleResolver };
+export { BundleResolver } from '../crb/BundleResolver.js';

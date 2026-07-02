@@ -52,7 +52,9 @@
  * @typedef {Object} RuntimeBundle
  * @property {CrbPayload} crb
  * @property {EnvironmentPin} pin
- * @property {'verified'|'hydrated'|'ready'} status
+ * @property {'verified'|'hydrated'|'ready'|'runtime-ready'} status
+ * @property {import('./dependency.js').ResolvedDependencyGraph|null} [dependencyGraph]
+ * @property {import('./router.js').NavigationTable|null} [navigationTable]
  * @property {import('./context.js').RuntimeMetricsSnapshot} [metrics]
  */
 

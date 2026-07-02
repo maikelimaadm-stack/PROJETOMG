@@ -14,4 +14,6 @@ export { createMockL1Auth } from './core/session/mockL1Auth.js';
 export { createLoader, LoaderManager, LoaderError } from './core/loader/loaderManager.js';
 export { LoaderContext } from './core/loader/LoaderContext.js';
 export { createCrbLoader, CRBLoader, CrbError } from './core/crb/crbLoader.js';
+export { createDependencyResolver, DependencyResolver, DependencyError } from './core/dependency/dependencyResolver.js';
+export { createRuntimeRouter, RuntimeRouter, RouteError } from './core/router/runtimeRouter.js';
 export { captureRuntimeMetrics } from './infra/observability/runtimeMetrics.js';
