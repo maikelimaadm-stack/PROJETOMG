@@ -25,9 +25,9 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Current Version** | `0.4.0-rc.2` |
 | **Current Release** | `v0.4.0-RC2` (pending owner tag) |
 | **Current Program** | **Foundation C — Runtime Bridge** (Program 4.05) |
-| **Architecture State** | **Four pillars complete** (meta-model + architecture + behavior + protocol) |
-| **Platform Protocol SSOT** | [docs/platform-protocol/README.md](./docs/platform-protocol/README.md) |
-| **Decision (Protocol)** | D-UP-25 — Runtime implements UEP; Foundation C authorized |
+| **Architecture State** | **Five pillars complete** (meta-model + architecture + behavior + protocol + authoring) |
+| **Platform Authoring SSOT** | [docs/platform-authoring/README.md](./docs/platform-authoring/README.md) |
+| **Decision (Authoring)** | D-UA-35 — B.7 last doc block; Foundation C after five pillars |
 | **Decision (platform)** | D-PA-19 — Global freeze; Foundation C (Runtime Bridge) only |
 | **Platform Architecture SSOT** | [docs/platform-architecture/README.md](./docs/platform-architecture/README.md) |
 | **Phase** | **Foundation C next** — Runtime Bridge (Program 4.05) |
@@ -84,6 +84,7 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | 17 | **Platform Architecture (D-PA)** | [docs/platform-architecture/README.md](./docs/platform-architecture/README.md) (**mandatory before any cross-layer implementation**) |
 | 18 | **Platform Behavior (D-PB)** | [docs/platform-behavior/README.md](./docs/platform-behavior/README.md) (**mandatory before Foundation C**) |
 | 19 | **Platform Protocol / UEP (D-UP)** | [docs/platform-protocol/README.md](./docs/platform-protocol/README.md) (**Runtime must implement this**) |
+| 20 | **Platform Authoring / UAS (D-UA)** | [docs/platform-authoring/README.md](./docs/platform-authoring/README.md) (**mandatory before Foundation C**) |
 
 Full details: [PROJECT-STATUS.md](./docs/engineering/PROJECT-STATUS.md)
 
@@ -106,6 +107,7 @@ Before altering **any** file, read and verify:
 | 6b | **Platform Architecture SSOT** | `docs/platform-architecture/README.md` |
 | 6c | **Platform Behavior SSOT** | `docs/platform-behavior/README.md` |
 | 6d | **Platform Protocol SSOT (UEP)** | `docs/platform-protocol/README.md` |
+| 6e | **Platform Authoring SSOT (UAS)** | `docs/platform-authoring/README.md` |
 | 7 | **Engineering Principles** | `docs/architecture/MAK-ENGINEERING-PRINCIPLES.md` |
 | 8 | **MAK Studio Architecture** | `docs/architecture/MAK-STUDIO-ARCHITECTURE.md` |
 | 8b | **MAK Studio UX Framework** | `docs/architecture/MAK-STUDIO-UX-FRAMEWORK.md` |

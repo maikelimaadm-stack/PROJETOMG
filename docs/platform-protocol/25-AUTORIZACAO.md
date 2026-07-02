@@ -8,18 +8,21 @@
 
 **Após este documento, o Runtime poderá ser implementado sem necessidade de redesenhar arquitetura?**
 
-### Resposta: **SIM**
+### Resposta: **SIM** (conditional on B.7 merge)
+
+> **Update (B.7):** D-UA-26 supersedes timing — Foundation C authorized after **five pillars** complete. See [25-AUDITORIA-FINAL.md](../platform-authoring/25-AUDITORIA-FINAL.md).
 
 ---
 
-## Four pillars status
+## Five pillars status
 
 | Pillar | Path | Status |
 |--------|------|--------|
 | What exists | `docs/meta-model/` | ✅ Foundation B |
 | How built | `docs/platform-architecture/` | ✅ Complete |
 | How behaves | `docs/platform-behavior/` | ✅ B.5 Complete |
-| How executes | `docs/platform-protocol/` | ✅ **B.6 Complete** |
+| How executes | `docs/platform-protocol/` | ✅ B.6 Complete |
+| How users create | `docs/platform-authoring/` | ✅ **B.7 Complete** |
 
 ---
 

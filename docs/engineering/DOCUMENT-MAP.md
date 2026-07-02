@@ -93,7 +93,23 @@
 | Foundation Roadmap · Final Audit | [18-FOUNDATION-ROADMAP.md](../platform-architecture/18-FOUNDATION-ROADMAP.md) · [19-AUDIT-FINAL.md](../platform-architecture/19-AUDIT-FINAL.md) |
 | Decisions · Contracts · Divergences | [DECISIONS.md](../platform-architecture/DECISIONS.md) (D-PA-01+) · [CONTRACTS.md](../platform-architecture/CONTRACTS.md) · [DIVERGENCE-REGISTER.md](../platform-architecture/DIVERGENCE-REGISTER.md) |
 
-> **Implementation freeze (D-PA-19, D-UP-25):** Only **Foundation C — Runtime Bridge** authorized after B.6 merge. Runtime **implements** [platform-protocol/](../platform-protocol/). See [25-AUTORIZACAO.md](../platform-protocol/25-AUTORIZACAO.md).
+> **Implementation freeze:** Foundation C authorized after **five pillars** merge. See [25-AUDITORIA-FINAL.md](../platform-authoring/25-AUDITORIA-FINAL.md). B.7 is the **last documentation block** before Runtime/Studio implementation.
+
+---
+
+## L1g — Platform Authoring (Foundation B.7, D-UA)
+
+| Document | Path |
+|----------|------|
+| **Platform Authoring Hub (SSOT)** | **[docs/platform-authoring/README.md](../platform-authoring/README.md)** |
+| Overview · Language · Properties | [01](../platform-authoring/01-UNIVERSAL-AUTHORING-OVERVIEW.md) · [02](../platform-authoring/02-UNIVERSAL-AUTHORING-LANGUAGE.md) · [03](../platform-authoring/03-UNIVERSAL-PROPERTY-SYSTEM.md) |
+| Designers · Wizards · Configuration | [04](../platform-authoring/04-UNIVERSAL-DESIGNERS.md) · [05](../platform-authoring/05-UNIVERSAL-WIZARDS.md) · [06](../platform-authoring/06-UNIVERSAL-CONFIGURATION-SYSTEM.md) |
+| Formula · Validation · Expressions | [07](../platform-authoring/07-UNIVERSAL-FORMULA-LANGUAGE.md) · [08](../platform-authoring/08-UNIVERSAL-VALIDATION-LANGUAGE.md) · [09](../platform-authoring/09-UNIVERSAL-EXPRESSIONS.md) |
+| Bindings 10–14 | [10](../platform-authoring/10-UNIVERSAL-DATA-BINDING.md) through [14](../platform-authoring/14-UNIVERSAL-API-BINDING.md) |
+| Connectors · Templates · App builder | [15](../platform-authoring/15-UNIVERSAL-CONNECTORS.md) · [16](../platform-authoring/16-UNIVERSAL-TEMPLATE-SYSTEM.md) · [17](../platform-authoring/17-UNIVERSAL-APPLICATION-BUILDER.md) |
+| Review · Versioning · Collaboration · Marketplace | [18](../platform-authoring/18-UNIVERSAL-REVIEW-SYSTEM.md) · [19](../platform-authoring/19-UNIVERSAL-VERSIONING.md) · [20](../platform-authoring/20-UNIVERSAL-COLLABORATION.md) · [21](../platform-authoring/21-UNIVERSAL-MARKETPLACE-AUTHORING.md) |
+| AI · Manual · Philosophy · Audit | [22](../platform-authoring/22-AI-AUTHORING.md) · [23](../platform-authoring/23-MANUAL-AUTHORING.md) · [24](../platform-authoring/24-LOW-CODE-PHILOSOPHY.md) · [25](../platform-authoring/25-AUDITORIA-FINAL.md) |
+| Decisions · Contracts | [DECISIONS.md](../platform-authoring/DECISIONS.md) (D-UA-01+) · [CONTRACTS.md](../platform-authoring/CONTRACTS.md) |
 
 ---
 

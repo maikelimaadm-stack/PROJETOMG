@@ -82,7 +82,7 @@ Meta-model remains authoritative for MMM API enum values; USM is platform-wide s
 |----------|--------|
 | Authorize Foundation C (Runtime)? | **YES** — after B.6 merge (D-UP-25) |
 | Global implementation freeze | **Lifted for Foundation C only** (D-PB-21, D-UP-25) |
-| Prerequisites | B ✅, B.5 ✅, B.6 ✅, Architecture ✅ |
+| Prerequisites | B ✅, B.5 ✅, B.6 ✅, B.7 ✅, Architecture ✅ |
 
 ---
 

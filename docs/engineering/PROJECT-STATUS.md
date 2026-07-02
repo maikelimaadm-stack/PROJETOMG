@@ -3,7 +3,7 @@
 **Status:** Official — Single source of truth for project continuity  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Updated by:** Foundation B.6 — Universal Execution Protocol (D-UP-01+)  
+**Updated by:** Foundation B.7 — Universal Authoring Specification (D-UA-01+)  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md); supersedes chat history
 
 > **Rule:** Any AI or developer session must read this file (via [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md)) before starting work. Do not rely on prior chat context.
@@ -14,12 +14,13 @@
 
 | Field | Value |
 |-------|-------|
-| **Architecture state** | **FOUR PILLARS COMPLETE** — meta-model + architecture + behavior + protocol (B.6) |
-| **Implementation phase** | **Foundation C authorized** (D-UP-25) — Runtime implements UEP |
-| **Implementation authorized** | **Foundation C — Runtime Bridge** — [25-AUTORIZACAO.md](../platform-protocol/25-AUTORIZACAO.md) · [18-FOUNDATION-ROADMAP.md](../platform-architecture/18-FOUNDATION-ROADMAP.md) |
+| **Architecture state** | **FIVE PILLARS COMPLETE** — meta-model + architecture + behavior + protocol + authoring (B.7) |
+| **Implementation phase** | **Foundation C authorized** (D-UA-26) — last doc block before Runtime |
+| **Implementation authorized** | **Foundation C — Runtime Bridge** — [25-AUDITORIA-FINAL.md](../platform-authoring/25-AUDITORIA-FINAL.md) · [18-FOUNDATION-ROADMAP.md](../platform-architecture/18-FOUNDATION-ROADMAP.md) |
 | **Platform architecture SSOT** | [docs/platform-architecture/README.md](../platform-architecture/README.md) |
 | **Platform behavior SSOT** | [docs/platform-behavior/README.md](../platform-behavior/README.md) |
 | **Platform protocol SSOT** | [docs/platform-protocol/README.md](../platform-protocol/README.md) |
+| **Platform authoring SSOT** | [docs/platform-authoring/README.md](../platform-authoring/README.md) |
 | **Primary user surface** | **BOS home (`/`)** — [MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](../architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md) · validated in [11-BOS.md](../platform-architecture/11-BOS.md) |
 
 ---
@@ -71,8 +72,9 @@
 | **Last completed mission (Architecture)** | **Foundation Architecture Audit** — `docs/platform-architecture/` (D-PA-01+) |
 | **Last completed mission (Behavior)** | **Foundation B.5** — Platform Behavior Specification (D-PB-01+) |
 | **Last completed mission (Protocol)** | **Foundation B.6** — Universal Execution Protocol (D-UP-01+) |
-| **Last decision (Protocol)** | **D-UP-25** — Foundation C authorized; Runtime implements UEP |
-| **Next official mission** | **Foundation C** — Universal CRB Runtime Bridge (UEP implementation) |
+| **Last completed mission (Authoring)** | **Foundation B.7** — Universal Authoring Specification (D-UA-01+) |
+| **Last decision (Authoring)** | **D-UA-35** — B.7 is last doc block before Runtime/Studio impl |
+| **Next official mission** | **Foundation C** — Universal CRB Runtime Bridge (UEP + UAS output) |
 
 Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md) · Foundation sequence: [18-FOUNDATION-ROADMAP.md](../platform-architecture/18-FOUNDATION-ROADMAP.md) · Protocol SSOT: [platform-protocol/](../platform-protocol/) · MMM roadmap: [meta-model/ROADMAP.md](../meta-model/ROADMAP.md)
 
@@ -107,7 +109,8 @@ Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md) · Foundatio
 | **Foundation Architecture Audit** | ✅ — [platform-architecture/](../platform-architecture/) |
 | **Foundation B.5 Platform Behavior** | ✅ — [platform-behavior/](../platform-behavior/) |
 | **Foundation B.6 Universal Execution Protocol** | ✅ — [platform-protocol/](../platform-protocol/) |
-| **Próximo passo** | **Foundation C** — Runtime Bridge implements UEP (Program 4.05) |
+| **Foundation B.7 Universal Authoring Specification** | ✅ — [platform-authoring/](../platform-authoring/) |
+| **Próximo passo** | **Foundation C** — Runtime Bridge (Program 4.05) — **last doc gate passed** |
 
 **Registries:** [GOVERNANCE-REGISTRY.md](./GOVERNANCE-REGISTRY.md) · [GATE-REGISTRY.md](./GATE-REGISTRY.md) · [SSOT-REGISTRY.md](./SSOT-REGISTRY.md) · [meta-model/](../meta-model/)
 
