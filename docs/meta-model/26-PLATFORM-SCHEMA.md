@@ -95,7 +95,7 @@ Ver flowchart acima.
 
 ## Integrações
 
-Program 4.02 primary deliverable; Gates G402 schema coverage.
+Program 4.02 primary deliverable; Gate **G421** schema coverage.
 
 ---
 
@@ -107,8 +107,8 @@ Per-objectType semver; registry manifest `platform_schema` object.
 
 ## Próximos passos
 
-- **Program 4.02:** Full PlatformSchema for 222 types
-- Gate G402: schema coverage ≥100%
+- **Program 4.02:** Full PlatformSchema for 226 types + envelope
+- Gate **G421**: schema coverage ≥100%
 
 ---
 

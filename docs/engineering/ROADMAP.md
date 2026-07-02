@@ -324,7 +324,7 @@ Architecture for migrating **all platform artifacts** — not database-only:
 |----------|------------|------------------|
 | Marketplace | MDP bundles + versioning ✅ | **No** — **Program 6** (future; was labeled "Program 3" pre-D-062) |
 | Knowledge Platform | MDP entity links | **No** — Program 5 |
-| AI Platform | MDP introspect ✅ + Event Bus (A5) | **No** — Program 4 |
+| AI Platform | MDP introspect ✅ + Event Bus (A5) | **No** — future program (post-MMM); see [meta-model/ROADMAP.md](../meta-model/ROADMAP.md) |
 | Offline / Sync | MDP snapshots ✅ + Sync Platform | **No** — Program 6 |
 | Integration Platform | Public API + Marketplace | **No** |
 | Migration Platform | MDP versioning ✅ + tenant tooling | **No** |

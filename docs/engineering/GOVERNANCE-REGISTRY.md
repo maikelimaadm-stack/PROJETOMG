@@ -72,8 +72,8 @@ L6 Implementation        → scripts/gate-*.mjs, src/
 | **Prior audit** | Program 3.5B — D-061 |
 | **State after 3.5C** | **ARCHITECTURE CONSOLIDATED** |
 | **Last completed (Intelligence track)** | **Program 3.27** — Lifecycle Sync (D-093, G325) |
-| **Last completed (MMM track)** | **Program 4.01.1** — Meta Model Constitution (D-MMM-15) |
-| **Next authorized mission** | **Program 4.02** — MMM Specification (PlatformSchema) — pending explicit owner authorization after governance merge |
+| **Last completed (MMM track)** | **Program 4.01.2** — Alignment & Divergence Resolution (D-MMM-16) |
+| **Next authorized mission** | **Program 4.02** — MMM Specification (226 PlatformSchemas + envelope) |
 
 ### Program 4 — MMM governance artifacts
 
@@ -84,6 +84,8 @@ L6 Implementation        → scripts/gate-*.mjs, src/
 | MMM roadmap | [docs/meta-model/ROADMAP.md](../meta-model/ROADMAP.md) |
 | MMM rules | [docs/meta-model/RULES.md](../meta-model/RULES.md) |
 | Pre-4.02 review | [docs/meta-model/ATTENTION-POINTS.md](../meta-model/ATTENTION-POINTS.md) |
+| Divergence register | [docs/meta-model/DIVERGENCE-REGISTER.md](../meta-model/DIVERGENCE-REGISTER.md) |
+| Envelope outline | [docs/meta-model/ENVELOPE-SPEC.md](../meta-model/ENVELOPE-SPEC.md) |
 
 > **Roadmap disambiguation:** Platform sequence → [ROADMAP.md](./ROADMAP.md). MMM implementation sequence → [meta-model/ROADMAP.md](../meta-model/ROADMAP.md).
 

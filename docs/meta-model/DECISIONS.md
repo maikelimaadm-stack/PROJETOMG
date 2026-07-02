@@ -46,9 +46,11 @@ Este documento é o **único owner** de decisões MMM. Platform DECISIONS.md ref
 **Status:** Accepted  
 **Date:** 2026-06-30
 
-**Decision:** Taxonomia v1 define **222 objectTypes** em 11 grupos (A–K). Novos tipos são **aditivos**; tipos existentes são deprecated, nunca removidos.
+**Decision:** Taxonomia v1 define **227 objectTypes** em 11 grupos (A–K). **226** recebem PlatformSchema; `record` é referência L0 only (R-14). Novos tipos são **aditivos**; tipos existentes são deprecated, nunca removidos.
 
-**Consequences:** PlatformSchema registry com 222 entries; compile pipeline type-aware.
+> **Amendment (D-MMM-16):** Contagem anterior "222" corrigida — headers de grupo D/E/J subcontados na consolidação 4.01.
+
+**Consequences:** PlatformSchema registry com 226 entries (+ `record` taxonomy-only); compile pipeline type-aware.
 
 **Rules:** R-19  
 **See:** [02-OBJECT-TAXONOMY.md](./02-OBJECT-TAXONOMY.md)
@@ -222,11 +224,28 @@ Este documento é o **único owner** de decisões MMM. Platform DECISIONS.md ref
 
 ---
 
+## D-MMM-16 — Taxonomy Count Correction (227 / 226)
+
+**Status:** Accepted  
+**Date:** 2026-06-30  
+**Program:** 4.01.2
+
+**Decision:** Contagem canônica v1 = **227 objectTypes** (grupos A–K com headers corrigidos: D=38, E=19, J=15). **226 PlatformSchemas** — `record` permanece na taxonomia como referência L0 mas **sem** JSON Schema (R-14).
+
+**Context:** Auditoria 4.01.2 (DV-TAX-01) — soma declarada 222 não correspondia aos tipos listados (227).
+
+**Consequences:** D-MMM-02 amended on count only; Program 4.02 targets 226 schema files + envelope schema.
+
+**See:** [02-OBJECT-TAXONOMY.md](./02-OBJECT-TAXONOMY.md) · [DIVERGENCE-REGISTER.md](./DIVERGENCE-REGISTER.md) · [ENVELOPE-SPEC.md](./ENVELOPE-SPEC.md)
+
+---
+
 ## Versionamento
 
 | Version | Date | Change |
 |---------|------|--------|
 | 1.0.0 | 2026-06-30 | D-MMM-01 through D-MMM-15 |
+| 1.1.0 | 2026-06-30 | D-MMM-16 taxonomy count correction |
 
 ## Próximos passos
 

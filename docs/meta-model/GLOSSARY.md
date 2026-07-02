@@ -74,11 +74,11 @@ Este documento é o **único owner** de definições terminológicas. Outros doc
 | **Low Code** | Paradigma onde soluções são objetos MMM, não código. |
 | **Marketplace** | Distribuição de pacotes `.makpkg` entre tenants. |
 | **MDP** | MAK Data Platform — substrato de persistência L4; evolui como persistence layer do MMM. |
-| **Meta Model (MMM)** | Grafo tipado, versionado, tenant-scoped de ~222 objectTypes — SSOT universal da plataforma. |
+| **Meta Model (MMM)** | Grafo tipado de **227 objectTypes** (226 PlatformSchemas), versionado, tenant-scoped — SSOT universal. |
 | **Module** | Unidade funcional dentro de Application; contém BusinessObjects, Screens, Workflows. |
 | **ModuleDependency** | Dependência declarada entre Modules; obrigatória para referências cross-module. |
 | **objectId** | Identificador estável cross-version de um objeto MMM. |
-| **objectType** | Tipo canônico na taxonomia MMM (222 tipos). |
+| **objectType** | Tipo canônico na taxonomia MMM (**227** tipos; **226** com PlatformSchema). |
 | **Package (.makpkg)** | Snapshot imutável de subgrafo MMM para distribuição Marketplace. |
 | **Payload** | Corpo tipado do objeto MMM; validado por PlatformSchema. |
 | **Permission** | Objeto MMM atômico: resource + action + effect + condition. |

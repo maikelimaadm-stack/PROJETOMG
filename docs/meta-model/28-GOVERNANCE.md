@@ -88,7 +88,7 @@ Ver flowchart acima.
 
 ## Exemplos
 
-Publish without EnvironmentPin to prod → G404 fail in integration test.
+Publish without EnvironmentPin to prod → **G422** fail in integration test.
 
 ---
 

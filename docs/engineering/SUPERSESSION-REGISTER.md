@@ -61,7 +61,7 @@
 | [MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md) | **reference — pre-MMM** | [docs/meta-model/21-INTENT-ENGINE.md](../meta-model/21-INTENT-ENGINE.md) | 2026-06-30 |
 | [MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md](../architecture/MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md) | **reference — pre-MMM** | [docs/meta-model/20-BUSINESS-LANGUAGE.md](../meta-model/20-BUSINESS-LANGUAGE.md) | 2026-06-30 |
 | [INTENT-DERIVATION-KIND-SSOT.md](./INTENT-DERIVATION-KIND-SSOT.md) (runtime kinds) | **derived — implementation SSOT** | [docs/meta-model/21-INTENT-ENGINE.md](../meta-model/21-INTENT-ENGINE.md) (19 MMM derivation kinds) | 2026-06-30 |
-| ROADMAP "Program 4" (Enterprise Intelligence impl) | **terminology superseded** | **Program 4 = MMM** per [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md); Intelligence impl renumbered future | 2026-06-30 |
+| **4.01.2** | Taxonomy count "222" (planning) | **227 objectTypes / 226 PlatformSchemas** | [02-OBJECT-TAXONOMY.md](../meta-model/02-OBJECT-TAXONOMY.md) D-MMM-16 | 2026-06-30 |
 
 ---
 

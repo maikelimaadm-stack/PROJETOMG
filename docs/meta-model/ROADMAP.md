@@ -28,7 +28,7 @@ Sequência oficial de implementação MMM. [PROGRAM-REGISTRY.md](../engineering/
 |---------|------|--------------|--------------|
 | **4.01** | Meta Model Foundation | Architecture (chat) | 4.00 Audit ✅ |
 | **4.01.1** | Meta Model Constitution | `docs/meta-model/` SSOT | 4.01 ✅ |
-| **4.02** | MMM Specification | PlatformSchema 222 types; envelope spec; API contract | 4.01.1 ✅ |
+| **4.02** | MMM Specification | PlatformSchema **226** types + envelope; API contract | 4.01.2 ✅ |
 | **4.03** | MMM Persistence | MDP → MMM tables; migration plan | 4.02 |
 | **4.04** | Publish Engine v2 | Pipeline C-1→C-16 certified | 4.03 |
 | **4.05** | Runtime Bridge v2 | Universal CRB hydration; deprecate boot cache SSOT | 4.04 |

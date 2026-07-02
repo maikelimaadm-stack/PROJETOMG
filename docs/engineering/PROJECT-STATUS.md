@@ -3,7 +3,7 @@
 **Status:** Official — Single source of truth for project continuity  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Updated by:** Program 4.01.1 — Meta Model Constitution (D-MMM-15) + governance confirmation review  
+**Updated by:** Program 4.01.2 — MMM Alignment & Divergence Resolution (D-MMM-16)  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md); supersedes chat history
 
 > **Rule:** Any AI or developer session must read this file (via [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md)) before starting work. Do not rely on prior chat context.
@@ -62,12 +62,12 @@
 
 | Field | Value |
 |-------|-------|
-| **Current program** | **Program 4 — Universal Meta Model** (documentation complete through 4.01.1) |
+| **Current program** | **Program 4 — Universal Meta Model** (documentation complete through 4.01.2) |
 | **Last completed mission (Intelligence)** | **Program 3.27** — Lifecycle Sync (D-093, G325) |
-| **Last completed mission (MMM)** | **Program 4.01.1** — Meta Model Constitution SSOT (D-MMM-15) |
+| **Last completed mission (MMM)** | **Program 4.01.2** — Alignment & Divergence Resolution (D-MMM-16) |
 | **Last decision (platform)** | **D-093** — Lifecycle Sync & Audit Operations |
-| **Last decision (MMM)** | **D-MMM-15** — `docs/meta-model/` as official MMM SSOT |
-| **Next official mission** | **Program 4.02** — MMM Specification (PlatformSchema for 222 objectTypes) — **authorized when governance PR merged + owner confirms** |
+| **Last decision (MMM)** | **D-MMM-16** — Taxonomy 227 / PlatformSchema 226 |
+| **Next official mission** | **Program 4.02** — MMM Specification (226 PlatformSchemas + envelope + API contract) |
 
 Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md) · MMM roadmap: [meta-model/ROADMAP.md](../meta-model/ROADMAP.md)
 
@@ -95,7 +95,8 @@ Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md) · MMM roadm
 | **4.00** Meta Model Foundation Audit | ✅ (audit) |
 | **4.01** Meta Model Foundation Architecture | ✅ (docs) |
 | **4.01.1** Meta Model Constitution | ✅ |
-| **Próximo passo** | **Program 4.02** — MMM Specification (PlatformSchema) |
+| **4.01.2** Alignment & Divergence Resolution | ✅ |
+| **Próximo passo** | **Program 4.02** — MMM Specification |
 
 **Registries:** [GOVERNANCE-REGISTRY.md](./GOVERNANCE-REGISTRY.md) · [GATE-REGISTRY.md](./GATE-REGISTRY.md) · [SSOT-REGISTRY.md](./SSOT-REGISTRY.md) · [meta-model/](../meta-model/)
 

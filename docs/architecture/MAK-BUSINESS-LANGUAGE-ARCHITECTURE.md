@@ -6,7 +6,9 @@
 **Mission:** Program 3.6.8 — Business Language Architecture  
 **Decision:** D-065  
 **Layer:** L5 (Experience Authoring) + L6 (Knowledge / Vocabulary services) — **business language SSOT**  
-**Hierarchy:** Constitution → Master Architecture → [Platform Language Standard](./MAK-PLATFORM-LANGUAGE-STANDARD.md) (D-015, platform nomenclature) → **This document** → [Business Intent Authoring](./MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md) (D-059) → [Intent Resolver](./MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md) (D-064) → [Business Derivation](./MAK-BUSINESS-DERIVATION-ARCHITECTURE.md) (D-063) → Studio → MDP → Runtime
+**Hierarchy:** Constitution → Master Architecture → … → **This document** → …
+
+> **MMM supersession (D-MMM-08, D-MMM-15):** SSOT = [docs/meta-model/20-BUSINESS-LANGUAGE.md](../meta-model/20-BUSINESS-LANGUAGE.md). This document is **Reference (pre-MMM)**.
 
 ---
 

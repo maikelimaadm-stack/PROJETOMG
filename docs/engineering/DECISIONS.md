@@ -1130,11 +1130,11 @@
 
 ## D-MMM family — Universal Meta Model (Program 4.01+)
 
-> **SSOT:** All D-MMM decisions are registered in [docs/meta-model/DECISIONS.md](../meta-model/DECISIONS.md) (D-MMM-01 through D-MMM-15). This engineering register holds platform-wide D-xxx decisions only; do not duplicate D-MMM entries here.
+> **SSOT:** All D-MMM decisions are registered in [docs/meta-model/DECISIONS.md](../meta-model/DECISIONS.md) (D-MMM-01 through **D-MMM-16**). This engineering register holds platform-wide D-xxx decisions only; do not duplicate D-MMM entries here.
 
 | ID range | Topic | SSOT |
 |----------|-------|------|
-| D-MMM-01–15 | MMM architecture, CRB, permissions, AI, governance | [docs/meta-model/DECISIONS.md](../meta-model/DECISIONS.md) |
+| D-MMM-01–16 | MMM architecture, CRB, permissions, AI, governance, taxonomy | [docs/meta-model/DECISIONS.md](../meta-model/DECISIONS.md) |
 
 ---
 
