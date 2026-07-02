@@ -19,6 +19,14 @@
  */
 
 /**
+ * @typedef {Object} AuthCredentials
+ * @property {string} username
+ * @property {string} password
+ * @property {string} tenantId
+ * @property {string} [locale]
+ */
+
+/**
  * @typedef {Object} ContextScope
  * @property {string} [tenantId]
  * @property {string} [userId]

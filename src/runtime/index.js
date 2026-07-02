@@ -2,3 +2,11 @@ export { bootstrap, hydrate, destroy, RuntimeBootstrapError } from './core/boots
 export { createContext, createEmptyAccessScope } from './core/context/createContext.js';
 export { RuntimeContext } from './core/context/RuntimeContext.js';
 export { ContextError } from './core/context/errors.js';
+export { createRegistry, RegistryManager } from './core/registry/registryManager.js';
+export { RegistryError } from './core/registry/errors.js';
+export { REGISTRY_TYPES } from './core/registry/registryTypes.js';
+export { SessionFactory, createSessionManager } from './core/session/SessionFactory.js';
+export { WebSessionManager } from './core/session/webSession.js';
+export { RuntimeSession } from './core/session/RuntimeSession.js';
+export { SessionError } from './core/session/errors.js';
+export { createMockL1Auth } from './core/session/mockL1Auth.js';
