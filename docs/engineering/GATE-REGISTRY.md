@@ -151,6 +151,41 @@ Spec: [G421-SPEC.md](../meta-model/spec/G421-SPEC.md)
 
 ---
 
+## Foundation Runtime gates (planned — Foundation C)
+
+| ID | Name | Objective | Foundation | Decision | Status |
+|----|------|-----------|------------|----------|--------|
+| **G420E** | Runtime Implementation Plan (C.0) | Six-block plan complete; authorize code | C.0 | D-RI-14 | **planned** |
+| **G423** | Universal Runtime complete | RT-0→RT-8 E2E; all G423-NN PASS | C | D-RI-05 | **planned** |
+| **G423-01** | Bootstrap | M01 RT-0 orchestration | C.1 | D-RI-02 | **planned** |
+| **G423-02** | Context | M02 immutable context | C.1 | D-RI-02 | **planned** |
+| **G423-03** | Session | M03 auth/refresh | C.2 | D-RI-06 | **planned** |
+| **G423-04** | Registry | M04 typed registry | C.2 | D-RI-02 | **planned** |
+| **G423-05** | Loader | M05 resource load | C.3 | D-RI-04 | **planned** |
+| **G423-06** | CRB Loader | M06 verify/hydrate RT-2→RT-3 | C.3 | D-RI-04 | **planned** |
+| **G423-07** | Dependency Resolver | M07 acyclic init order | C.4 | D-RI-02 | **planned** |
+| **G423-08** | Router | M08 route match + guards | C.4 | D-RI-02 | **planned** |
+| **G423-09** | Permission Engine | M09 fail-closed RBAC | C.5 | D-RI-06 | **planned** |
+| **G423-10** | Action Engine | M10 UEC dispatch | C.6 | D-RI-03 | **planned** |
+| **G423-11** | Workflow Engine | M11 USM instance host | C.7 | D-RI-12 | **planned** |
+| **G423-12** | Render Engine | M12 table + form adapters | C.8 | D-RI-11 | **planned** |
+| **G423-13** | Expression Engine | M13 G302 adapter | C.9 | D-RI-10 | **planned** |
+| **G423-14** | Formula Engine | M14 G302 adapter | C.9 | D-RI-10 | **planned** |
+| **G423-15** | Validation Engine | M15 UEC validation stage | C.10 | D-RI-03 | **planned** |
+| **G423-16** | Execution Engine | M16 UP-09 pipeline | C.11 | D-RI-03 | **planned** |
+| **G423-17** | State Engine | M17 screen + USM state | C.12 | D-RI-02 | **planned** |
+| **G423-18** | Plugin Engine | M18 manifest loader | C.13 | D-RI-02 | **planned** |
+| **G423-19** | Connector Engine | M19 HTTP connector | C.14 | D-RI-03 | **planned** |
+| **G423-20** | Service Locator | M20 DI container | C.5 | D-RI-02 | **planned** |
+| **G423-21** | Cache | M21 CRB/scope cache | C.15 | D-RI-04 | **planned** |
+| **G423-22** | Event Bus | M22 in-process stub | C.15 | D-RI-08 | **planned** |
+| **G423-23** | Transaction Manager | M23 BE unit of work | C.16 | D-RI-06 | **planned** |
+| **G423-24** | Observability | M24 trace/log/health | C.17 | D-RI-03 | **planned** |
+
+Spec: [09-GATES.md](../runtime-implementation/09-GATES.md)
+
+---
+
 ## Foundation & config engine gates (summary)
 
 | Range | Name | Owner | Decision area | Script pattern | Status |

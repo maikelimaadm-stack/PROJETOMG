@@ -93,7 +93,20 @@
 | Foundation Roadmap · Final Audit | [18-FOUNDATION-ROADMAP.md](../platform-architecture/18-FOUNDATION-ROADMAP.md) · [19-AUDIT-FINAL.md](../platform-architecture/19-AUDIT-FINAL.md) |
 | Decisions · Contracts · Divergences | [DECISIONS.md](../platform-architecture/DECISIONS.md) (D-PA-01+) · [CONTRACTS.md](../platform-architecture/CONTRACTS.md) · [DIVERGENCE-REGISTER.md](../platform-architecture/DIVERGENCE-REGISTER.md) |
 
-> **Implementation freeze:** Foundation C authorized after **five pillars** merge. See [25-AUDITORIA-FINAL.md](../platform-authoring/25-AUDITORIA-FINAL.md). B.7 is the **last documentation block** before Runtime/Studio implementation.
+> **Implementation freeze:** Foundation C **code** authorized after **C.0** audit PASS. See [12-AUDITORIA-FINAL.md](../runtime-implementation/12-AUDITORIA-FINAL.md). Six blocks complete — Runtime implementation may begin at slice C.1.
+
+---
+
+## L1h — Runtime Implementation Plan (Foundation C.0, D-RI)
+
+| Document | Path |
+|----------|------|
+| **Runtime Implementation Hub (SSOT)** | **[docs/runtime-implementation/README.md](../runtime-implementation/README.md)** |
+| Backlog · Order · Interfaces · Contracts | [01](../runtime-implementation/01-RUNTIME-BACKLOG.md) · [02](../runtime-implementation/02-IMPLEMENTATION-ORDER.md) · [03](../runtime-implementation/03-INTERFACES.md) · [04](../runtime-implementation/04-MODULE-CONTRACTS.md) |
+| Folder · Bootstrap · Dependency graph | [05](../runtime-implementation/05-FOLDER-STRUCTURE.md) · [06](../runtime-implementation/06-BOOTSTRAP-SEQUENCE.md) · [07](../runtime-implementation/07-DEPENDENCY-GRAPH.md) |
+| Done criteria · Gates · Delivery · Risks | [08](../runtime-implementation/08-DONE-CRITERIA.md) · [09](../runtime-implementation/09-GATES.md) · [10](../runtime-implementation/10-DELIVERY-PLANNING.md) · [11](../runtime-implementation/11-RISKS.md) |
+| Final audit | [12-AUDITORIA-FINAL.md](../runtime-implementation/12-AUDITORIA-FINAL.md) |
+| Decisions · Contracts | [DECISIONS.md](../runtime-implementation/DECISIONS.md) (D-RI-01+) · [CONTRACTS.md](../runtime-implementation/CONTRACTS.md) |
 
 ---
 

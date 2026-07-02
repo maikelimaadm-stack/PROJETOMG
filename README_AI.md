@@ -25,12 +25,12 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Current Version** | `0.4.0-rc.2` |
 | **Current Release** | `v0.4.0-RC2` (pending owner tag) |
 | **Current Program** | **Foundation C — Runtime Bridge** (Program 4.05) |
-| **Architecture State** | **Five pillars complete** (meta-model + architecture + behavior + protocol + authoring) |
-| **Platform Authoring SSOT** | [docs/platform-authoring/README.md](./docs/platform-authoring/README.md) |
-| **Decision (Authoring)** | D-UA-35 — B.7 last doc block; Foundation C after five pillars |
+| **Architecture State** | **Six blocks complete** (meta-model + architecture + behavior + protocol + authoring + runtime implementation plan) |
+| **Runtime Implementation SSOT** | [docs/runtime-implementation/README.md](./docs/runtime-implementation/README.md) |
+| **Decision (Impl Plan)** | D-RI-14 — C.0 audit PASS authorizes Foundation C code at slice C.1 |
 | **Decision (platform)** | D-PA-19 — Global freeze; Foundation C (Runtime Bridge) only |
 | **Platform Architecture SSOT** | [docs/platform-architecture/README.md](./docs/platform-architecture/README.md) |
-| **Phase** | **Foundation C next** — Runtime Bridge (Program 4.05) |
+| **Phase** | **Foundation C.1 next** — `src/runtime/` Context + Bootstrap shell |
 | **MMM SSOT** | [docs/meta-model/README.md](./docs/meta-model/README.md) |
 | **MMM Roadmap** | [docs/meta-model/ROADMAP.md](./docs/meta-model/ROADMAP.md) (**≠** `docs/engineering/ROADMAP.md`) |
 | **Foundation Roadmap** | [18-FOUNDATION-ROADMAP.md](./docs/platform-architecture/18-FOUNDATION-ROADMAP.md) |
@@ -54,7 +54,7 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Data Lifecycle Report** | [PROGRAM-3.25-DATA-LIFECYCLE-ARCHIVE-EXPUNGE-REPORT.md](./docs/engineering/PROGRAM-3.25-DATA-LIFECYCLE-ARCHIVE-EXPUNGE-REPORT.md) |
 | **Lifecycle Persistence Report** | [PROGRAM-3.26-LIFECYCLE-PERSISTENCE-APPROVAL-REPORT.md](./docs/engineering/PROGRAM-3.26-LIFECYCLE-PERSISTENCE-APPROVAL-REPORT.md) |
 | **Lifecycle Sync Report** | [PROGRAM-3.27-LIFECYCLE-SYNC-STORAGE-AUDIT-REPORT.md](./docs/engineering/PROGRAM-3.27-LIFECYCLE-SYNC-STORAGE-AUDIT-REPORT.md) |
-| **Next Official Mission** | **Foundation C** — Universal CRB Runtime Bridge |
+| **Next Official Mission** | **Foundation C.1** — Runtime Context + Bootstrap (`G423-02`) |
 
 > **Governance rule (D-062):** Register all new D-xxx, G-xxx, Programs, SSOT docs in [GOVERNANCE-REGISTRY.md](./docs/engineering/GOVERNANCE-REGISTRY.md).
 
@@ -85,6 +85,7 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | 18 | **Platform Behavior (D-PB)** | [docs/platform-behavior/README.md](./docs/platform-behavior/README.md) (**mandatory before Foundation C**) |
 | 19 | **Platform Protocol / UEP (D-UP)** | [docs/platform-protocol/README.md](./docs/platform-protocol/README.md) (**Runtime must implement this**) |
 | 20 | **Platform Authoring / UAS (D-UA)** | [docs/platform-authoring/README.md](./docs/platform-authoring/README.md) (**mandatory before Foundation C**) |
+| 21 | **Runtime Implementation Plan (D-RI)** | [docs/runtime-implementation/README.md](./docs/runtime-implementation/README.md) (**mandatory before Foundation C code**) |
 
 Full details: [PROJECT-STATUS.md](./docs/engineering/PROJECT-STATUS.md)
 
@@ -108,6 +109,7 @@ Before altering **any** file, read and verify:
 | 6c | **Platform Behavior SSOT** | `docs/platform-behavior/README.md` |
 | 6d | **Platform Protocol SSOT (UEP)** | `docs/platform-protocol/README.md` |
 | 6e | **Platform Authoring SSOT (UAS)** | `docs/platform-authoring/README.md` |
+| 6f | **Runtime Implementation Plan** | `docs/runtime-implementation/README.md` |
 | 7 | **Engineering Principles** | `docs/architecture/MAK-ENGINEERING-PRINCIPLES.md` |
 | 8 | **MAK Studio Architecture** | `docs/architecture/MAK-STUDIO-ARCHITECTURE.md` |
 | 8b | **MAK Studio UX Framework** | `docs/architecture/MAK-STUDIO-UX-FRAMEWORK.md` |
