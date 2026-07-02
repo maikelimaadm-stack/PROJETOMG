@@ -25,9 +25,9 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Current Version** | `0.4.0-rc.2` |
 | **Current Release** | `v0.4.0-RC2` (pending owner tag) |
 | **Current Program** | **Foundation C — Runtime Bridge** (Program 4.05) |
-| **Architecture State** | **Six blocks complete** (meta-model + architecture + behavior + protocol + authoring + runtime implementation plan) |
+| **Architecture State** | **Six blocks synchronized** — Global Architecture Certificate (C.0.2) |
 | **Runtime Implementation SSOT** | [docs/runtime-implementation/README.md](./docs/runtime-implementation/README.md) |
-| **Decision (Impl Plan)** | D-RI-14 — C.0 audit PASS authorizes Foundation C code at slice C.1 |
+| **Decision (Impl Plan)** | D-RI-16 — Foundation C fully authorized |
 | **Decision (platform)** | D-PA-19 — Global freeze; Foundation C (Runtime Bridge) only |
 | **Platform Architecture SSOT** | [docs/platform-architecture/README.md](./docs/platform-architecture/README.md) |
 | **Phase** | **Foundation C.1 next** — `src/runtime/` Context + Bootstrap shell |

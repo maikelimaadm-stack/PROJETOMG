@@ -27,7 +27,7 @@
 | Divergências classificadas | ✅ [DIVERGENCE-REGISTER.md](./DIVERGENCE-REGISTER.md) |
 | Governança platform | ✅ |
 | **BLOCKERs abertos** | **0** |
-| PlatformSchema JSON files | ❌ — escopo 4.02 |
+| PlatformSchema JSON files | ✅ **226 delivered** — [spec/](./spec/) |
 
 ---
 
@@ -40,7 +40,7 @@
 | AP-03 | Gate namespace G420+ | ✅ |
 | AP-04–05 | Governança Program 4 | ✅ |
 | AP-06 | Legacy doc headers | 🔄 Parcial |
-| AP-07 | PlatformSchemas | ⏳ 4.02 |
+| AP-07 | PlatformSchemas | ✅ **226 files delivered** (4.02) |
 | AP-08 | Gate G421 script | ⏳ 4.02 |
 
 ---

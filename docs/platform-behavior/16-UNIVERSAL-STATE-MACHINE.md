@@ -102,12 +102,12 @@ Profiles select **subset** of states and allowed transitions. Invalid transition
 
 | Profile | Object types | States used | Notes |
 |---------|--------------|-------------|-------|
-| **DEFINITION** | application, module, business_object, field, layout, workflow, action, permission | draft → published (+ rejected, deleted) | Full authoring path |
+| **DEFINITION** | application, module, business_object, field, layout, workflow, action, permission | draft → in_review → approved → published (+ rejected, deleted, installed) | Full authoring path |
 | **DEPLOYMENT** | environment_pin, tenant_application | published, installed, running, deprecated | Tenant-scoped |
 | **DATA** | business record (L0) | draft, running, archived, deleted | No publish |
-| **INSTANCE** | workflow_instance, job_run | running sub-states only | See D-PB-10 |
+| **INSTANCE** | workflow_instance, job_run | running sub-states only | `idle` is pre-running sub-state under `running` — see D-PB-10 |
 | **IDENTITY** | user, tenant | draft, running, deprecated, archived, deleted | User/tenant profiles |
-| **PACKAGE** | marketplace package | draft, in_review, published, deprecated, deleted | Publisher scope |
+| **PACKAGE** | marketplace package | draft, in_review, published, rejected, deprecated, deleted | Publisher scope |
 
 ### Field profile (DEFINITION subset)
 
@@ -119,6 +119,20 @@ Field skips `installed` — transitions: `draft` → `in_review` → `approved` 
 |----------|---------|--------|
 | `workflow` MMM object | DEFINITION | Full through `published` |
 | `workflow_instance` | INSTANCE | `idle`, `running`, `waiting`, `completed`, `failed`, `cancelled` mapped under USM `running` |
+
+---
+
+## Profile operation aliases
+
+Domain-specific operation names map to **universal operations** (D-PB-31). Aliases are UI/API labels only — enforcement uses the canonical USM operation.
+
+| Profile | Domain alias | USM operation | Transition |
+|---------|--------------|---------------|------------|
+| **IDENTITY** (user) | `block` | `archive` | `running` → `archived` |
+| **IDENTITY** (user) | `unblock` | `activate` | `archived` → `running` |
+| **IDENTITY** (user) | cancel invite | `delete` | `draft` → `deleted` |
+| **IDENTITY** (tenant) | `cancel` | `delete` | `deprecated` → `archived` (retention) |
+| **IDENTITY** (tenant) | `backup` | — | Non-transition admin op; emits `tenant.backup.completed` |
 
 ---
 

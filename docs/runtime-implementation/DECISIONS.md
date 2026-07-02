@@ -66,7 +66,7 @@
 
 ## D-RI-11 — View adapters incremental
 
-**Decision:** Foundation C certifies **table + form** adapters first; other nine view modes follow in slices C.15–C.17 without blocking G423.
+**Decision:** Foundation C certifies **table + form** adapters first; other nine view modes follow in slices C.18–C.24 without blocking G423.
 
 ---
 
@@ -91,6 +91,12 @@
 ## D-RI-15 — Sixth block complete
 
 **Decision:** meta-model + architecture + behavior + protocol + authoring + **runtime-implementation** = complete pre-code foundation set.
+
+---
+
+## D-RI-16 — C.0.2 SSOT remediation
+
+**Decision:** Foundation C.0.2 synchronizes all six SSOT blocks per C.0.1 audit. Contract prefixes: **PUB-C-NN** (publish), **MMM-C-NN** (meta-model), **RT-C-NN** (runtime). Gate IDs G423/G424 are Foundation-only; MMM placeholders renumbered G435/G436.
 
 ---
 

@@ -125,7 +125,7 @@ Authoring-time event wiring:
 ```yaml
 on:
   record.saved: { actionRef: refresh_list }
-  workflow.completed: { automationRef: notify_manager }
+  workflow.finished: { automationRef: notify_manager }
 ```
 
 ---

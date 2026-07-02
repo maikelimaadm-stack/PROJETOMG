@@ -68,7 +68,7 @@ Todo objeto persistido declara exatamente um `objectType`. Agrupados em A–K.
 
 `memory_record`, `knowledge_node`, `knowledge_edge`, `observation`, `recommendation`, `decision`, `insight`, `health_signal`, `maturity_score`, `segment_profile`, `governance_policy`, `compliance_rule`, `lifecycle_action`, `ai_candidate`, `ai_prompt`, `ai_context`
 
-**Total: 227** (226 PlatformSchemas — `record` excluded per R-14; see [ENVELOPE-SPEC.md](./ENVELOPE-SPEC.md))
+**Total: 227** (226 PlatformSchemas — `record` excluded per R-14; see [spec/mmm-envelope-v1.schema.json](./spec/mmm-envelope-v1.schema.json) `record` exclusion rule)
 
 ## Regras
 

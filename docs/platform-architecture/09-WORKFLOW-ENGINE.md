@@ -93,7 +93,7 @@ Integrates with lifecycle approval (Program 3.26) for data actions; workflow app
 
 ## Events
 
-Workflow emits: `workflow.started`, `workflow.transitioned`, `workflow.completed`, `workflow.escalated`.
+Workflow emits (canonical): `workflow.started`, `workflow.step.entered`, `workflow.step.completed`, `workflow.finished`, `workflow.failed`, `workflow.cancelled`. Legacy aliases `workflow.transitioned`, `workflow.completed`, `workflow.escalated` → see [platform-behavior/17-UNIVERSAL-EVENTS.md](../platform-behavior/17-UNIVERSAL-EVENTS.md).
 
 ---
 

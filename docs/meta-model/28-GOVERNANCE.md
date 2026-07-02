@@ -55,14 +55,16 @@ flowchart TD
 ### Planned MMM gates (G420+ namespace)
 
 > **Namespace rule:** Deploy gates **G401–G402** are reserved ([GATE-REGISTRY.md](../engineering/GATE-REGISTRY.md) D-062). MMM gates use **G420+** to avoid collision.
+>
+> **Supersession (C.0.2):** Foundation Runtime gates **G423** (master) and **G424** (Studio) are registered in [GATE-REGISTRY.md](../engineering/GATE-REGISTRY.md). Former MMM placeholder IDs **G423/G424** were renumbered to **G435/G436** — see SUPERSESSION-REGISTER.
 
 | Gate | Validates |
 |------|-----------|
 | G420 | MMM lifecycle transitions |
-| G421 | PlatformSchema coverage (222 types) |
-| G422 | Publish pipeline C-1→C-16 |
-| G423 | Module dependency acyclicity |
-| G424 | Critical automation approval |
+| G421 | PlatformSchema coverage (226 schemas / 227 taxonomy) |
+| G422 | Publish pipeline PUB-C-1→PUB-C-16 |
+| G435 | MMM module dependency acyclicity (publish-time) |
+| G436 | Critical automation approval |
 
 ---
 

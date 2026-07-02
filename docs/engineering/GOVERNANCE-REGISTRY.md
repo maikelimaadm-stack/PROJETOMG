@@ -76,8 +76,9 @@ L6 Implementation        → scripts/gate-*.mjs, src/
 | **Prior audit** | Program 3.5B — D-061 |
 | **State after 3.5C** | **ARCHITECTURE CONSOLIDATED** |
 | **Last completed (Intelligence track)** | **Program 3.27** — Lifecycle Sync (D-093, G325) |
-| **Last completed (MMM track)** | **Program 4.01.2** — Alignment & Divergence Resolution (D-MMM-16) |
-| **Next authorized mission** | **Program 4.02** — MMM Specification (226 PlatformSchemas + envelope) |
+| **Last completed (MMM track)** | **Program 4.04** — MMM Publish Engine v2 (G422) |
+| **Last completed (Foundation docs)** | **Foundation C.0.2** — SSOT Remediation (D-RI-16) |
+| **Next authorized mission** | **Foundation C.1** — Runtime Context + Bootstrap (`G423-02`) |
 
 ### Program 4 — MMM governance artifacts
 

@@ -64,13 +64,15 @@ Custom actions declare `integration` handler — no inline JS.
 
 ## Execution contract
 
-| Step | Responsibility |
-|------|----------------|
-| 1 | RT-5 permission check |
-| 2 | Validate preconditions (validation V16) |
-| 3 | Execute handler atomically where required |
-| 4 | Emit domain events |
-| 5 | Return structured result to UI |
+Per D-PB-32, Action Engine delegates to UEP pipeline ([09-UNIVERSAL-PIPELINE.md](../platform-protocol/09-UNIVERSAL-PIPELINE.md)):
+
+| UEP stage | Responsibility |
+|-----------|----------------|
+| 1 Validate | Envelope + UEC + business preconditions (V16) |
+| 2 Authorize | RT-5 permission check |
+| 3 Execute | Handler atomically; emit domain events post-commit |
+| 4 Audit | Immutable audit record |
+| 5 Respond | Structured result to UI |
 
 Failures roll back transaction (records) or leave MMM unchanged.
 

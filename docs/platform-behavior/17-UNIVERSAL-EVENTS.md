@@ -8,7 +8,7 @@
 
 `{domain}.{entity}.{action}` — lowercase, dot-separated.
 
-Envelope: `{ eventId, type, tenantId, traceId, timestamp, payload, schemaVersion: "mak-event-v1" }`
+Envelope: `{ eventId, eventType, tenantId, traceId, timestamp, payload, schemaVersion: "mak-event-v1" }` — field name **`eventType`** (not `type`); see [platform-protocol/08-UNIVERSAL-EVENT.md](../platform-protocol/08-UNIVERSAL-EVENT.md).
 
 ---
 
@@ -53,6 +53,7 @@ Envelope: `{ eventId, type, tenantId, traceId, timestamp, payload, schemaVersion
 | `runtime.render.completed` | Runtime |
 | `runtime.session.started` | Runtime |
 | `runtime.session.ended` | Runtime |
+| `screen.viewed` | Runtime |
 
 ---
 
@@ -68,14 +69,22 @@ Envelope: `{ eventId, type, tenantId, traceId, timestamp, payload, schemaVersion
 
 ## Workflow events
 
-| Event | Publisher |
+| Event | Publisher | Notes |
+|-------|-----------|-------|
+| `workflow.started` | Workflow Engine | |
+| `workflow.step.entered` | Workflow Engine | |
+| `workflow.step.completed` | Workflow Engine | |
+| `workflow.finished` | Workflow Engine | **Canonical** terminal success |
+| `workflow.failed` | Workflow Engine | |
+| `workflow.cancelled` | Workflow Engine | |
+
+**Architecture aliases** (legacy names in [02-RUNTIME.md](../platform-architecture/02-RUNTIME.md), [09-WORKFLOW-ENGINE.md](../platform-architecture/09-WORKFLOW-ENGINE.md) — emit canonical name only):
+
+| Alias | Canonical |
 |-------|-----------|
-| `workflow.started` | Workflow Engine |
-| `workflow.step.entered` | Workflow Engine |
-| `workflow.step.completed` | Workflow Engine |
-| `workflow.finished` | Workflow Engine |
-| `workflow.failed` | Workflow Engine |
-| `workflow.cancelled` | Workflow Engine |
+| `workflow.completed` | `workflow.finished` |
+| `workflow.transitioned` | `workflow.step.entered` |
+| `workflow.escalated` | `workflow.step.entered` (escalation payload) |
 
 ---
 
@@ -108,11 +117,16 @@ Envelope: `{ eventId, type, tenantId, traceId, timestamp, payload, schemaVersion
 | Event | Publisher |
 |-------|-----------|
 | `tenant.created` | Platform |
+| `tenant.activated` | Platform |
 | `tenant.suspended` | Platform |
 | `tenant.cancelled` | Platform |
+| `tenant.backup.completed` | Platform |
+| `tenant.restored` | Platform |
 | `user.invited` | Admin |
 | `user.activated` | Auth |
 | `user.suspended` | Admin |
+| `user.blocked` | Admin |
+| `user.deleted` | Admin |
 
 ---
 

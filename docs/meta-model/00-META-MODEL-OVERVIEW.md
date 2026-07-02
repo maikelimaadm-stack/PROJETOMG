@@ -19,7 +19,7 @@ Este documento orienta leitura; **não** duplica especificações de outros docs
 
 ## Conceitos
 
-- **MMM:** Grafo tipado de ~222 objectTypes, versionado, tenant-scoped
+- **MMM:** Grafo tipado de **227 objectTypes** (**226 PlatformSchemas**), versionado, tenant-scoped
 - **CRB:** Única entrada do Runtime
 - **Authoring:** Business Language → Intent → MMM objects
 

@@ -27,15 +27,15 @@ flowchart TD
 
 ## Runtime execution
 
-| Step | Behavior |
-|------|----------|
-| 1 | Receive execution request |
-| 2 | RT-5 authorize |
-| 3 | Load handler from registry |
-| 4 | Validate preconditions |
-| 5 | Execute in transaction boundary |
-| 6 | Emit events post-commit |
-| 7 | Return structured result |
+Per D-PB-32, all execution uses UEP pipeline stages. RT-5 authorize = UEP stage 2.
+
+| UEP stage | Behavior |
+|-----------|----------|
+| 1 Validate | Envelope, UEC, business preconditions |
+| 2 Authorize | RT-5 permission check |
+| 3 Execute | Load handler; transaction boundary; post-commit events |
+| 4 Audit | Immutable audit record |
+| 5 Respond | Structured result |
 
 ---
 

@@ -166,7 +166,7 @@ Evaluation order: **deny > allow > default deny** (fail-closed).
 
 Runtime emits domain events **only through L1 Event Bus** — never direct Intelligence calls.
 
-Events: `record.created`, `action.executed`, `workflow.transitioned`, `screen.viewed`.
+Events: `record.created`, `action.executed`, `workflow.step.entered`, `workflow.finished`, `screen.viewed`. Canonical catalog: [platform-behavior/17-UNIVERSAL-EVENTS.md](../platform-behavior/17-UNIVERSAL-EVENTS.md) (`workflow.transitioned` / `workflow.completed` are aliases).
 
 ---
 

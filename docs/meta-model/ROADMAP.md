@@ -37,7 +37,7 @@ Sequência oficial de implementação MMM. [PROGRAM-REGISTRY.md](../engineering/
 | **4.08** | Studio Entity Designer | BO/Field/Relationship visual | 4.03 |
 | **4.09** | Studio Workflow/Dashboard | Workflow + Dashboard designers | 4.08 |
 | **4.10** | Business Language Wizards | BOS authoring; eliminate dual path | 4.08 |
-| **4.11** | Event Bus L3 | Platform Core event bus (D-074 VA-07) | 4.05 |
+| **4.11** | Event Bus L1 | Platform Core event bus (D-074 VA-07) | 4.05 |
 | **4.12** | Marketplace v1 | .makpkg spec + install | 4.04 |
 | **4.13** | AI Gateway | Provider-agnostic + AICandidate | 4.10, 4.11 |
 | **4.14** | Legacy Elimination | Remove boot cache SSOT, cadastro legacy, static menus | 4.05–4.10 |

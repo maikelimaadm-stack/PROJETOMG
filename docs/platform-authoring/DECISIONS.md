@@ -38,6 +38,8 @@
 
 **Decision:** Twenty-eight normative designers (17 core + 11 extended). New designers require D-UA amendment + MMM additive type (R-19).
 
+> **Supersedes D-PA-07 designer count:** D-PA-07 states 17 core designers for Foundation D phase 1; this decision is the authoritative **28-designer** catalog.
+
 ---
 
 ## D-UA-07 — Wizards produce MMM drafts

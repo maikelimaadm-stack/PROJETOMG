@@ -1,5 +1,7 @@
 # 01 — Core Architecture
 
+> **Legacy MAK-2035 layer indices L0–L7.** Canonical platform layers L0–L10: [platform-architecture/01-LAYERS.md](../platform-architecture/01-LAYERS.md) (D-PA-01). Mapping table in [01-LAYERS §MAK-2035 compatibility](../platform-architecture/01-LAYERS.md#mak-2035-compatibility-map).
+
 **Status:** Official · **Version:** 1.0.0 · **Mission:** 4.01.1 · **Decision:** D-MMM-01
 
 ---

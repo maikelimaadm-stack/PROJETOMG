@@ -19,6 +19,11 @@
 | **D-052** | Freeze text: "until Program 2.3.6 certified" | G302 certified (Program 3.1); freeze lifted for Studio Intelligence track | 2026-06-30 | D-055, PROJECT-STATUS |
 | **D-061** | Block all implementation | Lifted for Program 3.5 **after** D-062 remediation complete | 2026-06-30 | D-062 |
 | **D-065** | "No architecture docs before Program 3.7 delivery" | **Program 3.6.9** inserted as final structural architecture; D-066 declares **no new structural architecture ever** before continuous impl | 2026-06-30 | D-066 |
+| **D-PB-21** | B.5-only prerequisite for Foundation C code | **D-UP-25** (B.6) → **D-UA-26** (B.7) → **D-RI-14** (C.0.2) | 2026-06-30 | C.0.2 remediation |
+| **D-UP-25** | B.6-only prerequisite | **D-UA-26** → **D-RI-14** | 2026-06-30 | C.0.2 remediation |
+| **D-UP-30** | "Four pillars complete" | **Six blocks complete** (D-UA-34, D-RI-15) | 2026-06-30 | C.0.2 remediation |
+| **D-PA-07** | "17 designers only" (total count) | **D-UA-06**: 28 normative (17 core + 11 extended); Foundation D phase 1 = 17 core | 2026-06-30 | C.0.2 remediation |
+| **D-PA-19** | "Gate PASS" only for code start | **D-RI-14**: G420E doc gate + C.0.2 remediation authorizes C.1; master **G423** for C complete | 2026-06-30 | C.0.2 remediation |
 
 **Note:** D-056, D-058, D-059 remain **Accepted** — only specific **consequences** are superseded.
 
@@ -42,6 +47,8 @@
 |--------|--------|------|--------|------|----------|
 | **G303** (deploy) | **G401** | Backend Bootstrap Validation | Collision with Studio G303A/B family | 2026-06-30 | D-062 |
 | **G304** (deploy) | **G402** | Railway Docker Build Validation | Collision with planned Intent Resolver G304 | 2026-06-30 | D-062 |
+| **G423** (MMM planned) | **G435** | MMM module dependency acyclicity | Collision with Foundation Runtime G423 | 2026-06-30 | C.0.2 |
+| **G424** (MMM planned) | **G436** | Critical automation approval | Collision with Foundation Studio G424 | 2026-06-30 | C.0.2 |
 
 **Studio G304** is **not superseded** — it is the reserved ID for Business Intent Resolver (planned).
 
@@ -73,6 +80,13 @@
 | "Program 4" (Enterprise Intelligence impl) | Pre-MMM era | **Program 4 = Universal Meta Model**; Intelligence impl = future program ID TBD | PROGRAM-REGISTRY |
 | "Next mission 2.3.6" | ROADMAP stale | Program 3.5 Intent Resolver | PROGRAM-REGISTRY |
 | Deploy "G304" | Pre-D-062 | G402 (deploy) / G304 (Resolver only) | GATE-REGISTRY |
+| Publish phase "C-N" | Pre-C.0.2 | **PUB-C-N** (publish pipeline) | meta-model/17-PUBLISH-PIPELINE |
+| Runtime contract "C-N" | Pre-C.0.2 | **RT-C-N** (runtime modules) | runtime-implementation/04-MODULE-CONTRACTS |
+| MMM contract "C-N" | Pre-C.0.2 | **MMM-C-N** (inter-subsystem) | meta-model/CONTRACTS |
+| Event envelope field `type` | Pre-C.0.2 | **`eventType`** (UEP UP-08) | platform-protocol/08-UNIVERSAL-EVENT |
+| `workflow.completed` | Pre-C.0.2 | **`workflow.finished`** (canonical) | platform-behavior/17-UNIVERSAL-EVENTS |
+| MAK-2035 layer index Ln | Pre-C.0.2 | Platform layer L0–L10 via D-PA-01 mapping | platform-architecture/01-LAYERS |
+| Taxonomy count "222" | Pre-D-MMM-16 | **227 / 226** | meta-model/02-OBJECT-TAXONOMY |
 
 ---
 

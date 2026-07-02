@@ -105,7 +105,7 @@
 | Backlog · Order · Interfaces · Contracts | [01](../runtime-implementation/01-RUNTIME-BACKLOG.md) · [02](../runtime-implementation/02-IMPLEMENTATION-ORDER.md) · [03](../runtime-implementation/03-INTERFACES.md) · [04](../runtime-implementation/04-MODULE-CONTRACTS.md) |
 | Folder · Bootstrap · Dependency graph | [05](../runtime-implementation/05-FOLDER-STRUCTURE.md) · [06](../runtime-implementation/06-BOOTSTRAP-SEQUENCE.md) · [07](../runtime-implementation/07-DEPENDENCY-GRAPH.md) |
 | Done criteria · Gates · Delivery · Risks | [08](../runtime-implementation/08-DONE-CRITERIA.md) · [09](../runtime-implementation/09-GATES.md) · [10](../runtime-implementation/10-DELIVERY-PLANNING.md) · [11](../runtime-implementation/11-RISKS.md) |
-| Final audit | [12-AUDITORIA-FINAL.md](../runtime-implementation/12-AUDITORIA-FINAL.md) |
+| Final audit | [12-AUDITORIA-FINAL.md](../runtime-implementation/12-AUDITORIA-FINAL.md) · [13-AUDITORIA-FINAL.md](../runtime-implementation/13-AUDITORIA-FINAL.md) (C.0.2 certificate) |
 | Decisions · Contracts | [DECISIONS.md](../runtime-implementation/DECISIONS.md) (D-RI-01+) · [CONTRACTS.md](../runtime-implementation/CONTRACTS.md) |
 
 ---
