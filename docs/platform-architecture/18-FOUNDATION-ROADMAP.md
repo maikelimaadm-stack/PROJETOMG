@@ -16,7 +16,8 @@ Replace program-number roadmap with **Foundation sequence** — the only authori
 flowchart LR
   FA[Foundation A Identity] --> FB[Foundation B MMM]
   FB --> FB5[Foundation B.5 Behavior]
-  FB5 --> FC[Foundation C Runtime]
+  FB5 --> FB6[Foundation B.6 Protocol]
+  FB6 --> FC[Foundation C Runtime]
   FC --> FD[Foundation D Studio MMM]
   FC --> FE[Foundation E Legacy Elimination]
   FD --> FF[Foundation F Event Bus]
@@ -37,7 +38,8 @@ flowchart LR
 | **A** | Identity & Constitution | D-074, Constitution, BOS architecture | G-identity | ✅ **PASS** |
 | **B** | Universal Meta Model | Spec, persistence, publish 4.01–4.04 | G421, G422 | ✅ **PASS** |
 | **B.5** | Platform Behavior | Lifecycles, USM, events, errors, execution | G420B | ✅ **PASS** (docs) |
-| **C** | Universal Runtime | RT-0→RT-8, CRB hydrate, Render/Action/Workflow | G423 | ⏳ **NEXT** |
+| **B.6** | Universal Execution Protocol | UEP, context, pipeline, handlers, contracts | G420C | ✅ **PASS** (docs) |
+| **C** | Universal Runtime | **UEP implementation** RT-0→RT-8 | G423 | ⏳ **NEXT** |
 | **D** | Studio MMM-native | 17 designers → MMM API | G424 | ⏳ Blocked on C partial |
 | **E** | Legacy Elimination | Boot cache, MDP routes, generator, UsuarioPerfil | G425 | ⏳ Blocked on C |
 | **F** | Event Bus L1 | Domain event transport DB-backed | G426 | ⏳ Blocked on C |
@@ -52,7 +54,9 @@ flowchart LR
 
 ## Foundation C deliverables (next authorized work)
 
-**Prerequisite:** Foundation B.5 audit PASS — [25-AUDIT-FINAL.md](../platform-behavior/25-AUDIT-FINAL.md).
+**Prerequisites:** Foundation B.5 + B.6 audit PASS — [25-AUDIT-FINAL.md](../platform-behavior/25-AUDIT-FINAL.md), [25-AUTORIZACAO.md](../platform-protocol/25-AUTORIZACAO.md).
+
+**Rule:** Runtime implements [platform-protocol/](../platform-protocol/) — not a parallel design.
 
 | Deliverable | Maps from |
 |-------------|-----------|
@@ -93,6 +97,7 @@ Register in GATE-REGISTRY when Foundation C starts.
 |---------|------------|
 | 4.01–4.04 | B ✅ |
 | B.5 | B.5 ✅ |
+| B.6 | B.6 ✅ |
 | 4.05 | C |
 | 4.06 | G |
 | 4.07 | C + D (permissions) |

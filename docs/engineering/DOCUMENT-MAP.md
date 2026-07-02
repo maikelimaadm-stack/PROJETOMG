@@ -93,7 +93,22 @@
 | Foundation Roadmap · Final Audit | [18-FOUNDATION-ROADMAP.md](../platform-architecture/18-FOUNDATION-ROADMAP.md) · [19-AUDIT-FINAL.md](../platform-architecture/19-AUDIT-FINAL.md) |
 | Decisions · Contracts · Divergences | [DECISIONS.md](../platform-architecture/DECISIONS.md) (D-PA-01+) · [CONTRACTS.md](../platform-architecture/CONTRACTS.md) · [DIVERGENCE-REGISTER.md](../platform-architecture/DIVERGENCE-REGISTER.md) |
 
-> **Implementation freeze (D-PA-19, D-PB-21):** Only **Foundation C — Runtime Bridge** authorized after B.5 merge. See [25-AUDIT-FINAL.md](../platform-behavior/25-AUDIT-FINAL.md).
+> **Implementation freeze (D-PA-19, D-UP-25):** Only **Foundation C — Runtime Bridge** authorized after B.6 merge. Runtime **implements** [platform-protocol/](../platform-protocol/). See [25-AUTORIZACAO.md](../platform-protocol/25-AUTORIZACAO.md).
+
+---
+
+## L1f — Platform Protocol (Foundation B.6, D-UP)
+
+| Document | Path |
+|----------|------|
+| **Platform Protocol Hub (SSOT)** | **[docs/platform-protocol/README.md](../platform-protocol/README.md)** |
+| UEP · Context · Request/Response | [01](../platform-protocol/01-UNIVERSAL-EXECUTION-PROTOCOL.md) · [02](../platform-protocol/02-UNIVERSAL-CONTEXT.md) · [03](../platform-protocol/03-UNIVERSAL-REQUEST.md) · [04](../platform-protocol/04-UNIVERSAL-RESPONSE.md) |
+| Command · Query · Action · Event | [05](../platform-protocol/05-UNIVERSAL-COMMAND.md) · [06](../platform-protocol/06-UNIVERSAL-QUERY.md) · [07](../platform-protocol/07-UNIVERSAL-ACTION.md) · [08](../platform-protocol/08-UNIVERSAL-EVENT.md) |
+| Pipeline · Handler · Services | [09](../platform-protocol/09-UNIVERSAL-PIPELINE.md) · [10](../platform-protocol/10-UNIVERSAL-HANDLER.md) · [11](../platform-protocol/11-UNIVERSAL-SERVICES.md) |
+| Permissions · TX · Cache · Async | [12](../platform-protocol/12-UNIVERSAL-PERMISSIONS.md) · [13](../platform-protocol/13-UNIVERSAL-TRANSACTIONS.md) · [14](../platform-protocol/14-UNIVERSAL-CACHE-CONTRACT.md) · [15](../platform-protocol/15-UNIVERSAL-ASYNC.md) |
+| Plugins · Connectors · Observability · Security | [16](../platform-protocol/16-UNIVERSAL-PLUGINS.md) · [17](../platform-protocol/17-UNIVERSAL-CONNECTORS.md) · [18](../platform-protocol/18-UNIVERSAL-OBSERVABILITY-CONTRACT.md) · [19](../platform-protocol/19-UNIVERSAL-SECURITY-CONTRACT.md) |
+| Failure · Sequences · Contract map | [20](../platform-protocol/20-UNIVERSAL-FAILURE-MODEL.md) · [21](../platform-protocol/21-UNIVERSAL-EXECUTION-SEQUENCE.md) · [22](../platform-protocol/22-UNIVERSAL-CONTRACT-MAP.md) |
+| Decisions · Audit · Authorization | [23](../platform-protocol/23-UNIVERSAL-PROTOCOL-DECISIONS.md) · [24](../platform-protocol/24-AUDITORIA.md) · [25](../platform-protocol/25-AUTORIZACAO.md) |
 
 ---
 

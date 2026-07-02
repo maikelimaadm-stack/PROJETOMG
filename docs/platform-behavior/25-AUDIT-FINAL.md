@@ -65,13 +65,14 @@ Meta-model remains authoritative for MMM API enum values; USM is platform-wide s
 
 ---
 
-## Three pillars status
+## Four pillars status
 
 | Pillar | Path | Status |
 |--------|------|--------|
 | What exists | `docs/meta-model/` | ✅ Foundation B |
 | How built | `docs/platform-architecture/` | ✅ Architecture audit |
-| How behaves | `docs/platform-behavior/` | ✅ **B.5 complete** |
+| How behaves | `docs/platform-behavior/` | ✅ B.5 complete |
+| How executes | `docs/platform-protocol/` | ✅ **B.6 complete** |
 
 ---
 
@@ -79,15 +80,15 @@ Meta-model remains authoritative for MMM API enum values; USM is platform-wide s
 
 | Question | Answer |
 |----------|--------|
-| Authorize Foundation C (Runtime)? | **YES** — after this document merges |
-| Global implementation freeze | **Lifted for Foundation C only** (D-PB-21) |
-| Prerequisites | B ✅, B.5 ✅, Architecture ✅ |
+| Authorize Foundation C (Runtime)? | **YES** — after B.6 merge (D-UP-25) |
+| Global implementation freeze | **Lifted for Foundation C only** (D-PB-21, D-UP-25) |
+| Prerequisites | B ✅, B.5 ✅, B.6 ✅, Architecture ✅ |
 
 ---
 
 ## Enforcement
 
-PRs implementing Runtime (Foundation C) must reference behavior specs for RT-0→RT-8, USM transitions, and event/error catalogs.
+PRs implementing Runtime (Foundation C) must implement [platform-protocol/](../platform-protocol/) (UEP) and reference behavior specs for RT-0→RT-8, USM, events/errors.
 
 PRs implementing other foundations remain blocked until their foundation gate.
 

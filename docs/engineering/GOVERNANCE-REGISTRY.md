@@ -35,6 +35,7 @@ L3 Specifications        → MDP spec, Studio arch
 L3c Universal Meta Model → docs/meta-model/ (D-MMM-15) — **SSOT for Program 4.xx**
 L3d Platform Architecture  → docs/platform-architecture/ (D-PA) — **SSOT for full platform topology**
 L3e Platform Behavior     → docs/platform-behavior/ (D-PB) — **SSOT for operational behavior**
+L3f Platform Protocol     → docs/platform-protocol/ (D-UP) — **SSOT for UEP execution**
 L4 Engineering OS        → PROJECT-STATUS (position SSOT) + registries (this file)
 L5 Programs              → PROGRAM-REGISTRY.md
 L6 Implementation        → scripts/gate-*.mjs, src/
