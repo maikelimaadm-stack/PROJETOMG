@@ -1169,6 +1169,16 @@ Do not duplicate D-UP entries here — amend the platform-protocol SSOT.
 
 ---
 
+## Platform Authoring Decisions (D-UA)
+
+**SSOT:** [docs/platform-authoring/DECISIONS.md](../platform-authoring/DECISIONS.md) — **D-UA-01 through D-UA-35** (Foundation B.7, 2026-06-30).
+
+Key decisions: **UAS authoritative over Studio UI** (D-UA-01); **95% zero-code** (D-UA-02); **B.7 last doc block before Runtime** (D-UA-35); Foundation C after five pillars (D-UA-26).
+
+Do not duplicate D-UA entries here — amend the platform-authoring SSOT.
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |
