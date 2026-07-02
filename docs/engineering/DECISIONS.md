@@ -1139,6 +1139,26 @@
 
 ---
 
+## Platform Architecture Decisions (D-PA)
+
+**SSOT:** [docs/platform-architecture/DECISIONS.md](../platform-architecture/DECISIONS.md) — **D-PA-01 through D-PA-25** (Foundation Architecture Audit, 2026-06-30).
+
+Key decisions: canonical **L0–L10** layers (D-PA-01); MMM as **Foundation B** (D-PA-02); Runtime consumes **CRB only** (D-PA-03).
+
+Do not duplicate D-PA entries here — amend the platform-architecture SSOT.
+
+---
+
+## Platform Behavior Decisions (D-PB)
+
+**SSOT:** [docs/platform-behavior/DECISIONS.md](../platform-behavior/DECISIONS.md) — **D-PB-01 through D-PB-30** (Foundation B.5, 2026-06-30).
+
+Key decisions: **Universal State Machine** mandatory (D-PB-01); **Foundation C authorized after B.5** (D-PB-21); AI never direct-write (D-PB-07).
+
+Do not duplicate D-PB entries here — amend the platform-behavior SSOT.
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

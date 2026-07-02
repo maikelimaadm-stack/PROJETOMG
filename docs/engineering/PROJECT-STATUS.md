@@ -3,7 +3,7 @@
 **Status:** Official — Single source of truth for project continuity  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Updated by:** Program 4.02 — MMM Specification (D-MMM-17)  
+**Updated by:** Foundation B.5 — Platform Behavior Specification (D-PB-01+)  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md); supersedes chat history
 
 > **Rule:** Any AI or developer session must read this file (via [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md)) before starting work. Do not rely on prior chat context.
@@ -14,10 +14,12 @@
 
 | Field | Value |
 |-------|-------|
-| **Architecture state** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) · **First Business Asset certified** (D-068, G306) |
-| **Implementation phase** | **MMM foundation documented (4.01.1)** · Intelligence track through 3.27 complete |
-| **Implementation authorized** | **Program 4.02+ only after explicit authorization** — [docs/meta-model/ROADMAP.md](../meta-model/ROADMAP.md) |
-| **Primary user surface** | **BOS home (`/`)** — [MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](../architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md) |
+| **Architecture state** | **THREE PILLARS COMPLETE** — meta-model + platform-architecture + platform-behavior (B.5) |
+| **Implementation phase** | **Foundation C authorized** (D-PB-21) — Runtime Bridge only |
+| **Implementation authorized** | **Foundation C — Runtime Bridge** — [18-FOUNDATION-ROADMAP.md](../platform-architecture/18-FOUNDATION-ROADMAP.md) · [25-AUDIT-FINAL.md](../platform-behavior/25-AUDIT-FINAL.md) |
+| **Platform architecture SSOT** | [docs/platform-architecture/README.md](../platform-architecture/README.md) |
+| **Platform behavior SSOT** | [docs/platform-behavior/README.md](../platform-behavior/README.md) |
+| **Primary user surface** | **BOS home (`/`)** — [MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](../architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md) · validated in [11-BOS.md](../platform-architecture/11-BOS.md) |
 
 ---
 
@@ -54,7 +56,7 @@
 | **Current architecture level** | **L5 Experience Authoring** + **L6 Vision documented** |
 | **Master Architecture** | v1.0.0 — [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md) |
 | **Studio Architecture** | v1.15.0 — [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) |
-| **Current architecture stage** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) — **continuous implementation phase** |
+| **Current architecture stage** | **PLATFORM ARCHITECTURE SSOT COMPLETE** (D-PA) — **Foundation C authorized** |
 
 ---
 
@@ -62,13 +64,12 @@
 
 | Field | Value |
 |-------|-------|
-| **Current program** | **Program 4 — Universal Meta Model** (publish engine shipped in 4.04) |
-| **Last completed mission (Intelligence)** | **Program 3.27** — Lifecycle Sync (D-093, G325) |
-| **Last completed mission (MMM)** | **Program 4.04** — MMM Publish Engine v2 (G422) |
-| **Last decision (MMM)** | **D-MMM-17** — Publish pipeline C-1→C-16 on persisted MMM objects |
-| **Next official mission** | **Program 4.05** — Universal CRB Runtime Bridge |
+| **Current foundation** | **Foundation C — Runtime Bridge** (Program 4.05) |
+| **Last completed mission (Behavior)** | **Foundation B.5** — Platform Behavior Specification (D-PB-01+) |
+| **Last decision (Behavior)** | **D-PB-21** — Foundation C authorized after B.5 PASS |
+| **Next official mission** | **Foundation C** — Universal CRB Runtime Bridge |
 
-Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md) · MMM roadmap: [meta-model/ROADMAP.md](../meta-model/ROADMAP.md)
+Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md) · Foundation sequence: [18-FOUNDATION-ROADMAP.md](../platform-architecture/18-FOUNDATION-ROADMAP.md) · Behavior SSOT: [platform-behavior/](../platform-behavior/) · MMM roadmap: [meta-model/ROADMAP.md](../meta-model/ROADMAP.md)
 
 ---
 
@@ -96,7 +97,11 @@ Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md) · MMM roadm
 | **4.01.1** Meta Model Constitution | ✅ |
 | **4.01.2** Alignment & Divergence Resolution | ✅ |
 | **4.02** MMM Specification | ✅ |
-| **Próximo passo** | **Program 4.05** — Universal CRB Runtime Bridge |
+| **4.03** MMM Persistence | ✅ |
+| **4.04** MMM Publish Engine v2 | ✅ |
+| **Foundation Architecture Audit** | ✅ — [platform-architecture/](../platform-architecture/) |
+| **Foundation B.5 Platform Behavior** | ✅ — [platform-behavior/](../platform-behavior/) |
+| **Próximo passo** | **Foundation C** — Runtime Bridge (Program 4.05) |
 
 **Registries:** [GOVERNANCE-REGISTRY.md](./GOVERNANCE-REGISTRY.md) · [GATE-REGISTRY.md](./GATE-REGISTRY.md) · [SSOT-REGISTRY.md](./SSOT-REGISTRY.md) · [meta-model/](../meta-model/)
 

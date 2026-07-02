@@ -47,8 +47,10 @@
 | Topic | SSOT | Derived / Reference |
 |-------|------|---------------------|
 | **Universal Meta Model (MMM)** | [docs/meta-model/README.md](../meta-model/README.md) | Topic docs 00–30; [GLOSSARY](../meta-model/GLOSSARY.md), [RULES](../meta-model/RULES.md), [DECISIONS](../meta-model/DECISIONS.md), [ROADMAP](../meta-model/ROADMAP.md) |
-| **Layer topology** | [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md) | [MAK-PLATFORM-EVOLUTION.md](../architecture/MAK-PLATFORM-EVOLUTION.md) |
-| **Studio architecture** | [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) | Studio briefs, certification reports |
+| **Layer topology** | [01-LAYERS.md](../platform-architecture/01-LAYERS.md) | [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md) (**Reference — L0–L7 map**); [MAK-PLATFORM-EVOLUTION.md](../architecture/MAK-PLATFORM-EVOLUTION.md) |
+| **Full platform architecture** | [docs/platform-architecture/README.md](../platform-architecture/README.md) | Topics 00–19; [DECISIONS](../platform-architecture/DECISIONS.md) (D-PA), [CONTRACTS](../platform-architecture/CONTRACTS.md), [18-FOUNDATION-ROADMAP](../platform-architecture/18-FOUNDATION-ROADMAP.md) |
+| **Platform behavior** | [docs/platform-behavior/README.md](../platform-behavior/README.md) | Topics 01–25; [DECISIONS](../platform-behavior/DECISIONS.md) (D-PB), [16-UNIVERSAL-STATE-MACHINE](../platform-behavior/16-UNIVERSAL-STATE-MACHINE.md) |
+| **Studio architecture** | [03-STUDIO.md](../platform-architecture/03-STUDIO.md) | [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) (**Reference — legacy Studio detail**) |
 | **MDP specification** | [MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md](../architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md) (**Reference — persistence substrate**) | [24-PERSISTENCE.md](../meta-model/24-PERSISTENCE.md) (**MMM SSOT**); [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md) |
 | **Business Intent authoring** | [MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md) | [MAK-BUSINESS-INTENT-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-ARCHITECTURE.md) (vision) |
 | **Business Derivation** | [MAK-BUSINESS-DERIVATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-DERIVATION-ARCHITECTURE.md) | D-059 Intent Authoring (input SSOT) |
@@ -60,6 +62,8 @@
 | **Business Operating Shell** | [MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](../architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md) | VA-01 · Navigation model |
 | **Product identity (FROZEN)** | [MAK-PRODUCT-IDENTITY-FREEZE.md](../architecture/MAK-PRODUCT-IDENTITY-FREEZE.md) | [MAK-PRODUCT-IDENTITY.md](../architecture/MAK-PRODUCT-IDENTITY.md) | — |
 | **Studio Computation** | [MAK-STUDIO-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-STUDIO-COMPUTATION-ARCHITECTURE.md) | G302 implementation |
+| **Runtime architecture** | [02-RUNTIME.md](../platform-architecture/02-RUNTIME.md) | [07-RENDER-ENGINE](../platform-architecture/07-RENDER-ENGINE.md), [08-ACTION-ENGINE](../platform-architecture/08-ACTION-ENGINE.md), [09-WORKFLOW-ENGINE](../platform-architecture/09-WORKFLOW-ENGINE.md) |
+| **Foundation implementation sequence** | [18-FOUNDATION-ROADMAP.md](../platform-architecture/18-FOUNDATION-ROADMAP.md) | [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md) (**Derived — program IDs**); [meta-model/ROADMAP.md](../meta-model/ROADMAP.md) (**MMM subset**) |
 | **Formula runtime unification** | [FORMULA-RUNTIME-UNIFICATION-PLAN.md](./FORMULA-RUNTIME-UNIFICATION-PLAN.md) | AD-P0-01/02 remediation |
 | **Platform language** | [MAK-PLATFORM-LANGUAGE-STANDARD.md](../architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md) | — |
 | **Engineering principles** | [MAK-ENGINEERING-PRINCIPLES.md](../architecture/MAK-ENGINEERING-PRINCIPLES.md) | D-029 audit report |

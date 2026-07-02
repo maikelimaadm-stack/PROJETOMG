@@ -78,6 +78,37 @@
 
 ---
 
+## L1d — Platform Architecture (Foundation Audit, D-PA)
+
+| Document | Path |
+|----------|------|
+| **Platform Architecture Hub (SSOT)** | **[docs/platform-architecture/README.md](../platform-architecture/README.md)** |
+| Platform Overview | [00-PLATFORM-OVERVIEW.md](../platform-architecture/00-PLATFORM-OVERVIEW.md) |
+| Layers L0–L10 | [01-LAYERS.md](../platform-architecture/01-LAYERS.md) |
+| Runtime · Studio · Low-code | [02-RUNTIME.md](../platform-architecture/02-RUNTIME.md) · [03-STUDIO.md](../platform-architecture/03-STUDIO.md) · [04-LOW-CODE.md](../platform-architecture/04-LOW-CODE.md) |
+| Meta Model Audit · Universal Data | [05-META-MODEL-AUDIT.md](../platform-architecture/05-META-MODEL-AUDIT.md) · [06-UNIVERSAL-DATA-MODEL.md](../platform-architecture/06-UNIVERSAL-DATA-MODEL.md) |
+| Render · Action · Workflow | [07-RENDER-ENGINE.md](../platform-architecture/07-RENDER-ENGINE.md) · [08-ACTION-ENGINE.md](../platform-architecture/08-ACTION-ENGINE.md) · [09-WORKFLOW-ENGINE.md](../platform-architecture/09-WORKFLOW-ENGINE.md) |
+| AI · BOS · Marketplace · Security | [10-AI-ARCHITECTURE.md](../platform-architecture/10-AI-ARCHITECTURE.md) · [11-BOS.md](../platform-architecture/11-BOS.md) · [12-MARKETPLACE.md](../platform-architecture/12-MARKETPLACE.md) · [13-SECURITY.md](../platform-architecture/13-SECURITY.md) |
+| APIs · Scalability · Gaps · Graph | [14-APIS.md](../platform-architecture/14-APIS.md) · [15-SCALABILITY.md](../platform-architecture/15-SCALABILITY.md) · [16-GAPS-AND-DECISIONS.md](../platform-architecture/16-GAPS-AND-DECISIONS.md) · [17-DEPENDENCY-GRAPH.md](../platform-architecture/17-DEPENDENCY-GRAPH.md) |
+| Foundation Roadmap · Final Audit | [18-FOUNDATION-ROADMAP.md](../platform-architecture/18-FOUNDATION-ROADMAP.md) · [19-AUDIT-FINAL.md](../platform-architecture/19-AUDIT-FINAL.md) |
+| Decisions · Contracts · Divergences | [DECISIONS.md](../platform-architecture/DECISIONS.md) (D-PA-01+) · [CONTRACTS.md](../platform-architecture/CONTRACTS.md) · [DIVERGENCE-REGISTER.md](../platform-architecture/DIVERGENCE-REGISTER.md) |
+
+> **Implementation freeze (D-PA-19, D-PB-21):** Only **Foundation C — Runtime Bridge** authorized after B.5 merge. See [25-AUDIT-FINAL.md](../platform-behavior/25-AUDIT-FINAL.md).
+
+---
+
+## L1e — Platform Behavior (Foundation B.5, D-PB)
+
+| Document | Path |
+|----------|------|
+| **Platform Behavior Hub (SSOT)** | **[docs/platform-behavior/README.md](../platform-behavior/README.md)** |
+| Lifecycles 01–15 | [01-PLATFORM-LIFECYCLE.md](../platform-behavior/01-PLATFORM-LIFECYCLE.md) through [15-DEPLOYMENT-LIFECYCLE.md](../platform-behavior/15-DEPLOYMENT-LIFECYCLE.md) |
+| Universal models 16–24 | [16-UNIVERSAL-STATE-MACHINE.md](../platform-behavior/16-UNIVERSAL-STATE-MACHINE.md) through [24-CROSS-CUTTING-CONCERNS.md](../platform-behavior/24-CROSS-CUTTING-CONCERNS.md) |
+| Final audit | [25-AUDIT-FINAL.md](../platform-behavior/25-AUDIT-FINAL.md) |
+| Decisions · Contracts | [DECISIONS.md](../platform-behavior/DECISIONS.md) (D-PB-01+) · [CONTRACTS.md](../platform-behavior/CONTRACTS.md) |
+
+---
+
 ## L1b — Enterprise Intelligence Vision (Program 3.5A, D-060)
 
 | Document | Path |
