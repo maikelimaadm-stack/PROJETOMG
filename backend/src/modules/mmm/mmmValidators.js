@@ -61,10 +61,43 @@ export const mmmBatchCreateSchema = z.object({
 
 export const mmmPublishSchema = z.object({
   tenantId: z.string().min(1),
-  environment: z.enum(["staging", "production"]),
+  environment: z.enum(["staging", "production"]).optional(),
   applicationId: z.string().optional(),
   moduleId: z.string().optional(),
   objectIds: z.array(z.string()).optional(),
+  semver: z.string().optional(),
+  changelog: z.string().optional(),
+});
+
+export const mmmPublishPinSchema = z.object({
+  tenantId: z.string().min(1),
+  moduleId: z.string().min(1),
+  environment: z.enum(["staging", "production"]),
+  definitionVersionId: z.string().min(1),
+  applicationId: z.string().optional(),
+  baseTemplateId: z.string().optional(),
+});
+
+export const mmmPublishRollbackSchema = z.object({
+  tenantId: z.string().min(1),
+  moduleId: z.string().min(1),
+  environment: z.enum(["staging", "production"]),
+  definitionVersionId: z.string().optional(),
+  baseTemplateId: z.string().optional(),
+});
+
+export const mmmPublishVersionsQuerySchema = z.object({
+  tenantId: z.string().min(1).optional(),
+  moduleId: z.string().optional(),
+  limit: z.coerce.number().int().min(1).max(200).optional(),
+  skip: z.coerce.number().int().min(0).optional(),
+});
+
+export const mmmPublishPinQuerySchema = z.object({
+  tenantId: z.string().min(1).optional(),
+  moduleId: z.string().min(1),
+  environment: z.enum(["staging", "production"]),
+  baseTemplateId: z.string().optional(),
 });
 
 export const mmmRollbackSchema = z.object({

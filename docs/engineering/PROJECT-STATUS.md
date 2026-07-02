@@ -62,11 +62,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Current program** | **Program 4 — Universal Meta Model** (persistence layer shipped in 4.03) |
+| **Current program** | **Program 4 — Universal Meta Model** (publish engine shipped in 4.04) |
 | **Last completed mission (Intelligence)** | **Program 3.27** — Lifecycle Sync (D-093, G325) |
-| **Last completed mission (MMM)** | **Program 4.03** — MMM Persistence (D-MMM-01, D-MMM-17, G421) |
-| **Last decision (MMM)** | **D-MMM-17** — Spec v1 implemented in persistence layer (`/api/mmm/v1`) |
-| **Next official mission** | **Program 4.04** — MMM Publish Engine |
+| **Last completed mission (MMM)** | **Program 4.04** — MMM Publish Engine v2 (G422) |
+| **Last decision (MMM)** | **D-MMM-17** — Publish pipeline C-1→C-16 on persisted MMM objects |
+| **Next official mission** | **Program 4.05** — Universal CRB Runtime Bridge |
 
 Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md) · MMM roadmap: [meta-model/ROADMAP.md](../meta-model/ROADMAP.md)
 
@@ -96,7 +96,7 @@ Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md) · MMM roadm
 | **4.01.1** Meta Model Constitution | ✅ |
 | **4.01.2** Alignment & Divergence Resolution | ✅ |
 | **4.02** MMM Specification | ✅ |
-| **Próximo passo** | **Program 4.04** — MMM Publish Engine |
+| **Próximo passo** | **Program 4.05** — Universal CRB Runtime Bridge |
 
 **Registries:** [GOVERNANCE-REGISTRY.md](./GOVERNANCE-REGISTRY.md) · [GATE-REGISTRY.md](./GATE-REGISTRY.md) · [SSOT-REGISTRY.md](./SSOT-REGISTRY.md) · [meta-model/](../meta-model/)
 

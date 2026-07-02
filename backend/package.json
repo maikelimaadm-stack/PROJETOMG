@@ -33,6 +33,7 @@
     "validate:mdp-publish": "node scripts/validateMdpPublishApi.js",
     "smoke:mdp-publish": "node scripts/smokeMdpPublish.js",
     "smoke:mmm-persistence": "node ../scripts/smokeMmmPersistence.js",
+    "smoke:mmm-publish": "node ../scripts/smokeMmmPublish.js",
     "migrate:cadcps-to-mdp": "node scripts/migrateCadcpsToMdpFields.js",
     "seed:maike-users": "node scripts/seedMaikeExtraUsers.js",
     "db:reset-all": "node scripts/resetAllDataAndSeed.js",
