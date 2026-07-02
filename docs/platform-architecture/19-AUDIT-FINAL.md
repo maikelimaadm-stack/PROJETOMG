@@ -14,6 +14,7 @@
 |-----------|--------|
 | Complete platform architecture documented | ✅ |
 | Complete platform behavior documented | ✅ B.5 |
+| Complete platform protocol documented | ✅ B.6 |
 | All gaps closed with D-PA decisions | ✅ |
 | MMM foundation (B) complete | ✅ |
 | Implementation freeze lifted globally | ❌ **Still frozen except Foundation C** |
@@ -92,8 +93,9 @@ Any PR that implements features outside the **currently authorized Foundation** 
 |-------|-------|
 | Architecture SSOT | `docs/platform-architecture/` |
 | Behavior SSOT | `docs/platform-behavior/` |
+| Protocol SSOT | `docs/platform-protocol/` |
 | MMM SSOT | `docs/meta-model/` (unchanged) |
-| Next authorized code | **Foundation C — Runtime Bridge** (requires B.5 merged) |
+| Next authorized code | **Foundation C — Runtime Bridge** (implements UEP; requires B.6 merged) |
 | Global freeze | **Active** except Foundation C |
 
 ---

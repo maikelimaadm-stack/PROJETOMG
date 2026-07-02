@@ -1159,6 +1159,16 @@ Do not duplicate D-PB entries here — amend the platform-behavior SSOT.
 
 ---
 
+## Platform Protocol Decisions (D-UP)
+
+**SSOT:** [docs/platform-protocol/23-UNIVERSAL-PROTOCOL-DECISIONS.md](../platform-protocol/23-UNIVERSAL-PROTOCOL-DECISIONS.md) — **D-UP-01 through D-UP-30** (Foundation B.6, 2026-06-30).
+
+Key decisions: **UEP authoritative over Runtime** (D-UP-01); **Foundation C implements UEP** (D-UP-25); five-stage pipeline mandatory (D-UP-09).
+
+Do not duplicate D-UP entries here — amend the platform-protocol SSOT.
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |
