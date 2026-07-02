@@ -6,7 +6,9 @@
 **Mission:** Program 3.4 — Business Intent Authoring Architecture  
 **Decision:** D-059  
 **Layer:** L5 (MAK Studio) + L6 (Platform Services) — **authoring SSOT surface**  
-**Hierarchy:** Constitution → Master Architecture → [Business Intent Architecture](./MAK-BUSINESS-INTENT-ARCHITECTURE.md) (D-057 vision) → **This document** → [Business Computation Architecture](./MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md) (D-058) → Formula Builder → Computation Engine
+**Hierarchy:** Constitution → Master Architecture → [Business Intent Architecture](./MAK-BUSINESS-INTENT-ARCHITECTURE.md) (D-057 vision) → **This document** → …
+
+> **MMM supersession (D-MMM-08, D-MMM-15):** Authoring flow SSOT for Program 4.xx is [docs/meta-model/20-BUSINESS-LANGUAGE.md](../meta-model/20-BUSINESS-LANGUAGE.md) + [21-INTENT-ENGINE.md](../meta-model/21-INTENT-ENGINE.md). This document is **Reference (pre-MMM)** — see [SUPERSESSION-REGISTER.md](../engineering/SUPERSESSION-REGISTER.md).
 
 ---
 

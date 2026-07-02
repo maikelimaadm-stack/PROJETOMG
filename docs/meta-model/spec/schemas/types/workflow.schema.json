@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/workflow",
+  "title": "workflow",
+  "description": "MMM payload schema for objectType 'workflow' (Group F)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-f-behavior.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "initialStepRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "initialStepRef"
+      ],
+      "additionalProperties": true
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/tenant_branding",
+  "title": "tenant_branding",
+  "description": "MMM payload schema for objectType 'tenant_branding' (Group A)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-a-platform-tenant.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

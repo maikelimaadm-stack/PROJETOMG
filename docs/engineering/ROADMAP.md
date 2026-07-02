@@ -4,7 +4,9 @@
 **Last updated:** 2026-06-30 (Program 3.5C — Enterprise Architecture Remediation — D-062)
 **Horizon:** Technical roadmap aligned with [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md)
 
-> **SSOT for "next mission":** [PROJECT-STATUS.md](./PROJECT-STATUS.md). This roadmap documents **sequence and phases** — see [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md).
+> **SSOT for "next mission":** [PROJECT-STATUS.md](./PROJECT-STATUS.md). This roadmap documents **platform-wide sequence and phases** — see [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md).
+>
+> **Not the MMM roadmap:** Universal Meta Model implementation phases live in **[docs/meta-model/ROADMAP.md](../meta-model/ROADMAP.md)** (Programs 4.02–4.16+).
 
 ---
 
@@ -322,7 +324,7 @@ Architecture for migrating **all platform artifacts** — not database-only:
 |----------|------------|------------------|
 | Marketplace | MDP bundles + versioning ✅ | **No** — **Program 6** (future; was labeled "Program 3" pre-D-062) |
 | Knowledge Platform | MDP entity links | **No** — Program 5 |
-| AI Platform | MDP introspect ✅ + Event Bus (A5) | **No** — Program 4 |
+| AI Platform | MDP introspect ✅ + Event Bus (A5) | **No** — future program (post-MMM); see [meta-model/ROADMAP.md](../meta-model/ROADMAP.md) |
 | Offline / Sync | MDP snapshots ✅ + Sync Platform | **No** — Program 6 |
 | Integration Platform | Public API + Marketplace | **No** |
 | Migration Platform | MDP versioning ✅ + tenant tooling | **No** |

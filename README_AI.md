@@ -1,7 +1,7 @@
 # README — AI & Agent Entry Point
 
 **Status:** Official — Mandatory pre-flight for all AI agents and assisted development  
-**Version:** 1.4.0  
+**Version:** 1.4.1  
 **Effective date:** 2026-06-30  
 **Complements:** [Constitution](./docs/constitution/00-MAK-CONSTITUTION.md) + [Permanent Governance Directive](./docs/constitution/11-PERMANENT-GOVERNANCE-DIRECTIVE.md) + [Implementation Protocol](./docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md)
 
@@ -24,10 +24,13 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Foundation** | **Frozen** — Enterprise V10.2.0 + Studio Foundation (D-052) |
 | **Current Version** | `0.4.0-rc.2` |
 | **Current Release** | `v0.4.0-RC2` (pending owner tag) |
-| **Current Program** | Program 3 — Studio Intelligence |
-| **Architecture State** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) · **Product Identity FROZEN (D-074)** |
-| **Decision** | D-093 — Lifecycle Sync, Storage Integration & Audit Operations MVP (Program 3.27) |
-| **Phase** | **Full stack: Memory → … → Governance → Fortress → Lifecycle → Persistence → Sync** |
+| **Current Program** | **Program 4 — Universal Meta Model** (4.01.1 constitution complete) |
+| **Architecture State** | **MMM foundation documented** (D-MMM-15) · Product Identity FROZEN (D-074) |
+| **Decision (platform)** | D-093 — Lifecycle Sync (Program 3.27) |
+| **Decision (MMM)** | D-MMM-15 — `docs/meta-model/` official SSOT |
+| **Phase** | **Program 4.02 next** — MMM Specification (PlatformSchema) — documentation/implementação conforme autorização |
+| **MMM SSOT** | [docs/meta-model/README.md](./docs/meta-model/README.md) |
+| **MMM Roadmap** | [docs/meta-model/ROADMAP.md](./docs/meta-model/ROADMAP.md) (**≠** `docs/engineering/ROADMAP.md`) |
 | **Product Identity SSOT (supreme)** | [MAK-PRODUCT-IDENTITY-FREEZE.md](./docs/architecture/MAK-PRODUCT-IDENTITY-FREEZE.md) |
 | **BOS Architecture** | [MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md) |
 | **Business Workflow Report** | [PROGRAM-3.10-BUSINESS-WORKFLOW-REPORT.md](./docs/engineering/PROGRAM-3.10-BUSINESS-WORKFLOW-REPORT.md) |
@@ -48,7 +51,7 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Data Lifecycle Report** | [PROGRAM-3.25-DATA-LIFECYCLE-ARCHIVE-EXPUNGE-REPORT.md](./docs/engineering/PROGRAM-3.25-DATA-LIFECYCLE-ARCHIVE-EXPUNGE-REPORT.md) |
 | **Lifecycle Persistence Report** | [PROGRAM-3.26-LIFECYCLE-PERSISTENCE-APPROVAL-REPORT.md](./docs/engineering/PROGRAM-3.26-LIFECYCLE-PERSISTENCE-APPROVAL-REPORT.md) |
 | **Lifecycle Sync Report** | [PROGRAM-3.27-LIFECYCLE-SYNC-STORAGE-AUDIT-REPORT.md](./docs/engineering/PROGRAM-3.27-LIFECYCLE-SYNC-STORAGE-AUDIT-REPORT.md) |
-| **Next Official Mission** | **Program 3.28+** — Next intelligence layer |
+| **Next Official Mission** | **Program 4.02** — MMM Specification (PlatformSchema) — after governance merge + owner authorization |
 
 > **Governance rule (D-062):** Register all new D-xxx, G-xxx, Programs, SSOT docs in [GOVERNANCE-REGISTRY.md](./docs/engineering/GOVERNANCE-REGISTRY.md).
 

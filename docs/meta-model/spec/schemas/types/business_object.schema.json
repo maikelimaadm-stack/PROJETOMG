@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/business_object",
+  "title": "business_object",
+  "description": "MMM payload schema for objectType 'business_object' (Group C)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-c-data-model.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "entityKindRef": {
+          "type": "string"
+        },
+        "persistenceMappingRef": {
+          "type": "string"
+        },
+        "primaryKeyFieldRef": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "entityKindRef",
+        "persistenceMappingRef",
+        "primaryKeyFieldRef"
+      ],
+      "additionalProperties": true
+    }
+  ]
+}

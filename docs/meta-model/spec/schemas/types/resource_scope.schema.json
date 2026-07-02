@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/resource_scope",
+  "title": "resource_scope",
+  "description": "MMM payload schema for objectType 'resource_scope' (Group A)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-a-platform-tenant.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

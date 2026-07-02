@@ -1,0 +1,4783 @@
+{
+  "manifestVersion": "mmm-object-type-manifest-v1",
+  "specVersion": "1.0.0",
+  "effectiveDate": "2026-06-30",
+  "taxonomyCount": 227,
+  "platformSchemaCount": 226,
+  "excludedFromPlatformSchema": [
+    {
+      "objectType": "record",
+      "reason": "L0 reference only \u2014 R-14"
+    }
+  ],
+  "objectTypes": [
+    {
+      "objectType": "platform",
+      "group": "A",
+      "profile": "platform-tenant",
+      "schemaPath": "schemas/types/platform.schema.json",
+      "schemaId": "mmm.v1.payload.platform",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "platform_version",
+      "group": "A",
+      "profile": "platform-tenant",
+      "schemaPath": "schemas/types/platform_version.schema.json",
+      "schemaId": "mmm.v1.payload.platform_version",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "platform_capability",
+      "group": "A",
+      "profile": "platform-tenant",
+      "schemaPath": "schemas/types/platform_capability.schema.json",
+      "schemaId": "mmm.v1.payload.platform_capability",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "platform_policy",
+      "group": "A",
+      "profile": "platform-tenant",
+      "schemaPath": "schemas/types/platform_policy.schema.json",
+      "schemaId": "mmm.v1.payload.platform_policy",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "platform_locale",
+      "group": "A",
+      "profile": "platform-tenant",
+      "schemaPath": "schemas/types/platform_locale.schema.json",
+      "schemaId": "mmm.v1.payload.platform_locale",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "platform_schema",
+      "group": "A",
+      "profile": "platform-tenant",
+      "schemaPath": "schemas/types/platform_schema.schema.json",
+      "schemaId": "mmm.v1.payload.platform_schema",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code",
+        "schemaVersion",
+        "jsonSchema"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "tenant",
+      "group": "A",
+      "profile": "platform-tenant",
+      "schemaPath": "schemas/types/tenant.schema.json",
+      "schemaId": "mmm.v1.payload.tenant",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "tenant_plan",
+      "group": "A",
+      "profile": "platform-tenant",
+      "schemaPath": "schemas/types/tenant_plan.schema.json",
+      "schemaId": "mmm.v1.payload.tenant_plan",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "tenant_settings",
+      "group": "A",
+      "profile": "platform-tenant",
+      "schemaPath": "schemas/types/tenant_settings.schema.json",
+      "schemaId": "mmm.v1.payload.tenant_settings",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "tenant_branding",
+      "group": "A",
+      "profile": "platform-tenant",
+      "schemaPath": "schemas/types/tenant_branding.schema.json",
+      "schemaId": "mmm.v1.payload.tenant_branding",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "tenant_locale",
+      "group": "A",
+      "profile": "platform-tenant",
+      "schemaPath": "schemas/types/tenant_locale.schema.json",
+      "schemaId": "mmm.v1.payload.tenant_locale",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "organization_unit",
+      "group": "A",
+      "profile": "platform-tenant",
+      "schemaPath": "schemas/types/organization_unit.schema.json",
+      "schemaId": "mmm.v1.payload.organization_unit",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "company",
+      "group": "A",
+      "profile": "platform-tenant",
+      "schemaPath": "schemas/types/company.schema.json",
+      "schemaId": "mmm.v1.payload.company",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "user",
+      "group": "A",
+      "profile": "platform-tenant",
+      "schemaPath": "schemas/types/user.schema.json",
+      "schemaId": "mmm.v1.payload.user",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "user_group",
+      "group": "A",
+      "profile": "platform-tenant",
+      "schemaPath": "schemas/types/user_group.schema.json",
+      "schemaId": "mmm.v1.payload.user_group",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "role",
+      "group": "A",
+      "profile": "platform-tenant",
+      "schemaPath": "schemas/types/role.schema.json",
+      "schemaId": "mmm.v1.payload.role",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "permission",
+      "group": "A",
+      "profile": "platform-tenant",
+      "schemaPath": "schemas/types/permission.schema.json",
+      "schemaId": "mmm.v1.payload.permission",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code",
+        "resourceType",
+        "resourceRef",
+        "action",
+        "effect"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "role_permission",
+      "group": "A",
+      "profile": "platform-tenant",
+      "schemaPath": "schemas/types/role_permission.schema.json",
+      "schemaId": "mmm.v1.payload.role_permission",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "user_role",
+      "group": "A",
+      "profile": "platform-tenant",
+      "schemaPath": "schemas/types/user_role.schema.json",
+      "schemaId": "mmm.v1.payload.user_role",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "resource_scope",
+      "group": "A",
+      "profile": "platform-tenant",
+      "schemaPath": "schemas/types/resource_scope.schema.json",
+      "schemaId": "mmm.v1.payload.resource_scope",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "access_policy",
+      "group": "A",
+      "profile": "platform-tenant",
+      "schemaPath": "schemas/types/access_policy.schema.json",
+      "schemaId": "mmm.v1.payload.access_policy",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "application",
+      "group": "B",
+      "profile": "application-topology",
+      "schemaPath": "schemas/types/application.schema.json",
+      "schemaId": "mmm.v1.payload.application",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "application_version",
+      "group": "B",
+      "profile": "application-topology",
+      "schemaPath": "schemas/types/application_version.schema.json",
+      "schemaId": "mmm.v1.payload.application_version",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "module",
+      "group": "B",
+      "profile": "application-topology",
+      "schemaPath": "schemas/types/module.schema.json",
+      "schemaId": "mmm.v1.payload.module",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "module_version",
+      "group": "B",
+      "profile": "application-topology",
+      "schemaPath": "schemas/types/module_version.schema.json",
+      "schemaId": "mmm.v1.payload.module_version",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "module_dependency",
+      "group": "B",
+      "profile": "application-topology",
+      "schemaPath": "schemas/types/module_dependency.schema.json",
+      "schemaId": "mmm.v1.payload.module_dependency",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code",
+        "sourceModuleRef",
+        "targetModuleRef"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "feature",
+      "group": "B",
+      "profile": "application-topology",
+      "schemaPath": "schemas/types/feature.schema.json",
+      "schemaId": "mmm.v1.payload.feature",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "navigation",
+      "group": "B",
+      "profile": "application-topology",
+      "schemaPath": "schemas/types/navigation.schema.json",
+      "schemaId": "mmm.v1.payload.navigation",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "menu",
+      "group": "B",
+      "profile": "application-topology",
+      "schemaPath": "schemas/types/menu.schema.json",
+      "schemaId": "mmm.v1.payload.menu",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "menu_item",
+      "group": "B",
+      "profile": "application-topology",
+      "schemaPath": "schemas/types/menu_item.schema.json",
+      "schemaId": "mmm.v1.payload.menu_item",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "route",
+      "group": "B",
+      "profile": "application-topology",
+      "schemaPath": "schemas/types/route.schema.json",
+      "schemaId": "mmm.v1.payload.route",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "home_surface",
+      "group": "B",
+      "profile": "application-topology",
+      "schemaPath": "schemas/types/home_surface.schema.json",
+      "schemaId": "mmm.v1.payload.home_surface",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "capability",
+      "group": "B",
+      "profile": "application-topology",
+      "schemaPath": "schemas/types/capability.schema.json",
+      "schemaId": "mmm.v1.payload.capability",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "capability_group",
+      "group": "B",
+      "profile": "application-topology",
+      "schemaPath": "schemas/types/capability_group.schema.json",
+      "schemaId": "mmm.v1.payload.capability_group",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "business_object",
+      "group": "C",
+      "profile": "data-model",
+      "schemaPath": "schemas/types/business_object.schema.json",
+      "schemaId": "mmm.v1.payload.business_object",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code",
+        "entityKindRef",
+        "persistenceMappingRef",
+        "primaryKeyFieldRef"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "business_object_version",
+      "group": "C",
+      "profile": "data-model",
+      "schemaPath": "schemas/types/business_object_version.schema.json",
+      "schemaId": "mmm.v1.payload.business_object_version",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "entity",
+      "group": "C",
+      "profile": "data-model",
+      "schemaPath": "schemas/types/entity.schema.json",
+      "schemaId": "mmm.v1.payload.entity",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "field",
+      "group": "C",
+      "profile": "data-model",
+      "schemaPath": "schemas/types/field.schema.json",
+      "schemaId": "mmm.v1.payload.field",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code",
+        "dataType"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "field_option",
+      "group": "C",
+      "profile": "data-model",
+      "schemaPath": "schemas/types/field_option.schema.json",
+      "schemaId": "mmm.v1.payload.field_option",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "field_group",
+      "group": "C",
+      "profile": "data-model",
+      "schemaPath": "schemas/types/field_group.schema.json",
+      "schemaId": "mmm.v1.payload.field_group",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "relationship",
+      "group": "C",
+      "profile": "data-model",
+      "schemaPath": "schemas/types/relationship.schema.json",
+      "schemaId": "mmm.v1.payload.relationship",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code",
+        "sourceBoRef",
+        "targetBoRef",
+        "cardinality"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "relationship_binding",
+      "group": "C",
+      "profile": "data-model",
+      "schemaPath": "schemas/types/relationship_binding.schema.json",
+      "schemaId": "mmm.v1.payload.relationship_binding",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "index",
+      "group": "C",
+      "profile": "data-model",
+      "schemaPath": "schemas/types/index.schema.json",
+      "schemaId": "mmm.v1.payload.index",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "constraint",
+      "group": "C",
+      "profile": "data-model",
+      "schemaPath": "schemas/types/constraint.schema.json",
+      "schemaId": "mmm.v1.payload.constraint",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "persistence_mapping",
+      "group": "C",
+      "profile": "data-model",
+      "schemaPath": "schemas/types/persistence_mapping.schema.json",
+      "schemaId": "mmm.v1.payload.persistence_mapping",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "sequence",
+      "group": "C",
+      "profile": "data-model",
+      "schemaPath": "schemas/types/sequence.schema.json",
+      "schemaId": "mmm.v1.payload.sequence",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "data_category",
+      "group": "C",
+      "profile": "data-model",
+      "schemaPath": "schemas/types/data_category.schema.json",
+      "schemaId": "mmm.v1.payload.data_category",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "retention_policy",
+      "group": "C",
+      "profile": "data-model",
+      "schemaPath": "schemas/types/retention_policy.schema.json",
+      "schemaId": "mmm.v1.payload.retention_policy",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "entity_kind",
+      "group": "C",
+      "profile": "data-model",
+      "schemaPath": "schemas/types/entity_kind.schema.json",
+      "schemaId": "mmm.v1.payload.entity_kind",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "base_template",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/base_template.schema.json",
+      "schemaId": "mmm.v1.payload.base_template",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "screen",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/screen.schema.json",
+      "schemaId": "mmm.v1.payload.screen",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "page",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/page.schema.json",
+      "schemaId": "mmm.v1.payload.page",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "layout",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/layout.schema.json",
+      "schemaId": "mmm.v1.payload.layout",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "section",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/section.schema.json",
+      "schemaId": "mmm.v1.payload.section",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "panel",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/panel.schema.json",
+      "schemaId": "mmm.v1.payload.panel",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "tab",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/tab.schema.json",
+      "schemaId": "mmm.v1.payload.tab",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "group",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/group.schema.json",
+      "schemaId": "mmm.v1.payload.group",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "view",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/view.schema.json",
+      "schemaId": "mmm.v1.payload.view",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "form",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/form.schema.json",
+      "schemaId": "mmm.v1.payload.form",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "grid",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/grid.schema.json",
+      "schemaId": "mmm.v1.payload.grid",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "list",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/list.schema.json",
+      "schemaId": "mmm.v1.payload.list",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "card",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/card.schema.json",
+      "schemaId": "mmm.v1.payload.card",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "detail",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/detail.schema.json",
+      "schemaId": "mmm.v1.payload.detail",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "filter",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/filter.schema.json",
+      "schemaId": "mmm.v1.payload.filter",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "filter_field",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/filter_field.schema.json",
+      "schemaId": "mmm.v1.payload.filter_field",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "sort",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/sort.schema.json",
+      "schemaId": "mmm.v1.payload.sort",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "pagination",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/pagination.schema.json",
+      "schemaId": "mmm.v1.payload.pagination",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "toolbar",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/toolbar.schema.json",
+      "schemaId": "mmm.v1.payload.toolbar",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "action_bar",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/action_bar.schema.json",
+      "schemaId": "mmm.v1.payload.action_bar",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "button",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/button.schema.json",
+      "schemaId": "mmm.v1.payload.button",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "action",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/action.schema.json",
+      "schemaId": "mmm.v1.payload.action",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "command",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/command.schema.json",
+      "schemaId": "mmm.v1.payload.command",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "dialog",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/dialog.schema.json",
+      "schemaId": "mmm.v1.payload.dialog",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "drawer",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/drawer.schema.json",
+      "schemaId": "mmm.v1.payload.drawer",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "notification",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/notification.schema.json",
+      "schemaId": "mmm.v1.payload.notification",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "theme",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/theme.schema.json",
+      "schemaId": "mmm.v1.payload.theme",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "design_token",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/design_token.schema.json",
+      "schemaId": "mmm.v1.payload.design_token",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "icon",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/icon.schema.json",
+      "schemaId": "mmm.v1.payload.icon",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "label",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/label.schema.json",
+      "schemaId": "mmm.v1.payload.label",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "help_text",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/help_text.schema.json",
+      "schemaId": "mmm.v1.payload.help_text",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "placeholder",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/placeholder.schema.json",
+      "schemaId": "mmm.v1.payload.placeholder",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "formatter",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/formatter.schema.json",
+      "schemaId": "mmm.v1.payload.formatter",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "renderer",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/renderer.schema.json",
+      "schemaId": "mmm.v1.payload.renderer",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "mask",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/mask.schema.json",
+      "schemaId": "mmm.v1.payload.mask",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "conditional_visibility",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/conditional_visibility.schema.json",
+      "schemaId": "mmm.v1.payload.conditional_visibility",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "responsive_rule",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/responsive_rule.schema.json",
+      "schemaId": "mmm.v1.payload.responsive_rule",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "client_target",
+      "group": "D",
+      "profile": "presentation",
+      "schemaPath": "schemas/types/client_target.schema.json",
+      "schemaId": "mmm.v1.payload.client_target",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "dashboard",
+      "group": "E",
+      "profile": "analytics",
+      "schemaPath": "schemas/types/dashboard.schema.json",
+      "schemaId": "mmm.v1.payload.dashboard",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "dashboard_page",
+      "group": "E",
+      "profile": "analytics",
+      "schemaPath": "schemas/types/dashboard_page.schema.json",
+      "schemaId": "mmm.v1.payload.dashboard_page",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "widget",
+      "group": "E",
+      "profile": "analytics",
+      "schemaPath": "schemas/types/widget.schema.json",
+      "schemaId": "mmm.v1.payload.widget",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "kpi",
+      "group": "E",
+      "profile": "analytics",
+      "schemaPath": "schemas/types/kpi.schema.json",
+      "schemaId": "mmm.v1.payload.kpi",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "chart",
+      "group": "E",
+      "profile": "analytics",
+      "schemaPath": "schemas/types/chart.schema.json",
+      "schemaId": "mmm.v1.payload.chart",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "indicator",
+      "group": "E",
+      "profile": "analytics",
+      "schemaPath": "schemas/types/indicator.schema.json",
+      "schemaId": "mmm.v1.payload.indicator",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "pivot_table",
+      "group": "E",
+      "profile": "analytics",
+      "schemaPath": "schemas/types/pivot_table.schema.json",
+      "schemaId": "mmm.v1.payload.pivot_table",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "report",
+      "group": "E",
+      "profile": "analytics",
+      "schemaPath": "schemas/types/report.schema.json",
+      "schemaId": "mmm.v1.payload.report",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "report_section",
+      "group": "E",
+      "profile": "analytics",
+      "schemaPath": "schemas/types/report_section.schema.json",
+      "schemaId": "mmm.v1.payload.report_section",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "report_parameter",
+      "group": "E",
+      "profile": "analytics",
+      "schemaPath": "schemas/types/report_parameter.schema.json",
+      "schemaId": "mmm.v1.payload.report_parameter",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "query",
+      "group": "E",
+      "profile": "analytics",
+      "schemaPath": "schemas/types/query.schema.json",
+      "schemaId": "mmm.v1.payload.query",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "query_field",
+      "group": "E",
+      "profile": "analytics",
+      "schemaPath": "schemas/types/query_field.schema.json",
+      "schemaId": "mmm.v1.payload.query_field",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "aggregation",
+      "group": "E",
+      "profile": "analytics",
+      "schemaPath": "schemas/types/aggregation.schema.json",
+      "schemaId": "mmm.v1.payload.aggregation",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "rollup",
+      "group": "E",
+      "profile": "analytics",
+      "schemaPath": "schemas/types/rollup.schema.json",
+      "schemaId": "mmm.v1.payload.rollup",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "lookup",
+      "group": "E",
+      "profile": "analytics",
+      "schemaPath": "schemas/types/lookup.schema.json",
+      "schemaId": "mmm.v1.payload.lookup",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "calculated_column",
+      "group": "E",
+      "profile": "analytics",
+      "schemaPath": "schemas/types/calculated_column.schema.json",
+      "schemaId": "mmm.v1.payload.calculated_column",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "data_source",
+      "group": "E",
+      "profile": "analytics",
+      "schemaPath": "schemas/types/data_source.schema.json",
+      "schemaId": "mmm.v1.payload.data_source",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "drill_down",
+      "group": "E",
+      "profile": "analytics",
+      "schemaPath": "schemas/types/drill_down.schema.json",
+      "schemaId": "mmm.v1.payload.drill_down",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "refresh_policy",
+      "group": "E",
+      "profile": "analytics",
+      "schemaPath": "schemas/types/refresh_policy.schema.json",
+      "schemaId": "mmm.v1.payload.refresh_policy",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "formula",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/formula.schema.json",
+      "schemaId": "mmm.v1.payload.formula",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "validation",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/validation.schema.json",
+      "schemaId": "mmm.v1.payload.validation",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "validation_rule",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/validation_rule.schema.json",
+      "schemaId": "mmm.v1.payload.validation_rule",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "validation_group",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/validation_group.schema.json",
+      "schemaId": "mmm.v1.payload.validation_group",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "event",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/event.schema.json",
+      "schemaId": "mmm.v1.payload.event",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "event_handler",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/event_handler.schema.json",
+      "schemaId": "mmm.v1.payload.event_handler",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "rule",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/rule.schema.json",
+      "schemaId": "mmm.v1.payload.rule",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "condition",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/condition.schema.json",
+      "schemaId": "mmm.v1.payload.condition",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "expression",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/expression.schema.json",
+      "schemaId": "mmm.v1.payload.expression",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "computation",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/computation.schema.json",
+      "schemaId": "mmm.v1.payload.computation",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "workflow",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/workflow.schema.json",
+      "schemaId": "mmm.v1.payload.workflow",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code",
+        "initialStepRef"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "workflow_step",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/workflow_step.schema.json",
+      "schemaId": "mmm.v1.payload.workflow_step",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "workflow_transition",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/workflow_transition.schema.json",
+      "schemaId": "mmm.v1.payload.workflow_transition",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "workflow_trigger",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/workflow_trigger.schema.json",
+      "schemaId": "mmm.v1.payload.workflow_trigger",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "approval_step",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/approval_step.schema.json",
+      "schemaId": "mmm.v1.payload.approval_step",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "automation",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/automation.schema.json",
+      "schemaId": "mmm.v1.payload.automation",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "process",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/process.schema.json",
+      "schemaId": "mmm.v1.payload.process",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "process_node",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/process_node.schema.json",
+      "schemaId": "mmm.v1.payload.process_node",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "process_edge",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/process_edge.schema.json",
+      "schemaId": "mmm.v1.payload.process_edge",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "schedule",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/schedule.schema.json",
+      "schemaId": "mmm.v1.payload.schedule",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "trigger",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/trigger.schema.json",
+      "schemaId": "mmm.v1.payload.trigger",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "action_chain",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/action_chain.schema.json",
+      "schemaId": "mmm.v1.payload.action_chain",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "parallel_block",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/parallel_block.schema.json",
+      "schemaId": "mmm.v1.payload.parallel_block",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "branch_block",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/branch_block.schema.json",
+      "schemaId": "mmm.v1.payload.branch_block",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "loop_block",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/loop_block.schema.json",
+      "schemaId": "mmm.v1.payload.loop_block",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "script",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/script.schema.json",
+      "schemaId": "mmm.v1.payload.script",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "function",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/function.schema.json",
+      "schemaId": "mmm.v1.payload.function",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "timeout_policy",
+      "group": "F",
+      "profile": "behavior",
+      "schemaPath": "schemas/types/timeout_policy.schema.json",
+      "schemaId": "mmm.v1.payload.timeout_policy",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "api",
+      "group": "G",
+      "profile": "integration",
+      "schemaPath": "schemas/types/api.schema.json",
+      "schemaId": "mmm.v1.payload.api",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "api_endpoint",
+      "group": "G",
+      "profile": "integration",
+      "schemaPath": "schemas/types/api_endpoint.schema.json",
+      "schemaId": "mmm.v1.payload.api_endpoint",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "api_method",
+      "group": "G",
+      "profile": "integration",
+      "schemaPath": "schemas/types/api_method.schema.json",
+      "schemaId": "mmm.v1.payload.api_method",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "api_parameter",
+      "group": "G",
+      "profile": "integration",
+      "schemaPath": "schemas/types/api_parameter.schema.json",
+      "schemaId": "mmm.v1.payload.api_parameter",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "api_response",
+      "group": "G",
+      "profile": "integration",
+      "schemaPath": "schemas/types/api_response.schema.json",
+      "schemaId": "mmm.v1.payload.api_response",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "connector",
+      "group": "G",
+      "profile": "integration",
+      "schemaPath": "schemas/types/connector.schema.json",
+      "schemaId": "mmm.v1.payload.connector",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "connector_type",
+      "group": "G",
+      "profile": "integration",
+      "schemaPath": "schemas/types/connector_type.schema.json",
+      "schemaId": "mmm.v1.payload.connector_type",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "connector_config",
+      "group": "G",
+      "profile": "integration",
+      "schemaPath": "schemas/types/connector_config.schema.json",
+      "schemaId": "mmm.v1.payload.connector_config",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "webhook",
+      "group": "G",
+      "profile": "integration",
+      "schemaPath": "schemas/types/webhook.schema.json",
+      "schemaId": "mmm.v1.payload.webhook",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "webhook_event",
+      "group": "G",
+      "profile": "integration",
+      "schemaPath": "schemas/types/webhook_event.schema.json",
+      "schemaId": "mmm.v1.payload.webhook_event",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "integration",
+      "group": "G",
+      "profile": "integration",
+      "schemaPath": "schemas/types/integration.schema.json",
+      "schemaId": "mmm.v1.payload.integration",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "integration_mapping",
+      "group": "G",
+      "profile": "integration",
+      "schemaPath": "schemas/types/integration_mapping.schema.json",
+      "schemaId": "mmm.v1.payload.integration_mapping",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "integration_flow",
+      "group": "G",
+      "profile": "integration",
+      "schemaPath": "schemas/types/integration_flow.schema.json",
+      "schemaId": "mmm.v1.payload.integration_flow",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "message_queue",
+      "group": "G",
+      "profile": "integration",
+      "schemaPath": "schemas/types/message_queue.schema.json",
+      "schemaId": "mmm.v1.payload.message_queue",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "event_bus_subscription",
+      "group": "G",
+      "profile": "integration",
+      "schemaPath": "schemas/types/event_bus_subscription.schema.json",
+      "schemaId": "mmm.v1.payload.event_bus_subscription",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "external_data_source",
+      "group": "G",
+      "profile": "integration",
+      "schemaPath": "schemas/types/external_data_source.schema.json",
+      "schemaId": "mmm.v1.payload.external_data_source",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "iot_device",
+      "group": "G",
+      "profile": "integration",
+      "schemaPath": "schemas/types/iot_device.schema.json",
+      "schemaId": "mmm.v1.payload.iot_device",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "iot_stream",
+      "group": "G",
+      "profile": "integration",
+      "schemaPath": "schemas/types/iot_stream.schema.json",
+      "schemaId": "mmm.v1.payload.iot_stream",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "iot_trigger",
+      "group": "G",
+      "profile": "integration",
+      "schemaPath": "schemas/types/iot_trigger.schema.json",
+      "schemaId": "mmm.v1.payload.iot_trigger",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "sync_profile",
+      "group": "G",
+      "profile": "integration",
+      "schemaPath": "schemas/types/sync_profile.schema.json",
+      "schemaId": "mmm.v1.payload.sync_profile",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "sync_rule",
+      "group": "G",
+      "profile": "integration",
+      "schemaPath": "schemas/types/sync_rule.schema.json",
+      "schemaId": "mmm.v1.payload.sync_rule",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "conflict_resolution",
+      "group": "G",
+      "profile": "integration",
+      "schemaPath": "schemas/types/conflict_resolution.schema.json",
+      "schemaId": "mmm.v1.payload.conflict_resolution",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "kanban",
+      "group": "H",
+      "profile": "specialized-views",
+      "schemaPath": "schemas/types/kanban.schema.json",
+      "schemaId": "mmm.v1.payload.kanban",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "kanban_column",
+      "group": "H",
+      "profile": "specialized-views",
+      "schemaPath": "schemas/types/kanban_column.schema.json",
+      "schemaId": "mmm.v1.payload.kanban_column",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "kanban_card",
+      "group": "H",
+      "profile": "specialized-views",
+      "schemaPath": "schemas/types/kanban_card.schema.json",
+      "schemaId": "mmm.v1.payload.kanban_card",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "kanban_swimlane",
+      "group": "H",
+      "profile": "specialized-views",
+      "schemaPath": "schemas/types/kanban_swimlane.schema.json",
+      "schemaId": "mmm.v1.payload.kanban_swimlane",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "calendar",
+      "group": "H",
+      "profile": "specialized-views",
+      "schemaPath": "schemas/types/calendar.schema.json",
+      "schemaId": "mmm.v1.payload.calendar",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "calendar_event",
+      "group": "H",
+      "profile": "specialized-views",
+      "schemaPath": "schemas/types/calendar_event.schema.json",
+      "schemaId": "mmm.v1.payload.calendar_event",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "timeline",
+      "group": "H",
+      "profile": "specialized-views",
+      "schemaPath": "schemas/types/timeline.schema.json",
+      "schemaId": "mmm.v1.payload.timeline",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "timeline_item",
+      "group": "H",
+      "profile": "specialized-views",
+      "schemaPath": "schemas/types/timeline_item.schema.json",
+      "schemaId": "mmm.v1.payload.timeline_item",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "tree",
+      "group": "H",
+      "profile": "specialized-views",
+      "schemaPath": "schemas/types/tree.schema.json",
+      "schemaId": "mmm.v1.payload.tree",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "tree_node",
+      "group": "H",
+      "profile": "specialized-views",
+      "schemaPath": "schemas/types/tree_node.schema.json",
+      "schemaId": "mmm.v1.payload.tree_node",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "map",
+      "group": "H",
+      "profile": "specialized-views",
+      "schemaPath": "schemas/types/map.schema.json",
+      "schemaId": "mmm.v1.payload.map",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "map_marker",
+      "group": "H",
+      "profile": "specialized-views",
+      "schemaPath": "schemas/types/map_marker.schema.json",
+      "schemaId": "mmm.v1.payload.map_marker",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "map_layer",
+      "group": "H",
+      "profile": "specialized-views",
+      "schemaPath": "schemas/types/map_layer.schema.json",
+      "schemaId": "mmm.v1.payload.map_layer",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "gallery",
+      "group": "H",
+      "profile": "specialized-views",
+      "schemaPath": "schemas/types/gallery.schema.json",
+      "schemaId": "mmm.v1.payload.gallery",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "document",
+      "group": "H",
+      "profile": "specialized-views",
+      "schemaPath": "schemas/types/document.schema.json",
+      "schemaId": "mmm.v1.payload.document",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "document_template",
+      "group": "H",
+      "profile": "specialized-views",
+      "schemaPath": "schemas/types/document_template.schema.json",
+      "schemaId": "mmm.v1.payload.document_template",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "attachment",
+      "group": "H",
+      "profile": "specialized-views",
+      "schemaPath": "schemas/types/attachment.schema.json",
+      "schemaId": "mmm.v1.payload.attachment",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "signature",
+      "group": "H",
+      "profile": "specialized-views",
+      "schemaPath": "schemas/types/signature.schema.json",
+      "schemaId": "mmm.v1.payload.signature",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "inbox",
+      "group": "H",
+      "profile": "specialized-views",
+      "schemaPath": "schemas/types/inbox.schema.json",
+      "schemaId": "mmm.v1.payload.inbox",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "chat",
+      "group": "H",
+      "profile": "specialized-views",
+      "schemaPath": "schemas/types/chat.schema.json",
+      "schemaId": "mmm.v1.payload.chat",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "comment",
+      "group": "H",
+      "profile": "specialized-views",
+      "schemaPath": "schemas/types/comment.schema.json",
+      "schemaId": "mmm.v1.payload.comment",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "audit_trail_view",
+      "group": "H",
+      "profile": "specialized-views",
+      "schemaPath": "schemas/types/audit_trail_view.schema.json",
+      "schemaId": "mmm.v1.payload.audit_trail_view",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "business_language",
+      "group": "I",
+      "profile": "authoring",
+      "schemaPath": "schemas/types/business_language.schema.json",
+      "schemaId": "mmm.v1.payload.business_language",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "business_term",
+      "group": "I",
+      "profile": "authoring",
+      "schemaPath": "schemas/types/business_term.schema.json",
+      "schemaId": "mmm.v1.payload.business_term",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "business_synonym",
+      "group": "I",
+      "profile": "authoring",
+      "schemaPath": "schemas/types/business_synonym.schema.json",
+      "schemaId": "mmm.v1.payload.business_synonym",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "business_intent",
+      "group": "I",
+      "profile": "authoring",
+      "schemaPath": "schemas/types/business_intent.schema.json",
+      "schemaId": "mmm.v1.payload.business_intent",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "business_intent_document",
+      "group": "I",
+      "profile": "authoring",
+      "schemaPath": "schemas/types/business_intent_document.schema.json",
+      "schemaId": "mmm.v1.payload.business_intent_document",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "intent_template",
+      "group": "I",
+      "profile": "authoring",
+      "schemaPath": "schemas/types/intent_template.schema.json",
+      "schemaId": "mmm.v1.payload.intent_template",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "intent_catalog",
+      "group": "I",
+      "profile": "authoring",
+      "schemaPath": "schemas/types/intent_catalog.schema.json",
+      "schemaId": "mmm.v1.payload.intent_catalog",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "derivation",
+      "group": "I",
+      "profile": "authoring",
+      "schemaPath": "schemas/types/derivation.schema.json",
+      "schemaId": "mmm.v1.payload.derivation",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "derivation_plan",
+      "group": "I",
+      "profile": "authoring",
+      "schemaPath": "schemas/types/derivation_plan.schema.json",
+      "schemaId": "mmm.v1.payload.derivation_plan",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code",
+        "steps"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "business_asset",
+      "group": "I",
+      "profile": "authoring",
+      "schemaPath": "schemas/types/business_asset.schema.json",
+      "schemaId": "mmm.v1.payload.business_asset",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "business_asset_version",
+      "group": "I",
+      "profile": "authoring",
+      "schemaPath": "schemas/types/business_asset_version.schema.json",
+      "schemaId": "mmm.v1.payload.business_asset_version",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "business_object_definition",
+      "group": "I",
+      "profile": "authoring",
+      "schemaPath": "schemas/types/business_object_definition.schema.json",
+      "schemaId": "mmm.v1.payload.business_object_definition",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "business_rule",
+      "group": "I",
+      "profile": "authoring",
+      "schemaPath": "schemas/types/business_rule.schema.json",
+      "schemaId": "mmm.v1.payload.business_rule",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "business_process",
+      "group": "I",
+      "profile": "authoring",
+      "schemaPath": "schemas/types/business_process.schema.json",
+      "schemaId": "mmm.v1.payload.business_process",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "business_objective",
+      "group": "I",
+      "profile": "authoring",
+      "schemaPath": "schemas/types/business_objective.schema.json",
+      "schemaId": "mmm.v1.payload.business_objective",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "confirmation",
+      "group": "I",
+      "profile": "authoring",
+      "schemaPath": "schemas/types/confirmation.schema.json",
+      "schemaId": "mmm.v1.payload.confirmation",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "explainability",
+      "group": "I",
+      "profile": "authoring",
+      "schemaPath": "schemas/types/explainability.schema.json",
+      "schemaId": "mmm.v1.payload.explainability",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "definition_version",
+      "group": "J",
+      "profile": "package-versioning",
+      "schemaPath": "schemas/types/definition_version.schema.json",
+      "schemaId": "mmm.v1.payload.definition_version",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "compiled_bundle",
+      "group": "J",
+      "profile": "package-versioning",
+      "schemaPath": "schemas/types/compiled_bundle.schema.json",
+      "schemaId": "mmm.v1.payload.compiled_bundle",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code",
+        "crbVersion",
+        "contentHash",
+        "integrityHash"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "snapshot",
+      "group": "J",
+      "profile": "package-versioning",
+      "schemaPath": "schemas/types/snapshot.schema.json",
+      "schemaId": "mmm.v1.payload.snapshot",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "environment_pin",
+      "group": "J",
+      "profile": "package-versioning",
+      "schemaPath": "schemas/types/environment_pin.schema.json",
+      "schemaId": "mmm.v1.payload.environment_pin",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "publish_log",
+      "group": "J",
+      "profile": "package-versioning",
+      "schemaPath": "schemas/types/publish_log.schema.json",
+      "schemaId": "mmm.v1.payload.publish_log",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "package",
+      "group": "J",
+      "profile": "package-versioning",
+      "schemaPath": "schemas/types/package.schema.json",
+      "schemaId": "mmm.v1.payload.package",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "package_manifest",
+      "group": "J",
+      "profile": "package-versioning",
+      "schemaPath": "schemas/types/package_manifest.schema.json",
+      "schemaId": "mmm.v1.payload.package_manifest",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "package_dependency",
+      "group": "J",
+      "profile": "package-versioning",
+      "schemaPath": "schemas/types/package_dependency.schema.json",
+      "schemaId": "mmm.v1.payload.package_dependency",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "package_version",
+      "group": "J",
+      "profile": "package-versioning",
+      "schemaPath": "schemas/types/package_version.schema.json",
+      "schemaId": "mmm.v1.payload.package_version",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "package_license",
+      "group": "J",
+      "profile": "package-versioning",
+      "schemaPath": "schemas/types/package_license.schema.json",
+      "schemaId": "mmm.v1.payload.package_license",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "package_review",
+      "group": "J",
+      "profile": "package-versioning",
+      "schemaPath": "schemas/types/package_review.schema.json",
+      "schemaId": "mmm.v1.payload.package_review",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "template",
+      "group": "J",
+      "profile": "package-versioning",
+      "schemaPath": "schemas/types/template.schema.json",
+      "schemaId": "mmm.v1.payload.template",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "industry_pack",
+      "group": "J",
+      "profile": "package-versioning",
+      "schemaPath": "schemas/types/industry_pack.schema.json",
+      "schemaId": "mmm.v1.payload.industry_pack",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "extension_point",
+      "group": "J",
+      "profile": "package-versioning",
+      "schemaPath": "schemas/types/extension_point.schema.json",
+      "schemaId": "mmm.v1.payload.extension_point",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "extension",
+      "group": "J",
+      "profile": "package-versioning",
+      "schemaPath": "schemas/types/extension.schema.json",
+      "schemaId": "mmm.v1.payload.extension",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "memory_record",
+      "group": "K",
+      "profile": "intelligence-ai",
+      "schemaPath": "schemas/types/memory_record.schema.json",
+      "schemaId": "mmm.v1.payload.memory_record",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "knowledge_node",
+      "group": "K",
+      "profile": "intelligence-ai",
+      "schemaPath": "schemas/types/knowledge_node.schema.json",
+      "schemaId": "mmm.v1.payload.knowledge_node",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "knowledge_edge",
+      "group": "K",
+      "profile": "intelligence-ai",
+      "schemaPath": "schemas/types/knowledge_edge.schema.json",
+      "schemaId": "mmm.v1.payload.knowledge_edge",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "observation",
+      "group": "K",
+      "profile": "intelligence-ai",
+      "schemaPath": "schemas/types/observation.schema.json",
+      "schemaId": "mmm.v1.payload.observation",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "recommendation",
+      "group": "K",
+      "profile": "intelligence-ai",
+      "schemaPath": "schemas/types/recommendation.schema.json",
+      "schemaId": "mmm.v1.payload.recommendation",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "decision",
+      "group": "K",
+      "profile": "intelligence-ai",
+      "schemaPath": "schemas/types/decision.schema.json",
+      "schemaId": "mmm.v1.payload.decision",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "insight",
+      "group": "K",
+      "profile": "intelligence-ai",
+      "schemaPath": "schemas/types/insight.schema.json",
+      "schemaId": "mmm.v1.payload.insight",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "health_signal",
+      "group": "K",
+      "profile": "intelligence-ai",
+      "schemaPath": "schemas/types/health_signal.schema.json",
+      "schemaId": "mmm.v1.payload.health_signal",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "maturity_score",
+      "group": "K",
+      "profile": "intelligence-ai",
+      "schemaPath": "schemas/types/maturity_score.schema.json",
+      "schemaId": "mmm.v1.payload.maturity_score",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "segment_profile",
+      "group": "K",
+      "profile": "intelligence-ai",
+      "schemaPath": "schemas/types/segment_profile.schema.json",
+      "schemaId": "mmm.v1.payload.segment_profile",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "governance_policy",
+      "group": "K",
+      "profile": "intelligence-ai",
+      "schemaPath": "schemas/types/governance_policy.schema.json",
+      "schemaId": "mmm.v1.payload.governance_policy",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "compliance_rule",
+      "group": "K",
+      "profile": "intelligence-ai",
+      "schemaPath": "schemas/types/compliance_rule.schema.json",
+      "schemaId": "mmm.v1.payload.compliance_rule",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "lifecycle_action",
+      "group": "K",
+      "profile": "intelligence-ai",
+      "schemaPath": "schemas/types/lifecycle_action.schema.json",
+      "schemaId": "mmm.v1.payload.lifecycle_action",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "ai_candidate",
+      "group": "K",
+      "profile": "intelligence-ai",
+      "schemaPath": "schemas/types/ai_candidate.schema.json",
+      "schemaId": "mmm.v1.payload.ai_candidate",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code",
+        "candidateType",
+        "proposedPayload"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "ai_prompt",
+      "group": "K",
+      "profile": "intelligence-ai",
+      "schemaPath": "schemas/types/ai_prompt.schema.json",
+      "schemaId": "mmm.v1.payload.ai_prompt",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    },
+    {
+      "objectType": "ai_context",
+      "group": "K",
+      "profile": "intelligence-ai",
+      "schemaPath": "schemas/types/ai_context.schema.json",
+      "schemaId": "mmm.v1.payload.ai_context",
+      "schemaVersion": "1.0.0",
+      "payloadRequired": [
+        "code"
+      ],
+      "payloadOptional": [
+        "description",
+        "metadata"
+      ],
+      "payloadForbidden": [
+        "__proto__",
+        "constructor",
+        "prototype"
+      ],
+      "platformSchema": true
+    }
+  ]
+}

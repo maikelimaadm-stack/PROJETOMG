@@ -131,8 +131,11 @@
 | **4.00** | **Meta Model Foundation Audit** | — | **complete (audit)** | 3.27 ✅ |
 | **4.01** | **Meta Model Foundation Architecture** | D-MMM-01–14 | **complete-docs** | 4.00 ✅ |
 | **4.01.1** | **Meta Model Constitution (SSOT docs)** | D-MMM-15 | **complete-docs** | 4.01 ✅ |
-| **4.02** | **MMM Specification (PlatformSchema)** | — | **planned** | 4.01.1 ✅ |
-| **4.03–4.16+** | **MMM implementation track** | — | **planned** | See [meta-model/ROADMAP.md](../meta-model/ROADMAP.md) |
+| **4.01.2** | **MMM Alignment & Divergence Resolution** | D-MMM-16 | **complete-docs** | 4.01.1 ✅ |
+| **4.02** | **MMM Specification (PlatformSchema)** | D-MMM-17 | **complete-docs** | 4.01.2 ✅ |
+| **4.03** | **MMM Persistence** | D-MMM-01, D-MMM-17 | **complete** | 4.02 ✅ |
+| **4.04** | **MMM Publish Engine** | — | **planned** | 4.03 ✅ |
+| **4.05–4.16+** | **MMM implementation track** | — | **planned** | See [meta-model/ROADMAP.md](../meta-model/ROADMAP.md) |
 
 > **Note:** "Program 3" in Phase 6 ROADMAP historically meant Marketplace — renamed collision documented in SUPERSESSION-REGISTER. Current **Program 3 = Studio Intelligence**. **Program 4 = Universal Meta Model** — ERP paused until MMM foundation ships.
 
@@ -177,12 +180,14 @@
 
 ## Future programs (planned — not started)
 
+> **Note:** **Program 4 = Universal Meta Model** (active). IDs below are **legacy planning labels** — Intelligence/Marketplace impl will receive new program IDs.
+
 | ID | Name | Prerequisite |
 |----|------|--------------|
-| 4 | AI Platform | Event bus, MDP, Intent platform |
-| 5 | Knowledge Platform | MDP, Intent SSOT |
-| 6 | Marketplace | MDP bundles, Intent marketplace model |
-| 6 | Offline / Sync | MDP snapshots, Sync Platform |
+| 4.x-intel (TBD) | Enterprise Intelligence implementation | MMM foundation (4.15+) |
+| 5 | Knowledge Platform | MMM + Intent SSOT |
+| 6 | Marketplace | MMM .makpkg (4.12) |
+| 6-offline | Offline / Sync | MMM snapshots |
 
 ---
 

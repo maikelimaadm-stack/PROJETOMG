@@ -83,6 +83,8 @@
 
 ## 6. Planned — Program 4.0 Enterprise Intelligence Implementation
 
+> **Superseded program ID (2026-06-30):** "Program 4" now means **Universal Meta Model** per [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md). Enterprise Intelligence implementation will receive a new program ID. MMM track: [docs/meta-model/ROADMAP.md](../meta-model/ROADMAP.md).
+
 | Dimension | Detail |
 |-----------|--------|
 | **Objective** | First code for Business Memory, Knowledge Graph |

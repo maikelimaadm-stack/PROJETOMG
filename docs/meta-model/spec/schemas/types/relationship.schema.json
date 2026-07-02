@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/relationship",
+  "title": "relationship",
+  "description": "MMM payload schema for objectType 'relationship' (Group C)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-c-data-model.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "sourceBoRef": {
+          "type": "string"
+        },
+        "targetBoRef": {
+          "type": "string"
+        },
+        "cardinality": {
+          "enum": [
+            "1:1",
+            "1:N",
+            "N:1",
+            "N:N"
+          ]
+        }
+      },
+      "required": [
+        "sourceBoRef",
+        "targetBoRef",
+        "cardinality"
+      ],
+      "additionalProperties": true
+    }
+  ]
+}

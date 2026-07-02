@@ -124,7 +124,7 @@ Automation changes require republish; running instances use pinned CRB.
 ## Próximos passos
 
 - Program 4.09: Automation designer
-- Gate G410: critical automation approval tests
+- Gate **G424**: critical automation approval tests
 
 ---
 

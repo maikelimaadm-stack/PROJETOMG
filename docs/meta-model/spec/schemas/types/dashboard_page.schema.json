@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/dashboard_page",
+  "title": "dashboard_page",
+  "description": "MMM payload schema for objectType 'dashboard_page' (Group E)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-e-analytics.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

@@ -140,7 +140,7 @@ Pipeline version tracked in Publish Engine; phases additive only.
 ## Próximos passos
 
 - Program 4.04: Publish Engine v2 full implementation
-- Gate G404: C-1→C-16 integration tests
+- Gate **G422**: C-1→C-16 integration tests
 
 ---
 

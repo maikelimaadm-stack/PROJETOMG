@@ -61,6 +61,7 @@
 | **G303B** | Studio (planned) | Business Computation implementation |
 | **G304** | Studio (architecture) | Intent Resolver architecture reference (D-064) — implementation certified by **G305** |
 | **G401–G402** | Deploy pipeline | Renumbered from G303/G304 deploy (D-062) |
+| **G420+** | MMM specification | G421 PlatformSchema coverage — [G421-SPEC.md](../meta-model/spec/G421-SPEC.md) |
 | ~~G303~~ (deploy) | — | **Superseded → G401** |
 | ~~G304~~ (deploy) | — | **Superseded → G402** |
 
@@ -136,6 +137,16 @@
 | **G304** | Business Intent Resolver (architecture) | Architecture contract reference (D-064); **implementation gate = G305** | 3.6.5 | D-064 | **architecture-only** |
 
 > **G304 is exclusively reserved for Intent Resolver** per D-062. Deploy gates use G401/G402.
+
+---
+
+## MMM program gates (planned)
+
+| ID | Name | Objective | Program | Decision | Status |
+|----|------|-----------|---------|----------|--------|
+| **G421** | MMM PlatformSchema Coverage | 226 payload schemas + envelope + manifest + persistence wiring | 4.03 | D-MMM-17 | **active** |
+
+Spec: [G421-SPEC.md](../meta-model/spec/G421-SPEC.md)
 
 ---
 

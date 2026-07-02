@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/workflow_transition",
+  "title": "workflow_transition",
+  "description": "MMM payload schema for objectType 'workflow_transition' (Group F)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-f-behavior.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

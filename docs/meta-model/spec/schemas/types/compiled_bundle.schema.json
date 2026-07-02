@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/compiled_bundle",
+  "title": "compiled_bundle",
+  "description": "MMM payload schema for objectType 'compiled_bundle' (Group J)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-j-package-versioning.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "crbVersion": {
+          "const": "mmm-crb-v1"
+        },
+        "contentHash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "integrityHash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "crbVersion",
+        "contentHash",
+        "integrityHash"
+      ],
+      "additionalProperties": true
+    }
+  ]
+}

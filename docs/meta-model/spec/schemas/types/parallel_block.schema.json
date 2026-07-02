@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/parallel_block",
+  "title": "parallel_block",
+  "description": "MMM payload schema for objectType 'parallel_block' (Group F)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-f-behavior.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

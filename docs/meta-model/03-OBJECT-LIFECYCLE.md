@@ -186,7 +186,7 @@ Lifecycle schema version: `mmm-lifecycle-v1`. New operations are additive.
 
 - Program 4.02: JSON Schema for status enum and operation API
 - Program 4.04: Publish Engine state machine implementation
-- Gate G401: lifecycle transition tests
+- Gate **G420**: lifecycle transition tests
 
 ---
 

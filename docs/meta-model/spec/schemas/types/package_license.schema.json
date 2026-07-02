@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/package_license",
+  "title": "package_license",
+  "description": "MMM payload schema for objectType 'package_license' (Group J)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-j-package-versioning.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

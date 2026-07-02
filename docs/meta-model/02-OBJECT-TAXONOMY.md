@@ -6,7 +6,7 @@
 
 ## Objetivo
 
-Registrar os **222 objectTypes** canônicos do MMM v1.
+Registrar os **227 objectTypes** canônicos do MMM v1 (226 com PlatformSchema).
 
 ## Escopo
 
@@ -36,11 +36,11 @@ Todo objeto persistido declara exatamente um `objectType`. Agrupados em A–K.
 
 > `record` is L0 reference only — not stored as MMM SSOT.
 
-### Grupo D — Presentation (35)
+### Grupo D — Presentation (38)
 
 `base_template`, `screen`, `page`, `layout`, `section`, `panel`, `tab`, `group`, `view`, `form`, `grid`, `list`, `card`, `detail`, `filter`, `filter_field`, `sort`, `pagination`, `toolbar`, `action_bar`, `button`, `action`, `command`, `dialog`, `drawer`, `notification`, `theme`, `design_token`, `icon`, `label`, `help_text`, `placeholder`, `formatter`, `renderer`, `mask`, `conditional_visibility`, `responsive_rule`, `client_target`
 
-### Grupo E — Analytics (18)
+### Grupo E — Analytics (19)
 
 `dashboard`, `dashboard_page`, `widget`, `kpi`, `chart`, `indicator`, `pivot_table`, `report`, `report_section`, `report_parameter`, `query`, `query_field`, `aggregation`, `rollup`, `lookup`, `calculated_column`, `data_source`, `drill_down`, `refresh_policy`
 
@@ -68,7 +68,7 @@ Todo objeto persistido declara exatamente um `objectType`. Agrupados em A–K.
 
 `memory_record`, `knowledge_node`, `knowledge_edge`, `observation`, `recommendation`, `decision`, `insight`, `health_signal`, `maturity_score`, `segment_profile`, `governance_policy`, `compliance_rule`, `lifecycle_action`, `ai_candidate`, `ai_prompt`, `ai_context`
 
-**Total: 222**
+**Total: 227** (226 PlatformSchemas — `record` excluded per R-14; see [ENVELOPE-SPEC.md](./ENVELOPE-SPEC.md))
 
 ## Regras
 

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/confirmation",
+  "title": "confirmation",
+  "description": "MMM payload schema for objectType 'confirmation' (Group I)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-i-authoring.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

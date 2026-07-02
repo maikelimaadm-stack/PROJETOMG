@@ -32,6 +32,7 @@ L0 Constitution          → docs/constitution/
 L1 Master Architecture   → docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md
 L2 Engineering Principles → MAK-ENGINEERING-PRINCIPLES.md
 L3 Specifications        → MDP spec, Studio arch
+L3c Universal Meta Model → docs/meta-model/ (D-MMM-15) — **SSOT for Program 4.xx**
 L4 Engineering OS        → PROJECT-STATUS (position SSOT) + registries (this file)
 L5 Programs              → PROGRAM-REGISTRY.md
 L6 Implementation        → scripts/gate-*.mjs, src/
@@ -70,7 +71,23 @@ L6 Implementation        → scripts/gate-*.mjs, src/
 | **Consolidation mission** | Program 3.5C — D-062 |
 | **Prior audit** | Program 3.5B — D-061 |
 | **State after 3.5C** | **ARCHITECTURE CONSOLIDATED** |
-| **Next implementation** | **Program 3.28+** — Lifecycle Sync live (D-093, G325) |
+| **Last completed (Intelligence track)** | **Program 3.27** — Lifecycle Sync (D-093, G325) |
+| **Last completed (MMM track)** | **Program 4.01.2** — Alignment & Divergence Resolution (D-MMM-16) |
+| **Next authorized mission** | **Program 4.02** — MMM Specification (226 PlatformSchemas + envelope) |
+
+### Program 4 — MMM governance artifacts
+
+| Artifact | SSOT path |
+|----------|-----------|
+| MMM architecture | [docs/meta-model/README.md](../meta-model/README.md) |
+| MMM decisions | [docs/meta-model/DECISIONS.md](../meta-model/DECISIONS.md) (D-MMM-01–15) |
+| MMM roadmap | [docs/meta-model/ROADMAP.md](../meta-model/ROADMAP.md) |
+| MMM rules | [docs/meta-model/RULES.md](../meta-model/RULES.md) |
+| Pre-4.02 review | [docs/meta-model/ATTENTION-POINTS.md](../meta-model/ATTENTION-POINTS.md) |
+| Divergence register | [docs/meta-model/DIVERGENCE-REGISTER.md](../meta-model/DIVERGENCE-REGISTER.md) |
+| Envelope outline | [docs/meta-model/ENVELOPE-SPEC.md](../meta-model/ENVELOPE-SPEC.md) |
+
+> **Roadmap disambiguation:** Platform sequence → [ROADMAP.md](./ROADMAP.md). MMM implementation sequence → [meta-model/ROADMAP.md](../meta-model/ROADMAP.md).
 
 ---
 

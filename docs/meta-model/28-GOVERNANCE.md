@@ -52,15 +52,17 @@ flowchart TD
     RULE[RULES R-01–R-20] --> G
 ```
 
-### Planned G4xx gates
+### Planned MMM gates (G420+ namespace)
+
+> **Namespace rule:** Deploy gates **G401–G402** are reserved ([GATE-REGISTRY.md](../engineering/GATE-REGISTRY.md) D-062). MMM gates use **G420+** to avoid collision.
 
 | Gate | Validates |
 |------|-----------|
-| G401 | Lifecycle transitions |
-| G402 | PlatformSchema coverage |
-| G404 | Publish pipeline C-1→C-16 |
-| G405 | Dependency acyclicity |
-| G410 | Critical automation approval |
+| G420 | MMM lifecycle transitions |
+| G421 | PlatformSchema coverage (222 types) |
+| G422 | Publish pipeline C-1→C-16 |
+| G423 | Module dependency acyclicity |
+| G424 | Critical automation approval |
 
 ---
 
@@ -86,7 +88,7 @@ Ver flowchart acima.
 
 ## Exemplos
 
-Publish without EnvironmentPin to prod → G404 fail in integration test.
+Publish without EnvironmentPin to prod → **G422** fail in integration test.
 
 ---
 
@@ -110,9 +112,9 @@ G4xx gate list extensible; documented in engineering CURRENT-STATE when implemen
 
 ## Próximos passos
 
-- Register Program 4.01.1 in PROGRAM-REGISTRY
-- Add G4xx stubs in Program 4.02+
-- Update SSOT-REGISTRY with MMM owner
+- Register G420+ in GATE-REGISTRY during Program 4.02
+- Add gate script stubs (G421 first) in Program 4.02
+- See [ATTENTION-POINTS.md](./ATTENTION-POINTS.md) for pre-4.02 review status
 
 ---
 

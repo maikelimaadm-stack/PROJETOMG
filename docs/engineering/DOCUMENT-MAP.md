@@ -70,8 +70,11 @@
 | Glossary · Rules · Decisions · Contracts | [GLOSSARY.md](../meta-model/GLOSSARY.md) · [RULES.md](../meta-model/RULES.md) · [DECISIONS.md](../meta-model/DECISIONS.md) · [CONTRACTS.md](../meta-model/CONTRACTS.md) |
 | Topic documents | [01](../meta-model/01-CORE-ARCHITECTURE.md)–[30](../meta-model/30-ROADMAP-INDEX.md) (see hub README) |
 | MMM Roadmap (4.02→4.16+) | [ROADMAP.md](../meta-model/ROADMAP.md) |
+| Attention points | [ATTENTION-POINTS.md](../meta-model/ATTENTION-POINTS.md) |
+| Divergence register (4.01.2) | [DIVERGENCE-REGISTER.md](../meta-model/DIVERGENCE-REGISTER.md) |
+| Envelope outline | [ENVELOPE-SPEC.md](../meta-model/ENVELOPE-SPEC.md) |
 
-> Legacy architecture docs in L1/L3 remain **Reference** until fully superseded — see [SSOT-REGISTRY.md](./SSOT-REGISTRY.md).
+> Legacy architecture docs in L1/L3 remain **Reference** until fully superseded — see [SSOT-REGISTRY.md](./SSOT-REGISTRY.md) and [SUPERSESSION-REGISTER.md](./SUPERSESSION-REGISTER.md).
 
 ---
 

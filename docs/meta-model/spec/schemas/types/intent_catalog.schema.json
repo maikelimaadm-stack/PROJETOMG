@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/intent_catalog",
+  "title": "intent_catalog",
+  "description": "MMM payload schema for objectType 'intent_catalog' (Group I)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-i-authoring.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

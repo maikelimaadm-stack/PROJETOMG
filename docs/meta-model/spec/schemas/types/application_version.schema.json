@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/application_version",
+  "title": "application_version",
+  "description": "MMM payload schema for objectType 'application_version' (Group B)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-b-application-topology.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

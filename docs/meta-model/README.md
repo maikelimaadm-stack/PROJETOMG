@@ -29,7 +29,11 @@
 | [RULES.md](./RULES.md) | Permanent rules, invariants, principles |
 | [DECISIONS.md](./DECISIONS.md) | Architectural decisions D-MMM-xxx |
 | [CONTRACTS.md](./CONTRACTS.md) | Inter-subsystem contracts |
-| [ROADMAP.md](./ROADMAP.md) | Program 4.02 → 4.xx evolution |
+| [ROADMAP.md](./ROADMAP.md) | Program 4.02 → 4.xx evolution (**MMM roadmap SSOT**) |
+| [ATTENTION-POINTS.md](./ATTENTION-POINTS.md) | Known gaps summary |
+| [DIVERGENCE-REGISTER.md](./DIVERGENCE-REGISTER.md) | **Alignment register (4.01.2)** |
+| [ENVELOPE-SPEC.md](./ENVELOPE-SPEC.md) | Envelope outline (pointer) |
+| **[spec/](./spec/)** | **Normative specification (4.02)** |
 
 ---
 
@@ -39,7 +43,7 @@
 |---|----------|-------------------|
 | 00 | [META-MODEL-OVERVIEW](./00-META-MODEL-OVERVIEW.md) | Platform-wide MMM introduction |
 | 01 | [CORE-ARCHITECTURE](./01-CORE-ARCHITECTURE.md) | Layer model and principles |
-| 02 | [OBJECT-TAXONOMY](./02-OBJECT-TAXONOMY.md) | 222 objectTypes registry |
+| 02 | [OBJECT-TAXONOMY](./02-OBJECT-TAXONOMY.md) | 227 objectTypes (226 PlatformSchemas) |
 | 03 | [OBJECT-LIFECYCLE](./03-OBJECT-LIFECYCLE.md) | States and operations |
 | 04 | [OBJECT-DEPENDENCIES](./04-OBJECT-DEPENDENCIES.md) | Ownership and reference graph |
 | 05 | [BUSINESS-OBJECTS](./05-BUSINESS-OBJECTS.md) | BusinessObject model |

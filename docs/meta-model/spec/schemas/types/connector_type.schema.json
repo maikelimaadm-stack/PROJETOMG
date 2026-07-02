@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/connector_type",
+  "title": "connector_type",
+  "description": "MMM payload schema for objectType 'connector_type' (Group G)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-g-integration.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    }
+  ]
+}

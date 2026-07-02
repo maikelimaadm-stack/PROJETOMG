@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.mak.platform/mmm/v1/payload/module_dependency",
+  "title": "module_dependency",
+  "description": "MMM payload schema for objectType 'module_dependency' (Group B)",
+  "allOf": [
+    {
+      "$ref": "../profiles/profile-b-application-topology.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "sourceModuleRef": {
+          "type": "string"
+        },
+        "targetModuleRef": {
+          "type": "string"
+        },
+        "dependencyType": {
+          "enum": [
+            "hard",
+            "soft"
+          ]
+        }
+      },
+      "required": [
+        "sourceModuleRef",
+        "targetModuleRef"
+      ],
+      "additionalProperties": true
+    }
+  ]
+}
