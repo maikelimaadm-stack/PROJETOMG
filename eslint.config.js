@@ -10,6 +10,10 @@ export default [
     ...pluginJs.configs.recommended,
   },
   {
+    files: ["src/runtime/**/*.{js,mjs}"],
+    languageOptions: { globals: globals.node },
+  },
+  {
     files: ["src/**/*.{js,mjs,cjs,jsx}"],
     ...pluginReact.configs.flat.recommended,
     settings: {

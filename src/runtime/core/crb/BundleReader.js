@@ -14,7 +14,7 @@ export class BundleReader {
       if (typeof raw === 'string') {
         parsed = JSON.parse(raw);
       } else if (raw instanceof ArrayBuffer) {
-        parsed = JSON.parse(Buffer.from(raw).toString('utf8'));
+        parsed = JSON.parse(new TextDecoder().decode(raw));
       }
       if (!parsed || typeof parsed !== 'object') {
         throw new CrbError('MAK-L3-RUNTIME-002', 'CRB payload is not an object');

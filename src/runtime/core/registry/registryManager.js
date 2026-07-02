@@ -4,6 +4,7 @@ import { RegistryLookup } from './RegistryLookup.js';
 import { RegistryResolver } from './RegistryResolver.js';
 import { RegistryValidation } from './RegistryValidation.js';
 import { REGISTRY_TYPES } from './registryTypes.js';
+import { RegistryError } from './errors.js';
 
 /**
  * Universal in-memory registry (M04).
