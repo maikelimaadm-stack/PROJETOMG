@@ -17,6 +17,7 @@ import {
   PERSISTENCE_OWNERSHIP,
 } from "./lifecyclePersistenceContracts.js";
 import { appendDurableAuditEntry } from "./durableAuditTrailStore.js";
+import { ingestPersistenceToSync } from "../sync/persistenceToSyncIngestion.js";
 
 export function analyzeLifecyclePersistenceContext(groupId, tenantId = "default", options = {}) {
   const ctx = assembleLifecycleExecutionContext(groupId, tenantId, options);
@@ -46,6 +47,12 @@ export function analyzeLifecyclePersistenceContext(groupId, tenantId = "default"
     entityId: persistenceDoc.document?.documentId ?? null,
     entityType: "lifecycle_persistence",
   });
+
+  try {
+    ingestPersistenceToSync(groupId, tenantId, options);
+  } catch {
+    /* sync must not block persistence */
+  }
 
   return Object.freeze({
     groupId,

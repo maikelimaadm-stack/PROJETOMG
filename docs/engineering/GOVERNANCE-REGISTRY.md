@@ -70,7 +70,7 @@ L6 Implementation        → scripts/gate-*.mjs, src/
 | **Consolidation mission** | Program 3.5C — D-062 |
 | **Prior audit** | Program 3.5B — D-061 |
 | **State after 3.5C** | **ARCHITECTURE CONSOLIDATED** |
-| **Next implementation** | **Program 3.27+** — Lifecycle Persistence live (D-092, G324) |
+| **Next implementation** | **Program 3.28+** — Lifecycle Sync live (D-093, G325) |
 
 ---
 

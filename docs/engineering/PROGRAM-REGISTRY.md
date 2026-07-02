@@ -117,7 +117,8 @@
 | **3.24** | **Compliance, Retention & Audit Fortress MVP** | D-090 | **complete (G322)** | 3.23 ✅ |
 | **3.25** | **Data Lifecycle, Archive & Controlled Expunge MVP** | D-091 | **complete (G323)** | 3.24 ✅ |
 | **3.26** | **Data Lifecycle Persistence & Approval Workflow MVP** | D-092 | **complete (G324)** | 3.25 ✅ |
-| **3.27+** | **Next intelligence layer** | — | **planned** | 3.26 ✅ |
+| **3.27** | **Lifecycle Sync, Storage Integration & Audit Operations MVP** | D-093 | **complete (G325)** | 3.26 ✅ |
+| **3.28+** | **Next intelligence layer** | — | **planned** | 3.27 ✅ |
 | 3.3-impl | Business Computation impl | D-058 | planned | G303B |
 | 4.x | Enterprise Memory / Intelligence impl | D-060 | planned | Post Resolver |
 
@@ -156,6 +157,7 @@
                                                   → 3.24 Compliance, Retention & Audit Fortress (G322) ✅
                                                     → 3.25 Data Lifecycle, Archive & Controlled Expunge (G323) ✅
                                                       → 3.26 Lifecycle Persistence & Approval Workflow (G324) ✅
+                                                        → 3.27 Lifecycle Sync, Storage & Audit Operations (G325) ✅
                 → 4.x Enterprise Intelligence programs (D-060)
 ```
 

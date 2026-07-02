@@ -50,6 +50,7 @@ export const LIFECYCLE_OWNERSHIP = Object.freeze({
 
 export const LIFECYCLE_EXTENSION_POINTS = Object.freeze([
   Object.freeze({ id: "business.lifecycle_persistence", implemented: true, consumes: ["lifecycle.engine"] }),
+  Object.freeze({ id: "business.lifecycle_sync", implemented: true, consumes: ["lifecycle.persistence"] }),
   Object.freeze({ id: "ai.chat.assistant", implemented: false, forbiddenForBusinessUser: true }),
 ]);
 

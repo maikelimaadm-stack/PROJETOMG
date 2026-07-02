@@ -57,6 +57,7 @@
 | **G322** | Product (active) | **Compliance, Retention & Audit Fortress MVP** (Program 3.24) |
 | **G323** | Product (active) | **Data Lifecycle, Archive & Controlled Expunge MVP** (Program 3.25) |
 | **G324** | Product (active) | **Data Lifecycle Persistence & Approval Workflow MVP** (Program 3.26) |
+| **G325** | Product (active) | **Lifecycle Sync, Storage Integration & Audit Operations MVP** (Program 3.27) |
 | **G303B** | Studio (planned) | Business Computation implementation |
 | **G304** | Studio (architecture) | Intent Resolver architecture reference (D-064) — implementation certified by **G305** |
 | **G401–G402** | Deploy pipeline | Renumbered from G303/G304 deploy (D-062) |
@@ -123,6 +124,7 @@
 | **G322** | Compliance, Retention & Audit Fortress MVP | 3.24 | D-090 | `gate-enterprise-compliance-retention-audit-fortress.mjs` | **active** |
 | **G323** | Data Lifecycle, Archive & Controlled Expunge MVP | 3.25 | D-091 | `gate-enterprise-data-lifecycle-archive-expunge.mjs` | **active** |
 | **G324** | Data Lifecycle Persistence & Approval Workflow MVP | 3.26 | D-092 | `gate-enterprise-lifecycle-persistence-approval.mjs` | **active** |
+| **G325** | Lifecycle Sync, Storage Integration & Audit Operations MVP | 3.27 | D-093 | `gate-enterprise-lifecycle-sync-storage-audit.mjs` | **active** |
 
 ---
 

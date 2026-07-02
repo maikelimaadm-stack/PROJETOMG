@@ -55,6 +55,11 @@ model Cliente {
   preferencias       UsuarioPreferencia[]
   mdpEntities        MdpEntity[]
   lifecycleApprovals LifecycleApprovalRequest[]
+  lifecycleSyncStates  LifecycleSyncState[]
+  lifecycleSyncErrors  LifecycleSyncError[]
+  lifecycleNotifications LifecycleNotification[]
+  lifecycleStorageActions LifecycleStorageAction[]
+  lifecycleBackupActions LifecycleBackupAction[]
 
   @@index([nome])
   @@index([cpf_cnpj])
@@ -1295,4 +1300,113 @@ model LifecycleAuditEntry {
 
   @@index([group_id, recorded_at])
   @@map("lifecycle_audit_entry")
+}
+
+enum LifecycleSyncStatus {
+  pending
+  syncing
+  synced
+  diverged
+  failed
+  retrying
+}
+
+model LifecycleSyncState {
+  id                 String              @id @default(cuid())
+  cliente_id         String              @db.VarChar(64)
+  group_id           String              @db.VarChar(128)
+  tenant_id          String              @db.VarChar(128)
+  entity_type        String              @db.VarChar(64)
+  entity_id          String              @db.VarChar(128)
+  frontend_state     String?             @db.VarChar(64)
+  backend_state      String?             @db.VarChar(64)
+  sync_status        LifecycleSyncStatus @default(pending)
+  divergence_reason  String?
+  label              String?             @db.VarChar(255)
+  summary            String?
+  last_sync_at       DateTime?
+  retry_count        Int                 @default(0)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  cliente Cliente @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+
+  @@unique([cliente_id, group_id, entity_type, entity_id])
+  @@index([group_id, sync_status])
+  @@map("lifecycle_sync_state")
+}
+
+model LifecycleSyncError {
+  id          String   @id @default(cuid())
+  cliente_id  String   @db.VarChar(64)
+  group_id    String   @db.VarChar(128)
+  tenant_id   String?  @db.VarChar(128)
+  error_code  String   @db.VarChar(64)
+  summary     String
+  entity_type String?  @db.VarChar(64)
+  entity_id   String?  @db.VarChar(128)
+  retryable   Boolean  @default(true)
+  retry_count Int      @default(0)
+  resolved    Boolean  @default(false)
+  recorded_at DateTime @default(now())
+
+  cliente Cliente @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+
+  @@index([group_id, resolved])
+  @@map("lifecycle_sync_error")
+}
+
+model LifecycleNotification {
+  id                String   @id @default(cuid())
+  cliente_id        String   @db.VarChar(64)
+  group_id          String   @db.VarChar(128)
+  tenant_id         String?  @db.VarChar(128)
+  trigger_type      String   @db.VarChar(64)
+  label             String   @db.VarChar(255)
+  summary           String?
+  scope_authorized  Boolean  @default(true)
+  delivered         Boolean  @default(false)
+  recorded_at       DateTime @default(now())
+
+  cliente Cliente @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+
+  @@index([group_id, delivered])
+  @@map("lifecycle_notification")
+}
+
+model LifecycleStorageAction {
+  id             String              @id @default(cuid())
+  cliente_id     String              @db.VarChar(64)
+  group_id       String              @db.VarChar(128)
+  tenant_id      String              @db.VarChar(128)
+  request_id     String?             @db.VarChar(64)
+  action_type    LifecycleActionType
+  storage_target String              @db.VarChar(255)
+  status         String              @default("scheduled") @db.VarChar(32)
+  summary        String?
+  confirmed_at   DateTime?
+  recorded_at    DateTime            @default(now())
+
+  cliente Cliente @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+
+  @@index([group_id, status])
+  @@map("lifecycle_storage_action")
+}
+
+model LifecycleBackupAction {
+  id              String   @id @default(cuid())
+  cliente_id      String   @db.VarChar(64)
+  group_id        String   @db.VarChar(128)
+  tenant_id       String   @db.VarChar(128)
+  request_id      String?  @db.VarChar(64)
+  backup_snapshot String   @db.VarChar(255)
+  status          String   @default("scheduled") @db.VarChar(32)
+  summary         String?
+  confirmed_at    DateTime?
+  recorded_at     DateTime @default(now())
+
+  cliente Cliente @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+
+  @@index([group_id, status])
+  @@map("lifecycle_backup_action")
 }

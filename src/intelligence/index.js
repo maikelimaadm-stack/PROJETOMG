@@ -585,6 +585,34 @@ export {
   bridgePersistenceToIntelligence,
 } from "./lifecycle/persistence/lifecyclePersistenceToIntelligenceBridges.js";
 
+export {
+  LIFECYCLE_SYNC_VERSION,
+  LIFECYCLE_SYNC_EXTENSION_POINTS,
+  SYNC_OWNERSHIP,
+} from "./lifecycle/sync/lifecycleSyncContracts.js";
+export {
+  analyzeLifecycleSyncContext,
+  ingestPersistenceToSync,
+} from "./lifecycle/sync/persistenceToSyncIngestion.js";
+export { retrieveSyncState } from "./lifecycle/sync/lifecycleRetrievalSync.js";
+export { summarizeLifecycleSync } from "./lifecycle/sync/lifecycleSummariesSync.js";
+export { buildLifecycleSyncBosProjection } from "./lifecycle/sync/lifecycleSyncToBosProjection.js";
+export {
+  runLifecycleSyncEngine,
+  runLifecycleSyncEngineSync,
+} from "./lifecycle/sync/lifecycleSyncEngine.js";
+export { runFrontendBackendSyncPipeline } from "./lifecycle/sync/frontendBackendSyncPipeline.js";
+export { runLifecycleSyncOrchestrator, runLifecycleSyncOrchestratorSync } from "./lifecycle/sync/runLifecycleSyncEngine.js";
+export { assembleSyncContext } from "./lifecycle/sync/syncContextAssembly.js";
+export { bridgeSyncToGovernance } from "./lifecycle/sync/lifecycleSyncToGovernanceBridge.js";
+export { bridgeSyncToFortress } from "./lifecycle/sync/lifecycleSyncToFortressBridge.js";
+export { bridgeSyncToPortfolio } from "./lifecycle/sync/lifecycleSyncToPortfolioBridge.js";
+export {
+  bridgeSyncToConsulting,
+  bridgeSyncToDecision,
+  bridgeSyncToIntelligence,
+} from "./lifecycle/sync/lifecycleSyncToIntelligenceBridges.js";
+
 export default {
   version: "mak-enterprise-intelligence-v1",
 };
