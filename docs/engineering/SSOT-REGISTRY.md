@@ -46,9 +46,10 @@
 
 | Topic | SSOT | Derived / Reference |
 |-------|------|---------------------|
+| **Universal Meta Model (MMM)** | [docs/meta-model/README.md](../meta-model/README.md) | Topic docs 00–30; [GLOSSARY](../meta-model/GLOSSARY.md), [RULES](../meta-model/RULES.md), [DECISIONS](../meta-model/DECISIONS.md), [ROADMAP](../meta-model/ROADMAP.md) |
 | **Layer topology** | [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md) | [MAK-PLATFORM-EVOLUTION.md](../architecture/MAK-PLATFORM-EVOLUTION.md) |
 | **Studio architecture** | [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) | Studio briefs, certification reports |
-| **MDP specification** | [MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md](../architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md) | [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md) |
+| **MDP specification** | [MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md](../architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md) (**Reference — persistence substrate**) | [24-PERSISTENCE.md](../meta-model/24-PERSISTENCE.md) (**MMM SSOT**); [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md) |
 | **Business Intent authoring** | [MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md) | [MAK-BUSINESS-INTENT-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-ARCHITECTURE.md) (vision) |
 | **Business Derivation** | [MAK-BUSINESS-DERIVATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-DERIVATION-ARCHITECTURE.md) | D-059 Intent Authoring (input SSOT) |
 | **Business Intent Resolver** | [MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md) | D-063 Derivation (output infrastructure) |
@@ -82,6 +83,7 @@
 | Program 2.3.6 Computation Engine | [IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md](./IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md) | Program 3.0.5 + 3.1 ([PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md)) |
 | Next sprint (MDP-4 era) | [NEXT-SPRINT.md](./NEXT-SPRINT.md) | [PROJECT-STATUS.md](./PROJECT-STATUS.md) |
 | Deploy gate IDs G303/G304 | Historical deploy docs (pre-D-062) | [GATE-REGISTRY.md](./GATE-REGISTRY.md) G401/G402 |
+| MDP as universal metadata SSOT (26 types) | [MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md](../architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md) (metadata scope) | [docs/meta-model/](../meta-model/) (D-MMM-01, D-MMM-15) |
 
 Full traceability: [SUPERSESSION-REGISTER.md](./SUPERSESSION-REGISTER.md)
 

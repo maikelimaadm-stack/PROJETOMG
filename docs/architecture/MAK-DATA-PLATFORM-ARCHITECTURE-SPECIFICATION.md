@@ -8,6 +8,8 @@
 **Layer:** L4 — MAK DATA PLATFORM  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md), [MAK-2035-MASTER-ARCHITECTURE.md](./MAK-2035-MASTER-ARCHITECTURE.md), [MAK-PLATFORM-LANGUAGE-STANDARD.md](./MAK-PLATFORM-LANGUAGE-STANDARD.md)
 
+> **MMM supersession (D-MMM-01, D-MMM-15):** For universal metadata architecture (222 objectTypes, CRB, publish pipeline), **[docs/meta-model/](../meta-model/)** is the authoritative SSOT. This MDP specification remains valid as the **persistence substrate** reference — see [24-PERSISTENCE.md](../meta-model/24-PERSISTENCE.md).
+
 **Supersedes:** Informal sections of [MAK-DATA-PLATFORM.md](../engineering/MAK-DATA-PLATFORM.md) v1.0.0 for implementation detail.  
 **Implementation phases:** MDP-1 → MDP-5 per [IFM-PHASE-1-TECHNICAL-ROADMAP.md](../engineering/IFM-PHASE-1-TECHNICAL-ROADMAP.md)
 

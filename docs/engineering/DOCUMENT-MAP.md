@@ -61,6 +61,20 @@
 
 ---
 
+## L1c — Universal Meta Model (Program 4.01.1, D-MMM-15)
+
+| Document | Path |
+|----------|------|
+| **MMM Documentation Hub (SSOT)** | **[docs/meta-model/README.md](../meta-model/README.md)** |
+| Overview | [00-META-MODEL-OVERVIEW.md](../meta-model/00-META-MODEL-OVERVIEW.md) |
+| Glossary · Rules · Decisions · Contracts | [GLOSSARY.md](../meta-model/GLOSSARY.md) · [RULES.md](../meta-model/RULES.md) · [DECISIONS.md](../meta-model/DECISIONS.md) · [CONTRACTS.md](../meta-model/CONTRACTS.md) |
+| Topic documents | [01](../meta-model/01-CORE-ARCHITECTURE.md)–[30](../meta-model/30-ROADMAP-INDEX.md) (see hub README) |
+| MMM Roadmap (4.02→4.16+) | [ROADMAP.md](../meta-model/ROADMAP.md) |
+
+> Legacy architecture docs in L1/L3 remain **Reference** until fully superseded — see [SSOT-REGISTRY.md](./SSOT-REGISTRY.md).
+
+---
+
 ## L1b — Enterprise Intelligence Vision (Program 3.5A, D-060)
 
 | Document | Path |

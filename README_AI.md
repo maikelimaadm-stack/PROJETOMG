@@ -74,6 +74,7 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | 13 | **Governance Registry** | [GOVERNANCE-REGISTRY.md](./docs/engineering/GOVERNANCE-REGISTRY.md) |
 | 14 | **Gate Registry** | [GATE-REGISTRY.md](./docs/engineering/GATE-REGISTRY.md) |
 | 15 | **Enterprise Organization Architecture** | [MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md](./docs/architecture/MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md) |
+| 16 | **Universal Meta Model (Program 4.xx)** | [docs/meta-model/README.md](./docs/meta-model/README.md) (**mandatory before any Program 4 implementation**) |
 
 Full details: [PROJECT-STATUS.md](./docs/engineering/PROJECT-STATUS.md)
 
