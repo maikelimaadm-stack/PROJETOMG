@@ -37,4 +37,12 @@ export class RegistryCollection {
   keys(type) {
     return [...this._index.collection(type).keys()];
   }
+
+  /**
+   * @param {import('./registryTypes.js').RegistryType} type
+   * @param {string} key
+   */
+  remove(type, key) {
+    this._index.collection(type).delete(key);
+  }
 }

@@ -1,5 +1,8 @@
 import { RuntimeBootstrapError } from './errors.js';
 import { runRt0Shell } from './phases/rt0-shell.js';
+import { loadRuntimeBundle } from './loadRuntimeBundle.js';
+import { createLoader } from '../loader/loaderManager.js';
+import { createCrbLoader } from '../crb/crbLoader.js';
 
 /**
  * @param {import('../../types/context.js').BootstrapConfig} config
@@ -17,17 +20,74 @@ export async function bootstrap(config) {
 }
 
 /**
+ * RT-1 → RT-3 — verify CRB and hydrate registries (Foundation C.3).
  * @param {import('../../types/context.js').RuntimeInstance} instance
- * @param {import('../../types/context.js').CrbReference} _crbRef
+ * @param {import('../../types/context.js').CrbReference} crbRef
+ * @returns {Promise<import('../../types/context.js').HydratedRuntime>}
  */
-export async function hydrate(instance, _crbRef) {
+export async function hydrate(instance, crbRef) {
   if (instance.status === 'destroyed') {
     throw new RuntimeBootstrapError('MAK-L3-RUNTIME-001', 'Runtime instance destroyed');
   }
-  throw new RuntimeBootstrapError(
-    'MAK-L3-RUNTIME-003',
-    'hydrate() not available until Foundation C.3 (CRB Loader)',
-  );
+  if (!crbRef?.bundleId || !crbRef?.definitionVersionId) {
+    throw new RuntimeBootstrapError('MAK-L3-RUNTIME-001', 'CRB reference incomplete');
+  }
+  if (!crbRef.payload) {
+    throw new RuntimeBootstrapError('MAK-L3-RUNTIME-002', 'CRB payload required for hydrate');
+  }
+
+  return hydrateWithBundle(instance, buildPin(instance, crbRef), crbRef.payload);
+}
+
+/**
+ * @param {import('../../types/context.js').RuntimeInstance} instance
+ * @param {import('../../types/crb.js').EnvironmentPin} pin
+ * @param {import('../../types/crb.js').CrbPayload} crbPayload
+ * @returns {Promise<import('../../types/context.js').HydratedRuntime>}
+ */
+export async function hydrateWithBundle(instance, pin, crbPayload) {
+  const loader = createLoader();
+  loader.registerBundle(pin.bundleId, crbPayload);
+
+  try {
+    const result = await loadRuntimeBundle({
+      context: instance.context,
+      pin,
+      loader,
+      registry: instance.registry ?? undefined,
+      crbLoader: createCrbLoader(instance.config.environment),
+    });
+
+    instance.registry = result.registry;
+    instance.bundle = result.bundle;
+    instance.phase = 'RT-3';
+    instance.status = 'hydrated';
+
+    return {
+      instance,
+      bundle: result.bundle,
+      registry: result.registry,
+    };
+  } catch (err) {
+    if (err instanceof RuntimeBootstrapError) throw err;
+    const code = err?.code === 'MAK-L3-RUNTIME-003' ? 'MAK-L3-RUNTIME-003' : 'MAK-L3-RUNTIME-002';
+    throw new RuntimeBootstrapError(code, err instanceof Error ? err.message : 'CRB hydrate failed');
+  }
+}
+
+/**
+ * @param {import('../../types/context.js').RuntimeInstance} instance
+ * @param {import('../../types/context.js').CrbReference} crbRef
+ */
+function buildPin(instance, crbRef) {
+  return {
+    tenantId: instance.context.tenantId || instance.config.tenantId,
+    applicationId: instance.config.applicationId,
+    environment: instance.config.environment,
+    bundleId: crbRef.bundleId,
+    definitionVersionId: crbRef.definitionVersionId,
+    moduleId: crbRef.moduleId,
+  };
 }
 
 /**
