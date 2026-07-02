@@ -29,7 +29,8 @@
 | [RULES.md](./RULES.md) | Permanent rules, invariants, principles |
 | [DECISIONS.md](./DECISIONS.md) | Architectural decisions D-MMM-xxx |
 | [CONTRACTS.md](./CONTRACTS.md) | Inter-subsystem contracts |
-| [ROADMAP.md](./ROADMAP.md) | Program 4.02 → 4.xx evolution |
+| [ROADMAP.md](./ROADMAP.md) | Program 4.02 → 4.xx evolution (**MMM roadmap SSOT** — not `docs/engineering/ROADMAP.md`) |
+| [ATTENTION-POINTS.md](./ATTENTION-POINTS.md) | Known gaps, inconsistencies, pre-4.02 checklist |
 
 ---
 

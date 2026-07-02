@@ -4,7 +4,9 @@
 **Last updated:** 2026-06-30 (Program 3.5C — Enterprise Architecture Remediation — D-062)
 **Horizon:** Technical roadmap aligned with [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md)
 
-> **SSOT for "next mission":** [PROJECT-STATUS.md](./PROJECT-STATUS.md). This roadmap documents **sequence and phases** — see [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md).
+> **SSOT for "next mission":** [PROJECT-STATUS.md](./PROJECT-STATUS.md). This roadmap documents **platform-wide sequence and phases** — see [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md).
+>
+> **Not the MMM roadmap:** Universal Meta Model implementation phases live in **[docs/meta-model/ROADMAP.md](../meta-model/ROADMAP.md)** (Programs 4.02–4.16+).
 
 ---
 

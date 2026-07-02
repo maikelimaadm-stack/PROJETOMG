@@ -3,7 +3,7 @@
 **Status:** Official — Single source of truth for project continuity  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Updated by:** Program 3.27 — Lifecycle Sync, Storage Integration & Audit Operations MVP (D-093)  
+**Updated by:** Program 4.01.1 — Meta Model Constitution (D-MMM-15) + governance confirmation review  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md); supersedes chat history
 
 > **Rule:** Any AI or developer session must read this file (via [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md)) before starting work. Do not rely on prior chat context.
@@ -15,8 +15,8 @@
 | Field | Value |
 |-------|-------|
 | **Architecture state** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) · **First Business Asset certified** (D-068, G306) |
-| **Implementation phase** | **Lifecycle Sync & Audit Operations live (D-093, G325)** — under D-074 identity |
-| **Implementation authorized** | **Yes** — [MAK-PRODUCT-IDENTITY-FREEZE.md](../architecture/MAK-PRODUCT-IDENTITY-FREEZE.md) |
+| **Implementation phase** | **MMM foundation documented (4.01.1)** · Intelligence track through 3.27 complete |
+| **Implementation authorized** | **Program 4.02+ only after explicit authorization** — [docs/meta-model/ROADMAP.md](../meta-model/ROADMAP.md) |
 | **Primary user surface** | **BOS home (`/`)** — [MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](../architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md) |
 
 ---
@@ -62,12 +62,14 @@
 
 | Field | Value |
 |-------|-------|
-| **Current program** | **Program 3 — Studio Intelligence** |
-| **Last completed mission** | **Program 3.27** — Lifecycle Sync, Storage Integration & Audit Operations MVP (D-093, G325) |
-| **Last decision** | **D-093** — Lifecycle Sync & Audit Operations implemented |
-| **Next official mission** | **Program 3.28+** — Next intelligence layer |
+| **Current program** | **Program 4 — Universal Meta Model** (documentation complete through 4.01.1) |
+| **Last completed mission (Intelligence)** | **Program 3.27** — Lifecycle Sync (D-093, G325) |
+| **Last completed mission (MMM)** | **Program 4.01.1** — Meta Model Constitution SSOT (D-MMM-15) |
+| **Last decision (platform)** | **D-093** — Lifecycle Sync & Audit Operations |
+| **Last decision (MMM)** | **D-MMM-15** — `docs/meta-model/` as official MMM SSOT |
+| **Next official mission** | **Program 4.02** — MMM Specification (PlatformSchema for 222 objectTypes) — **authorized when governance PR merged + owner confirms** |
 
-Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md)
+Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md) · MMM roadmap: [meta-model/ROADMAP.md](../meta-model/ROADMAP.md)
 
 ---
 
@@ -89,9 +91,13 @@ Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md)
 | **3.8.5** Enterprise Vision Compliance Audit (D-069) | ✅ |
 | **3.8.7** Enterprise Vision Alignment Audit (D-072) | ✅ |
 | **Remediation** Platform Remediation Cycle 1 (D-073) | ✅ in progress |
-| **Próximo passo** | **Remediation gate** — VA-07 · doc sync · BOS plan |
+| **3.27** Lifecycle Sync (D-093, G325) | ✅ |
+| **4.00** Meta Model Foundation Audit | ✅ (audit) |
+| **4.01** Meta Model Foundation Architecture | ✅ (docs) |
+| **4.01.1** Meta Model Constitution | ✅ |
+| **Próximo passo** | **Program 4.02** — MMM Specification (PlatformSchema) |
 
-**Registries:** [GOVERNANCE-REGISTRY.md](./GOVERNANCE-REGISTRY.md) · [GATE-REGISTRY.md](./GATE-REGISTRY.md) · [SSOT-REGISTRY.md](./SSOT-REGISTRY.md)
+**Registries:** [GOVERNANCE-REGISTRY.md](./GOVERNANCE-REGISTRY.md) · [GATE-REGISTRY.md](./GATE-REGISTRY.md) · [SSOT-REGISTRY.md](./SSOT-REGISTRY.md) · [meta-model/](../meta-model/)
 
 ---
 
@@ -147,6 +153,7 @@ Authoring principles: [MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md](../architectu
 | 5 | [MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md) |
 | 6 | [MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md](../architecture/MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md) |
 | 7 | [MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md](../architecture/MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md) |
+| 8 | **[docs/meta-model/README.md](../meta-model/README.md)** — **MMM SSOT (Program 4.xx mandatory)** |
 
 ---
 

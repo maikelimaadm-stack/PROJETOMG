@@ -6,6 +6,8 @@
 **Mission:** Platform Sanitization Cycle 1 (D-071)  
 **Parent:** [MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md) §618–619
 
+> **MMM alignment (D-MMM-08):** Target derivation taxonomy (19 kinds) is defined in [docs/meta-model/21-INTENT-ENGINE.md](../meta-model/21-INTENT-ENGINE.md). This file remains SSOT for **implemented runtime** derivation kind strings until Program 4.02 reconciles catalog.
+
 ---
 
 ## Rule

@@ -55,6 +55,13 @@
 | [NEXT-SPRINT.md](./NEXT-SPRINT.md) | **deprecated** | [PROJECT-STATUS.md](./PROJECT-STATUS.md) | 2026-06-30 |
 | [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md) (stale sections) | **derived — update required** | [PROJECT-STATUS.md](./PROJECT-STATUS.md) + D-062 registries | 2026-06-30 |
 | Deploy docs referencing G303/G304 (deploy) | **historical** | [GATE-REGISTRY.md](./GATE-REGISTRY.md) G401/G402 | 2026-06-30 |
+| [MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md](../architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md) (metadata scope) | **reference — persistence substrate** | [docs/meta-model/24-PERSISTENCE.md](../meta-model/24-PERSISTENCE.md) + [docs/meta-model/README.md](../meta-model/README.md) | 2026-06-30 |
+| [MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md) (authoring flow) | **reference — pre-MMM** | [docs/meta-model/20-BUSINESS-LANGUAGE.md](../meta-model/20-BUSINESS-LANGUAGE.md) + [21-INTENT-ENGINE.md](../meta-model/21-INTENT-ENGINE.md) | 2026-06-30 |
+| [MAK-BUSINESS-DERIVATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-DERIVATION-ARCHITECTURE.md) | **reference — pre-MMM** | [docs/meta-model/21-INTENT-ENGINE.md](../meta-model/21-INTENT-ENGINE.md) | 2026-06-30 |
+| [MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md) | **reference — pre-MMM** | [docs/meta-model/21-INTENT-ENGINE.md](../meta-model/21-INTENT-ENGINE.md) | 2026-06-30 |
+| [MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md](../architecture/MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md) | **reference — pre-MMM** | [docs/meta-model/20-BUSINESS-LANGUAGE.md](../meta-model/20-BUSINESS-LANGUAGE.md) | 2026-06-30 |
+| [INTENT-DERIVATION-KIND-SSOT.md](./INTENT-DERIVATION-KIND-SSOT.md) (runtime kinds) | **derived — implementation SSOT** | [docs/meta-model/21-INTENT-ENGINE.md](../meta-model/21-INTENT-ENGINE.md) (19 MMM derivation kinds) | 2026-06-30 |
+| ROADMAP "Program 4" (Enterprise Intelligence impl) | **terminology superseded** | **Program 4 = MMM** per [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md); Intelligence impl renumbered future | 2026-06-30 |
 
 ---
 
@@ -62,7 +69,8 @@
 
 | Old term | Context | Preferred term | SSOT |
 |----------|---------|----------------|------|
-| "Program 3 Computed Fields" | D-056 era | Business Computed Fields (post-Resolver) | D-059 |
+| "Program 4 Computed Fields" | D-056 era | Business Computed Fields (post-Resolver) | D-059 |
+| "Program 4" (Enterprise Intelligence impl) | Pre-MMM era | **Program 4 = Universal Meta Model**; Intelligence impl = future program ID TBD | PROGRAM-REGISTRY |
 | "Next mission 2.3.6" | ROADMAP stale | Program 3.5 Intent Resolver | PROGRAM-REGISTRY |
 | Deploy "G304" | Pre-D-062 | G402 (deploy) / G304 (Resolver only) | GATE-REGISTRY |
 
