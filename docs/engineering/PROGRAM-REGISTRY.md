@@ -133,8 +133,9 @@
 | **4.01.1** | **Meta Model Constitution (SSOT docs)** | D-MMM-15 | **complete-docs** | 4.01 ✅ |
 | **4.01.2** | **MMM Alignment & Divergence Resolution** | D-MMM-16 | **complete-docs** | 4.01.1 ✅ |
 | **4.02** | **MMM Specification (PlatformSchema)** | D-MMM-17 | **complete-docs** | 4.01.2 ✅ |
-| **4.03** | **MMM Persistence** | — | **planned** | 4.02 ✅ |
-| **4.04–4.16+** | **MMM implementation track** | — | **planned** | See [meta-model/ROADMAP.md](../meta-model/ROADMAP.md) |
+| **4.03** | **MMM Persistence** | D-MMM-01, D-MMM-17 | **complete** | 4.02 ✅ |
+| **4.04** | **MMM Publish Engine** | — | **planned** | 4.03 ✅ |
+| **4.05–4.16+** | **MMM implementation track** | — | **planned** | See [meta-model/ROADMAP.md](../meta-model/ROADMAP.md) |
 
 > **Note:** "Program 3" in Phase 6 ROADMAP historically meant Marketplace — renamed collision documented in SUPERSESSION-REGISTER. Current **Program 3 = Studio Intelligence**. **Program 4 = Universal Meta Model** — ERP paused until MMM foundation ships.
 

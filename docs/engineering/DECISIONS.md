@@ -1135,7 +1135,7 @@
 | ID range | Topic | SSOT |
 |----------|-------|------|
 | D-MMM-01–16 | MMM architecture, CRB, permissions, AI, governance, taxonomy | [docs/meta-model/DECISIONS.md](../meta-model/DECISIONS.md) |
-| D-MMM-17 | Formal specification v1 (4.02) | [docs/meta-model/spec/SPECIFICATION-OVERVIEW.md](../meta-model/spec/SPECIFICATION-OVERVIEW.md) |
+| D-MMM-17 | Formal specification v1 (4.02) + persistence implementation (4.03) | [docs/meta-model/spec/SPECIFICATION-OVERVIEW.md](../meta-model/spec/SPECIFICATION-OVERVIEW.md) |
 
 ---
 

@@ -144,7 +144,7 @@
 
 | ID | Name | Objective | Program | Decision | Status |
 |----|------|-----------|---------|----------|--------|
-| **G421** | MMM PlatformSchema Coverage | 226 payload schemas + envelope + manifest completeness | 4.02 spec / 4.03 script | D-MMM-17 | **planned** |
+| **G421** | MMM PlatformSchema Coverage | 226 payload schemas + envelope + manifest + persistence wiring | 4.03 | D-MMM-17 | **active** |
 
 Spec: [G421-SPEC.md](../meta-model/spec/G421-SPEC.md)
 

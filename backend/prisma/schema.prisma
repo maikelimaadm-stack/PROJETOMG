@@ -60,6 +60,8 @@ model Cliente {
   lifecycleNotifications LifecycleNotification[]
   lifecycleStorageActions LifecycleStorageAction[]
   lifecycleBackupActions LifecycleBackupAction[]
+  mmmObjects             MmmObject[]
+  mmmObjectAudits        MmmObjectAudit[]
 
   @@index([nome])
   @@index([cpf_cnpj])
@@ -90,6 +92,7 @@ model Usuario {
   mdpFieldAudits   MdpFieldAudit[]
   mdpRelationshipAudits MdpRelationshipAudit[]
   mdpRegistryAudits     MdpRegistryAudit[]
+  mmmObjectAudits       MmmObjectAudit[]
   auditLogs    AuditLog[]
 
   @@unique([cliente_id, login])
@@ -1409,4 +1412,113 @@ model LifecycleBackupAction {
 
   @@index([group_id, status])
   @@map("lifecycle_backup_action")
+}
+
+// --- MAK UNIVERSAL META MODEL (MMM) — Persistence Layer (Program 4.03) ---
+
+enum MmmObjectStatus {
+  draft
+  review
+  approved
+  published
+  active
+  deprecated
+  archived
+  rejected
+  deleted
+}
+
+enum MmmVersionReason {
+  create
+  update
+  rollback
+  publish
+  batch
+}
+
+model MmmObject {
+  id               String          @id @default(cuid())
+  object_id        String          @unique @db.VarChar(64)
+  object_type      String          @db.VarChar(128)
+  tenant_id        String          @db.VarChar(128)
+  cliente_id       String          @db.VarChar(64)
+  envelope_version String          @default("mmm-envelope-v1") @db.VarChar(32)
+  scope            Json
+  status           MmmObjectStatus @default(draft)
+  payload          Json
+  lineage          Json
+  dependencies     Json?
+  labels           Json
+  metadata         Json?
+  revision         Int             @default(1)
+  content_hash     String          @db.VarChar(64)
+  module_id        String?         @db.VarChar(128)
+  mdp_substrate_ref Json?
+  created_at       DateTime        @default(now())
+  updated_at       DateTime        @updatedAt
+  created_by       String?         @db.VarChar(64)
+  updated_by       String?         @db.VarChar(64)
+
+  cliente   Cliente             @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+  versions  MmmObjectVersion[]
+  snapshots MmmObjectSnapshot[]
+  audits    MmmObjectAudit[]
+
+  @@index([cliente_id, object_type, status])
+  @@index([tenant_id, object_type])
+  @@index([module_id, status])
+  @@index([content_hash])
+  @@map("mmm_object")
+}
+
+model MmmObjectVersion {
+  id            String           @id @default(cuid())
+  object_row_id String           @db.VarChar(64)
+  revision      Int
+  envelope      Json
+  reason        MmmVersionReason
+  created_at    DateTime         @default(now())
+  created_by    String?          @db.VarChar(64)
+
+  object MmmObject @relation(fields: [object_row_id], references: [id], onDelete: Cascade)
+
+  @@unique([object_row_id, revision])
+  @@index([object_row_id, created_at])
+  @@map("mmm_object_version")
+}
+
+model MmmObjectSnapshot {
+  id             String           @id @default(cuid())
+  snapshot_id    String           @unique @db.VarChar(128)
+  object_row_id  String           @db.VarChar(64)
+  revision       Int
+  envelope       Json
+  integrity_hash String           @db.VarChar(64)
+  reason         MmmVersionReason
+  created_at     DateTime         @default(now())
+  created_by     String?          @db.VarChar(64)
+
+  object MmmObject @relation(fields: [object_row_id], references: [id], onDelete: Cascade)
+
+  @@index([object_row_id, created_at])
+  @@map("mmm_object_snapshot")
+}
+
+model MmmObjectAudit {
+  id            String   @id @default(cuid())
+  object_row_id String   @db.VarChar(64)
+  cliente_id    String   @db.VarChar(64)
+  action        String   @db.VarChar(64)
+  before        Json?
+  after         Json?
+  usuario_id    String?  @db.VarChar(64)
+  created_at    DateTime @default(now())
+
+  object  MmmObject @relation(fields: [object_row_id], references: [id], onDelete: Cascade)
+  cliente Cliente   @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+  usuario Usuario?  @relation(fields: [usuario_id], references: [id], onDelete: SetNull)
+
+  @@index([object_row_id, created_at])
+  @@index([cliente_id, created_at])
+  @@map("mmm_object_audit")
 }
