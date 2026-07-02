@@ -116,7 +116,7 @@ export const mmmService = {
     const registry = await getMmmSchemaRegistry();
     const tenantId = resolveTenantId(scope, input.tenantId);
     const envelope = normalizeCreateEnvelope(input, tenantId);
-    const actorId = scope.login ?? scope.userId ?? null;
+    const actorId = scope.user?.login ?? scope.userId ?? null;
 
     await validateMmmEnvelope({
       envelope,
@@ -158,7 +158,7 @@ export const mmmService = {
 
     const registry = await getMmmSchemaRegistry();
     const tenantId = existing.tenant_id;
-    const actorId = scope.login ?? scope.userId ?? null;
+    const actorId = scope.user?.login ?? scope.userId ?? null;
     const envelope = {
       ...input,
       envelopeVersion: MMM_ENVELOPE_VERSION,
@@ -226,7 +226,7 @@ export const mmmService = {
       withStatus("Revision conflict.", 409, "REVISION_CONFLICT");
     }
 
-    const actorId = scope.login ?? scope.userId ?? null;
+    const actorId = scope.user?.login ?? scope.userId ?? null;
     const envelope = prepareEnvelopeUpdate(existing, patch, actorId);
 
     if (patch.status) {
@@ -281,7 +281,7 @@ export const mmmService = {
   async batchCreateObjects(body, scope) {
     if (!body?.objects?.length) withStatus("Batch requires at least one object.", 422, "VALIDATION_ERROR");
     const registry = await getMmmSchemaRegistry();
-    const actorId = scope.login ?? scope.userId ?? null;
+    const actorId = scope.user?.login ?? scope.userId ?? null;
     const prepared = [];
 
     for (const input of body.objects) {
@@ -362,7 +362,7 @@ export const mmmService = {
       withStatus("revision or snapshotId required.", 422, "VALIDATION_ERROR");
     }
 
-    const actorId = scope.login ?? scope.userId ?? null;
+    const actorId = scope.user?.login ?? scope.userId ?? null;
     const envelope = {
       ...sourceEnvelope,
       objectId,
