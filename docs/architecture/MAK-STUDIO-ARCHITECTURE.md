@@ -8,7 +8,7 @@
 **Layer:** L5 (Experience Authoring)  
 **Hierarchy:** Constitution → Master Architecture → **This document** → Engineering Docs → Implementation
 
-> **MMM boundary (D-MMM-17, R-17):** Studio **edits** MMM via API; MMM architecture SSOT = [docs/meta-model/](../meta-model/). Studio internal architecture remains valid for Program 2 frozen scope.
+> **MMM boundary (D-MMM-15, R-17):** Studio **edits** MMM via API; MMM architecture SSOT = [docs/meta-model/](../meta-model/). Studio internal architecture remains valid for Program 2 frozen scope.
 
 ---
 
