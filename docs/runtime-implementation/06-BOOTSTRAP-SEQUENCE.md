@@ -139,10 +139,10 @@ flowchart TD
 |------|--------|--------|
 | 8.1 | User triggers action | Host UI |
 | 8.2 | M10 dispatch UEC Command/Action | Action Engine |
-| 8.3 | M16 pipeline: intake → permission → validation → execute → emit | Execution Engine |
-| 8.4 | M15 validation (stage 3) | Validation Engine |
-| 8.5 | M23 transaction wrap (BE) | Transaction Manager |
-| 8.6 | M22 publish domain events | Event Bus |
+| 8.3 | M16 pipeline: Validate → Authorize → Execute → Audit → Respond | Execution Engine |
+| 8.4 | M15 validation (stage 1) | Validation Engine |
+| 8.5 | M23 transaction wrap (BE, Execute stage) | Transaction Manager |
+| 8.6 | M22 publish domain events (Execute stage, post-commit) | Event Bus |
 | 8.7 | M17 update state / USM transition | State + Workflow |
 
 ---
@@ -176,8 +176,8 @@ sequenceDiagram
   RE-->>C: RenderTree
 
   C->>X: RT-8 action
-  X->>P: stage 2
-  X->>X: stage 3-5
+  X->>P: stage 2 Authorize
+  X->>X: stages 3-5 Execute → Audit → Respond
   X-->>C: UecResponse
 ```
 

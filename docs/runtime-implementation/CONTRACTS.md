@@ -62,6 +62,7 @@
 |-------|-------|
 | Foundation C | `IEventBus` + in-process stub |
 | Foundation F | Replace transport; interface stable |
+| Event envelope SSOT | UP-08 |
 | SSOT | D-RI-08 |
 
 ---

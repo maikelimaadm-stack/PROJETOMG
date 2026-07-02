@@ -45,7 +45,7 @@
 
 ## D-PA-07 — Studio designer catalog closed
 
-**Decision:** Seventeen Studio designers are **normative** ([03-STUDIO.md](./03-STUDIO.md)). New designers require D-PA amendment + PlatformSchema additive type.
+**Decision:** Seventeen **core** Studio designers are **normative** for Foundation D phase 1 ([03-STUDIO.md](./03-STUDIO.md)). Full catalog of **28 designers** (17 core + 11 extended) per [D-UA-06](../platform-authoring/DECISIONS.md#d-ua-06--designer-catalog-closed-at-28). New designers require D-PA amendment + PlatformSchema additive type.
 
 ---
 
@@ -57,7 +57,7 @@
 
 ## D-PA-09 — AI write boundary
 
-**Decision:** AI **never** writes MMM objects directly. Output is always **AICandidate → human review → Intent → Derivation → MMM draft** (D-MMM-11, D-074 P-09).
+**Decision:** AI **never** writes MMM objects directly. Output is always **AICandidate → human review → Intent → Derivation → MMM draft** (D-MMM-09, D-074 P-09).
 
 ---
 
@@ -117,7 +117,7 @@
 
 ## D-PA-19 — Implementation resume gates
 
-**Decision:** Code resumes only when [18-FOUNDATION-ROADMAP.md](./18-FOUNDATION-ROADMAP.md) certifies the target **Foundation** gate PASS. Global freeze until this documentation merge.
+**Decision:** Code resumes only when [18-FOUNDATION-ROADMAP.md](./18-FOUNDATION-ROADMAP.md) certifies the target **Foundation** gate PASS. Global freeze until this documentation merge. **Authorized code start:** after **G420E** (C.0 audit PASS) + **Foundation C.0.2** slice clearance per [runtime-implementation/](../runtime-implementation/).
 
 ---
 

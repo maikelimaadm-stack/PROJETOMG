@@ -1,7 +1,7 @@
 # 26 — Platform Schema
 
 > **Status:** Official SSOT · Program 4.01.1  
-> **Owner topic:** JSON Schema registry for 222 objectTypes  
+> **Owner topic:** JSON Schema registry — **226 PlatformSchemas** / **227 taxonomy** (`record` excluded per R-14)  
 > **Related:** [02-OBJECT-TAXONOMY.md](./02-OBJECT-TAXONOMY.md) · [17-PUBLISH-PIPELINE.md](./17-PUBLISH-PIPELINE.md) · [DECISIONS.md](./DECISIONS.md) D-MMM-03
 
 ---

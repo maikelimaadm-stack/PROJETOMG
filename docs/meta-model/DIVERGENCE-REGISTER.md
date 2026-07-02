@@ -54,7 +54,7 @@
 | **DV-STR-02** | STRUCT | Runtime Bridge piloto empresas | Universal CRB | 4.05 |
 | **DV-STR-03** | STRUCT | RBAC 3 `UsuarioPerfil` | Permission/Role MMM | 4.07 |
 | **DV-STR-04** | STRUCT | Dual authoring Studio + BL | BL → Intent → MMM | 4.10, 4.14 |
-| **DV-STR-05** | STRUCT | Intelligence localStorage | Event Bus L3 + DB | 4.11+ |
+| **DV-STR-05** | STRUCT | Intelligence localStorage | Event Bus L1 + DB | 4.11+ |
 | **DV-STR-06** | STRUCT | Generator → JS files | MMM object graph | 4.14 |
 | **DV-STR-07** | STRUCT | Record/MMM mixed in cadastro | R-14 separation | 4.06, 4.14 |
 

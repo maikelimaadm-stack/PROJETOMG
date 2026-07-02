@@ -11,7 +11,7 @@
 ```yaml
 bind:
   event:
-    on: record.created | record.updated | workflow.completed
+    on: record.created | record.updated | workflow.finished
     filter:
       boRef: code://module/empresa
       expression: "FIELD(status) = 'active'"
@@ -27,7 +27,7 @@ bind:
 | Source | Events |
 |--------|--------|
 | Record | created, updated, deleted |
-| Workflow | started, completed, failed |
+| Workflow | started, step.entered, finished, failed |
 | Action | executed |
 | Schedule | cron (via automation) |
 

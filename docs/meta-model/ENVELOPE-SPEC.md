@@ -1,13 +1,14 @@
 # MMM Universal Envelope — Specification Outline
 
-**Status:** Official — Pre-4.02 outline · **Superseded by:** [spec/mmm-envelope-v1.schema.json](./spec/mmm-envelope-v1.schema.json) (v1.0.0)  
+**Status:** Official — Outline (superseded by JSON Schema SSOT)  
+**SSOT:** [spec/mmm-envelope-v1.schema.json](./spec/mmm-envelope-v1.schema.json) (`mmm-envelope-v1`)  
 **Version:** 1.0.0 (outline retired)  
 **Effective date:** 2026-06-30  
 **Mission:** Program 4.01.2 — alignment before PlatformSchema  
 **Decision:** D-MMM-03  
 **Owner:** Envelope contract; per-type payloads in topic docs + PlatformSchema registry
 
-> **Rule:** This document defines the **envelope contract only**. Payload schemas are owned by [26-PLATFORM-SCHEMA.md](./26-PLATFORM-SCHEMA.md) and per-objectType schemas (4.02 deliverable).
+> **Rule:** Normative envelope structure lives in **`spec/mmm-envelope-v1.schema.json`**. This document is a human-readable outline only. Payload schemas are owned by [26-PLATFORM-SCHEMA.md](./26-PLATFORM-SCHEMA.md) and per-objectType schemas (4.02 deliverable).
 
 ---
 
@@ -31,6 +32,7 @@ Eliminar ambiguidade do **envelope universal** antes da especificação formal J
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
+| `envelopeVersion` | string (const) | ✓ | Always `"mmm-envelope-v1"` — schema version discriminator |
 | `objectId` | string (uuid) | ✓ | Stable cross-version identity (R-05) |
 | `objectType` | string (enum) | ✓ | One of 227 taxonomy values |
 | `tenantId` | string | ✓ | Tenant isolation |
@@ -67,7 +69,7 @@ Eliminar ambiguidade do **envelope universal** antes da especificação formal J
 
 ## Validation order
 
-1. Parse envelope structure (envelope schema)
+1. Parse envelope structure ([mmm-envelope-v1.schema.json](./spec/mmm-envelope-v1.schema.json))
 2. Validate `objectType` ∈ taxonomy ([02-OBJECT-TAXONOMY.md](./02-OBJECT-TAXONOMY.md))
 3. Validate `status` transition if update
 4. Validate `payload` against PlatformSchema[`objectType`]
@@ -87,9 +89,9 @@ Eliminar ambiguidade do **envelope universal** antes da especificação formal J
 
 ## Integrações
 
-- API contract C-01 ([CONTRACTS.md](./CONTRACTS.md))
-- Publish C-3 validate ([17-PUBLISH-PIPELINE.md](./17-PUBLISH-PIPELINE.md))
-- Program 4.02: publish `mmm-envelope-v1.json` + 226 payload schemas
+- API contract MMM-C-01 ([CONTRACTS.md](./CONTRACTS.md))
+- Publish PUB-C-3 validate ([17-PUBLISH-PIPELINE.md](./17-PUBLISH-PIPELINE.md))
+- Program 4.02: publish `mmm-envelope-v1.schema.json` + 226 payload schemas
 
 ---
 
@@ -98,7 +100,7 @@ Eliminar ambiguidade do **envelope universal** antes da especificação formal J
 | Version | Target |
 |---------|--------|
 | 0.9.0 | Outline (4.01.2) |
-| 1.0.0 | Full JSON Schema (4.02) |
+| 1.0.0 | Full JSON Schema (4.02) — SSOT: `spec/mmm-envelope-v1.schema.json` |
 
 ---
 

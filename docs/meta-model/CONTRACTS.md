@@ -5,6 +5,8 @@
 **Effective date:** 2026-06-30  
 **Mission:** Program 4.01.1
 
+> **Contract IDs:** Prefixed **MMM-C-NN** (e.g. MMM-C-01). Legacy shorthand `C-NN` in diagrams refers to the same contract.
+
 ---
 
 ## Objetivo
@@ -33,11 +35,11 @@ Este documento é o **único owner** de contratos inter-subsistema MMM.
 
 ## Contratos
 
-### C-01: Studio → MMM API (Write)
+### MMM-C-01: Studio → MMM API (Write)
 
 | Attribute | Value |
 |-----------|-------|
-| Producer | Studio (L5) |
+| Producer | Studio (L4) |
 | Consumer | MMM Persistence |
 | Operation | CRUD objects (draft status) |
 | Protocol | REST `/api/mmm/*` (future; today `/api/mdp/*` transitional) |
@@ -45,7 +47,7 @@ Este documento é o **único owner** de contratos inter-subsistema MMM.
 | Failure | 4xx validation error; no partial write |
 | Rules | R-17 |
 
-### C-02: Business Language → Intent Engine
+### MMM-C-02: Business Language → Intent Engine
 
 | Attribute | Value |
 |-----------|-------|
@@ -56,7 +58,7 @@ Este documento é o **único owner** de contratos inter-subsistema MMM.
 | Output | DerivationPlan + preview |
 | Rules | R-04, D-MMM-08 |
 
-### C-03: Intent Engine → MMM API
+### MMM-C-03: Intent Engine → MMM API
 
 | Attribute | Value |
 |-----------|-------|
@@ -66,17 +68,17 @@ Este documento é o **único owner** de contratos inter-subsistema MMM.
 | Precondition | Human Confirmation |
 | Lineage | intentId mandatory |
 
-### C-04: AI Gateway → AICandidate
+### MMM-C-04: AI Gateway → AICandidate
 
 | Attribute | Value |
 |-----------|-------|
-| Producer | AI Gateway (L3) |
+| Producer | AI Gateway (L6) |
 | Consumer | MMM Persistence |
 | Operation | Create AICandidate (draft) |
 | Constraint | `humanReviewRequired: true` always |
 | Rules | R-03, D-MMM-09 |
 
-### C-05: MMM → Publish Engine
+### MMM-C-05: MMM → Publish Engine
 
 | Attribute | Value |
 |-----------|-------|
@@ -87,7 +89,7 @@ Este documento é o **único owner** de contratos inter-subsistema MMM.
 | Output | CompiledBundle + integrityHash |
 | See | [17-PUBLISH-PIPELINE.md](./17-PUBLISH-PIPELINE.md) |
 
-### C-06: Publish Engine → Runtime Bridge
+### MMM-C-06: Publish Engine → Runtime Bridge
 
 | Attribute | Value |
 |-----------|-------|
@@ -97,27 +99,27 @@ Este documento é o **único owner** de contratos inter-subsistema MMM.
 | Trigger | EnvironmentPin change / app bootstrap |
 | Rules | R-02, D-MMM-04 |
 
-### C-07: Runtime → Generic Repository
+### MMM-C-07: Runtime → Generic Repository
 
 | Attribute | Value |
 |-----------|-------|
-| Producer | Runtime (BaseTemplate) |
+| Producer | Runtime (L3, BaseTemplate) |
 | Consumer | Generic Repository |
 | Operation | CRUD Records |
 | Selection | BusinessObject.persistenceMapping |
 | Rules | R-14 |
 
-### C-08: Runtime → Event Bus
+### MMM-C-08: Runtime → Event Bus
 
 | Attribute | Value |
 |-----------|-------|
-| Producer | Runtime |
-| Consumer | Event Bus L3 |
+| Producer | Runtime (L3) |
+| Consumer | Event Bus L1 |
 | Operation | Emit DomainEvent |
 | Schema | DomainEvent (instance, not MMM) |
 | Mandatory | AuditLog persistence |
 
-### C-09: Event Bus → Intelligence
+### MMM-C-09: Event Bus → Intelligence
 
 | Attribute | Value |
 |-----------|-------|
@@ -127,7 +129,7 @@ Este documento é o **único owner** de contratos inter-subsistema MMM.
 | Constraint | Read-only; never writes MMM |
 | Rules | R-12 |
 
-### C-10: Event Bus → Workflow/Automation
+### MMM-C-10: Event Bus → Workflow/Automation
 
 | Attribute | Value |
 |-----------|-------|
@@ -136,7 +138,7 @@ Este documento é o **único owner** de contratos inter-subsistema MMM.
 | Operation | Trigger execution from MMM Event subscription |
 | Precondition | CRB workflow/automation registry |
 
-### C-11: BOS → Intelligence Event Bridge
+### MMM-C-11: BOS → Intelligence Event Bridge
 
 | Attribute | Value |
 |-----------|-------|
@@ -145,7 +147,7 @@ Este documento é o **único owner** de contratos inter-subsistema MMM.
 | Operation | `intelligenceEventBridge` non-blocking |
 | Constraint | Never blocks business operation |
 
-### C-12: BOS → Runtime (Navigation)
+### MMM-C-12: BOS → Runtime (Navigation)
 
 | Attribute | Value |
 |-----------|-------|
@@ -154,7 +156,7 @@ Este documento é o **único owner** de contratos inter-subsistema MMM.
 | Operation | Deep-link to Route → Screen |
 | Source | MMM Capability + Route objects (CRB) |
 
-### C-13: Marketplace → MMM Install
+### MMM-C-13: Marketplace → MMM Install
 
 | Attribute | Value |
 |-----------|-------|
@@ -164,7 +166,7 @@ Este documento é o **único owner** de contratos inter-subsistema MMM.
 | Constraint | New objectIds; lineage.packageId preserved |
 | Rules | R-18 |
 
-### C-14: MMM → Marketplace Export
+### MMM-C-14: MMM → Marketplace Export
 
 | Attribute | Value |
 |-----------|-------|
@@ -179,21 +181,21 @@ Este documento é o **único owner** de contratos inter-subsistema MMM.
 
 ```mermaid
 flowchart LR
-  BL[Business Language] -->|C-02| IR[Intent Engine]
-  AI[AI Gateway] -->|C-04| AC[AICandidate]
+  BL[Business Language] -->|MMM-C-02| IR[Intent Engine]
+  AI[AI Gateway] -->|MMM-C-04| AC[AICandidate]
   AC --> IR
-  IR -->|C-03| MMM[MMM Store]
-  ST[Studio] -->|C-01| MMM
-  MMM -->|C-05| PE[Publish Engine]
-  PE -->|C-06| RB[Runtime Bridge]
+  IR -->|MMM-C-03| MMM[MMM Store]
+  ST[Studio] -->|MMM-C-01| MMM
+  MMM -->|MMM-C-05| PE[Publish Engine]
+  PE -->|MMM-C-06| RB[Runtime Bridge]
   RB --> RT[Runtime]
-  RT -->|C-07| GR[Generic Repository]
-  RT -->|C-08| EB[Event Bus]
-  EB -->|C-09| INT[Intelligence]
-  BOS -->|C-11| INT
-  BOS -->|C-12| RT
-  MMM -->|C-14| MKP[Marketplace]
-  MKP -->|C-13| MMM
+  RT -->|MMM-C-07| GR[Generic Repository]
+  RT -->|MMM-C-08| EB[Event Bus]
+  EB -->|MMM-C-09| INT[Intelligence]
+  BOS -->|MMM-C-11| INT
+  BOS -->|MMM-C-12| RT
+  MMM -->|MMM-C-14| MKP[Marketplace]
+  MKP -->|MMM-C-13| MMM
 ```
 
 ---
@@ -210,7 +212,7 @@ flowchart LR
 
 | Version | Date | Change |
 |---------|------|--------|
-| 1.0.0 | 2026-06-30 | C-01 through C-14 |
+| 1.0.0 | 2026-06-30 | MMM-C-01 through MMM-C-14 |
 
 ## Próximos passos
 

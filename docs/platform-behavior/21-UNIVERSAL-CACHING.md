@@ -2,6 +2,8 @@
 
 **Status:** Official SSOT · **Version:** 1.0.0 · **Decision:** D-PB-13
 
+> **Note:** Cache tiers **L1 / L2 / L3** below denote **cache depth** (in-memory → Redis → source). They are **not** platform architecture layers (L0–L10). See [platform-architecture/01-LAYERS.md](../platform-architecture/01-LAYERS.md) (D-PA-01).
+
 ---
 
 ## Cache layers

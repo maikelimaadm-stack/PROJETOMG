@@ -34,14 +34,14 @@ Este documento é o **único owner** de decisões MMM. Platform DECISIONS.md ref
 
 **Consequences:**
 - Elimina dual-path metadata
-- MDP tables/schemas expandem para 222 objectTypes
+- MDP tables/schemas expandem para 227 objectTypes (226 PlatformSchemas)
 - Boot cache torna-se read-only compile export
 
 **Rules:** P-01, P-04, R-01
 
 ---
 
-## D-MMM-02 — 222 objectTypes Taxonomy v1
+## D-MMM-02 — 227 objectTypes Taxonomy v1
 
 **Status:** Accepted  
 **Date:** 2026-06-30
@@ -154,7 +154,7 @@ Este documento é o **único owner** de decisões MMM. Platform DECISIONS.md ref
 **Status:** Accepted  
 **Date:** 2026-06-30
 
-**Decision:** Intelligence consome DomainEvents via Event Bus L3. Nunca escreve objetos MMM.
+**Decision:** Intelligence consome DomainEvents via Event Bus L1. Nunca escreve objetos MMM.
 
 **Consequences:** Desacoplamento BOS/Intelligence/Runtime; persistence Intelligence em DB (future program).
 

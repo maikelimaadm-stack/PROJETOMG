@@ -55,6 +55,8 @@ flowchart LR
 | query | `record.get`, `record.list`, `schema.lookup` | No |
 | action | `save`, `delete`, `triggerWorkflow` | Yes |
 
+> **Note (D-UP-07):** When `messageType` = `action`, `body.kind` is **synonymous** with `actionCode` in [07-UNIVERSAL-ACTION.md](./07-UNIVERSAL-ACTION.md). Ingress may accept either field; handlers normalize to `actionCode`.
+
 ---
 
 ## Origin mapping

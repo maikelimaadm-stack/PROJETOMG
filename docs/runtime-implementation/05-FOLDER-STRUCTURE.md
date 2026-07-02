@@ -88,11 +88,11 @@ src/runtime/
 │   │   ├── IExecutionEngine.ts
 │   │   ├── executionEngine.ts
 │   │   └── pipeline/           # UP-09 5 stages
-│   │       ├── stage1-intake.ts
-│   │       ├── stage2-permission.ts
-│   │       ├── stage3-validation.ts
-│   │       ├── stage4-execute.ts
-│   │       └── stage5-emit.ts
+│   │       ├── stage1-validate.ts
+│   │       ├── stage2-authorize.ts
+│   │       ├── stage3-execute.ts
+│   │       ├── stage4-audit.ts
+│   │       └── stage5-respond.ts
 │   ├── state/
 │   │   ├── IStateEngine.ts
 │   │   ├── screenState.ts

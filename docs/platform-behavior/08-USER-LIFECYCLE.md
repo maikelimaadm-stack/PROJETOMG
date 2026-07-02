@@ -24,25 +24,26 @@ stateDiagram-v2
     draft --> running: activate
     running --> deprecated: suspend
     deprecated --> running: resume
-    running --> archived: block
-    archived --> running: unblock
+    running --> archived: archive
+    archived --> running: activate
     running --> deleted: delete
-    draft --> deleted: cancel invite
+    draft --> deleted: delete
 ```
 
 ---
 
 ## Transition table
 
-| Operation | From → To | Actor | Side effects |
-|-----------|-----------|-------|--------------|
-| `create` | → draft | Admin | Send invite email |
-| `activate` | draft → running | User / Admin | Set password, MFA |
-| `suspend` | running → deprecated | Admin | Invalidate sessions |
-| `resume` | deprecated → running | Admin | — |
-| `block` | running → archived | Admin | Immediate session revoke |
-| `unblock` | archived → running | Admin | — |
-| `delete` | * → deleted | Admin | Anonymize PII per LGPD |
+| Operation | Alias | From → To | Actor | Side effects |
+|-----------|-------|-----------|-------|--------------|
+| `create` | — | → draft | Admin | Send invite email |
+| `activate` | — | draft → running | User / Admin | Set password, MFA |
+| `suspend` | — | running → deprecated | Admin | Invalidate sessions |
+| `resume` | — | deprecated → running | Admin | — |
+| `archive` | block | running → archived | Admin | Immediate session revoke |
+| `activate` | unblock | archived → running | Admin | — |
+| `delete` | cancel invite | draft → deleted | Admin | Revoke pending invite |
+| `delete` | — | running/deprecated → deleted | Admin | Anonymize PII per LGPD |
 
 ---
 

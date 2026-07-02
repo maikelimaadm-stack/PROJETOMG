@@ -114,7 +114,7 @@ Purchase order approval: Draft → Submitted → Manager Approval → Approved.
 
 ## Integrações
 
-Event Bus L3, V20 workflow registry, Studio Workflow Designer (4.09).
+Event Bus L1, V20 workflow registry, Studio Workflow Designer (4.09).
 
 ---
 

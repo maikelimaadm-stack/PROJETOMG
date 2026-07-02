@@ -3,7 +3,7 @@
 **Status:** Official — Single source of truth for project continuity  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Updated by:** Foundation C.0 — Runtime Implementation Plan (D-RI-01+)  
+**Updated by:** Foundation C.0.2 — SSOT Remediation (D-RI-16)  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md); supersedes chat history
 
 > **Rule:** Any AI or developer session must read this file (via [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md)) before starting work. Do not rely on prior chat context.
@@ -14,9 +14,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Architecture state** | **SIX BLOCKS COMPLETE** — meta-model + architecture + behavior + protocol + authoring + runtime implementation plan (C.0) |
-| **Implementation phase** | **Foundation C code authorized** (D-RI-14) — slice C.1 next |
-| **Implementation authorized** | **Foundation C — Runtime Bridge** — [12-AUDITORIA-FINAL.md](../runtime-implementation/12-AUDITORIA-FINAL.md) · [18-FOUNDATION-ROADMAP.md](../platform-architecture/18-FOUNDATION-ROADMAP.md) |
+| **Architecture state** | **SIX BLOCKS SYNCHRONIZED** — C.0.2 Global Architecture Certificate |
+| **Implementation phase** | **Foundation C code authorized** (D-RI-16) — slice C.1 next |
+| **Implementation authorized** | **Foundation C — full Runtime** — [13-AUDITORIA-FINAL.md](../runtime-implementation/13-AUDITORIA-FINAL.md) |
 | **Platform architecture SSOT** | [docs/platform-architecture/README.md](../platform-architecture/README.md) |
 | **Platform behavior SSOT** | [docs/platform-behavior/README.md](../platform-behavior/README.md) |
 | **Platform protocol SSOT** | [docs/platform-protocol/README.md](../platform-protocol/README.md) |
@@ -74,8 +74,8 @@
 | **Last completed mission (Behavior)** | **Foundation B.5** — Platform Behavior Specification (D-PB-01+) |
 | **Last completed mission (Protocol)** | **Foundation B.6** — Universal Execution Protocol (D-UP-01+) |
 | **Last completed mission (Authoring)** | **Foundation B.7** — Universal Authoring Specification (D-UA-01+) |
-| **Last completed mission (Impl Plan)** | **Foundation C.0** — Runtime Implementation Plan (D-RI-01+) |
-| **Last decision (Impl Plan)** | **D-RI-14** — C.0 audit PASS authorizes Foundation C code |
+| **Last completed mission (Impl Plan)** | **Foundation C.0.2** — SSOT Remediation (D-RI-16) |
+| **Last decision (Impl Plan)** | **D-RI-16** — Global Architecture Certificate issued |
 | **Next official mission** | **Foundation C.1** — Context + Bootstrap shell (`src/runtime/`) |
 
 Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md) · Foundation sequence: [18-FOUNDATION-ROADMAP.md](../platform-architecture/18-FOUNDATION-ROADMAP.md) · Protocol SSOT: [platform-protocol/](../platform-protocol/) · MMM roadmap: [meta-model/ROADMAP.md](../meta-model/ROADMAP.md)

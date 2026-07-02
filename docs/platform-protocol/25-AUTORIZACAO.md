@@ -58,7 +58,7 @@
 
 | Foundation | Blocked until |
 |------------|---------------|
-| D Studio MMM-native | C partial + G424 |
+| D Studio MMM-native | G423-06 (read-only prep) + G424 (full certification) |
 | E Legacy elimination | C + G425 |
 | F Event Bus production | C + G426 |
 | I Marketplace prod | C + G429 |

@@ -31,7 +31,7 @@ stateDiagram-v2
     running --> running: upgrade/downgrade
     running --> deprecated: suspend
     deprecated --> running: resume
-    deprecated --> archived: cancel
+    deprecated --> archived: delete
     archived --> deleted: expunge
     running --> deleted: expunge (compliance)
 ```
@@ -40,18 +40,23 @@ stateDiagram-v2
 
 ## Operations
 
+| Operation | Alias | Behavior |
+|-----------|-------|----------|
+| `create` | — | Provision tenant, default admin user (draft) |
+| `activate` | — | Enable billing, accept traffic |
+| `upgrade` | — | Plan change — feature flags updated |
+| `downgrade` | — | Plan change — graceful feature removal |
+| `suspend` | — | Read-only 30d; Runtime maintenance screen |
+| `resume` | — | Restore full access |
+| `delete` | cancel | `deprecated` → `archived` — data retained per retention policy |
+| `restore` | — | From backup to new draft tenant |
+| `expunge` | — | Irreversible — D-PB-28 |
+
+### Admin side effects (non-transition)
+
 | Operation | Behavior |
 |-----------|----------|
-| `create` | Provision tenant, default admin user (draft) |
-| `activate` | Enable billing, accept traffic |
-| `upgrade` | Plan change — feature flags updated |
-| `downgrade` | Plan change — graceful feature removal |
-| `suspend` | Read-only 30d; Runtime maintenance screen |
-| `resume` | Restore full access |
-| `cancel` | archived — data retained per retention policy |
-| `backup` | Snapshot MMM + DB slice |
-| `restore` | From backup to new draft tenant |
-| `expunge` | Irreversible — D-PB-28 |
+| `backup` | Snapshot MMM + DB slice — **not** a USM transition; emits `tenant.backup.completed` |
 
 ---
 

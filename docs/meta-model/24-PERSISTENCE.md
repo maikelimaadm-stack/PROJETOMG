@@ -8,7 +8,7 @@
 
 ## Objetivo
 
-Descrever a evolução do **MDP (MAK Data Platform)** como substrato de persistência do MMM — expandindo taxonomia 26→222 objectTypes.
+Descrever a evolução do **MDP (MAK Data Platform)** como substrato de persistência do MMM — expandindo taxonomia 26→**227 objectTypes**.
 
 ---
 
@@ -37,7 +37,7 @@ Descrever a evolução do **MDP (MAK Data Platform)** como substrato de persist�
 
 - **MDP** — persistence layer; evolves from parallel metadata system to MMM substrate.
 - **MMM Envelope** — universal storage row format.
-- **MdpRegistryEntryType** — legacy 26 types → superseded by 222 taxonomy.
+- **MdpRegistryEntryType** — legacy 26 types → superseded by **227** taxonomy.
 
 ---
 

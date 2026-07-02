@@ -45,7 +45,7 @@
 
 ## D-PB-07 — AI never direct-write
 
-**Decision:** AI lifecycle ends at `AICandidate`; human approval required before any USM `create` operation on MMM objects (D-PA-09, D-MMM-11).
+**Decision:** AI lifecycle ends at `AICandidate`; human approval required before any USM `create` operation on MMM objects (D-PA-09, D-MMM-09).
 
 ---
 
@@ -184,6 +184,24 @@
 ## D-PB-30 — Universal execution single dispatcher
 
 **Decision:** All execution (action, workflow step, automation, AI tool) routes through [23-UNIVERSAL-EXECUTION-MODEL.md](./23-UNIVERSAL-EXECUTION-MODEL.md) dispatcher — no parallel executors.
+
+---
+
+## D-PB-31 — Profile operation aliases
+
+**Decision:** Domain-specific operation labels (e.g. user `block`, tenant `cancel`) map to canonical USM operations via [16-UNIVERSAL-STATE-MACHINE.md](./16-UNIVERSAL-STATE-MACHINE.md) **Profile operation aliases**. Enforcement and audit use USM operation names only.
+
+---
+
+## D-PB-32 — RT-5 maps to UEP stage 2 Authorize
+
+**Decision:** Runtime phase **RT-5 Authorize** implements UEP pipeline **stage 2 Authorize** ([platform-protocol/09-UNIVERSAL-PIPELINE.md](../platform-protocol/09-UNIVERSAL-PIPELINE.md)). Permission evaluation occurs before RT-6 Route / RT-8 Execute.
+
+---
+
+## D-PB-33 — Event Bus stub during Foundation C until G426
+
+**Decision:** Foundation C ships **EventBusClient** interface + in-process stub transport. Production DB-backed L1 Event Bus deferred to Foundation F (**G426**). Runtime and services emit to stub; consumers must not assume cross-process delivery until G426 PASS.
 
 ---
 

@@ -182,6 +182,14 @@
 
 **Decision:** meta-model + platform-architecture + platform-behavior + platform-protocol = complete SSOT before Foundation C code.
 
+> **Supersession (C.0.2):** Pillar count extended — five pillars (+ authoring D-UA-34), six blocks (+ runtime-implementation D-RI-15). Timing superseded by D-UP-25 → D-UA-26 → D-RI-14 chain.
+
+---
+
+## D-UP-31 — Action idempotency
+
+**Decision:** Mutating `action` messages accept `idempotencyKey` in request header (same as commands per D-PB-12).
+
 ---
 
 *End of document.*

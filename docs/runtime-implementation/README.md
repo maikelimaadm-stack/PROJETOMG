@@ -38,7 +38,8 @@
 | 09 | [GATES](./09-GATES.md) | Foundation C gates G423-NN |
 | 10 | [DELIVERY-PLANNING](./10-DELIVERY-PLANNING.md) | Small delivery slices |
 | 11 | [RISKS](./11-RISKS.md) | Risks and mitigations |
-| 12 | [AUDITORIA-FINAL](./12-AUDITORIA-FINAL.md) | Authorization to implement |
+| 12 | [AUDITORIA-FINAL](./12-AUDITORIA-FINAL.md) | C.0 authorization |
+| 13 | [AUDITORIA-FINAL C.0.2](./13-AUDITORIA-FINAL.md) | Global Architecture Certificate |
 
 ---
 

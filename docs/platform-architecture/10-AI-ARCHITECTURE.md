@@ -20,7 +20,7 @@
 
 | Forbidden | Reason |
 |-----------|--------|
-| Direct MMM write | D-MMM-11, D-074 P-09 |
+| Direct MMM write | D-MMM-09, D-074 P-09 |
 | Direct Record write without action | Audit bypass |
 | Production pin change | Human-only |
 | Permission grant | Security |

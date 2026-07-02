@@ -2,6 +2,8 @@
 
 **Foundation C.0** · Contratos entre módulos do Runtime
 
+> **Prefix note:** Runtime module contracts use the **RT-C-NN** prefix (e.g. RT-C-01). Do not confuse with Publish Foundation contracts (**PUB-C-NN**).
+
 ---
 
 ## 1. Formato de contrato
@@ -12,7 +14,7 @@ Cada contrato define: **Provider → Consumer**, payload, garantias, falhas.
 
 ## 2. Contratos Core
 
-### C-01: Bootstrap → Host
+### RT-C-01: Bootstrap → Host
 
 | Campo | Valor |
 |-------|-------|
@@ -22,7 +24,7 @@ Cada contrato define: **Provider → Consumer**, payload, garantias, falhas.
 | Guarantee | RT-8 ready or typed error; never partial silent failure |
 | Failure | `MAK-L3-RUNTIME-001` maintenance screen |
 
-### C-02: Context → All modules
+### RT-C-02: Context → All modules
 
 | Campo | Valor |
 |-------|-------|
@@ -32,7 +34,7 @@ Cada contrato define: **Provider → Consumer**, payload, garantias, falhas.
 | Guarantee | `traceId` propagated; tenant isolation enforced |
 | Forbidden | Mutation of context after creation |
 
-### C-03: Session → Bootstrap / Permission
+### RT-C-03: Session → Bootstrap / Permission
 
 | Campo | Valor |
 |-------|-------|
@@ -42,7 +44,7 @@ Cada contrato define: **Provider → Consumer**, payload, garantias, falhas.
 | Guarantee | Valid JWT or redirect to login |
 | TTL | Per PA-02 session table |
 
-### C-04: Registry → All engines
+### RT-C-04: Registry → All engines
 
 | Campo | Valor |
 |-------|-------|
@@ -52,7 +54,7 @@ Cada contrato define: **Provider → Consumer**, payload, garantias, falhas.
 | Guarantee | Type-safe factory; duplicate key throws |
 | Lifecycle | Populated at RT-3; read-only post-hydrate |
 
-### C-05: Loader → CRB Loader
+### RT-C-05: Loader → CRB Loader
 
 | Campo | Valor |
 |-------|-------|
@@ -62,7 +64,7 @@ Cada contrato define: **Provider → Consumer**, payload, garantias, falhas.
 | Guarantee | Version header preserved |
 | Cache | Delegates to M21 |
 
-### C-06: CRB Loader → Registry / Render / Router
+### RT-C-06: CRB Loader → Registry / Render / Router
 
 | Campo | Valor |
 |-------|-------|
@@ -72,7 +74,7 @@ Cada contrato define: **Provider → Consumer**, payload, garantias, falhas.
 | Guarantee | Verify RT-2 before hydrate |
 | Failure | Reject unsigned / hash mismatch |
 
-### C-07: Dependency Resolver → Service Locator
+### RT-C-07: Dependency Resolver → Service Locator
 
 | Campo | Valor |
 |-------|-------|
@@ -81,7 +83,7 @@ Cada contrato define: **Provider → Consumer**, payload, garantias, falhas.
 | Payload | Ordered init list |
 | Guarantee | Acyclic; throws on cycle |
 
-### C-08: Router → Render Engine
+### RT-C-08: Router → Render Engine
 
 | Campo | Valor |
 |-------|-------|
@@ -94,7 +96,7 @@ Cada contrato define: **Provider → Consumer**, payload, garantias, falhas.
 
 ## 3. Contratos Engines
 
-### C-09: Permission → Action / Render / Router
+### RT-C-09: Permission → Action / Render / Router
 
 | Campo | Valor |
 |-------|-------|
@@ -103,7 +105,7 @@ Cada contrato define: **Provider → Consumer**, payload, garantias, falhas.
 | API | `can(action, resource, ctx)` |
 | Rule | Deny > Allow > Default deny (PA-02) |
 
-### C-10: Action → Execution
+### RT-C-10: Action → Execution
 
 | Campo | Valor |
 |-------|-------|
@@ -112,7 +114,7 @@ Cada contrato define: **Provider → Consumer**, payload, garantias, falhas.
 | Payload | `UecCommand` |
 | Guarantee | Handler resolved from CRB action registry |
 
-### C-11: Workflow → Action
+### RT-C-11: Workflow → Action
 
 | Campo | Valor |
 |-------|-------|
@@ -121,7 +123,7 @@ Cada contrato define: **Provider → Consumer**, payload, garantias, falhas.
 | Payload | Transition triggers bound actions |
 | Persistence | BE store; FE read-only instance view |
 
-### C-12: Render → Host UI
+### RT-C-12: Render → Host UI
 
 | Campo | Valor |
 |-------|-------|
@@ -130,7 +132,7 @@ Cada contrato define: **Provider → Consumer**, payload, garantias, falhas.
 | Payload | `RenderTree` |
 | Adapters | table, form (C); others incremental |
 
-### C-13: Expression / Formula → Render / Validation
+### RT-C-13: Expression / Formula → Render / Validation
 
 | Campo | Valor |
 |-------|-------|
@@ -139,24 +141,24 @@ Cada contrato define: **Provider → Consumer**, payload, garantias, falhas.
 | Guarantee | Read-only evaluation; no side effects |
 | Reuse | G302 frozen engines via adapter (D-RI-10) |
 
-### C-14: Validation → Execution
+### RT-C-14: Validation → Execution
 
 | Campo | Valor |
 |-------|-------|
 | Provider | M15 Validation |
-| Consumer | M16 (pipeline stage 3) |
+| Consumer | M16 (pipeline stage 1 — Validate) |
 | Failure | Block execution; return UEC validation error |
 
-### C-15: Execution → Event Bus
+### RT-C-15: Execution → Event Bus
 
 | Campo | Valor |
 |-------|-------|
 | Provider | M16 Execution |
 | Consumer | M22 |
-| Payload | Domain events post-success |
-| Rule | UP-09 stage 5 emit |
+| Payload | Domain events post-commit |
+| Rule | UP-09 stage 3 Execute (post-commit emit) |
 
-### C-16: State → Render / Workflow
+### RT-C-16: State → Render / Workflow
 
 | Campo | Valor |
 |-------|-------|
@@ -164,7 +166,7 @@ Cada contrato define: **Provider → Consumer**, payload, garantias, falhas.
 | Consumer | M11, M12 |
 | Scope | Route-scoped screen state; USM entity state |
 
-### C-17: Plugin → Connector
+### RT-C-17: Plugin → Connector
 
 | Campo | Valor |
 |-------|-------|
@@ -172,7 +174,7 @@ Cada contrato define: **Provider → Consumer**, payload, garantias, falhas.
 | Consumer | M19 |
 | Rule | No eval; manifest-only (D-PA-23) |
 
-### C-18: Connector → External systems
+### RT-C-18: Connector → External systems
 
 | Campo | Valor |
 |-------|-------|
@@ -184,7 +186,7 @@ Cada contrato define: **Provider → Consumer**, payload, garantias, falhas.
 
 ## 4. Contratos Infra
 
-### C-19: Service Locator → Bootstrap
+### RT-C-19: Service Locator → Bootstrap
 
 | Campo | Valor |
 |-------|-------|
@@ -192,7 +194,7 @@ Cada contrato define: **Provider → Consumer**, payload, garantias, falhas.
 | Consumer | M01 |
 | Guarantee | All services resolvable after RT-3 |
 
-### C-20: Cache → Loader / CRB / Permission
+### RT-C-20: Cache → Loader / CRB / Permission
 
 | Campo | Valor |
 |-------|-------|
@@ -201,7 +203,7 @@ Cada contrato define: **Provider → Consumer**, payload, garantias, falhas.
 | Keys | `mmm:crb:{tenant}:{module}`, `auth:scope:{userId}` |
 | Invalidation | Publish event, login/logout |
 
-### C-21: Event Bus → Execution / State
+### RT-C-21: Event Bus → Execution / State
 
 | Campo | Valor |
 |-------|-------|
@@ -209,7 +211,7 @@ Cada contrato define: **Provider → Consumer**, payload, garantias, falhas.
 | Consumer | M16, M17 |
 | Guarantee | At-least-once in-process; F upgrades transport |
 
-### C-22: Transaction Manager → Execution (BE)
+### RT-C-22: Transaction Manager → Execution (BE)
 
 | Campo | Valor |
 |-------|-------|
@@ -217,7 +219,7 @@ Cada contrato define: **Provider → Consumer**, payload, garantias, falhas.
 | Consumer | M16 handlers |
 | Guarantee | Rollback on failure; idempotency key honored |
 
-### C-23: Observability → All
+### RT-C-23: Observability → All
 
 | Campo | Valor |
 |-------|-------|
@@ -234,7 +236,7 @@ Cada contrato define: **Provider → Consumer**, payload, garantias, falhas.
 | UEC shape | UP-02 | M10, M16 |
 | Pipeline 5 stages | UP-09 | M16 |
 | Error codes | UP-04 | All |
-| Event envelope | UP-06 | M22 |
+| Event envelope | UP-08 | M22 |
 | Handler signature | UP-10 | M10, M16 |
 
 ---
@@ -254,17 +256,17 @@ Cada contrato define: **Provider → Consumer**, payload, garantias, falhas.
 
 ```mermaid
 flowchart LR
-  Host --> C01
-  C01[M01 Bootstrap] --> C04
-  C04[M04 Registry] --> C06
-  C06[M06 CRB Loader] --> C08
-  C08[M08 Router] --> C12
-  C12[M12 Render] --> Host
-  C09[M09 Permission] --> C08
-  C09 --> C10
-  C10[M10 Action] --> C15
-  C15[M16 Execution] --> C21
-  C21[M22 Event Bus]
+  Host --> RTC01
+  RTC01[M01 Bootstrap] --> RTC04
+  RTC04[M04 Registry] --> RTC06
+  RTC06[M06 CRB Loader] --> RTC08
+  RTC08[M08 Router] --> RTC12
+  RTC12[M12 Render] --> Host
+  RTC09[M09 Permission] --> RTC08
+  RTC09 --> RTC10
+  RTC10[M10 Action] --> RTC15
+  RTC15[M16 Execution] --> RTC21
+  RTC21[M22 Event Bus]
 ```
 
 ---

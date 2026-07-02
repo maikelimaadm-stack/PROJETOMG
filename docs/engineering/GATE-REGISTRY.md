@@ -145,18 +145,39 @@
 | ID | Name | Objective | Program | Decision | Status |
 |----|------|-----------|---------|----------|--------|
 | **G421** | MMM PlatformSchema Coverage | 226 payload schemas + envelope + manifest + persistence wiring | 4.03 | D-MMM-17 | **active** |
-| **G422** | MMM Publish Pipeline C-1→C-16 | Compile, sign, persist CRB v2, pin, rollback | 4.04 | D-MMM-17 | **active** |
+| **G422** | MMM Publish Pipeline PUB-C-1→PUB-C-16 | Compile, sign, persist `mmm-crb-v1`, pin, rollback | 4.04 | D-MMM-17 | **active** |
+| **G435** | MMM module dependency acyclicity | Publish-time dependency graph acyclic | 4.04 | D-MMM-17 | **planned** |
+| **G436** | Critical automation approval | Critical automation path approval tests | 4.04 | D-MMM-10 | **planned** |
 
 Spec: [G421-SPEC.md](../meta-model/spec/G421-SPEC.md)
 
 ---
 
-## Foundation Runtime gates (planned — Foundation C)
+## Foundation doc gates (B.5–C.0)
 
 | ID | Name | Objective | Foundation | Decision | Status |
 |----|------|-----------|------------|----------|--------|
-| **G420E** | Runtime Implementation Plan (C.0) | Six-block plan complete; authorize code | C.0 | D-RI-14 | **planned** |
+| **G420B** | Platform Behavior (B.5) | USM, lifecycles, events SSOT complete | B.5 | D-PB-30 | **active** |
+| **G420C** | Universal Execution Protocol (B.6) | UEP SSOT complete | B.6 | D-UP-30 | **active** |
+| **G420D** | Universal Authoring Specification (B.7) | UAS SSOT complete | B.7 | D-UA-35 | **active** |
+| **G420E** | Runtime Implementation Plan (C.0) | Six-block plan + C.0.2 remediation | C.0 | D-RI-14 | **active** |
+
+---
+
+## Foundation Runtime gates (Foundation C)
+
+| ID | Name | Objective | Foundation | Decision | Status |
+|----|------|-----------|------------|----------|--------|
 | **G423** | Universal Runtime complete | RT-0→RT-8 E2E; all G423-NN PASS | C | D-RI-05 | **planned** |
+| **G424** | Studio MMM-native roundtrip | 28 designers → MMM API (17 core first) | D | D-UA-06 | **planned** |
+| **G425** | Legacy elimination | Zero boot cache SSOT paths | E | D-PA-03 | **planned** |
+| **G426** | Event Bus L1 production | DB-backed domain event transport | F | D-PA-17 | **planned** |
+| **G427** | Generic Repository unified | GR CRUD via CRB field configs | G | D-MMM-04 | **planned** |
+| **G428** | Low-code certification | Zero-code module publish→run | H | D-PA-08 | **planned** |
+| **G429** | Marketplace v1 | .makpkg install/publish | I | D-MMM-11 | **planned** |
+| **G430** | AI Gateway production | AICandidate → MMM batch pipeline | J | D-MMM-09 | **planned** |
+| **G431** | Intelligence L10 ingestion | L10 event-driven analysis | K | D-PA-01 | **planned** |
+| **G432** | ERP application package | First ERP-as-Application package | L | D-PA-08 | **planned** |
 | **G423-01** | Bootstrap | M01 RT-0 orchestration | C.1 | D-RI-02 | **planned** |
 | **G423-02** | Context | M02 immutable context | C.1 | D-RI-02 | **planned** |
 | **G423-03** | Session | M03 auth/refresh | C.2 | D-RI-06 | **planned** |

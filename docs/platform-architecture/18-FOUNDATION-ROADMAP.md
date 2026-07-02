@@ -43,10 +43,11 @@ flowchart LR
 | **B.6** | Universal Execution Protocol | UEP, context, pipeline, handlers, contracts | G420C | ✅ **PASS** (docs) |
 | **B.7** | Universal Authoring Specification | UAS, designers, wizards, bindings, UAL | G420D | ✅ **PASS** (docs) |
 | **C.0** | Runtime Implementation Plan | Backlog, DAG, interfaces, gates G423-NN | G420E | ✅ **PASS** (docs) |
-| **C** | Universal Runtime | **UEP + UAS output** RT-0→RT-8 | G423 | ⏳ **NEXT** (code) |
-| **D** | Studio MMM-native | 17 designers → MMM API | G424 | ⏳ Blocked on C partial |
-| **E** | Legacy Elimination | Boot cache, MDP routes, generator, UsuarioPerfil | G425 | ⏳ Blocked on C |
-| **F** | Event Bus L1 | Domain event transport DB-backed | G426 | ⏳ Blocked on C |
+| **C.0.2** | SSOT Remediation | C.0.1 fixes; Global Architecture Certificate | G420E | ✅ **PASS** (docs) |
+| **C** | Universal Runtime | **UEP implementation + CRB consumption** RT-0→RT-8 | G423 | ⏳ **NEXT** (code) |
+| **D** | Studio MMM-native | 17 core designers → MMM API (28 per D-UA-06) | G424 | ⏳ Read-only prep after **G423-06**; full D requires **G423 PASS** |
+| **E** | Legacy Elimination | Boot cache, MDP routes, generator, UsuarioPerfil | G425 | ⏳ Blocked until **G423 PASS** |
+| **F** | Event Bus L1 | Domain event transport DB-backed | G426 | ⏳ Blocked until **G423 PASS** |
 | **G** | Generic Repository | EAV + adapters unified API | G427 | ⏳ Blocked on C |
 | **H** | Low-Code Certification | First zero-code module end-to-end | G428 | ⏳ Blocked on D,G |
 | **I** | Marketplace v1 | .makpkg install/publish | G429 | ⏳ Blocked on B,C |
@@ -74,7 +75,7 @@ flowchart LR
 | Workflow instance host | 09-WORKFLOW-ENGINE |
 | EnvironmentPin consumer | 4.05 |
 
-**No Studio, Marketplace, or ERP work until Foundation C gate PASS.**
+**No full Foundation D, E, F, Marketplace, or ERP work until Foundation C gate (G423) PASS.** Read-only Studio preparation may begin after runtime slice **G423-06**.
 
 ---
 

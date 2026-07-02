@@ -24,7 +24,7 @@ Cada linha abaixo é um **módulo implementável** com interface pública, contr
 | M08 | **Router** | Core | PA-02 §3, PA-04 | G423-08 | C.4 |
 | M09 | **Permission Engine** | Engine | PA-02 §3, PA-05 | G423-09 | C.5 |
 | M10 | **Action Engine** | Engine | PA-02 §3, PB-04, UP-07 | G423-10 | C.6 |
-| M11 | **Workflow Engine** | Engine | PA-02 §3, PB-05, UP-08 | G423-11 | C.7 |
+| M11 | **Workflow Engine** | Engine | PA-02 §3, PB-05, UP-07 | G423-11 | C.7 |
 | M12 | **Render Engine** | Engine | PA-07, PA-02 §3 | G423-12 | C.8 |
 | M13 | **Expression Engine** | Engine | PA-02 §3, MMM | G423-13 | C.9 |
 | M14 | **Formula Engine** | Engine | PA-02 §3, MMM | G423-14 | C.9 |
@@ -32,10 +32,10 @@ Cada linha abaixo é um **módulo implementável** com interface pública, contr
 | M16 | **Execution Engine** | Engine | UP-09, UP-10 | G423-16 | C.11 |
 | M17 | **State Engine** | Engine | PB-02, PB-07 | G423-17 | C.12 |
 | M18 | **Plugin Engine** | Engine | PA-02 §3, PA-09 | G423-18 | C.13 |
-| M19 | **Connector Engine** | Engine | UP-11, UP-12 | G423-19 | C.14 |
+| M19 | **Connector Engine** | Engine | UP-17 | G423-19 | C.14 |
 | M20 | **Service Locator** | Infra | PA-02 §3 | G423-20 | C.5 |
 | M21 | **Cache** | Infra | PA-02 §3 | G423-21 | C.15 |
-| M22 | **Event Bus** | Infra | UP-06, PB-06 | G423-22 | C.15 |
+| M22 | **Event Bus** | Infra | UP-08, PB-06 | G423-22 | C.15 |
 | M23 | **Transaction Manager** | Infra | UP-09 §5 | G423-23 | C.16 |
 | M24 | **Observability** | Infra | PA-02 §3, UP-24 | G423-24 | C.17 |
 | — | **Scheduler** | Infra | PA-02 §3 | — | Foundation F |
@@ -136,7 +136,7 @@ Cada linha abaixo é um **módulo implementável** com interface pública, contr
 
 **Responsabilidade:** USM transitions; workflow definitions; human tasks stub.
 
-**SSOT:** PB-02, PB-05, UP-08.
+**SSOT:** PB-02, PB-05, UP-07.
 
 ---
 
@@ -164,13 +164,13 @@ Cada linha abaixo é um **módulo implementável** com interface pública, contr
 
 **Responsabilidade:** Regras sync/async; UEC validation stage.
 
-**SSOT:** PB-03, UP-09 stage 3.
+**SSOT:** PB-03, UP-09 stage 1 (Validate).
 
 ---
 
 ### M16 — Execution Engine
 
-**Responsabilidade:** Pipeline UEP 5 estágios; orquestra Validation → Permission → Execution → Event.
+**Responsabilidade:** Pipeline UEP 5 estágios; orquestra Validate → Authorize → Execute → Audit → Respond.
 
 **SSOT:** UP-09, UP-10.
 
@@ -196,7 +196,7 @@ Cada linha abaixo é um **módulo implementável** com interface pública, contr
 
 **Responsabilidade:** HTTP/DB/message connectors; retry; circuit breaker stub.
 
-**SSOT:** UP-11, UP-12.
+**SSOT:** UP-17.
 
 ---
 
@@ -216,7 +216,7 @@ Cada linha abaixo é um **módulo implementável** com interface pública, contr
 
 **Responsabilidade:** Pub/sub in-process (Foundation C); interface compatível com bus distribuído (F).
 
-**SSOT:** UP-06, PB-06.
+**SSOT:** UP-08, PB-06.
 
 ---
 

@@ -109,13 +109,16 @@ Each module requires: **tests**, **interface compliance**, **contract compliance
 - [ ] Sync rules block invalid payload
 - [ ] Async rules resolve before execution
 - [ ] UEC validation error shape compliant
+- [ ] UP-09 stage 1 (Validate) integration verified
 - [ ] Gate: `gate:g423-15`
 
 ## M16 — Execution Engine
 
-- [ ] Full 5-stage pipeline (UP-09) integration test
-- [ ] Stage 2 blocks unauthorized
-- [ ] Stage 5 emits events to M22
+- [ ] Full 5-stage pipeline (UP-09): Validate → Authorize → Execute → Audit → Respond
+- [ ] Stage 2 (Authorize) blocks unauthorized
+- [ ] Stage 3 (Execute) emits events post-commit to M22
+- [ ] Stage 4 (Audit) logs mutation summary
+- [ ] Stage 5 (Respond) returns UEC response shape
 - [ ] Gate: `gate:g423-16`
 
 ## M17 — State Engine
@@ -153,7 +156,7 @@ Each module requires: **tests**, **interface compliance**, **contract compliance
 ## M22 — Event Bus
 
 - [ ] Publish/subscribe in-process
-- [ ] UEC event envelope compliant (UP-06)
+- [ ] UEC event envelope compliant (UP-08)
 - [ ] Interface compatible with Foundation F upgrade
 - [ ] Gate: `gate:g423-22`
 
