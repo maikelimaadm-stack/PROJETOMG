@@ -5,7 +5,7 @@ const MgEmpresasChromeContext = createContext(null);
 export function MgEmpresasChromeProvider({ children }) {
   const [filterPanelOpen, setFilterPanelOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [sidebarPinned, setSidebarPinned] = useState(false);
+  const [sidebarPinned, setSidebarPinned] = useState(true);
   const [viewMode, setViewMode] = useState("tabela");
   const [breadcrumbSuffix, setBreadcrumbSuffix] = useState(null);
   const onViewModeChangeRef = useRef(null);

@@ -3,9 +3,19 @@ import ErpEmpresaSelector from "@/shared/layouts/ErpEmpresaSelector";
 import ErpThemeToggle from "@/shared/components/ErpThemeToggle";
 import ErpGlobalTopProgress from "@/shared/components/ErpGlobalTopProgress";
 import { Button } from "@/shared/ui/button";
-import { BOS_PRIMARY_NAV } from "@/bos/config/bosNavConfig";
+import {
+  BOS_PRIMARY_NAV,
+  BOS_ERP_CADASTRO_NAV,
+  BOS_ERP_CADASTRO_DEFAULT_ROUTE,
+} from "@/bos/config/bosNavConfig";
 import { useIsFetching, useIsMutating } from "@tanstack/react-query";
-import { LogOut } from "lucide-react";
+import { ChevronDown, LogOut } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/shared/ui/dropdown-menu";
 
 const AUTHORIZED_SCOPE_OPTION = "__AUTHORIZED_SCOPE__";
 
@@ -14,6 +24,22 @@ function resolveCompanySelectorValue(selectedEmpresaId, allowAllEmpresas) {
   const normalizedId = selectedEmpresaId != null ? String(selectedEmpresaId).trim() : "";
   if (normalizedId) return normalizedId;
   return allowAllEmpresas ? "all" : AUTHORIZED_SCOPE_OPTION;
+}
+
+function isBosHashNavActive(pathname, route) {
+  if (route === "/") {
+    return pathname === "/" || pathname === "/bos";
+  }
+  if (route.startsWith("/#")) {
+    return (pathname === "/" || pathname === "/bos") && typeof window !== "undefined"
+      ? window.location.hash === route.slice(1)
+      : false;
+  }
+  return false;
+}
+
+function isErpCadastroActive(pathname) {
+  return BOS_ERP_CADASTRO_NAV.some((item) => pathname === item.route);
 }
 
 export function BosHeader({
@@ -29,29 +55,27 @@ export function BosHeader({
   const isFetching = useIsFetching();
   const isMutating = useIsMutating();
   const selectorValue = resolveCompanySelectorValue(selectedEmpresaId, allowAllEmpresas);
+  const cadastroActive = isErpCadastroActive(location.pathname);
 
   return (
     <header className="bos-header sticky top-0 z-40 border-b border-slate-200/80 bg-white/95 backdrop-blur">
       <ErpGlobalTopProgress active={isFetching > 0 || isMutating > 0} />
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-4 lg:px-6">
-        <div className="flex min-w-0 items-center gap-3">
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4 lg:px-6">
+        <div className="flex min-w-0 items-center gap-2">
           <Link to="/" className="bos-brand flex min-w-0 items-center gap-3">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-sky-600 to-indigo-600 text-sm font-bold text-white">
               M
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 hidden sm:block">
               <div className="truncate text-sm font-semibold text-slate-900">MAK Business OS</div>
               <div className="truncate text-[11px] text-slate-500">Operação de negócio</div>
             </div>
           </Link>
         </div>
 
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Navegação principal">
+        <nav className="hidden items-center gap-1 lg:flex" aria-label="Navegação BOS">
           {BOS_PRIMARY_NAV.map((item) => {
-            const isHome = item.route === "/";
-            const active = isHome
-              ? location.pathname === "/" || location.pathname === "/bos"
-              : location.hash && item.route.endsWith(location.hash);
+            const active = isBosHashNavActive(location.pathname, item.route);
             return (
               <Link
                 key={item.id}
@@ -67,7 +91,44 @@ export function BosHeader({
         </nav>
 
         <div className="flex items-center gap-2">
-          <label className="hidden text-xs text-slate-600 sm:inline">Empresa:</label>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                type="button"
+                variant={cadastroActive ? "default" : "outline"}
+                size="sm"
+                className={`h-8 gap-1 px-2.5 text-xs ${
+                  cadastroActive ? "bg-slate-800 text-white hover:bg-slate-700" : ""
+                }`}
+              >
+                Cadastros ERP
+                <ChevronDown className="h-3.5 w-3.5 opacity-70" aria-hidden />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-[12rem]">
+              {BOS_ERP_CADASTRO_NAV.map((item) => (
+                <DropdownMenuItem key={item.id} asChild>
+                  <Link
+                    to={item.route}
+                    className={location.pathname === item.route ? "font-semibold text-sky-800" : ""}
+                  >
+                    {item.label}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="h-8 px-2.5 text-xs lg:hidden"
+          >
+            <Link to={BOS_ERP_CADASTRO_DEFAULT_ROUTE}>Cadastros</Link>
+          </Button>
+
+          <label className="hidden text-xs text-slate-600 xl:inline">Empresa:</label>
           <ErpEmpresaSelector
             value={selectorValue}
             allowAllEmpresas={allowAllEmpresas}

@@ -110,6 +110,14 @@ function LoginScreen({ onLogin, isLoading, errorMessage }) {
   );
 }
 
+function DefaultHomePage() {
+  const defaultRoute = String(import.meta.env.VITE_DEFAULT_HOME_ROUTE || "").trim();
+  if (defaultRoute && defaultRoute !== "/") {
+    return <Navigate to={defaultRoute} replace />;
+  }
+  return <BosHomePage />;
+}
+
 function ModuleLoadingFallback() {
   return (
     <div className="flex h-full w-full items-center justify-center text-xs text-slate-500">
@@ -220,7 +228,7 @@ const AuthenticatedApp = () => {
         }
       />
       <Route element={<BosLayoutRoute />}>
-        <Route path="/" element={<BosHomePage />} />
+        <Route path="/" element={<DefaultHomePage />} />
         <Route path="/bos" element={<BosHomePage />} />
         <Route path="/bos/business-first" element={<BusinessFirstPage />} />
         <Route path="/bos/expert" element={<ExpertModePage />} />
