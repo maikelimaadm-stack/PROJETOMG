@@ -189,6 +189,9 @@ export default function BosHomePage() {
         </p>
         <div className="mt-5 flex flex-wrap gap-2">
           <Button asChild size="sm" className="bg-white text-slate-900 hover:bg-slate-100">
+            <Link to="/CadastroEmpresas">Abrir Cadastros ERP</Link>
+          </Button>
+          <Button asChild size="sm" variant="secondary" className="border-white/20 bg-white/10 text-white hover:bg-white/20">
             <Link to="/bos/business-first">Criar por intenção</Link>
           </Button>
           <Button asChild size="sm" variant="secondary" className="border-white/20 bg-white/10 text-white hover:bg-white/20">
