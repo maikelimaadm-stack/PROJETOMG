@@ -1,5 +1,10 @@
 # HANDOFF COMPLETO — MAK Gestão / Foundation C (Runtime Bridge)
 
+> **ARQUIVO DEFINITIVO (TUDO — plataforma inteira):**  
+> **`docs/evidence/PROJECT-COMPLETE-HANDOFF.md`** (~1.220 linhas)  
+> Frontend · Backend · Banco · Studio · BOS · Runtime · Visão · Roadmap · Tudo  
+> **Use esse para ChatGPT novo.** Este arquivo abaixo é complementar (mais detalhe Runtime).
+
 **Gerado:** 2026-07-08 (atualizado — versão completa)  
 **Repo:** `maikelimaadm-stack/PROJETOMG`  
 **Branch base:** `main`  
