@@ -18,6 +18,7 @@ export { createDependencyResolver, DependencyResolver, DependencyError } from '.
 export { createRuntimeRouter, RuntimeRouter, RouteError } from './core/router/runtimeRouter.js';
 export { createPermissionEngine, PermissionEngine, PermissionError } from './core/permission/permissionEngine.js';
 export { PermissionMatrix } from './core/permission/PermissionMatrix.js';
+export { createActionEngine, ActionEngine, ActionError } from './core/action/actionEngine.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,

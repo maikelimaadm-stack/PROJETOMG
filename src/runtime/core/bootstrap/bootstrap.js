@@ -71,6 +71,7 @@ export async function hydrateWithBundle(instance, pin, crbPayload) {
       instance._serviceLocator.register('dependencyResolver', result.dependencyResolver, { override: true });
       instance._serviceLocator.register('router', result.router, { override: true });
       instance._serviceLocator.register('permissionEngine', result.permissionEngine, { override: true });
+      instance._serviceLocator.register('actionEngine', result.actionEngine, { override: true });
     }
 
     return {
