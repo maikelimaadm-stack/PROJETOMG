@@ -34,6 +34,7 @@ export { createTransactionEngine, TransactionEngine, TransactionError } from './
 export { createObservabilityEngine, ObservabilityEngine, ObservabilityError } from './infra/observability/observabilityEngine.js';
 export { createRuntimeCompletion, RuntimeCompletion, RuntimeCompletionError } from './core/completion/runtimeCompletion.js';
 export { createRuntimeShadowMode, RuntimeShadowMode, RuntimeShadowModeError } from './shadow/runtimeShadowMode.js';
+export { createEmpresasShadowPilot, EmpresasShadowPilot, EmpresasShadowPilotError } from './shadow/pilots/empresasShadowPilot.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,
