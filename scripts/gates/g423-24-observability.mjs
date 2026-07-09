@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Gate G423-23 — M23 Transaction Engine (Foundation C.16)
+ * Gate G423-24 — M24 Observability Engine (Foundation C.17)
  */
 import { execSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -19,26 +19,26 @@ const gate = (name, ok, detail = '') => {
 const exists = (p) => fs.existsSync(p);
 const stripComments = (source) => source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
 
-const transactionEnginePath = path.join(RUNTIME, 'infra/transaction/transactionEngine.js');
+const observabilityEnginePath = path.join(RUNTIME, 'infra/observability/observabilityEngine.js');
 
-gate('G423-23 — TransactionEngine module exists', exists(transactionEnginePath));
-gate('G423-23 — TransactionError module exists', exists(path.join(RUNTIME, 'infra/transaction/errors.js')));
-gate('G423-23 — Transaction types exist', exists(path.join(RUNTIME, 'types/transaction.js')));
-gate('G423-23 — Transaction tests exist', exists(path.join(RUNTIME, '__tests__/transaction/transaction.test.js')));
+gate('G423-24 — ObservabilityEngine module exists', exists(observabilityEnginePath));
+gate('G423-24 — ObservabilityError module exists', exists(path.join(RUNTIME, 'infra/observability/errors.js')));
+gate('G423-24 — Observability types exist', exists(path.join(RUNTIME, 'types/observability.js')));
+gate('G423-24 — Observability tests exist', exists(path.join(RUNTIME, '__tests__/observability/observability.test.js')));
 
 let exportsOk = false;
 try {
   const indexSource = fs.readFileSync(path.join(RUNTIME, 'index.js'), 'utf8');
-  exportsOk = /createTransactionEngine/.test(indexSource) && /TransactionError/.test(indexSource);
+  exportsOk = /createObservabilityEngine/.test(indexSource) && /ObservabilityError/.test(indexSource);
 } catch {
   exportsOk = false;
 }
-gate('G423-23 — createTransactionEngine/TransactionError exported from runtime index', exportsOk);
+gate('G423-24 — createObservabilityEngine/ObservabilityError exported from runtime index', exportsOk);
 
 let noForbiddenDeps = false;
 let forbiddenDetail = '';
 try {
-  const source = fs.readFileSync(transactionEnginePath, 'utf8');
+  const source = fs.readFileSync(observabilityEnginePath, 'utf8');
   const hasPrisma = /from\s+['"].*prisma.*['"]/i.test(source) || /PrismaClient/.test(source);
   const hasBackend = /from\s+['"].*backend.*['"]/i.test(source);
   noForbiddenDeps = !hasPrisma && !hasBackend;
@@ -46,12 +46,12 @@ try {
 } catch (err) {
   forbiddenDetail = err instanceof Error ? err.message : String(err);
 }
-gate('G423-23 — no direct Prisma/backend import in infra/transaction/ (D-RI-13)', noForbiddenDeps, forbiddenDetail);
+gate('G423-24 — no direct Prisma/backend import in infra/observability/ (D-RI-13)', noForbiddenDeps, forbiddenDetail);
 
 let noWebStorage = false;
 let webStorageDetail = '';
 try {
-  const source = fs.readFileSync(transactionEnginePath, 'utf8');
+  const source = fs.readFileSync(observabilityEnginePath, 'utf8');
   const codeOnly = stripComments(source);
   const hasStorage = /localStorage|sessionStorage|indexedDB/i.test(codeOnly);
   noWebStorage = !hasStorage;
@@ -59,12 +59,12 @@ try {
 } catch (err) {
   webStorageDetail = err instanceof Error ? err.message : String(err);
 }
-gate('G423-23 — no localStorage/sessionStorage/IndexedDB in infra/transaction/', noWebStorage, webStorageDetail);
+gate('G423-24 — no localStorage/sessionStorage/IndexedDB in infra/observability/', noWebStorage, webStorageDetail);
 
 let noExternalTransport = false;
 let transportDetail = '';
 try {
-  const source = fs.readFileSync(transactionEnginePath, 'utf8');
+  const source = fs.readFileSync(observabilityEnginePath, 'utf8');
   const codeOnly = stripComments(source);
   const hasTransport = /WebSocket|BroadcastChannel|new\s+Worker\s*\(|worker_threads/.test(codeOnly);
   noExternalTransport = !hasTransport;
@@ -72,22 +72,20 @@ try {
 } catch (err) {
   transportDetail = err instanceof Error ? err.message : String(err);
 }
-gate('G423-23 — no WebSocket/BroadcastChannel/worker/thread in infra/transaction/', noExternalTransport, transportDetail);
+gate('G423-24 — no WebSocket/BroadcastChannel/worker/thread in infra/observability/', noExternalTransport, transportDetail);
 
-let noObservabilityEngine = false;
-let obsDetail = '';
+let noExternalTelemetry = false;
+let telemetryDetail = '';
 try {
-  // M24 Observability Engine legitimately exists as of C.17 — scoped to "transactionEngine.js itself
-  // never references it" (permanently valid), not "observabilityEngine.js must not exist" (that was
-  // only a scope-creep guard valid during C.16's own authoring).
-  const source = fs.readFileSync(transactionEnginePath, 'utf8');
-  const hasReference = /observabilityEngine|ObservabilityEngine/.test(source);
-  noObservabilityEngine = !hasReference;
-  obsDetail = hasReference ? 'ObservabilityEngine reference found' : 'clean';
+  const source = fs.readFileSync(observabilityEnginePath, 'utf8');
+  const codeOnly = stripComments(source);
+  const hasTelemetry = /\bfetch\s*\(|sentry|datadog|segment\.io|newrelic|XMLHttpRequest/i.test(codeOnly);
+  noExternalTelemetry = !hasTelemetry;
+  telemetryDetail = noExternalTelemetry ? 'clean' : 'external telemetry call found';
 } catch (err) {
-  obsDetail = err instanceof Error ? err.message : String(err);
+  telemetryDetail = err instanceof Error ? err.message : String(err);
 }
-gate('G423-23 — transactionEngine.js does not reference Observability Engine directly', noObservabilityEngine, obsDetail);
+gate('G423-24 — no external telemetry call in infra/observability/', noExternalTelemetry, telemetryDetail);
 
 let noProductionUiChange = false;
 let productionUiDetail = '';
@@ -100,7 +98,7 @@ try {
   productionUiDetail = noProductionUiChange ? 'clean' : `changed files: ${diff.replace(/\n/g, ', ')}`;
 } catch (err) {
   try {
-    const source = fs.readFileSync(transactionEnginePath, 'utf8');
+    const source = fs.readFileSync(observabilityEnginePath, 'utf8');
     noProductionUiChange = !/from\s+['"]react['"]/i.test(source) && !/from\s+['"]react-dom['"]/i.test(source);
     productionUiDetail = noProductionUiChange
       ? 'git diff unavailable — fallback static check clean (no react/react-dom import)'
@@ -109,30 +107,30 @@ try {
     productionUiDetail = fallbackErr instanceof Error ? fallbackErr.message : String(fallbackErr);
   }
 }
-gate('G423-23 — no production UI change (src/App.jsx, src/shared, src/framework, src/modules, src/studio)', noProductionUiChange, productionUiDetail);
+gate('G423-24 — no production UI change (src/App.jsx, src/shared, src/framework, src/modules, src/studio)', noProductionUiChange, productionUiDetail);
 
-let unknownTxFailsClosed = false;
-let unknownTxDetail = '';
+let limitEnforced = false;
+let limitDetail = '';
 try {
-  const mod = await import(pathToFileURL(transactionEnginePath).href);
-  const { createTransactionEngine } = mod;
-  const engine = createTransactionEngine();
+  const mod = await import(pathToFileURL(observabilityEnginePath).href);
+  const { createObservabilityEngine } = mod;
+  const engine = createObservabilityEngine();
   try {
-    await engine.commit('unknown-tx-xyz');
-    unknownTxFailsClosed = false;
-    unknownTxDetail = 'commit() on unknown transaction did not throw — silent pass risk';
+    engine.recordEvent('e', JSON.parse('{"__proto__": {"polluted": true}}'));
+    limitEnforced = false;
+    limitDetail = 'prototype-pollution payload was accepted — silent risk';
   } catch (err) {
-    unknownTxFailsClosed = err && err.code === 'MAK-L3-TRANSACTION-004';
-    unknownTxDetail = unknownTxFailsClosed ? 'unknown transaction throws TransactionError as expected' : `unexpected error: ${err && err.message}`;
+    limitEnforced = err && err.code === 'MAK-L3-OBSERVABILITY-001';
+    limitDetail = limitEnforced ? 'forbidden key rejected as expected' : `unexpected error: ${err && err.message}`;
   }
 } catch (err) {
-  unknownTxDetail = err instanceof Error ? err.message : String(err);
+  limitDetail = err instanceof Error ? err.message : String(err);
 }
-gate('G423-23 — commit() on unknown transaction never silently succeeds', unknownTxFailsClosed, unknownTxDetail);
+gate('G423-24 — prototype-pollution payload never silently accepted', limitEnforced, limitDetail);
 
 let testsOk = false;
 try {
-  execSync('node --test src/runtime/__tests__/transaction/transaction.test.js', {
+  execSync('node --test src/runtime/__tests__/observability/observability.test.js', {
     cwd: ROOT,
     stdio: 'pipe',
     env: { ...process.env, NODE_ENV: 'test' },
@@ -141,10 +139,10 @@ try {
 } catch (err) {
   if (err.stderr) console.error(String(err.stderr));
 }
-gate('G423-23 — Transaction Engine unit tests PASS', testsOk);
+gate('G423-24 — Observability Engine unit tests PASS', testsOk);
 
 const failed = results.filter((r) => !r.ok);
-console.log('\n--- G423-23 summary ---');
+console.log('\n--- G423-24 summary ---');
 console.log(`PASS: ${results.length - failed.length}/${results.length}`);
 
 if (failed.length > 0) {

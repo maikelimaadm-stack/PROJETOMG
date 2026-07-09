@@ -20,10 +20,11 @@ import { createConnectorEngine } from '../connector/connectorEngine.js';
 import { createCacheEngine } from '../../infra/cache/cacheEngine.js';
 import { createEventBus } from '../../infra/event-bus/eventBus.js';
 import { createTransactionEngine } from '../../infra/transaction/transactionEngine.js';
+import { createObservabilityEngine } from '../../infra/observability/observabilityEngine.js';
 import { captureRuntimeMetrics } from '../../infra/observability/runtimeMetrics.js';
 
 /**
- * Full C.16 pipeline: Loader → CRB → Registry → Dependency → Permission → Action → Workflow → Render → Expression → Formula → Validation → Execution → State → Plugin → Connector → Cache → EventBus → Transaction → Router → Runtime Ready.
+ * Full C.17 pipeline: Loader → CRB → Registry → Dependency → Permission → Action → Workflow → Render → Expression → Formula → Validation → Execution → State → Plugin → Connector → Cache → EventBus → Transaction → Observability → Router → Runtime Ready.
  */
 export async function loadRuntimeBundle({
   context,
@@ -47,6 +48,7 @@ export async function loadRuntimeBundle({
   cacheEngine,
   eventBus,
   transactionEngine,
+  observabilityEngine,
 }) {
   const bootstrapStarted = performance.now();
   let crbLoadMs = 0;
@@ -137,6 +139,9 @@ export async function loadRuntimeBundle({
   // M23 — runtime-local unit-of-work coordinator over host-registered participants. Never opens a real DB/Prisma transaction.
   const resolvedTransactionEngine = transactionEngine ?? createTransactionEngine();
 
+  // M24 — runtime-local diagnostics (events/metrics/traces/errors/health/readiness). No external telemetry.
+  const resolvedObservabilityEngine = observabilityEngine ?? createObservabilityEngine();
+
   const depStarted = performance.now();
   const graph = dependencyResolver.resolveFromCrb(crb, crb.moduleId ? [crb.moduleId] : []);
   dependencyResolveMs = performance.now() - depStarted;
@@ -198,6 +203,7 @@ export async function loadRuntimeBundle({
     cacheEngine: resolvedCacheEngine,
     eventBus: resolvedEventBus,
     transactionEngine: resolvedTransactionEngine,
+    observabilityEngine: resolvedObservabilityEngine,
     lifecycle: BundleLifecycle.READY,
   };
 }

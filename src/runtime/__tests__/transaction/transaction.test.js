@@ -320,11 +320,13 @@ describe('M23 — Transaction Engine', () => {
     assert.equal(/worker_threads/.test(codeOnly), false);
   });
 
-  it('não cria Observability Engine', () => {
+  it('transactionEngine.js não referencia Observability Engine', () => {
+    // M24 Observability Engine exists (C.17) — scoped to "transactionEngine.js itself never
+    // references it", not "observabilityEngine.js must not exist" (that was only valid during
+    // C.16's own authoring).
     const dir = path.dirname(fileURLToPath(import.meta.url));
     const source = fs.readFileSync(path.join(dir, '../../infra/transaction/transactionEngine.js'), 'utf8');
     assert.equal(/observabilityEngine|ObservabilityEngine/.test(source), false);
-    assert.equal(fs.existsSync(path.join(dir, '../../infra/observability/observabilityEngine.js')), false);
   });
 
   it('não importa React (sem UI de produção)', () => {
