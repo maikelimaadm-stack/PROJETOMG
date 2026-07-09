@@ -33,6 +33,7 @@ export { createEventBus, EventBus, EventBusError } from './infra/event-bus/event
 export { createTransactionEngine, TransactionEngine, TransactionError } from './infra/transaction/transactionEngine.js';
 export { createObservabilityEngine, ObservabilityEngine, ObservabilityError } from './infra/observability/observabilityEngine.js';
 export { createRuntimeCompletion, RuntimeCompletion, RuntimeCompletionError } from './core/completion/runtimeCompletion.js';
+export { createRuntimeShadowMode, RuntimeShadowMode, RuntimeShadowModeError } from './shadow/runtimeShadowMode.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,
