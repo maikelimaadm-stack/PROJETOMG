@@ -298,13 +298,14 @@ describe('M16 — Execution Engine', () => {
     assert.equal(/from\s+['"].*backend.*['"]/i.test(source), false);
   });
 
-  it('não cria State/Transaction/Plugin Engine e não importa React (sem UI de produção)', () => {
+  it('executionEngine.js não referencia State/Transaction/Plugin Engine e não importa React (sem UI de produção)', () => {
     const dir = path.dirname(fileURLToPath(import.meta.url));
     const source = fs.readFileSync(path.join(dir, '../../core/execution/executionEngine.js'), 'utf8');
 
+    // M17 State Engine exists (C.12) — this guard is scoped to "executionEngine.js itself never
+    // references it", not "core/state/ must not exist" (that was only valid during C.11's own authoring).
     assert.equal(/stateEngine|StateEngine|transactionEngine|TransactionEngine|pluginEngine|PluginEngine/.test(source), false);
     assert.equal(/from\s+['"]react['"]/i.test(source), false);
-    assert.equal(fs.existsSync(path.join(dir, '../../core/state')), false);
     assert.equal(fs.existsSync(path.join(dir, '../../core/transaction')), false);
     assert.equal(fs.existsSync(path.join(dir, '../../core/plugin')), false);
   });

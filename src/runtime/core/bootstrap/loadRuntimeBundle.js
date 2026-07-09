@@ -14,10 +14,11 @@ import { createExpressionEngine } from '../expression/expressionEngine.js';
 import { createFormulaEngine } from '../formula/formulaEngine.js';
 import { createValidationEngine } from '../validation/validationEngine.js';
 import { createExecutionEngine } from '../execution/executionEngine.js';
+import { createStateEngine } from '../state/stateEngine.js';
 import { captureRuntimeMetrics } from '../../infra/observability/runtimeMetrics.js';
 
 /**
- * Full C.11 pipeline: Loader → CRB → Registry → Dependency → Permission → Action → Workflow → Render → Expression → Formula → Validation → Execution → Router → Runtime Ready.
+ * Full C.12 pipeline: Loader → CRB → Registry → Dependency → Permission → Action → Workflow → Render → Expression → Formula → Validation → Execution → State → Router → Runtime Ready.
  */
 export async function loadRuntimeBundle({
   context,
@@ -35,6 +36,7 @@ export async function loadRuntimeBundle({
   formulaEngine,
   validationEngine,
   executionEngine,
+  stateEngine,
 }) {
   const bootstrapStarted = performance.now();
   let crbLoadMs = 0;
@@ -107,6 +109,9 @@ export async function loadRuntimeBundle({
       permissionEngine: resolvedPermissionEngine,
     });
 
+  // M17 — isolated local runtime state store. Route-scoped/entity-scoped via `scope()`; no persistence, no DB.
+  const resolvedStateEngine = stateEngine ?? createStateEngine();
+
   const depStarted = performance.now();
   const graph = dependencyResolver.resolveFromCrb(crb, crb.moduleId ? [crb.moduleId] : []);
   dependencyResolveMs = performance.now() - depStarted;
@@ -162,6 +167,7 @@ export async function loadRuntimeBundle({
     formulaEngine: resolvedFormulaEngine,
     validationEngine: resolvedValidationEngine,
     executionEngine: resolvedExecutionEngine,
+    stateEngine: resolvedStateEngine,
     lifecycle: BundleLifecycle.READY,
   };
 }
