@@ -30,6 +30,7 @@ export { createPluginEngine, PluginEngine, PluginError } from './core/plugin/plu
 export { createConnectorEngine, ConnectorEngine, ConnectorError } from './core/connector/connectorEngine.js';
 export { createCacheEngine, CacheEngine, CacheError } from './infra/cache/cacheEngine.js';
 export { createEventBus, EventBus, EventBusError } from './infra/event-bus/eventBus.js';
+export { createTransactionEngine, TransactionEngine, TransactionError } from './infra/transaction/transactionEngine.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,
