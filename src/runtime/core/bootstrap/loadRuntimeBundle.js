@@ -13,10 +13,11 @@ import { createRenderEngine } from '../render/renderEngine.js';
 import { createExpressionEngine } from '../expression/expressionEngine.js';
 import { createFormulaEngine } from '../formula/formulaEngine.js';
 import { createValidationEngine } from '../validation/validationEngine.js';
+import { createExecutionEngine } from '../execution/executionEngine.js';
 import { captureRuntimeMetrics } from '../../infra/observability/runtimeMetrics.js';
 
 /**
- * Full C.10 pipeline: Loader → CRB → Registry → Dependency → Permission → Action → Workflow → Render → Expression → Formula → Validation → Router → Runtime Ready.
+ * Full C.11 pipeline: Loader → CRB → Registry → Dependency → Permission → Action → Workflow → Render → Expression → Formula → Validation → Execution → Router → Runtime Ready.
  */
 export async function loadRuntimeBundle({
   context,
@@ -33,6 +34,7 @@ export async function loadRuntimeBundle({
   expressionEngine,
   formulaEngine,
   validationEngine,
+  executionEngine,
 }) {
   const bootstrapStarted = performance.now();
   let crbLoadMs = 0;
@@ -94,6 +96,17 @@ export async function loadRuntimeBundle({
   const resolvedValidationEngine =
     validationEngine ?? createValidationEngine({ registry, expressionEngine: resolvedExpressionEngine });
 
+  // M16 — UP-09 pipeline orchestrator: Validate (M15) → Authorize (M09) → Execute (M10/M11). No logic duplicated.
+  const resolvedExecutionEngine =
+    executionEngine ??
+    createExecutionEngine({
+      registry,
+      actionEngine: resolvedActionEngine,
+      workflowEngine: resolvedWorkflowEngine,
+      validationEngine: resolvedValidationEngine,
+      permissionEngine: resolvedPermissionEngine,
+    });
+
   const depStarted = performance.now();
   const graph = dependencyResolver.resolveFromCrb(crb, crb.moduleId ? [crb.moduleId] : []);
   dependencyResolveMs = performance.now() - depStarted;
@@ -148,6 +161,7 @@ export async function loadRuntimeBundle({
     expressionEngine: resolvedExpressionEngine,
     formulaEngine: resolvedFormulaEngine,
     validationEngine: resolvedValidationEngine,
+    executionEngine: resolvedExecutionEngine,
     lifecycle: BundleLifecycle.READY,
   };
 }
