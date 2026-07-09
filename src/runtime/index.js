@@ -43,6 +43,10 @@ export { createPreviewModel } from './preview/previewModel.js';
 // The React components (dev/*.jsx) are intentionally NOT exported here — they must never be pulled
 // into the framework-free runtime core, and they are dev-only (not a production route).
 export { createEmpresasDevPreviewModel, isEmpresasDevPreviewEnabled } from './preview/dev/devPreviewConfig.js';
+// Dev-only preview harness: again only the pure helpers (fixture + flag) leave the barrel — the
+// harness React component (EmpresasDevPreviewHarness.jsx) is dev-only and never exported here.
+export { createEmpresasDevPreviewFixture } from './preview/dev/createEmpresasDevPreviewFixture.js';
+export { isEmpresasDevPreviewHarnessEnabled } from './preview/dev/devPreviewHarnessConfig.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,
