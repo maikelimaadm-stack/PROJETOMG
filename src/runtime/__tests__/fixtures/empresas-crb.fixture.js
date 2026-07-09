@@ -35,8 +35,13 @@ export function buildEmpresasCrbFixture(overrides = {}) {
       [moduleId]: [{ objectId: 'field-1', objectType: 'field', code: 'razao_social', payload: { dataType: 'string' } }],
     },
     validation: {
-      [moduleId]: [
-        { objectId: 'val-1', objectType: 'validation', code: 'empresas_validation', payload: { rules: [{ rule: 'required', field: 'razao_social' }] } },
+      [moduleId]: overrides.validationEntries ?? [
+        {
+          objectId: 'val-1',
+          objectType: 'validation',
+          code: 'empresas_validation',
+          payload: { rules: [{ rule: 'required', field: 'razao_social' }] },
+        },
       ],
     },
     formula: {

@@ -12,10 +12,11 @@ import { createWorkflowEngine } from '../workflow/workflowEngine.js';
 import { createRenderEngine } from '../render/renderEngine.js';
 import { createExpressionEngine } from '../expression/expressionEngine.js';
 import { createFormulaEngine } from '../formula/formulaEngine.js';
+import { createValidationEngine } from '../validation/validationEngine.js';
 import { captureRuntimeMetrics } from '../../infra/observability/runtimeMetrics.js';
 
 /**
- * Full C.9 pipeline: Loader → CRB → Registry → Dependency → Permission → Action → Workflow → Render → Expression → Formula → Router → Runtime Ready.
+ * Full C.10 pipeline: Loader → CRB → Registry → Dependency → Permission → Action → Workflow → Render → Expression → Formula → Validation → Router → Runtime Ready.
  */
 export async function loadRuntimeBundle({
   context,
@@ -31,6 +32,7 @@ export async function loadRuntimeBundle({
   renderEngine,
   expressionEngine,
   formulaEngine,
+  validationEngine,
 }) {
   const bootstrapStarted = performance.now();
   let crbLoadMs = 0;
@@ -88,6 +90,10 @@ export async function loadRuntimeBundle({
   const resolvedFormulaEngine =
     formulaEngine ?? createFormulaEngine({ registry, expressionEngine: resolvedExpressionEngine });
 
+  // M15 — declarative validation delegates custom-rule evaluation to M13, never reimplemented.
+  const resolvedValidationEngine =
+    validationEngine ?? createValidationEngine({ registry, expressionEngine: resolvedExpressionEngine });
+
   const depStarted = performance.now();
   const graph = dependencyResolver.resolveFromCrb(crb, crb.moduleId ? [crb.moduleId] : []);
   dependencyResolveMs = performance.now() - depStarted;
@@ -141,6 +147,7 @@ export async function loadRuntimeBundle({
     renderEngine: resolvedRenderEngine,
     expressionEngine: resolvedExpressionEngine,
     formulaEngine: resolvedFormulaEngine,
+    validationEngine: resolvedValidationEngine,
     lifecycle: BundleLifecycle.READY,
   };
 }
