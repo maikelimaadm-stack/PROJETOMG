@@ -17,10 +17,12 @@ import { createExecutionEngine } from '../execution/executionEngine.js';
 import { createStateEngine } from '../state/stateEngine.js';
 import { createPluginEngine } from '../plugin/pluginEngine.js';
 import { createConnectorEngine } from '../connector/connectorEngine.js';
+import { createCacheEngine } from '../../infra/cache/cacheEngine.js';
+import { createEventBus } from '../../infra/event-bus/eventBus.js';
 import { captureRuntimeMetrics } from '../../infra/observability/runtimeMetrics.js';
 
 /**
- * Full C.14 pipeline: Loader → CRB → Registry → Dependency → Permission → Action → Workflow → Render → Expression → Formula → Validation → Execution → State → Plugin → Connector → Router → Runtime Ready.
+ * Full C.15 pipeline: Loader → CRB → Registry → Dependency → Permission → Action → Workflow → Render → Expression → Formula → Validation → Execution → State → Plugin → Connector → Cache → EventBus → Router → Runtime Ready.
  */
 export async function loadRuntimeBundle({
   context,
@@ -41,6 +43,8 @@ export async function loadRuntimeBundle({
   stateEngine,
   pluginEngine,
   connectorEngine,
+  cacheEngine,
+  eventBus,
 }) {
   const bootstrapStarted = performance.now();
   let crbLoadMs = 0;
@@ -124,6 +128,10 @@ export async function loadRuntimeBundle({
   const resolvedConnectorEngine =
     connectorEngine ?? createConnectorEngine({ registry, permissionEngine: resolvedPermissionEngine });
 
+  // M21/M22 — runtime-local infra: deterministic cache and in-process event bus stub (D-RI-08). No broker, no persistence.
+  const resolvedCacheEngine = cacheEngine ?? createCacheEngine();
+  const resolvedEventBus = eventBus ?? createEventBus();
+
   const depStarted = performance.now();
   const graph = dependencyResolver.resolveFromCrb(crb, crb.moduleId ? [crb.moduleId] : []);
   dependencyResolveMs = performance.now() - depStarted;
@@ -182,6 +190,8 @@ export async function loadRuntimeBundle({
     stateEngine: resolvedStateEngine,
     pluginEngine: resolvedPluginEngine,
     connectorEngine: resolvedConnectorEngine,
+    cacheEngine: resolvedCacheEngine,
+    eventBus: resolvedEventBus,
     lifecycle: BundleLifecycle.READY,
   };
 }

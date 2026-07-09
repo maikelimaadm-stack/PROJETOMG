@@ -28,6 +28,8 @@ export { createExecutionEngine, ExecutionEngine, ExecutionError } from './core/e
 export { createStateEngine, StateEngine, StateError } from './core/state/stateEngine.js';
 export { createPluginEngine, PluginEngine, PluginError } from './core/plugin/pluginEngine.js';
 export { createConnectorEngine, ConnectorEngine, ConnectorError } from './core/connector/connectorEngine.js';
+export { createCacheEngine, CacheEngine, CacheError } from './infra/cache/cacheEngine.js';
+export { createEventBus, EventBus, EventBusError } from './infra/event-bus/eventBus.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,
