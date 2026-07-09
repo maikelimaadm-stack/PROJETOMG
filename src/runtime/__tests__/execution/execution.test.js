@@ -302,12 +302,12 @@ describe('M16 — Execution Engine', () => {
     const dir = path.dirname(fileURLToPath(import.meta.url));
     const source = fs.readFileSync(path.join(dir, '../../core/execution/executionEngine.js'), 'utf8');
 
-    // M17 State Engine exists (C.12) — this guard is scoped to "executionEngine.js itself never
-    // references it", not "core/state/ must not exist" (that was only valid during C.11's own authoring).
+    // M17 State Engine (C.12) and M18 Plugin Engine (C.13) both legitimately exist — this guard is
+    // scoped to "executionEngine.js itself never references them", not "core/state|plugin/ must
+    // not exist" (that was only valid during C.11's own authoring).
     assert.equal(/stateEngine|StateEngine|transactionEngine|TransactionEngine|pluginEngine|PluginEngine/.test(source), false);
     assert.equal(/from\s+['"]react['"]/i.test(source), false);
     assert.equal(fs.existsSync(path.join(dir, '../../core/transaction')), false);
-    assert.equal(fs.existsSync(path.join(dir, '../../core/plugin')), false);
   });
 
   it('não usa eval nem new Function no código-fonte', () => {

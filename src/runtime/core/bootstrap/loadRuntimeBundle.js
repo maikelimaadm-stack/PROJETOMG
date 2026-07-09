@@ -15,10 +15,11 @@ import { createFormulaEngine } from '../formula/formulaEngine.js';
 import { createValidationEngine } from '../validation/validationEngine.js';
 import { createExecutionEngine } from '../execution/executionEngine.js';
 import { createStateEngine } from '../state/stateEngine.js';
+import { createPluginEngine } from '../plugin/pluginEngine.js';
 import { captureRuntimeMetrics } from '../../infra/observability/runtimeMetrics.js';
 
 /**
- * Full C.12 pipeline: Loader → CRB → Registry → Dependency → Permission → Action → Workflow → Render → Expression → Formula → Validation → Execution → State → Router → Runtime Ready.
+ * Full C.13 pipeline: Loader → CRB → Registry → Dependency → Permission → Action → Workflow → Render → Expression → Formula → Validation → Execution → State → Plugin → Router → Runtime Ready.
  */
 export async function loadRuntimeBundle({
   context,
@@ -37,6 +38,7 @@ export async function loadRuntimeBundle({
   validationEngine,
   executionEngine,
   stateEngine,
+  pluginEngine,
 }) {
   const bootstrapStarted = performance.now();
   let crbLoadMs = 0;
@@ -112,6 +114,10 @@ export async function loadRuntimeBundle({
   // M17 — isolated local runtime state store. Route-scoped/entity-scoped via `scope()`; no persistence, no DB.
   const resolvedStateEngine = stateEngine ?? createStateEngine();
 
+  // M18 — registry-driven plugin resolution; manifests are declarative data, capability behavior is host-registered (no eval/dynamic import).
+  const resolvedPluginEngine =
+    pluginEngine ?? createPluginEngine({ registry, permissionEngine: resolvedPermissionEngine });
+
   const depStarted = performance.now();
   const graph = dependencyResolver.resolveFromCrb(crb, crb.moduleId ? [crb.moduleId] : []);
   dependencyResolveMs = performance.now() - depStarted;
@@ -168,6 +174,7 @@ export async function loadRuntimeBundle({
     validationEngine: resolvedValidationEngine,
     executionEngine: resolvedExecutionEngine,
     stateEngine: resolvedStateEngine,
+    pluginEngine: resolvedPluginEngine,
     lifecycle: BundleLifecycle.READY,
   };
 }

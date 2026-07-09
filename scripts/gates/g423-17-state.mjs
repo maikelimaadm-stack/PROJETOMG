@@ -96,18 +96,15 @@ gate('G423-17 — no Cache/Event Bus created', noCacheOrEventBus, cacheDetail);
 let noPluginOrConnector = false;
 let pluginDetail = '';
 try {
+  // M18 Plugin Engine legitimately exists as of C.13 — scoped to "stateEngine.js itself never
+  // references it" (permanently valid), not "core/plugin/ must not exist" (that was only a
+  // scope-creep guard valid during C.12's own authoring). Connector Engine (M19, C.14) still
+  // doesn't exist, so its directory-absence check remains valid.
   const source = fs.readFileSync(stateEnginePath, 'utf8');
-  const hasPluginDir = exists(path.join(RUNTIME, 'core/plugin'));
   const hasConnectorDir = exists(path.join(RUNTIME, 'core/connector'));
   const hasReference = /pluginEngine|PluginEngine|connectorEngine|ConnectorEngine/.test(source);
-  noPluginOrConnector = !hasPluginDir && !hasConnectorDir && !hasReference;
-  pluginDetail = hasPluginDir
-    ? 'core/plugin directory exists'
-    : hasConnectorDir
-      ? 'core/connector directory exists'
-      : hasReference
-        ? 'Plugin/Connector reference found'
-        : 'clean';
+  noPluginOrConnector = !hasConnectorDir && !hasReference;
+  pluginDetail = hasConnectorDir ? 'core/connector directory exists' : hasReference ? 'Plugin/Connector reference found' : 'clean';
 } catch (err) {
   pluginDetail = err instanceof Error ? err.message : String(err);
 }
