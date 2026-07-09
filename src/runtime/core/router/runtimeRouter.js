@@ -8,7 +8,11 @@ import { RouteError } from './errors.js';
  * Runtime Router (M08) — route table, URL match, navigation prep. No render.
  */
 export class RuntimeRouter {
-  constructor() {
+  /**
+   * @param {Object} [options]
+   * @param {import('../permission/permissionEngine.js').PermissionEngine} [options.permissionEngine]
+   */
+  constructor(options = {}) {
     this._registry = new RouteRegistry();
     this._resolver = new RouteResolver(this._registry);
     /** @type {import('./RouteLifecycle.js').RouteState} */
@@ -16,6 +20,16 @@ export class RuntimeRouter {
     /** @type {import('../../types/router.js').RouteMatch | null} */
     this._currentMatch = null;
     this._lastRegisterMs = 0;
+    /** @type {import('../permission/permissionEngine.js').PermissionEngine | null} */
+    this._permissionEngine = options.permissionEngine ?? null;
+  }
+
+  /**
+   * Wires the M09 Permission Engine used by `canActivate()` (RT-5 Authorize).
+   * @param {import('../permission/permissionEngine.js').PermissionEngine | null} permissionEngine
+   */
+  setPermissionEngine(permissionEngine) {
+    this._permissionEngine = permissionEngine ?? null;
   }
 
   /**
@@ -53,12 +67,45 @@ export class RuntimeRouter {
   }
 
   /**
-   * Guard stub — always allow until M09 Permission Engine (C.5).
-   * @param {import('../../types/router.js').RouteEntry} _route
-   * @param {import('../context/RuntimeContext.js').RuntimeContext} _ctx
+   * RT-5 Authorize — delegates to the M09 Permission Engine. Fail-closed:
+   * no engine, no derivable permission code, or engine error all deny.
+   * @param {import('../../types/router.js').RouteEntry} route
+   * @param {import('../context/RuntimeContext.js').RuntimeContext | { accessScope?: import('../../types/uec.js').AccessScope }} ctx
+   * @returns {Promise<boolean>}
    */
-  async canActivate(_route, _ctx) {
-    return true;
+  async canActivate(route, ctx) {
+    if (!this._permissionEngine) {
+      return false;
+    }
+
+    const code = RuntimeRouter._derivePermissionCode(route);
+    if (!code) {
+      return false;
+    }
+
+    const idx = code.lastIndexOf('.');
+    const resource = idx === -1 ? code : code.slice(0, idx);
+    const action = idx === -1 ? 'access' : code.slice(idx + 1);
+
+    try {
+      return await this._permissionEngine.can(action, resource, ctx);
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Resolves the permission code that gates a route: explicit `permission`/
+   * `requiredPermission` metadata takes precedence; otherwise falls back to
+   * `${moduleId}.access` — the conventional "may enter this route" grant.
+   * @param {import('../../types/router.js').RouteEntry} route
+   * @returns {string | null}
+   */
+  static _derivePermissionCode(route) {
+    if (typeof route?.permission === 'string' && route.permission) return route.permission;
+    if (typeof route?.requiredPermission === 'string' && route.requiredPermission) return route.requiredPermission;
+    if (typeof route?.moduleId === 'string' && route.moduleId) return `${route.moduleId}.access`;
+    return null;
   }
 
   /**
@@ -104,9 +151,13 @@ export class RuntimeRouter {
   }
 }
 
-/** @returns {RuntimeRouter} */
-export function createRuntimeRouter() {
-  return new RuntimeRouter();
+/**
+ * @param {Object} [options]
+ * @param {import('../permission/permissionEngine.js').PermissionEngine} [options.permissionEngine]
+ * @returns {RuntimeRouter}
+ */
+export function createRuntimeRouter(options) {
+  return new RuntimeRouter(options);
 }
 
 export { RouteError };

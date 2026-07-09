@@ -43,7 +43,9 @@ export function buildEmpresasCrbFixture(overrides = {}) {
       [moduleId]: [{ objectId: 'wf-1', objectType: 'workflow', code: 'empresa_approval', payload: { engine: 'V20' } }],
     },
     permission: {
-      [moduleId]: [{ objectId: 'perm-1', objectType: 'permission', code: 'empresa.read', payload: { effect: 'allow' } }],
+      [moduleId]: overrides.permissionEntries ?? [
+        { objectId: 'perm-1', objectType: 'permission', code: 'empresa.read', payload: { effect: 'allow' } },
+      ],
     },
     baseTemplate: {
       [moduleId]: [{ objectId: 'tpl-1', objectType: 'base_template', code: 'modelobase1', payload: {} }],

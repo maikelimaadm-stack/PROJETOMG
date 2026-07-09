@@ -16,4 +16,12 @@ export { LoaderContext } from './core/loader/LoaderContext.js';
 export { createCrbLoader, CRBLoader, CrbError } from './core/crb/crbLoader.js';
 export { createDependencyResolver, DependencyResolver, DependencyError } from './core/dependency/dependencyResolver.js';
 export { createRuntimeRouter, RuntimeRouter, RouteError } from './core/router/runtimeRouter.js';
+export { createPermissionEngine, PermissionEngine, PermissionError } from './core/permission/permissionEngine.js';
+export { PermissionMatrix } from './core/permission/PermissionMatrix.js';
+export {
+  createServiceLocator,
+  createEmptyServiceLocator,
+  ServiceLocator,
+  ServiceLocatorError,
+} from './infra/service-locator/serviceLocator.js';
 export { captureRuntimeMetrics } from './infra/observability/runtimeMetrics.js';
