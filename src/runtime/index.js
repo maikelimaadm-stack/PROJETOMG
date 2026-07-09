@@ -24,6 +24,7 @@ export { createRenderEngine, RenderEngine, RenderError } from './core/render/ren
 export { createExpressionEngine, ExpressionEngine, ExpressionError } from './core/expression/expressionEngine.js';
 export { createFormulaEngine, FormulaEngine, FormulaError } from './core/formula/formulaEngine.js';
 export { createValidationEngine, ValidationEngine, ValidationError } from './core/validation/validationEngine.js';
+export { createExecutionEngine, ExecutionEngine, ExecutionError } from './core/execution/executionEngine.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,
