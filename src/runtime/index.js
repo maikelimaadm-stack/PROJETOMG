@@ -27,6 +27,7 @@ export { createValidationEngine, ValidationEngine, ValidationError } from './cor
 export { createExecutionEngine, ExecutionEngine, ExecutionError } from './core/execution/executionEngine.js';
 export { createStateEngine, StateEngine, StateError } from './core/state/stateEngine.js';
 export { createPluginEngine, PluginEngine, PluginError } from './core/plugin/pluginEngine.js';
+export { createConnectorEngine, ConnectorEngine, ConnectorError } from './core/connector/connectorEngine.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,

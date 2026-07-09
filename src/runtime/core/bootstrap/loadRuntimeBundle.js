@@ -16,10 +16,11 @@ import { createValidationEngine } from '../validation/validationEngine.js';
 import { createExecutionEngine } from '../execution/executionEngine.js';
 import { createStateEngine } from '../state/stateEngine.js';
 import { createPluginEngine } from '../plugin/pluginEngine.js';
+import { createConnectorEngine } from '../connector/connectorEngine.js';
 import { captureRuntimeMetrics } from '../../infra/observability/runtimeMetrics.js';
 
 /**
- * Full C.13 pipeline: Loader → CRB → Registry → Dependency → Permission → Action → Workflow → Render → Expression → Formula → Validation → Execution → State → Plugin → Router → Runtime Ready.
+ * Full C.14 pipeline: Loader → CRB → Registry → Dependency → Permission → Action → Workflow → Render → Expression → Formula → Validation → Execution → State → Plugin → Connector → Router → Runtime Ready.
  */
 export async function loadRuntimeBundle({
   context,
@@ -39,6 +40,7 @@ export async function loadRuntimeBundle({
   executionEngine,
   stateEngine,
   pluginEngine,
+  connectorEngine,
 }) {
   const bootstrapStarted = performance.now();
   let crbLoadMs = 0;
@@ -118,6 +120,10 @@ export async function loadRuntimeBundle({
   const resolvedPluginEngine =
     pluginEngine ?? createPluginEngine({ registry, permissionEngine: resolvedPermissionEngine });
 
+  // M19 — registry-driven connector resolution; actual transport (HTTP/DB/etc.) is always a host-registered adapter, never a direct call in core runtime.
+  const resolvedConnectorEngine =
+    connectorEngine ?? createConnectorEngine({ registry, permissionEngine: resolvedPermissionEngine });
+
   const depStarted = performance.now();
   const graph = dependencyResolver.resolveFromCrb(crb, crb.moduleId ? [crb.moduleId] : []);
   dependencyResolveMs = performance.now() - depStarted;
@@ -175,6 +181,7 @@ export async function loadRuntimeBundle({
     executionEngine: resolvedExecutionEngine,
     stateEngine: resolvedStateEngine,
     pluginEngine: resolvedPluginEngine,
+    connectorEngine: resolvedConnectorEngine,
     lifecycle: BundleLifecycle.READY,
   };
 }

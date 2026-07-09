@@ -273,13 +273,14 @@ describe('M18 — Plugin Engine', () => {
     assert.equal(/from\s+['"].*backend.*['"]/i.test(source), false);
   });
 
-  it('não cria Connector/Transaction Engine nem Cache/Event Bus, e não importa React (sem UI de produção)', () => {
+  it('pluginEngine.js não referencia Connector/Transaction Engine nem Cache/Event Bus, e não importa React (sem UI de produção)', () => {
     const dir = path.dirname(fileURLToPath(import.meta.url));
     const source = fs.readFileSync(path.join(dir, '../../core/plugin/pluginEngine.js'), 'utf8');
 
+    // M19 Connector Engine exists (C.14) — scoped to "pluginEngine.js itself never references it",
+    // not "core/connector/ must not exist" (that was only valid during C.13's own authoring).
     assert.equal(/connectorEngine|ConnectorEngine|transactionEngine|TransactionEngine|eventBus|EventBus|cacheEngine|CacheEngine/.test(source), false);
     assert.equal(/from\s+['"]react['"]/i.test(source), false);
-    assert.equal(fs.existsSync(path.join(dir, '../../core/connector')), false);
     assert.equal(fs.existsSync(path.join(dir, '../../core/transaction')), false);
     assert.equal(fs.existsSync(path.join(dir, '../../core/cache')), false);
     assert.equal(fs.existsSync(path.join(dir, '../../core/event-bus')), false);
