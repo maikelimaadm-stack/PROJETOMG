@@ -31,6 +31,8 @@ export { createConnectorEngine, ConnectorEngine, ConnectorError } from './core/c
 export { createCacheEngine, CacheEngine, CacheError } from './infra/cache/cacheEngine.js';
 export { createEventBus, EventBus, EventBusError } from './infra/event-bus/eventBus.js';
 export { createTransactionEngine, TransactionEngine, TransactionError } from './infra/transaction/transactionEngine.js';
+export { createObservabilityEngine, ObservabilityEngine, ObservabilityError } from './infra/observability/observabilityEngine.js';
+export { createRuntimeCompletion, RuntimeCompletion, RuntimeCompletionError } from './core/completion/runtimeCompletion.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,

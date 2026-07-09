@@ -84,6 +84,7 @@ export async function hydrateWithBundle(instance, pin, crbPayload) {
       instance._serviceLocator.register('cacheEngine', result.cacheEngine, { override: true });
       instance._serviceLocator.register('eventBus', result.eventBus, { override: true });
       instance._serviceLocator.register('transactionEngine', result.transactionEngine, { override: true });
+      instance._serviceLocator.register('observabilityEngine', result.observabilityEngine, { override: true });
     }
 
     return {
