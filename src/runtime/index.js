@@ -37,6 +37,8 @@ export { createRuntimeShadowMode, RuntimeShadowMode, RuntimeShadowModeError } fr
 export { createEmpresasShadowPilot, EmpresasShadowPilot, EmpresasShadowPilotError } from './shadow/pilots/empresasShadowPilot.js';
 export { createEmpresasTableFormShadow, EmpresasTableFormShadow } from './shadow/pilots/empresasTableFormShadow.js';
 export { createTableFormProjection } from './shadow/pilots/tableFormProjection.js';
+export { createControlledPreview, ControlledPreview, ControlledPreviewError } from './preview/controlledPreview.js';
+export { createPreviewModel } from './preview/previewModel.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,
