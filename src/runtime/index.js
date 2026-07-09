@@ -35,6 +35,8 @@ export { createObservabilityEngine, ObservabilityEngine, ObservabilityError } fr
 export { createRuntimeCompletion, RuntimeCompletion, RuntimeCompletionError } from './core/completion/runtimeCompletion.js';
 export { createRuntimeShadowMode, RuntimeShadowMode, RuntimeShadowModeError } from './shadow/runtimeShadowMode.js';
 export { createEmpresasShadowPilot, EmpresasShadowPilot, EmpresasShadowPilotError } from './shadow/pilots/empresasShadowPilot.js';
+export { createEmpresasTableFormShadow, EmpresasTableFormShadow } from './shadow/pilots/empresasTableFormShadow.js';
+export { createTableFormProjection } from './shadow/pilots/tableFormProjection.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,
