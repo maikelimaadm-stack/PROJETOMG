@@ -26,6 +26,7 @@ export { createFormulaEngine, FormulaEngine, FormulaError } from './core/formula
 export { createValidationEngine, ValidationEngine, ValidationError } from './core/validation/validationEngine.js';
 export { createExecutionEngine, ExecutionEngine, ExecutionError } from './core/execution/executionEngine.js';
 export { createStateEngine, StateEngine, StateError } from './core/state/stateEngine.js';
+export { createPluginEngine, PluginEngine, PluginError } from './core/plugin/pluginEngine.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,

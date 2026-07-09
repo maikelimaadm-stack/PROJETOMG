@@ -104,15 +104,17 @@ gate('G423-16 — no Transaction Engine created', noTransactionEngine, txDetail)
 let noPluginEngine = false;
 let pluginDetail = '';
 try {
+  // M18 Plugin Engine legitimately exists as of C.13 — scoped to "executionEngine.js itself
+  // never references it" (permanently valid), not "core/plugin/ must not exist" (that was only
+  // a scope-creep guard valid during C.11's own authoring).
   const source = fs.readFileSync(executionEnginePath, 'utf8');
-  const hasDir = exists(path.join(RUNTIME, 'core/plugin'));
   const hasReference = /pluginEngine|PluginEngine/.test(source);
-  noPluginEngine = !hasDir && !hasReference;
-  pluginDetail = hasDir ? 'core/plugin directory exists' : hasReference ? 'PluginEngine reference found' : 'clean';
+  noPluginEngine = !hasReference;
+  pluginDetail = hasReference ? 'PluginEngine reference found' : 'clean';
 } catch (err) {
   pluginDetail = err instanceof Error ? err.message : String(err);
 }
-gate('G423-16 — no Plugin Engine created', noPluginEngine, pluginDetail);
+gate('G423-16 — executionEngine.js does not reference Plugin Engine directly', noPluginEngine, pluginDetail);
 
 let noProductionUiChange = false;
 let productionUiDetail = '';

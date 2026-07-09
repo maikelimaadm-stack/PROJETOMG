@@ -210,13 +210,15 @@ describe('M17 — State Engine', () => {
     assert.equal(fs.existsSync(path.join(dir, '../../core/event-bus')), false);
   });
 
-  it('não cria Plugin/Connector Engine e não importa React (sem UI de produção)', () => {
+  it('stateEngine.js não referencia Plugin/Connector Engine e não importa React (sem UI de produção)', () => {
     const dir = path.dirname(fileURLToPath(import.meta.url));
     const source = fs.readFileSync(path.join(dir, '../../core/state/stateEngine.js'), 'utf8');
 
+    // M18 Plugin Engine exists (C.13) — scoped to "stateEngine.js itself never references it", not
+    // "core/plugin/ must not exist" (that was only valid during C.12's own authoring). Connector
+    // Engine (M19, C.14) still doesn't exist, so its directory-absence check remains valid.
     assert.equal(/pluginEngine|PluginEngine|connectorEngine|ConnectorEngine/.test(source), false);
     assert.equal(/from\s+['"]react['"]/i.test(source), false);
-    assert.equal(fs.existsSync(path.join(dir, '../../core/plugin')), false);
     assert.equal(fs.existsSync(path.join(dir, '../../core/connector')), false);
   });
 
