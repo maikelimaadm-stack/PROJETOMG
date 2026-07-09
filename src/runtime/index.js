@@ -23,6 +23,7 @@ export { createWorkflowEngine, WorkflowEngine, WorkflowError } from './core/work
 export { createRenderEngine, RenderEngine, RenderError } from './core/render/renderEngine.js';
 export { createExpressionEngine, ExpressionEngine, ExpressionError } from './core/expression/expressionEngine.js';
 export { createFormulaEngine, FormulaEngine, FormulaError } from './core/formula/formulaEngine.js';
+export { createValidationEngine, ValidationEngine, ValidationError } from './core/validation/validationEngine.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,
