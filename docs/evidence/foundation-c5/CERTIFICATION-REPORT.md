@@ -2,6 +2,8 @@
 
 **Slice:** C.5 — M20 Service Locator + M09 Permission Engine
 **Branch:** `claude/foundation-c5-locator-permission-0b52`
+**PR:** [#396](https://github.com/maikelimaadm-stack/PROJETOMG/pull/396)
+**Commit:** `7e59bb0b`
 **Base:** `main` @ `e6c4b454` (post PR #395)
 **Gates:** G423-09 (PASS) · G423-20 (PASS) · G423-01–08 regression (PASS)
 
