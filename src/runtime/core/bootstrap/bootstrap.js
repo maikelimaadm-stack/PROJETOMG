@@ -63,6 +63,16 @@ export async function hydrateWithBundle(instance, pin, crbPayload) {
     instance.phase = 'RT-3';
     instance.status = 'hydrated';
 
+    // M20 — post RT-3, wire the services materialized by the CRB pipeline (M05, M06, M07, M08).
+    if (instance._serviceLocator) {
+      instance._serviceLocator.register('registry', result.registry, { override: true });
+      instance._serviceLocator.register('loader', result.loader, { override: true });
+      instance._serviceLocator.register('crbLoader', result.crbLoader, { override: true });
+      instance._serviceLocator.register('dependencyResolver', result.dependencyResolver, { override: true });
+      instance._serviceLocator.register('router', result.router, { override: true });
+      instance._serviceLocator.register('permissionEngine', result.permissionEngine, { override: true });
+    }
+
     return {
       instance,
       bundle: result.bundle,

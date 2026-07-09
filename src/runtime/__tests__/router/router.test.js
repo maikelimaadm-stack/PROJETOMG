@@ -94,9 +94,16 @@ describe('M08 — Runtime Router', () => {
     assert.equal(router.currentMatch?.path, '/empresas');
   });
 
-  it('canActivate stub allows all routes (M09 deferred)', async () => {
+  it('canActivate() is fail-closed without a wired Permission Engine (M09, C.5)', async () => {
     const router = createRuntimeRouter();
     const allowed = await router.canActivate({ path: '/x', objectId: 'x' }, {});
+    assert.equal(allowed, false);
+  });
+
+  it('canActivate() delegates to the wired Permission Engine', async () => {
+    const router = createRuntimeRouter();
+    router.setPermissionEngine({ can: async () => true });
+    const allowed = await router.canActivate({ path: '/x', objectId: 'x', moduleId: 'empresas' }, {});
     assert.equal(allowed, true);
   });
 

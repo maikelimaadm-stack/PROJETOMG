@@ -6,10 +6,11 @@ import { BundleLifecycle } from '../crb/BundleLifecycle.js';
 import { CrbError } from '../crb/errors.js';
 import { createDependencyResolver } from '../dependency/dependencyResolver.js';
 import { createRuntimeRouter } from '../router/runtimeRouter.js';
+import { createPermissionEngine } from '../permission/permissionEngine.js';
 import { captureRuntimeMetrics } from '../../infra/observability/runtimeMetrics.js';
 
 /**
- * Full C.4 pipeline: Loader → CRB → Registry → Dependency → Router → Runtime Ready.
+ * Full C.5 pipeline: Loader → CRB → Registry → Dependency → Permission → Router → Runtime Ready.
  */
 export async function loadRuntimeBundle({
   context,
@@ -19,6 +20,7 @@ export async function loadRuntimeBundle({
   crbLoader = createCrbLoader(pin.environment),
   dependencyResolver = createDependencyResolver(),
   router = createRuntimeRouter(),
+  permissionEngine,
 }) {
   const bootstrapStarted = performance.now();
   let crbLoadMs = 0;
@@ -49,6 +51,10 @@ export async function loadRuntimeBundle({
   const hydration = crbLoader.hydrate(crb, registry);
   hydrationMs = hydration.hydrationMs;
   registry.freeze();
+
+  // M09 — permission matrix is built from the frozen, hydrated registry (RT-3 → RT-5 handoff).
+  const resolvedPermissionEngine = permissionEngine ?? createPermissionEngine({ registry });
+  router.setPermissionEngine(resolvedPermissionEngine);
 
   const depStarted = performance.now();
   const graph = dependencyResolver.resolveFromCrb(crb, crb.moduleId ? [crb.moduleId] : []);
@@ -97,6 +103,7 @@ export async function loadRuntimeBundle({
     dependencyGraph: graph,
     router,
     navigationTable: navTable,
+    permissionEngine: resolvedPermissionEngine,
     lifecycle: BundleLifecycle.READY,
   };
 }
