@@ -51,9 +51,11 @@ Define how the MAK Gestão project continues across:
 ### Claude Code
 
 1. Clone/pull `main` from GitHub
-2. Follow [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md) reading order
-3. Use same branch naming if contributing via PR
-4. Run same verification commands (`verify:governance`, etc.)
+2. Read [`CLAUDE.md`](../../CLAUDE.md) at repo root (auto-discovered by Claude Code)
+3. Follow [`docs/ai/CLAUDE-CODE-GUIDE.md`](./ai/CLAUDE-CODE-GUIDE.md) — prompt inicial + skills portáveis
+4. Follow [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md) reading order
+5. Use same branch naming if contributing via PR
+6. Run same verification commands (`verify:governance`, etc.)
 
 ### ChatGPT / External LLMs
 
@@ -129,6 +131,7 @@ When documents conflict, resolve in this order:
 | [PROJECT-STATUS.md](./PROJECT-STATUS.md) | **Where we are** |
 | [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md) | **How to onboard** |
 | [CONTINUITY-PROTOCOL.md](./CONTINUITY-PROTOCOL.md) | **This file — handoff rules** |
+| [docs/ai/CLAUDE-CODE-GUIDE.md](../ai/CLAUDE-CODE-GUIDE.md) | **Claude Code onboarding + skills** |
 | [DOCUMENT-MAP.md](./DOCUMENT-MAP.md) | **Full doc hierarchy L0–L7** |
 | [README_AI.md](../../README_AI.md) | **AI rules & certification** |
 

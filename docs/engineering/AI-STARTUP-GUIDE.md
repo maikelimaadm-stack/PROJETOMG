@@ -36,6 +36,7 @@ Read in this order before touching code:
 | **10** | **Vision Backlog** | [MAK-2040-VISION-BACKLOG.md](../vision/MAK-2040-VISION-BACKLOG.md) | Long-term vision items |
 | **11** | **Continuity protocol** | [CONTINUITY-PROTOCOL.md](./CONTINUITY-PROTOCOL.md) | Cross-tool handoff rules |
 | **12** | **Dev commands** | [AGENTS.md](../../AGENTS.md) | Build, test, dev workflow |
+| **12b** | **Claude Code** | [docs/ai/CLAUDE-CODE-GUIDE.md](../ai/CLAUDE-CODE-GUIDE.md) | Prompt inicial + skills portáveis |
 
 **Optional by mission type:**
 
