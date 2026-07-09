@@ -76,15 +76,17 @@ gate('G423-16 — no direct Prisma/backend import in core/execution/ (D-RI-13)',
 let noStateEngine = false;
 let stateDetail = '';
 try {
+  // M17 State Engine legitimately exists as of C.12 — this check is scoped to "executionEngine.js
+  // itself never references it" (permanently valid), not "core/state/ must not exist" (that was
+  // only a scope-creep guard valid during C.11's own authoring).
   const source = fs.readFileSync(executionEnginePath, 'utf8');
-  const hasDir = exists(path.join(RUNTIME, 'core/state'));
   const hasReference = /stateEngine|StateEngine/.test(source);
-  noStateEngine = !hasDir && !hasReference;
-  stateDetail = hasDir ? 'core/state directory exists' : hasReference ? 'StateEngine reference found' : 'clean';
+  noStateEngine = !hasReference;
+  stateDetail = hasReference ? 'StateEngine reference found' : 'clean';
 } catch (err) {
   stateDetail = err instanceof Error ? err.message : String(err);
 }
-gate('G423-16 — no State Engine created', noStateEngine, stateDetail);
+gate('G423-16 — executionEngine.js does not reference State Engine directly', noStateEngine, stateDetail);
 
 let noTransactionEngine = false;
 let txDetail = '';
