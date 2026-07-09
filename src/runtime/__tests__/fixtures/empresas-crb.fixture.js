@@ -18,8 +18,17 @@ export function buildEmpresasCrbFixture(overrides = {}) {
 
   const registries = {
     layout: {
-      [moduleId]: [
-        { objectId: 'layout-1', objectType: 'layout', code: 'empresas_layout', payload: { routePath: '/empresas' } },
+      [moduleId]: overrides.layoutEntries ?? [
+        {
+          objectId: 'layout-1',
+          objectType: 'layout',
+          code: 'empresas_layout',
+          payload: {
+            routePath: '/empresas',
+            viewMode: 'table',
+            fields: [{ field: 'razao_social', label: 'Razão Social' }],
+          },
+        },
       ],
     },
     field: {

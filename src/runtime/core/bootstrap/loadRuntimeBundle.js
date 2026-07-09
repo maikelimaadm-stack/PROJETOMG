@@ -9,10 +9,11 @@ import { createRuntimeRouter } from '../router/runtimeRouter.js';
 import { createPermissionEngine } from '../permission/permissionEngine.js';
 import { createActionEngine } from '../action/actionEngine.js';
 import { createWorkflowEngine } from '../workflow/workflowEngine.js';
+import { createRenderEngine } from '../render/renderEngine.js';
 import { captureRuntimeMetrics } from '../../infra/observability/runtimeMetrics.js';
 
 /**
- * Full C.7 pipeline: Loader → CRB → Registry → Dependency → Permission → Action → Workflow → Router → Runtime Ready.
+ * Full C.8 pipeline: Loader → CRB → Registry → Dependency → Permission → Action → Workflow → Render → Router → Runtime Ready.
  */
 export async function loadRuntimeBundle({
   context,
@@ -25,6 +26,7 @@ export async function loadRuntimeBundle({
   permissionEngine,
   actionEngine,
   workflowEngine,
+  renderEngine,
 }) {
   const bootstrapStarted = performance.now();
   let crbLoadMs = 0;
@@ -72,6 +74,10 @@ export async function loadRuntimeBundle({
       actionEngine: resolvedActionEngine,
       permissionEngine: resolvedPermissionEngine,
     });
+
+  // M12 — render tree building resolves CRB `layout`/`field` registries; visibility delegates to M09.
+  const resolvedRenderEngine =
+    renderEngine ?? createRenderEngine({ registry, permissionEngine: resolvedPermissionEngine });
 
   const depStarted = performance.now();
   const graph = dependencyResolver.resolveFromCrb(crb, crb.moduleId ? [crb.moduleId] : []);
@@ -123,6 +129,7 @@ export async function loadRuntimeBundle({
     permissionEngine: resolvedPermissionEngine,
     actionEngine: resolvedActionEngine,
     workflowEngine: resolvedWorkflowEngine,
+    renderEngine: resolvedRenderEngine,
     lifecycle: BundleLifecycle.READY,
   };
 }
