@@ -20,6 +20,7 @@ export { createPermissionEngine, PermissionEngine, PermissionError } from './cor
 export { PermissionMatrix } from './core/permission/PermissionMatrix.js';
 export { createActionEngine, ActionEngine, ActionError } from './core/action/actionEngine.js';
 export { createWorkflowEngine, WorkflowEngine, WorkflowError } from './core/workflow/workflowEngine.js';
+export { createRenderEngine, RenderEngine, RenderError } from './core/render/renderEngine.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,

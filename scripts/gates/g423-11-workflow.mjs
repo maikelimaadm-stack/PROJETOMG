@@ -46,18 +46,20 @@ try {
 }
 gate('G423-11 — no direct Prisma/backend import in core/workflow/ (D-RI-13)', noForbiddenDeps, forbiddenDetail);
 
-let noRenderEngine = false;
-let renderDetail = '';
+// Note: M12 Render Engine is legitimately introduced in C.8 (docs/evidence/foundation-c8/).
+// This gate only asserts that workflowEngine.js itself never references Studio/Marketplace
+// or reaches into a render engine directly — it does not forbid core/render/ from existing.
+let noForbiddenReference = false;
+let referenceDetail = '';
 try {
   const source = fs.readFileSync(workflowEnginePath, 'utf8');
-  const hasRender = /renderEngine|RenderEngine|studio|Studio|marketplace|Marketplace/.test(source);
-  const renderEngineCreated = exists(path.join(RUNTIME, 'core/render'));
-  noRenderEngine = !hasRender && !renderEngineCreated;
-  renderDetail = hasRender ? 'render/studio/marketplace reference found in workflowEngine.js' : renderEngineCreated ? 'core/render/ directory was created' : 'clean';
+  const hasForbiddenReference = /renderEngine|RenderEngine|studio|Studio|marketplace|Marketplace/.test(source);
+  noForbiddenReference = !hasForbiddenReference;
+  referenceDetail = hasForbiddenReference ? 'render/studio/marketplace reference found in workflowEngine.js' : 'clean';
 } catch (err) {
-  renderDetail = err instanceof Error ? err.message : String(err);
+  referenceDetail = err instanceof Error ? err.message : String(err);
 }
-gate('G423-11 — no Render Engine (M12) created or referenced', noRenderEngine, renderDetail);
+gate('G423-11 — workflowEngine.js does not reference Render/Studio/Marketplace directly', noForbiddenReference, referenceDetail);
 
 let testsOk = false;
 try {
