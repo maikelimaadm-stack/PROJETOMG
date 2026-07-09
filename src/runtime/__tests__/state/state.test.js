@@ -214,12 +214,11 @@ describe('M17 — State Engine', () => {
     const dir = path.dirname(fileURLToPath(import.meta.url));
     const source = fs.readFileSync(path.join(dir, '../../core/state/stateEngine.js'), 'utf8');
 
-    // M18 Plugin Engine exists (C.13) — scoped to "stateEngine.js itself never references it", not
-    // "core/plugin/ must not exist" (that was only valid during C.12's own authoring). Connector
-    // Engine (M19, C.14) still doesn't exist, so its directory-absence check remains valid.
+    // M18 Plugin Engine (C.13) and M19 Connector Engine (C.14) both exist — scoped to "stateEngine.js
+    // itself never references them", not "core/plugin|connector/ must not exist" (that was only
+    // valid during C.12's own authoring).
     assert.equal(/pluginEngine|PluginEngine|connectorEngine|ConnectorEngine/.test(source), false);
     assert.equal(/from\s+['"]react['"]/i.test(source), false);
-    assert.equal(fs.existsSync(path.join(dir, '../../core/connector')), false);
   });
 
   it('não usa eval nem new Function no código-fonte', () => {
