@@ -40,7 +40,14 @@ export function buildEmpresasCrbFixture(overrides = {}) {
       ],
     },
     formula: {
-      [moduleId]: [{ objectId: 'formula-1', objectType: 'formula', code: 'full_name', payload: { engine: 'V17' } }],
+      [moduleId]: overrides.formulaEntries ?? [
+        {
+          objectId: 'formula-1',
+          objectType: 'formula',
+          code: 'full_name',
+          payload: { engine: 'V17', expr: 'razao_social', dependsOn: [] },
+        },
+      ],
     },
     event: {
       [moduleId]: [{ objectId: 'event-1', objectType: 'event', code: 'empresa.created', payload: { engine: 'V18' } }],

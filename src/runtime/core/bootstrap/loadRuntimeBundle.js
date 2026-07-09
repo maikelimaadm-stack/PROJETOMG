@@ -10,10 +10,12 @@ import { createPermissionEngine } from '../permission/permissionEngine.js';
 import { createActionEngine } from '../action/actionEngine.js';
 import { createWorkflowEngine } from '../workflow/workflowEngine.js';
 import { createRenderEngine } from '../render/renderEngine.js';
+import { createExpressionEngine } from '../expression/expressionEngine.js';
+import { createFormulaEngine } from '../formula/formulaEngine.js';
 import { captureRuntimeMetrics } from '../../infra/observability/runtimeMetrics.js';
 
 /**
- * Full C.8 pipeline: Loader → CRB → Registry → Dependency → Permission → Action → Workflow → Render → Router → Runtime Ready.
+ * Full C.9 pipeline: Loader → CRB → Registry → Dependency → Permission → Action → Workflow → Render → Expression → Formula → Router → Runtime Ready.
  */
 export async function loadRuntimeBundle({
   context,
@@ -27,6 +29,8 @@ export async function loadRuntimeBundle({
   actionEngine,
   workflowEngine,
   renderEngine,
+  expressionEngine,
+  formulaEngine,
 }) {
   const bootstrapStarted = performance.now();
   let crbLoadMs = 0;
@@ -79,6 +83,11 @@ export async function loadRuntimeBundle({
   const resolvedRenderEngine =
     renderEngine ?? createRenderEngine({ registry, permissionEngine: resolvedPermissionEngine });
 
+  // M13/M14 — safe, sandboxed expression/formula evaluation over the hydrated registry. No eval/new Function.
+  const resolvedExpressionEngine = expressionEngine ?? createExpressionEngine();
+  const resolvedFormulaEngine =
+    formulaEngine ?? createFormulaEngine({ registry, expressionEngine: resolvedExpressionEngine });
+
   const depStarted = performance.now();
   const graph = dependencyResolver.resolveFromCrb(crb, crb.moduleId ? [crb.moduleId] : []);
   dependencyResolveMs = performance.now() - depStarted;
@@ -130,6 +139,8 @@ export async function loadRuntimeBundle({
     actionEngine: resolvedActionEngine,
     workflowEngine: resolvedWorkflowEngine,
     renderEngine: resolvedRenderEngine,
+    expressionEngine: resolvedExpressionEngine,
+    formulaEngine: resolvedFormulaEngine,
     lifecycle: BundleLifecycle.READY,
   };
 }
