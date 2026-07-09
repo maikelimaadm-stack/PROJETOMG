@@ -40,7 +40,14 @@ export function buildEmpresasCrbFixture(overrides = {}) {
       [moduleId]: [{ objectId: 'action-1', objectType: 'action', code: 'empresa.save', payload: { engine: 'V19' } }],
     },
     workflow: {
-      [moduleId]: [{ objectId: 'wf-1', objectType: 'workflow', code: 'empresa_approval', payload: { engine: 'V20' } }],
+      [moduleId]: overrides.workflowEntries ?? [
+        {
+          objectId: 'wf-1',
+          objectType: 'workflow',
+          code: 'empresa_approval',
+          payload: { engine: 'V20', steps: [{ id: 'step-1', type: 'action', action: 'empresa.save' }] },
+        },
+      ],
     },
     permission: {
       [moduleId]: overrides.permissionEntries ?? [

@@ -19,6 +19,7 @@ export { createRuntimeRouter, RuntimeRouter, RouteError } from './core/router/ru
 export { createPermissionEngine, PermissionEngine, PermissionError } from './core/permission/permissionEngine.js';
 export { PermissionMatrix } from './core/permission/PermissionMatrix.js';
 export { createActionEngine, ActionEngine, ActionError } from './core/action/actionEngine.js';
+export { createWorkflowEngine, WorkflowEngine, WorkflowError } from './core/workflow/workflowEngine.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,

@@ -8,10 +8,11 @@ import { createDependencyResolver } from '../dependency/dependencyResolver.js';
 import { createRuntimeRouter } from '../router/runtimeRouter.js';
 import { createPermissionEngine } from '../permission/permissionEngine.js';
 import { createActionEngine } from '../action/actionEngine.js';
+import { createWorkflowEngine } from '../workflow/workflowEngine.js';
 import { captureRuntimeMetrics } from '../../infra/observability/runtimeMetrics.js';
 
 /**
- * Full C.6 pipeline: Loader → CRB → Registry → Dependency → Permission → Action → Router → Runtime Ready.
+ * Full C.7 pipeline: Loader → CRB → Registry → Dependency → Permission → Action → Workflow → Router → Runtime Ready.
  */
 export async function loadRuntimeBundle({
   context,
@@ -23,6 +24,7 @@ export async function loadRuntimeBundle({
   router = createRuntimeRouter(),
   permissionEngine,
   actionEngine,
+  workflowEngine,
 }) {
   const bootstrapStarted = performance.now();
   let crbLoadMs = 0;
@@ -61,6 +63,15 @@ export async function loadRuntimeBundle({
   // M10 — action dispatch resolves CRB `action` registry entries; permission checks delegate to M09.
   const resolvedActionEngine =
     actionEngine ?? createActionEngine({ registry, permissionEngine: resolvedPermissionEngine });
+
+  // M11 — workflow instances resolve CRB `workflow` registry entries; action steps delegate to M10.
+  const resolvedWorkflowEngine =
+    workflowEngine ??
+    createWorkflowEngine({
+      registry,
+      actionEngine: resolvedActionEngine,
+      permissionEngine: resolvedPermissionEngine,
+    });
 
   const depStarted = performance.now();
   const graph = dependencyResolver.resolveFromCrb(crb, crb.moduleId ? [crb.moduleId] : []);
@@ -111,6 +122,7 @@ export async function loadRuntimeBundle({
     navigationTable: navTable,
     permissionEngine: resolvedPermissionEngine,
     actionEngine: resolvedActionEngine,
+    workflowEngine: resolvedWorkflowEngine,
     lifecycle: BundleLifecycle.READY,
   };
 }
