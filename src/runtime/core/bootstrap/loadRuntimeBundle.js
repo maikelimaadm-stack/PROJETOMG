@@ -19,10 +19,11 @@ import { createPluginEngine } from '../plugin/pluginEngine.js';
 import { createConnectorEngine } from '../connector/connectorEngine.js';
 import { createCacheEngine } from '../../infra/cache/cacheEngine.js';
 import { createEventBus } from '../../infra/event-bus/eventBus.js';
+import { createTransactionEngine } from '../../infra/transaction/transactionEngine.js';
 import { captureRuntimeMetrics } from '../../infra/observability/runtimeMetrics.js';
 
 /**
- * Full C.15 pipeline: Loader → CRB → Registry → Dependency → Permission → Action → Workflow → Render → Expression → Formula → Validation → Execution → State → Plugin → Connector → Cache → EventBus → Router → Runtime Ready.
+ * Full C.16 pipeline: Loader → CRB → Registry → Dependency → Permission → Action → Workflow → Render → Expression → Formula → Validation → Execution → State → Plugin → Connector → Cache → EventBus → Transaction → Router → Runtime Ready.
  */
 export async function loadRuntimeBundle({
   context,
@@ -45,6 +46,7 @@ export async function loadRuntimeBundle({
   connectorEngine,
   cacheEngine,
   eventBus,
+  transactionEngine,
 }) {
   const bootstrapStarted = performance.now();
   let crbLoadMs = 0;
@@ -132,6 +134,9 @@ export async function loadRuntimeBundle({
   const resolvedCacheEngine = cacheEngine ?? createCacheEngine();
   const resolvedEventBus = eventBus ?? createEventBus();
 
+  // M23 — runtime-local unit-of-work coordinator over host-registered participants. Never opens a real DB/Prisma transaction.
+  const resolvedTransactionEngine = transactionEngine ?? createTransactionEngine();
+
   const depStarted = performance.now();
   const graph = dependencyResolver.resolveFromCrb(crb, crb.moduleId ? [crb.moduleId] : []);
   dependencyResolveMs = performance.now() - depStarted;
@@ -192,6 +197,7 @@ export async function loadRuntimeBundle({
     connectorEngine: resolvedConnectorEngine,
     cacheEngine: resolvedCacheEngine,
     eventBus: resolvedEventBus,
+    transactionEngine: resolvedTransactionEngine,
     lifecycle: BundleLifecycle.READY,
   };
 }
