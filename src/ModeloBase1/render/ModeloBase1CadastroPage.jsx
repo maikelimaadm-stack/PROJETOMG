@@ -46,6 +46,10 @@ import { useModeloBase1ControlledLocalWrite } from "@/ModeloBase1/runtime-read-m
 import { isModeloBase1BetaUiDiagnosticsEnabled as isLocalWriteDiagnosticsEnabled } from "@/ModeloBase1/runtime-read-model/hardening/modeloBase1BetaUiConfig.js";
 import ModeloBase1LocalWriteToolbar from "@/ModeloBase1/runtime-read-model/local-write/components/ModeloBase1LocalWriteToolbar.jsx";
 import ModeloBase1LocalWriteDiagnosticsPanel from "@/ModeloBase1/runtime-read-model/local-write/components/ModeloBase1LocalWriteDiagnosticsPanel.jsx";
+import { resolveModeloBase1LocalPersistenceValidation } from "@/ModeloBase1/runtime-read-model/local-write/persistence/modeloBase1LocalPersistenceConfig.js";
+import { createModeloBase1LocalPersistenceContract } from "@/ModeloBase1/runtime-read-model/local-write/persistence/createModeloBase1LocalPersistenceContract.js";
+import { createModeloBase1LocalPersistenceDiagnostics } from "@/ModeloBase1/runtime-read-model/local-write/persistence/modeloBase1LocalPersistenceDiagnostics.js";
+import ModeloBase1LocalPersistencePanel from "@/ModeloBase1/runtime-read-model/local-write/persistence/components/ModeloBase1LocalPersistencePanel.jsx";
 import { MakModuleProvider } from "@/framework/mak/runtime";
 
 const DROPDOWN_PAGE_SIZE = 30;
@@ -78,6 +82,19 @@ function ModeloBase1CadastroPageContent() {
   // storage/runtimeBridge, never persisted. submitDraft is a simulated submit.
   const localWrite = useModeloBase1ControlledLocalWrite({ config, readState: runtimeRead });
   const localWriteDiagnosticsEnabled = localWrite.activationApplied && isLocalWriteDiagnosticsEnabled();
+  // Local persistence VALIDATION (in-memory only, no real persistence, no
+  // auto-save/auto-restore). Purely a dev-only contract/diagnostics surface,
+  // built only when the validation flags are on. Never persists to storage.
+  const localPersistence = useMemo(() => {
+    const resolved = resolveModeloBase1LocalPersistenceValidation({ moduleId: runtimeRead.moduleId, readState: runtimeRead });
+    if (!resolved.enabled) return { enabled: false, contract: null, diagnostics: null };
+    return {
+      enabled: true,
+      contract: createModeloBase1LocalPersistenceContract({ moduleId: resolved.moduleId, enabled: true, storageMode: "memory_validation" }),
+      diagnostics: createModeloBase1LocalPersistenceDiagnostics({ moduleId: resolved.moduleId, enabled: true, storageMode: "memory_validation", snapshotCount: 0, genericModelReady: true }),
+    };
+  }, [runtimeRead]);
+  const localPersistenceDiagnosticsEnabled = localPersistence.enabled && isLocalWriteDiagnosticsEnabled();
   const hooks = config.hooks;
   const helpers = config.helpers;
   const data = config.data;
@@ -1189,6 +1206,11 @@ function ModeloBase1CadastroPageContent() {
       <ModeloBase1LocalWriteDiagnosticsPanel
         enabled={localWriteDiagnosticsEnabled}
         diagnostics={localWrite.diagnostics}
+      />
+      <ModeloBase1LocalPersistencePanel
+        enabled={localPersistenceDiagnosticsEnabled}
+        contract={localPersistence.contract}
+        diagnostics={localPersistence.diagnostics}
       />
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <MakFilterPanel
