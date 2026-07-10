@@ -3,6 +3,7 @@
  * Gate G423-12 — M12 Render Engine (Foundation C.8)
  */
 import { execSync } from 'node:child_process';
+import { productionUiOffendingFiles } from './lib/productionUiGuard.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -61,12 +62,7 @@ gate('G423-12 — RenderEngine does not import React/DOM (intermediate tree only
 let noProductionUiTouch = false;
 let uiTouchDetail = '';
 try {
-  const diff = execSync('git diff --name-only origin/main...HEAD -- src/App.jsx src/shared src/framework src/modules', {
-    cwd: ROOT,
-    stdio: ['ignore', 'pipe', 'ignore'],
-  })
-    .toString()
-    .trim();
+  const diff = productionUiOffendingFiles(ROOT);
   noProductionUiTouch = diff.length === 0;
   uiTouchDetail = diff.length === 0 ? 'clean' : `unexpected changes: ${diff.split('\n').join(', ')}`;
 } catch {

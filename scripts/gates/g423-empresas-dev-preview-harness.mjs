@@ -3,6 +3,7 @@
  * Gate G423-PREVIEW-EMPRESAS-HARNESS — Empresas Dev-Only Preview Harness (post-Foundation C)
  */
 import { execSync } from 'node:child_process';
+import { productionUiOffendingFiles } from './lib/productionUiGuard.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -156,10 +157,7 @@ gate('G423-PREVIEW-EMPRESAS-HARNESS — no global CSS import in harness', noCssI
 let noProductionUiChange = false;
 let productionUiDetail = '';
 try {
-  const diff = execSync(
-    'git diff --name-only origin/main...HEAD -- src/App.jsx src/shared src/framework src/modules src/studio',
-    { cwd: ROOT, encoding: 'utf8' },
-  ).trim();
+  const diff = productionUiOffendingFiles(ROOT);
   noProductionUiChange = diff.length === 0;
   productionUiDetail = noProductionUiChange ? 'clean (real Empresas screen + App.jsx untouched)' : `changed files: ${diff.replace(/\n/g, ', ')}`;
 } catch (err) {

@@ -3,6 +3,7 @@
  * Gate G423-16 — M16 Execution Engine (Foundation C.11)
  */
 import { execSync } from 'node:child_process';
+import { productionUiOffendingFiles } from './lib/productionUiGuard.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -119,10 +120,7 @@ gate('G423-16 — executionEngine.js does not reference Plugin Engine directly',
 let noProductionUiChange = false;
 let productionUiDetail = '';
 try {
-  const diff = execSync(
-    'git diff --name-only origin/main...HEAD -- src/App.jsx src/shared src/framework src/modules src/studio',
-    { cwd: ROOT, encoding: 'utf8' },
-  ).trim();
+  const diff = productionUiOffendingFiles(ROOT);
   noProductionUiChange = diff.length === 0;
   productionUiDetail = noProductionUiChange ? 'clean' : `changed files: ${diff.replace(/\n/g, ', ')}`;
 } catch (err) {
