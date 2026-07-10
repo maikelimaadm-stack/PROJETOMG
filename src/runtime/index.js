@@ -133,6 +133,17 @@ export { simulateEmpresasRuntimeBridgeReadMount } from './migration/empresas-rea
 export { createEmpresasRuntimeBridgeDryRunDiagnostics } from './migration/empresas-read-ui-bridge-dry-run/empresasRuntimeBridgeDryRunDiagnostics.js';
 export { isEmpresasBridgeDryRunEnabled, EMPRESAS_BRIDGE_DRY_RUN_FLAG } from './migration/empresas-read-ui-bridge-dry-run/empresasRuntimeBridgeDryRunConfig.js';
 export { EmpresasBridgeDryRunError } from './migration/empresas-read-ui-bridge-dry-run/errors.js';
+// Empresas Runtime Bridge Read Slot Candidate — dev-only candidate of a future read-only slot
+// (contract + serializable payload + payload validation + mount plan) over the bridge dry run. Only
+// the PURE helpers leave the barrel; the React components (components/*.jsx) are dev-only and NOT here.
+export { createEmpresasRuntimeBridgeReadSlotCandidate } from './migration/empresas-runtime-bridge-read-slot/createEmpresasRuntimeBridgeReadSlotCandidate.js';
+export { createEmpresasRuntimeBridgeReadSlotContract, SLOT_ALLOWED_OPERATIONS, SLOT_BLOCKED_OPERATIONS, SLOT_CONSUMERS } from './migration/empresas-runtime-bridge-read-slot/createEmpresasRuntimeBridgeReadSlotContract.js';
+export { createEmpresasRuntimeBridgeReadSlotPayload } from './migration/empresas-runtime-bridge-read-slot/createEmpresasRuntimeBridgeReadSlotPayload.js';
+export { validateEmpresasRuntimeBridgeReadSlotPayload } from './migration/empresas-runtime-bridge-read-slot/validateEmpresasRuntimeBridgeReadSlotPayload.js';
+export { createEmpresasRuntimeBridgeReadSlotMountPlan } from './migration/empresas-runtime-bridge-read-slot/createEmpresasRuntimeBridgeReadSlotMountPlan.js';
+export { createEmpresasRuntimeBridgeReadSlotDiagnostics } from './migration/empresas-runtime-bridge-read-slot/empresasRuntimeBridgeReadSlotDiagnostics.js';
+export { isEmpresasReadSlotEnabled, EMPRESAS_READ_SLOT_FLAG } from './migration/empresas-runtime-bridge-read-slot/empresasRuntimeBridgeReadSlotConfig.js';
+export { EmpresasReadSlotError } from './migration/empresas-runtime-bridge-read-slot/errors.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,
