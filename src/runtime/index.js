@@ -173,3 +173,7 @@ export {
   MODELOBASE1_DIRECT_BETA_FLAG,
 } from './modelobase1-direct-beta/modeloBase1DirectBetaConfig.js';
 export { ModeloBase1DirectBetaError } from './modelobase1-direct-beta/errors.js';
+// Generic Model Runtime — foundation (pure contracts/utilities). React-free,
+// ModeloBase1-free; dangerous capabilities default off. ModeloBase1 is NOT
+// replaced — a future adapter (ModeloBase1 Adapter to Generic Kernel) consumes this.
+export * from './generic-model/index.js';
