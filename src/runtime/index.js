@@ -115,6 +115,15 @@ export { createEmpresasGuardedReadUiOverlayModel } from './migration/empresas-gu
 export { createEmpresasGuardedReadUiOverlayDiagnostics } from './migration/empresas-guarded-read-ui/overlay/empresasGuardedReadUiOverlayDiagnostics.js';
 export { isEmpresasGuardedReadUiOverlayEnabled, EMPRESAS_GUARDED_READ_UI_OVERLAY_FLAG } from './migration/empresas-guarded-read-ui/overlay/empresasGuardedReadUiOverlayConfig.js';
 export { EmpresasGuardedReadUiOverlayError } from './migration/empresas-guarded-read-ui/overlay/errors.js';
+// Empresas Read UI Parity Hardening — dev-only, passive checklist/score/diagnostics over the read UI
+// overlay. Only the PURE helpers leave the barrel; the React components (components/*.jsx) are dev-only
+// and NOT exported here (no React in the runtime barrel).
+export { createEmpresasReadUiParityHardeningModel } from './migration/empresas-read-ui-parity-hardening/createEmpresasReadUiParityHardeningModel.js';
+export { createEmpresasReadUiParityChecklist } from './migration/empresas-read-ui-parity-hardening/createEmpresasReadUiParityChecklist.js';
+export { createEmpresasReadUiParityScore } from './migration/empresas-read-ui-parity-hardening/createEmpresasReadUiParityScore.js';
+export { createEmpresasReadUiParityDiagnostics } from './migration/empresas-read-ui-parity-hardening/empresasReadUiParityDiagnostics.js';
+export { isEmpresasReadUiParityEnabled, EMPRESAS_READ_UI_PARITY_FLAG } from './migration/empresas-read-ui-parity-hardening/empresasReadUiParityConfig.js';
+export { EmpresasReadUiParityError } from './migration/empresas-read-ui-parity-hardening/errors.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,
