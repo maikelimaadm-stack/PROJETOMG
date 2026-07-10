@@ -37,11 +37,25 @@ import { useSaveCycle } from "@/ModeloBase1/hooks";
 import { syncColumnsIntoPanelFilters, useMakListFilters } from "@/ModeloBase1/filters";
 import { useMakSearchHandlers, useMakRecordSubmit, useMakRecordDelete, useMakRecordExport } from "@/ModeloBase1/actions";
 import { ModeloBase1Provider, useModeloBase1Config } from "@/ModeloBase1/config";
+import { useModeloBase1RuntimeReadModel } from "@/ModeloBase1/runtime-read-model/useModeloBase1RuntimeReadModel.js";
 import { MakModuleProvider } from "@/framework/mak/runtime";
 
 const DROPDOWN_PAGE_SIZE = 30;
 function ModeloBase1CadastroPageContent() {
   const config = useModeloBase1Config();
+  // Runtime v2 beta wiring (read-only). With every beta flag off this is a no-op
+  // fallback (writeBlocked=false, betaApplied=false) and the engine behaves
+  // identically. With the flag on it consumes config.runtimeReadModel for a
+  // read-only beta render and blocks all writes. Never touches backend/Prisma.
+  const runtimeRead = useModeloBase1RuntimeReadModel(config);
+  const blockRuntimeReadWrite = useCallback(
+    (operation) => {
+      if (!runtimeRead.writeBlocked) return false;
+      showInfo(runtimeRead.writeBlockMessage || "Modo beta somente leitura: gravação desabilitada.");
+      return true;
+    },
+    [runtimeRead.writeBlocked, runtimeRead.writeBlockMessage]
+  );
   const hooks = config.hooks;
   const helpers = config.helpers;
   const data = config.data;
@@ -605,6 +619,16 @@ function ModeloBase1CadastroPageContent() {
     attachmentPersistErrorMessage: module.attachmentPersistErrorMessage,
   });
 
+  // Read-only beta write guard: when the runtime v2 beta read model is applied,
+  // block the real save/submit before it runs. No-op when the flag is off.
+  const guardedHandleSubmit = useCallback(
+    (...args) => {
+      if (blockRuntimeReadWrite("save")) return Promise.resolve({ ok: false, blocked: true });
+      return handleSubmit(...args);
+    },
+    [blockRuntimeReadWrite, handleSubmit]
+  );
+
   const handleEdit = (emp) => {
     if (!saveCycle.guardAction()) return;
     closeFilterPanel();
@@ -630,6 +654,7 @@ function ModeloBase1CadastroPageContent() {
   };
 
   const handleNew = () => {
+    if (blockRuntimeReadWrite("create")) return;
     if (!saveCycle.guardAction()) return;
     closeFilterPanel();
     setRecordBrowseMode(false);
@@ -645,6 +670,7 @@ function ModeloBase1CadastroPageContent() {
   };
 
   const handleDuplicate = (emp) => {
+    if (blockRuntimeReadWrite("create")) return;
     if (!saveCycle.guardAction()) return;
     closeFilterPanel();
     setRecordBrowseMode(false);
@@ -655,6 +681,7 @@ function ModeloBase1CadastroPageContent() {
   };
 
   const handleRequestDelete = (ids) => {
+    if (blockRuntimeReadWrite("delete")) return;
     if (!saveCycle.guardAction()) return;
     const normalized = (Array.isArray(ids) ? ids : [ids]).filter(Boolean);
     pendingDeleteIdsRef.current = normalized;
@@ -1119,6 +1146,15 @@ function ModeloBase1CadastroPageContent() {
           Preferências remotas indisponíveis no momento. A tela continua com configurações locais.
         </div>
       ) : null}
+      {runtimeRead.betaApplied ? (
+        <div
+          className="border-b border-sky-200 bg-sky-50 px-3 py-1.5 text-xs text-sky-900"
+          data-mb1-runtime-read="beta"
+          data-mb1-runtime-source={runtimeRead.source}
+        >
+          Modo beta (runtime v2) — leitura somente. Gravação desabilitada nesta tela.
+        </div>
+      ) : null}
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <MakFilterPanel
           open={filterPanelOpen}
@@ -1292,7 +1328,7 @@ function ModeloBase1CadastroPageContent() {
                     resetSeed: formVersion,
                     isEditing: !!editingRecord,
                     browseMode: recordBrowseMode,
-                    onSubmit: handleSubmit,
+                    onSubmit: guardedHandleSubmit,
                     onCancel: formCancel,
                     hideToolbar: true,
                     onToolbarBridge: handleToolbarBridge,
