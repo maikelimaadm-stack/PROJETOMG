@@ -68,6 +68,10 @@ export { isRuntimeV2DevPreviewHubEnabled, detectEnvLabel, RUNTIME_V2_DEV_PREVIEW
 export { createControlledDevDataset, ControlledDevDataset, createEmpresasControlledDataset, createCadcpsControlledDataset } from './preview/dev/data/createControlledDevDataset.js';
 export { createControlledModuleDataset } from './preview/dev/data/controlledDevDataset.js';
 export { isControlledDevDatasetEnabled, CONTROLLED_DEV_DATASET_FLAG } from './preview/dev/data/controlledDatasetConfig.js';
+// Runtime v2 dev preview route: only the pure helpers (route model builder + flag + path) leave the
+// barrel — the route React components (route/*.jsx) are dev-only and NOT wired into src/App.jsx.
+export { createRuntimeV2DevPreviewRouteModel } from './preview/dev/route/createRuntimeV2DevPreviewRouteModel.js';
+export { isRuntimeV2DevPreviewRouteEnabled, RUNTIME_V2_DEV_PREVIEW_ROUTE_PATH, RUNTIME_V2_DEV_PREVIEW_ROUTE_FLAG } from './preview/dev/route/devPreviewRouteConfig.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,
