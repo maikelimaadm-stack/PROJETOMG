@@ -60,6 +60,10 @@ export { createEmpresasDevPreviewModel, isEmpresasDevPreviewEnabled } from './pr
 export { createEmpresasDevPreviewFixture } from './preview/dev/createEmpresasDevPreviewFixture.js';
 export { isEmpresasDevPreviewHarnessEnabled } from './preview/dev/devPreviewHarnessConfig.js';
 export { createSecondModuleDevPreviewFixture, createCadcpsDevPreviewFixture } from './preview/dev/createSecondModuleDevPreviewFixture.js';
+// Runtime v2 dev preview hub: only the pure helpers (model builder + flag) leave the barrel — the
+// hub React components (hub/*.jsx) are dev-only and never exported here.
+export { createRuntimeV2DevPreviewHubModel } from './preview/dev/hub/createRuntimeV2DevPreviewHubModel.js';
+export { isRuntimeV2DevPreviewHubEnabled, detectEnvLabel, RUNTIME_V2_DEV_PREVIEW_HUB_FLAG } from './preview/dev/hub/devPreviewHubConfig.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,
