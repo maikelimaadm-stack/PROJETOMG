@@ -83,6 +83,14 @@ export { createMigrationRollbackPlan } from './migration/planning/migrationRollb
 export { createFirstModuleMigrationPlan } from './migration/planning/createFirstModuleMigrationPlan.js';
 export { createEmpresasMigrationPlan } from './migration/planning/createEmpresasMigrationPlan.js';
 export { MigrationPlanningError } from './migration/planning/errors.js';
+// Empresas Read-Only Runtime v2 Candidate — the first real READ candidate of runtime v2 for Empresas.
+// Read-only, flag-protected, fail-closed in production; writes are impossible (write guard). Pure/passive.
+export { createEmpresasReadOnlyRuntimeCandidate } from './migration/empresas-readonly/createEmpresasReadOnlyRuntimeCandidate.js';
+export { createEmpresasReadOnlyViewModel } from './migration/empresas-readonly/createEmpresasReadOnlyViewModel.js';
+export { createEmpresasReadOnlyWriteGuard, BLOCKED_WRITE_OPERATIONS } from './migration/empresas-readonly/empresasReadOnlyWriteGuard.js';
+export { createEmpresasReadOnlyDiagnostics } from './migration/empresas-readonly/empresasReadOnlyDiagnostics.js';
+export { isEmpresasReadOnlyEnabled, EMPRESAS_READONLY_FLAG } from './migration/empresas-readonly/empresasReadOnlyConfig.js';
+export { EmpresasReadOnlyError } from './migration/empresas-readonly/errors.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,
