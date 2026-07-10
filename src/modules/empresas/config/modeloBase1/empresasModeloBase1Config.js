@@ -21,8 +21,19 @@ import {
   empresasCustomFieldsConfig,
 } from "@/modules/empresas/config/modeloBase1/empresasSearchViewConfig.js";
 import { empresasToolbarComponents } from "@/modules/empresas/config/modeloBase1/empresasToolbarConfig.js";
+import { createEmpresasModeloBase1BetaReadModel } from "@/runtime/modelobase1-direct-beta/createEmpresasModeloBase1BetaReadModel.js";
+import { isEmpresasModeloBase1BetaEnabled } from "@/runtime/modelobase1-direct-beta/modeloBase1DirectBetaConfig.js";
+
+// Direct-beta read model (runtime v2, read-only) — injected into the ModeloBase1
+// config ONLY when `MAK_MODELOBASE1_EMPRESAS_BETA` is on (dev-only, fail-closed
+// in production). Flag off → `null` → no `runtimeReadModel` key → fallback to the
+// current config, byte-identical to the pre-beta behavior. Reversible by flag.
+const empresasBetaReadModel = isEmpresasModeloBase1BetaEnabled()
+  ? createEmpresasModeloBase1BetaReadModel()
+  : null;
 
 export const empresasModeloBase1Config = buildModeloBase1ConfigFromMakModule(empresasMakModule, {
+  runtimeReadModel: empresasBetaReadModel,
   scopeCssClass: buildModeloBase1ScopeCssClass("empresas"),
   tableKey: "tbl-emp",
   metricsCounterKey: "empresas",

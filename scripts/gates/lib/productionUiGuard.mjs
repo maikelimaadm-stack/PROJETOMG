@@ -35,12 +35,63 @@ export function productionUiOffendingFiles(ROOT) {
   for (const f of changed.split('\n').filter(Boolean)) {
     if (f === 'src/App.jsx') {
       if (!appJsxChangeIsOnlyDevRouteMount(ROOT)) offending.push(f);
+    } else if (AUTHORIZED_BETA_FILES.has(f)) {
+      // Authorized-scope beta wiring (Empresas/Campos ModeloBase1 direct beta).
+      // Tolerated ONLY when the diff is the sanctioned, additive beta injection:
+      // no forbidden tokens, still a ModeloBase1 consumer. Any other change to
+      // these files — or to any other module file — remains offending.
+      if (!moduleBetaChangeIsAuthorized(ROOT, f)) offending.push(f);
     } else {
       // Any non-App production UI change is always offending.
       offending.push(f);
     }
   }
   return offending.join('\n');
+}
+
+/**
+ * The ONLY production-module files whose change is tolerated by the shared
+ * guard: the two ModeloBase1 direct-beta config-wiring files. This is the
+ * "authorized scope" the post-Foundation C beta activation opened — Empresas and
+ * Campos Personalizados are beta/experimental, and their ModeloBase1 config may
+ * attach a runtime v2 read model behind a feature flag. The tolerance is narrow
+ * and specific; it never relaxes protection for any other module/framework file.
+ * @type {Set<string>}
+ */
+const AUTHORIZED_BETA_FILES = new Set([
+  'src/modules/empresas/config/modeloBase1/empresasModeloBase1Config.js',
+  'src/modules/cadcps/config/cadcpsModeloBase1Config.js',
+]);
+
+/**
+ * True only when the diff to an authorized beta config file is the sanctioned,
+ * additive beta injection: no forbidden tokens added (Prisma/backend/fetch/
+ * storage/menu), and the file still builds its config via
+ * `buildModeloBase1ConfigFromMakModule` (invariant: it remains a ModeloBase1
+ * consumer). Any other kind of change is treated as offending.
+ * @param {string} ROOT
+ * @param {string} file
+ * @returns {boolean}
+ */
+function moduleBetaChangeIsAuthorized(ROOT, file) {
+  let patch = '';
+  let head = '';
+  try {
+    patch = execSync(`git diff --unified=0 origin/main...HEAD -- ${file}`, { cwd: ROOT, encoding: 'utf8' });
+    head = execSync(`git show HEAD:${file}`, { cwd: ROOT, encoding: 'utf8' });
+  } catch {
+    return false;
+  }
+  const added = patch.split('\n').filter((l) => l.startsWith('+') && !l.startsWith('+++')).map((l) => l.slice(1));
+  for (const a of added) {
+    if (FORBIDDEN.test(a)) return false;
+  }
+  // Invariant: still a config-driven ModeloBase1 consumer.
+  if (!/buildModeloBase1ConfigFromMakModule/.test(head)) return false;
+  // Invariant: the only new wiring is the runtime v2 direct-beta read model.
+  const addedRealImport = added.some((a) => /\bfrom\s+['"]/.test(a) && !/modelobase1-direct-beta/.test(a) && !/@\/ModeloBase1\//.test(a) && !/@\/modules\/(empresas|cadcps)\//.test(a) && !/empRepository|repository/i.test(a));
+  if (addedRealImport) return false;
+  return true;
 }
 
 const DEV_ROUTE_MARKER = /RuntimeV2DevPreview|RUNTIME_V2_DEV_PREVIEW_ROUTE|shouldMountRuntimeV2DevPreviewRoute|__dev\/runtime-v2\/previews|DEV-ONLY: runtime v2/;

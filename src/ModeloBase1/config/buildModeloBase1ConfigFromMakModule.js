@@ -2,6 +2,7 @@
  * Factory para config ModeloBase1 a partir de um makModule — motor infinite promovido.
  */
 import { defineModeloBase1Config } from "./defineModeloBase1Config.js";
+import { normalizeModeloBase1RuntimeReadModel } from "./modeloBase1RuntimeReadModel.js";
 import { buildSearchViewFromMakModule } from "./buildSearchViewFromMakModule.js";
 import { buildModeloBase1HelpersFromMakModule } from "./buildModeloBase1HelpersFromMakModule.js";
 import { buildModeloBase1ScopeCssClass } from "@/ModeloBase1/layout/modeloBase1ScopeCss.js";
@@ -101,8 +102,15 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
     export: overrideExport,
     labels: _labelsOverride,
     searchView: _searchViewOverride,
+    runtimeReadModel: _runtimeReadModelOverride,
     ...passthroughOverrides
   } = overrides;
+
+  // Optional, additive runtime v2 read-model injection point (Empresas/Campos
+  // direct-beta, behind a feature flag). No-op when absent: with no read model
+  // the `runtimeReadModel` key is not added and the config is byte-identical to
+  // the pre-injection behavior. The engine does not consume it yet (Phase 2).
+  const runtimeReadModel = normalizeModeloBase1RuntimeReadModel(_runtimeReadModelOverride);
 
   return defineModeloBase1Config({
     moduleId,
@@ -172,6 +180,9 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
       ...(overrideExport ?? {}),
     },
     ...passthroughOverrides,
+    // Only attach the slot when a read model is actually injected, so the flag-off
+    // path never even adds the key (guarantees byte-identical fallback).
+    ...(runtimeReadModel ? { runtimeReadModel } : {}),
   });
 }
 
