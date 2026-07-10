@@ -172,37 +172,30 @@ try {
 } catch { appOk = true; }
 gate('G423-GM — src/App.jsx not changed', appOk);
 
-// 13. ModeloBase1/Empresas/cadcps não alterados.
-let noMb1Change = false;
+// 13. Isolamento permanente (robusto entre slices): a foundation generic-model
+// NÃO importa ModeloBase1/Empresas/cadcps. (Import scan das próprias fontes — não
+// git-diff — para que slices posteriores que ADICIONAM adapters ModeloBase1→kernel
+// não quebrem este gate; a garantia real é a foundation permanecer isolada.)
+let noMb1Import = false;
 let mb1Detail = '';
 try {
-  const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
-  const offenders = files.filter((f) => /^src\/ModeloBase1\//.test(f) || /^src\/modules\//.test(f));
-  noMb1Change = offenders.length === 0;
-  mb1Detail = noMb1Change ? 'ModeloBase1 + modules untouched' : `changed: ${offenders.join(', ')}`;
-} catch (err) { noMb1Change = true; mb1Detail = `git base unavailable — skipped (${err instanceof Error ? err.message : String(err)})`; }
-gate('G423-GM — ModeloBase1 / Empresas / cadcps NOT changed', noMb1Change, mb1Detail);
+  const imports = allImports();
+  const offenders = imports.filter((p) => /ModeloBase1/i.test(p) || /\/modules\/(empresas|cadcps)/.test(p) || /@\/modules\//.test(p));
+  noMb1Import = offenders.length === 0;
+  mb1Detail = noMb1Import ? 'generic-model does not import ModeloBase1/Empresas/cadcps' : `imports: ${offenders.join(', ')}`;
+} catch (err) { noMb1Import = false; mb1Detail = err instanceof Error ? err.message : String(err); }
+gate('G423-GM — generic-model foundation does not import ModeloBase1/Empresas/cadcps (isolation)', noMb1Import, mb1Detail);
 
-// 14. ESCOPO AUTORIZADO.
-let scopeOk = false;
-let scopeDetail = '';
+// 14. Barrel puro: o barrel da foundation não exporta nenhum componente React (.jsx).
+// (Garantia permanente; não git-diff.)
+let barrelPure = false;
+let barrelDetail = '';
 try {
-  const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
-  const ALLOWED = [
-    /^src\/runtime\/generic-model\//,
-    /^src\/runtime\/types\/generic-model\.js$/,
-    /^src\/runtime\/__tests__\/generic-model-contracts-foundation\.test\.js$/,
-    /^src\/runtime\/index\.js$/,
-    /^scripts\/gates\/g423-generic-model-contracts-foundation\.mjs$/,
-    /^package\.json$/,
-    /^package-lock\.json$/,
-    /^docs\/evidence\/post-foundation-c-generic-model-contracts-foundation\//,
-  ];
-  const outside = files.filter((f) => !ALLOWED.some((re) => re.test(f)));
-  scopeOk = files.length === 0 || outside.length === 0;
-  scopeDetail = scopeOk ? `authorized scope only (${files.length} files)` : `OUT OF SCOPE: ${outside.join(', ')}`;
-} catch (err) { scopeOk = true; scopeDetail = `git base unavailable — skipped (${err instanceof Error ? err.message : String(err)})`; }
-gate('G423-GM — authorized scope only (generic-model/types/tests/index/gate/package.json/evidence)', scopeOk, scopeDetail);
+  const barrel = fs.readFileSync(path.join(GM_DIR, 'index.js'), 'utf8');
+  barrelPure = !/from\s+['"][^'"]*\.jsx['"]/.test(barrel) && !/import\s+React/.test(allSources());
+  barrelDetail = barrelPure ? 'no .jsx export; no React import' : 'barrel exports a .jsx or React imported';
+} catch (err) { barrelPure = false; barrelDetail = err instanceof Error ? err.message : String(err); }
+gate('G423-GM — generic-model barrel is pure (no React component export)', barrelPure, barrelDetail);
 
 // 15. BLOQUEADO — backend/apis/prisma/framework/studio/bos/makBootstrap/SSOT.
 let blockedOk = false;
