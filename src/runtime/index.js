@@ -72,6 +72,9 @@ export { isControlledDevDatasetEnabled, CONTROLLED_DEV_DATASET_FLAG } from './pr
 // barrel — the route React components (route/*.jsx) are dev-only and NOT wired into src/App.jsx.
 export { createRuntimeV2DevPreviewRouteModel } from './preview/dev/route/createRuntimeV2DevPreviewRouteModel.js';
 export { isRuntimeV2DevPreviewRouteEnabled, RUNTIME_V2_DEV_PREVIEW_ROUTE_PATH, RUNTIME_V2_DEV_PREVIEW_ROUTE_FLAG } from './preview/dev/route/devPreviewRouteConfig.js';
+// Dev-only route MOUNT gate — pure helpers a dev-guarded router branch uses to decide whether to
+// mount the route. The .jsx mount wrapper is NOT exported here and src/App.jsx is NOT edited.
+export { shouldMountRuntimeV2DevPreviewRoute, isRuntimeV2DevEnvironment, getRuntimeV2DevPreviewRouteMountPlan } from './preview/dev/route/registerRuntimeV2DevPreviewRoute.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,
