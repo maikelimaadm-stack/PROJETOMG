@@ -124,6 +124,15 @@ export { createEmpresasReadUiParityScore } from './migration/empresas-read-ui-pa
 export { createEmpresasReadUiParityDiagnostics } from './migration/empresas-read-ui-parity-hardening/empresasReadUiParityDiagnostics.js';
 export { isEmpresasReadUiParityEnabled, EMPRESAS_READ_UI_PARITY_FLAG } from './migration/empresas-read-ui-parity-hardening/empresasReadUiParityConfig.js';
 export { EmpresasReadUiParityError } from './migration/empresas-read-ui-parity-hardening/errors.js';
+// Empresas Read UI Runtime Bridge Dry Run — dev-only simulation of a future read-only bridge (contract
+// + mount simulation) over the parity hardening. Only the PURE helpers leave the barrel; the React
+// components (components/*.jsx) are dev-only and NOT exported here (no React in the runtime barrel).
+export { createEmpresasReadUiRuntimeBridgeDryRunModel } from './migration/empresas-read-ui-bridge-dry-run/createEmpresasReadUiRuntimeBridgeDryRunModel.js';
+export { createEmpresasRuntimeBridgeReadContract, BRIDGE_ALLOWED_OPERATIONS, BRIDGE_BLOCKED_OPERATIONS } from './migration/empresas-read-ui-bridge-dry-run/createEmpresasRuntimeBridgeReadContract.js';
+export { simulateEmpresasRuntimeBridgeReadMount } from './migration/empresas-read-ui-bridge-dry-run/simulateEmpresasRuntimeBridgeReadMount.js';
+export { createEmpresasRuntimeBridgeDryRunDiagnostics } from './migration/empresas-read-ui-bridge-dry-run/empresasRuntimeBridgeDryRunDiagnostics.js';
+export { isEmpresasBridgeDryRunEnabled, EMPRESAS_BRIDGE_DRY_RUN_FLAG } from './migration/empresas-read-ui-bridge-dry-run/empresasRuntimeBridgeDryRunConfig.js';
+export { EmpresasBridgeDryRunError } from './migration/empresas-read-ui-bridge-dry-run/errors.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,
