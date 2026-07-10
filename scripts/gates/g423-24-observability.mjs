@@ -3,6 +3,7 @@
  * Gate G423-24 — M24 Observability Engine (Foundation C.17)
  */
 import { execSync } from 'node:child_process';
+import { productionUiOffendingFiles } from './lib/productionUiGuard.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -90,10 +91,7 @@ gate('G423-24 — no external telemetry call in infra/observability/', noExterna
 let noProductionUiChange = false;
 let productionUiDetail = '';
 try {
-  const diff = execSync(
-    'git diff --name-only origin/main...HEAD -- src/App.jsx src/shared src/framework src/modules src/studio',
-    { cwd: ROOT, encoding: 'utf8' },
-  ).trim();
+  const diff = productionUiOffendingFiles(ROOT);
   noProductionUiChange = diff.length === 0;
   productionUiDetail = noProductionUiChange ? 'clean' : `changed files: ${diff.replace(/\n/g, ', ')}`;
 } catch (err) {
