@@ -45,6 +45,21 @@ export async function createRuntimeV2DevPreviewHubModel(options = {}) {
     await buildModuleEntry({ moduleId: 'cadcps', moduleName: 'Cadastro de Campos', source: 'generic-module-pipeline', build: () => createSecondModuleDevPreviewFixture() }),
   ];
 
+  // Opt-in controlled dev dataset integration. Only attaches a per-module dataset
+  // summary when a dataset instance is passed AND enabled — otherwise the hub is
+  // byte-identical to before (dataset off = zero effect).
+  let datasetIntegrated = false;
+  const dataset = /** @type {any} */ (options).dataset;
+  if (dataset && typeof dataset.isEnabled === 'function' && dataset.isEnabled() && typeof dataset.getSummaryByModule === 'function') {
+    const summary = dataset.getSummaryByModule();
+    for (const m of modules) {
+      if (summary[m.moduleId]) {
+        m.dataset = summary[m.moduleId];
+        datasetIntegrated = true;
+      }
+    }
+  }
+
   const warnings = [];
   for (const m of modules) {
     if (!m.ok) warnings.push(`module "${m.moduleId}" failed to build: ${m.error?.message ?? 'unknown'}`);
@@ -55,7 +70,7 @@ export async function createRuntimeV2DevPreviewHubModel(options = {}) {
     kind: /** @type {'runtime-v2-dev-preview-hub'} */ ('runtime-v2-dev-preview-hub'),
     status: { enabled, devOnly: true, moduleCount: modules.length, mocked: true },
     environment: detectEnvLabel(env),
-    flags: { hubFlag: RUNTIME_V2_DEV_PREVIEW_HUB_FLAG, hubEnabled: enabled },
+    flags: { hubFlag: RUNTIME_V2_DEV_PREVIEW_HUB_FLAG, hubEnabled: enabled, datasetIntegrated },
     modules,
     diagnostics: { warnings, totalModules: modules.length, availableModules: modules.filter((m) => m.ok).length },
     warnings,

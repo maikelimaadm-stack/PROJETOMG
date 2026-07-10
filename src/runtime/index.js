@@ -64,6 +64,10 @@ export { createSecondModuleDevPreviewFixture, createCadcpsDevPreviewFixture } fr
 // hub React components (hub/*.jsx) are dev-only and never exported here.
 export { createRuntimeV2DevPreviewHubModel } from './preview/dev/hub/createRuntimeV2DevPreviewHubModel.js';
 export { isRuntimeV2DevPreviewHubEnabled, detectEnvLabel, RUNTIME_V2_DEV_PREVIEW_HUB_FLAG } from './preview/dev/hub/devPreviewHubConfig.js';
+// Runtime v2 controlled dev dataset — pure, dev-only, opt-in mocked data for previews.
+export { createControlledDevDataset, ControlledDevDataset, createEmpresasControlledDataset, createCadcpsControlledDataset } from './preview/dev/data/createControlledDevDataset.js';
+export { createControlledModuleDataset } from './preview/dev/data/controlledDevDataset.js';
+export { isControlledDevDatasetEnabled, CONTROLLED_DEV_DATASET_FLAG } from './preview/dev/data/controlledDatasetConfig.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,
