@@ -108,6 +108,13 @@ export { createEmpresasGuardedReadUiModel } from './migration/empresas-guarded-r
 export { createEmpresasGuardedReadUiDiagnostics } from './migration/empresas-guarded-read-ui/empresasGuardedReadUiDiagnostics.js';
 export { isEmpresasGuardedReadUiEnabled, EMPRESAS_GUARDED_READ_UI_FLAG } from './migration/empresas-guarded-read-ui/empresasGuardedReadUiConfig.js';
 export { EmpresasGuardedReadUiError } from './migration/empresas-guarded-read-ui/errors.js';
+// Empresas Guarded Read UI Overlay — dev-only preview surface (a panel inside the runtime v2 dev
+// preview) for the guarded read UI. Only the PURE helpers leave the barrel; the React components
+// (overlay/components/*.jsx) are dev-only and NOT exported here (no React in the runtime barrel).
+export { createEmpresasGuardedReadUiOverlayModel } from './migration/empresas-guarded-read-ui/overlay/createEmpresasGuardedReadUiOverlayModel.js';
+export { createEmpresasGuardedReadUiOverlayDiagnostics } from './migration/empresas-guarded-read-ui/overlay/empresasGuardedReadUiOverlayDiagnostics.js';
+export { isEmpresasGuardedReadUiOverlayEnabled, EMPRESAS_GUARDED_READ_UI_OVERLAY_FLAG } from './migration/empresas-guarded-read-ui/overlay/empresasGuardedReadUiOverlayConfig.js';
+export { EmpresasGuardedReadUiOverlayError } from './migration/empresas-guarded-read-ui/overlay/errors.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,
