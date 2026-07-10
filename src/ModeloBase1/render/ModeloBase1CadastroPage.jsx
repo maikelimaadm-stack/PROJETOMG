@@ -42,6 +42,10 @@ import { createModeloBase1BetaUiHardeningModel } from "@/ModeloBase1/runtime-rea
 import { isModeloBase1BetaUiDiagnosticsEnabled } from "@/ModeloBase1/runtime-read-model/hardening/modeloBase1BetaUiConfig.js";
 import ModeloBase1RuntimeReadDiagnosticsPanel from "@/ModeloBase1/runtime-read-model/components/ModeloBase1RuntimeReadDiagnosticsPanel.jsx";
 import ModeloBase1RuntimeReadWriteBlockedBadge from "@/ModeloBase1/runtime-read-model/components/ModeloBase1RuntimeReadWriteBlockedBadge.jsx";
+import { useModeloBase1ControlledLocalWrite } from "@/ModeloBase1/runtime-read-model/local-write/useModeloBase1ControlledLocalWrite.js";
+import { isModeloBase1BetaUiDiagnosticsEnabled as isLocalWriteDiagnosticsEnabled } from "@/ModeloBase1/runtime-read-model/hardening/modeloBase1BetaUiConfig.js";
+import ModeloBase1LocalWriteToolbar from "@/ModeloBase1/runtime-read-model/local-write/components/ModeloBase1LocalWriteToolbar.jsx";
+import ModeloBase1LocalWriteDiagnosticsPanel from "@/ModeloBase1/runtime-read-model/local-write/components/ModeloBase1LocalWriteDiagnosticsPanel.jsx";
 import { MakModuleProvider } from "@/framework/mak/runtime";
 
 const DROPDOWN_PAGE_SIZE = 30;
@@ -68,6 +72,12 @@ function ModeloBase1CadastroPageContent() {
     [runtimeRead]
   );
   const betaUiDiagnosticsEnabled = runtimeRead.betaApplied && isModeloBase1BetaUiDiagnosticsEnabled();
+  // Controlled local write ACTIVATION (in-memory only). Off unless beta + local
+  // write plan + activation flags are all on. When active it drives a local
+  // draft via the existing local write controller — never backend/Prisma/fetch/
+  // storage/runtimeBridge, never persisted. submitDraft is a simulated submit.
+  const localWrite = useModeloBase1ControlledLocalWrite({ config, readState: runtimeRead });
+  const localWriteDiagnosticsEnabled = localWrite.activationApplied && isLocalWriteDiagnosticsEnabled();
   const hooks = config.hooks;
   const helpers = config.helpers;
   const data = config.data;
@@ -1174,6 +1184,11 @@ function ModeloBase1CadastroPageContent() {
       <ModeloBase1RuntimeReadDiagnosticsPanel
         enabled={betaUiDiagnosticsEnabled}
         hardeningModel={betaUiHardening}
+      />
+      <ModeloBase1LocalWriteToolbar localWrite={localWrite} />
+      <ModeloBase1LocalWriteDiagnosticsPanel
+        enabled={localWriteDiagnosticsEnabled}
+        diagnostics={localWrite.diagnostics}
       />
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <MakFilterPanel
