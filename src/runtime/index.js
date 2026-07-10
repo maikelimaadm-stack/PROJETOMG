@@ -75,6 +75,14 @@ export { isRuntimeV2DevPreviewRouteEnabled, RUNTIME_V2_DEV_PREVIEW_ROUTE_PATH, R
 // Dev-only route MOUNT gate — pure helpers a dev-guarded router branch uses to decide whether to
 // mount the route. The .jsx mount wrapper is NOT exported here and src/App.jsx is NOT edited.
 export { shouldMountRuntimeV2DevPreviewRoute, isRuntimeV2DevEnvironment, getRuntimeV2DevPreviewRouteMountPlan } from './preview/dev/route/registerRuntimeV2DevPreviewRoute.js';
+// First real module migration PLANNING — pure, passive, deterministic plan/readiness/risk/rollback
+// models. This layer migrates nothing, reads no real data, touches no backend, and edits no real UI.
+export { createMigrationReadinessModel, resolveReadinessStatus, READINESS_STATUSES, MAX_READINESS_THIS_SLICE } from './migration/planning/createMigrationReadinessModel.js';
+export { createMigrationRiskModel } from './migration/planning/migrationRiskModel.js';
+export { createMigrationRollbackPlan } from './migration/planning/migrationRollbackPlan.js';
+export { createFirstModuleMigrationPlan } from './migration/planning/createFirstModuleMigrationPlan.js';
+export { createEmpresasMigrationPlan } from './migration/planning/createEmpresasMigrationPlan.js';
+export { MigrationPlanningError } from './migration/planning/errors.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,
