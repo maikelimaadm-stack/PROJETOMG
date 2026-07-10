@@ -91,6 +91,16 @@ export { createEmpresasReadOnlyWriteGuard, BLOCKED_WRITE_OPERATIONS } from './mi
 export { createEmpresasReadOnlyDiagnostics } from './migration/empresas-readonly/empresasReadOnlyDiagnostics.js';
 export { isEmpresasReadOnlyEnabled, EMPRESAS_READONLY_FLAG } from './migration/empresas-readonly/empresasReadOnlyConfig.js';
 export { EmpresasReadOnlyError } from './migration/empresas-readonly/errors.js';
+// Empresas Dual Read Shadow Compare — passive, deterministic comparison of legacy vs runtime v2
+// read-only snapshots. Read-only, flag-protected, fail-closed in production; write guard stays active.
+export { createEmpresasDualReadShadowCompare } from './migration/empresas-dual-read/createEmpresasDualReadShadowCompare.js';
+export { createEmpresasLegacyReadSnapshot } from './migration/empresas-dual-read/createEmpresasLegacyReadSnapshot.js';
+export { createEmpresasRuntimeV2ReadSnapshot } from './migration/empresas-dual-read/createEmpresasRuntimeV2ReadSnapshot.js';
+export { compareEmpresasReadSnapshots } from './migration/empresas-dual-read/compareEmpresasReadSnapshots.js';
+export { createEmpresasDualReadDiagnostics } from './migration/empresas-dual-read/empresasDualReadDiagnostics.js';
+export { makeDifference, summarizeDifferences, DIFFERENCE_SEVERITIES, DIFFERENCE_CATEGORIES } from './migration/empresas-dual-read/empresasDualReadDifferenceModel.js';
+export { isEmpresasDualReadEnabled, EMPRESAS_DUAL_READ_FLAG } from './migration/empresas-dual-read/empresasDualReadConfig.js';
+export { EmpresasDualReadError } from './migration/empresas-dual-read/errors.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,
