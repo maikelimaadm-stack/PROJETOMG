@@ -37,6 +37,18 @@ export { createRuntimeShadowMode, RuntimeShadowMode, RuntimeShadowModeError } fr
 export { createEmpresasShadowPilot, EmpresasShadowPilot, EmpresasShadowPilotError } from './shadow/pilots/empresasShadowPilot.js';
 export { createEmpresasTableFormShadow, EmpresasTableFormShadow } from './shadow/pilots/empresasTableFormShadow.js';
 export { createTableFormProjection } from './shadow/pilots/tableFormProjection.js';
+// Generic, module-agnostic shadow runtime (the Empresas pipeline generalized) + second module (cadcps) pilot.
+export { createGenericModuleShadowPilot, GenericModuleShadowPilot, GenericModuleShadowError } from './shadow/generic/genericModuleShadowPilot.js';
+export { createGenericModuleTableFormShadow, GenericModuleTableFormShadow } from './shadow/generic/genericModuleTableFormShadow.js';
+export { validateGenericModuleDescriptor, normalizeGenericModuleDescriptor } from './shadow/generic/genericModuleDescriptor.js';
+export {
+  createCadcpsShadowPilot,
+  createCadcpsTableFormShadow,
+  createSecondModuleShadowPilot,
+  createSecondModuleTableFormShadow,
+  CADCPS_SHADOW_FLAG,
+} from './shadow/pilots/secondModuleShadowPilot.js';
+export { createCadcpsDescriptor, createSecondModuleDescriptor, CADCPS_DESCRIPTOR } from './shadow/pilots/createSecondModuleDescriptor.js';
 export { createControlledPreview, ControlledPreview, ControlledPreviewError } from './preview/controlledPreview.js';
 export { createPreviewModel } from './preview/previewModel.js';
 // Dev-only visual preview: export ONLY the pure, framework-free helpers from the runtime barrel.
@@ -47,6 +59,7 @@ export { createEmpresasDevPreviewModel, isEmpresasDevPreviewEnabled } from './pr
 // harness React component (EmpresasDevPreviewHarness.jsx) is dev-only and never exported here.
 export { createEmpresasDevPreviewFixture } from './preview/dev/createEmpresasDevPreviewFixture.js';
 export { isEmpresasDevPreviewHarnessEnabled } from './preview/dev/devPreviewHarnessConfig.js';
+export { createSecondModuleDevPreviewFixture, createCadcpsDevPreviewFixture } from './preview/dev/createSecondModuleDevPreviewFixture.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,
