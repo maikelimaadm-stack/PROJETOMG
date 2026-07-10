@@ -38,6 +38,10 @@ import { syncColumnsIntoPanelFilters, useMakListFilters } from "@/ModeloBase1/fi
 import { useMakSearchHandlers, useMakRecordSubmit, useMakRecordDelete, useMakRecordExport } from "@/ModeloBase1/actions";
 import { ModeloBase1Provider, useModeloBase1Config } from "@/ModeloBase1/config";
 import { useModeloBase1RuntimeReadModel } from "@/ModeloBase1/runtime-read-model/useModeloBase1RuntimeReadModel.js";
+import { createModeloBase1BetaUiHardeningModel } from "@/ModeloBase1/runtime-read-model/hardening/createModeloBase1BetaUiHardeningModel.js";
+import { isModeloBase1BetaUiDiagnosticsEnabled } from "@/ModeloBase1/runtime-read-model/hardening/modeloBase1BetaUiConfig.js";
+import ModeloBase1RuntimeReadDiagnosticsPanel from "@/ModeloBase1/runtime-read-model/components/ModeloBase1RuntimeReadDiagnosticsPanel.jsx";
+import ModeloBase1RuntimeReadWriteBlockedBadge from "@/ModeloBase1/runtime-read-model/components/ModeloBase1RuntimeReadWriteBlockedBadge.jsx";
 import { MakModuleProvider } from "@/framework/mak/runtime";
 
 const DROPDOWN_PAGE_SIZE = 30;
@@ -56,6 +60,14 @@ function ModeloBase1CadastroPageContent() {
     },
     [runtimeRead.writeBlocked, runtimeRead.writeBlockMessage]
   );
+  // Beta UI hardening: a passive checklist/diagnostics over the applied read
+  // state. Pure and cheap; the diagnostics panel is dev-only (flag-gated,
+  // fail-closed in production) and never renders in the legacy path.
+  const betaUiHardening = useMemo(
+    () => createModeloBase1BetaUiHardeningModel({ state: runtimeRead }),
+    [runtimeRead]
+  );
+  const betaUiDiagnosticsEnabled = runtimeRead.betaApplied && isModeloBase1BetaUiDiagnosticsEnabled();
   const hooks = config.hooks;
   const helpers = config.helpers;
   const data = config.data;
@@ -1148,13 +1160,21 @@ function ModeloBase1CadastroPageContent() {
       ) : null}
       {runtimeRead.betaApplied ? (
         <div
-          className="border-b border-sky-200 bg-sky-50 px-3 py-1.5 text-xs text-sky-900"
+          className="flex items-center gap-2 border-b border-sky-200 bg-sky-50 px-3 py-1.5 text-xs text-sky-900"
           data-mb1-runtime-read="beta"
           data-mb1-runtime-source={runtimeRead.source}
         >
-          Modo beta (runtime v2) — leitura somente. Gravação desabilitada nesta tela.
+          <span>Modo beta (runtime v2) — leitura somente. Gravação desabilitada nesta tela.</span>
+          <ModeloBase1RuntimeReadWriteBlockedBadge
+            writeBlocked={runtimeRead.writeBlocked}
+            message={runtimeRead.writeBlockMessage}
+          />
         </div>
       ) : null}
+      <ModeloBase1RuntimeReadDiagnosticsPanel
+        enabled={betaUiDiagnosticsEnabled}
+        hardeningModel={betaUiHardening}
+      />
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <MakFilterPanel
           open={filterPanelOpen}
