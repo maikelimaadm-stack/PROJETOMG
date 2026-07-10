@@ -151,3 +151,25 @@ export {
   ServiceLocatorError,
 } from './infra/service-locator/serviceLocator.js';
 export { captureRuntimeMetrics } from './infra/observability/runtimeMetrics.js';
+// ModeloBase1 Direct Beta — first direct activation of a runtime v2 READ-ONLY read
+// model injected into the ModeloBase1 config for Empresas and Campos Personalizados,
+// behind feature flags (MAK_MODELOBASE1_EMPRESAS_BETA / MAK_MODELOBASE1_CADCPS_BETA /
+// umbrella MAK_MODELOBASE1_DIRECT_BETA). Off by default; fail-closed in production;
+// total fallback to the legacy config when off; write guard active (no write path).
+export { createModeloBase1DirectBetaReadModel, attemptDirectBetaWrite, MODELOBASE1_INJECTION_POINT } from './modelobase1-direct-beta/createModeloBase1DirectBetaReadModel.js';
+export { createEmpresasModeloBase1BetaReadModel } from './modelobase1-direct-beta/createEmpresasModeloBase1BetaReadModel.js';
+export { createCadcpsModeloBase1BetaReadModel, createCadcpsBetaViewModel } from './modelobase1-direct-beta/createCadcpsModeloBase1BetaReadModel.js';
+export { createDirectBetaWriteGuard, BLOCKED_BETA_WRITE_OPERATIONS } from './modelobase1-direct-beta/createDirectBetaWriteGuard.js';
+export { createModeloBase1DirectBetaDiagnostics } from './modelobase1-direct-beta/modeloBase1DirectBetaDiagnostics.js';
+export { createModeloBase1DirectBetaFallback, isModeloBase1DirectBetaFallback } from './modelobase1-direct-beta/modeloBase1DirectBetaFallback.js';
+export {
+  isEmpresasModeloBase1BetaEnabled,
+  isCadcpsModeloBase1BetaEnabled,
+  isModeloBase1DirectBetaEnabled,
+  isEmpresasModeloBase1BetaProductionBlocked,
+  isCadcpsModeloBase1BetaProductionBlocked,
+  EMPRESAS_MODELOBASE1_BETA_FLAG,
+  CADCPS_MODELOBASE1_BETA_FLAG,
+  MODELOBASE1_DIRECT_BETA_FLAG,
+} from './modelobase1-direct-beta/modeloBase1DirectBetaConfig.js';
+export { ModeloBase1DirectBetaError } from './modelobase1-direct-beta/errors.js';
