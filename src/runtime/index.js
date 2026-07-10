@@ -101,6 +101,13 @@ export { createEmpresasDualReadDiagnostics } from './migration/empresas-dual-rea
 export { makeDifference, summarizeDifferences, DIFFERENCE_SEVERITIES, DIFFERENCE_CATEGORIES } from './migration/empresas-dual-read/empresasDualReadDifferenceModel.js';
 export { isEmpresasDualReadEnabled, EMPRESAS_DUAL_READ_FLAG } from './migration/empresas-dual-read/empresasDualReadConfig.js';
 export { EmpresasDualReadError } from './migration/empresas-dual-read/errors.js';
+// Empresas Guarded Read UI Slice — dev-only, read-only UI model composing the read-only candidate +
+// dual-read compare. Only the PURE helpers leave the barrel; the React components (components/*.jsx)
+// are dev-only and intentionally NOT exported here (no React in the runtime barrel; src/App.jsx untouched).
+export { createEmpresasGuardedReadUiModel } from './migration/empresas-guarded-read-ui/createEmpresasGuardedReadUiModel.js';
+export { createEmpresasGuardedReadUiDiagnostics } from './migration/empresas-guarded-read-ui/empresasGuardedReadUiDiagnostics.js';
+export { isEmpresasGuardedReadUiEnabled, EMPRESAS_GUARDED_READ_UI_FLAG } from './migration/empresas-guarded-read-ui/empresasGuardedReadUiConfig.js';
+export { EmpresasGuardedReadUiError } from './migration/empresas-guarded-read-ui/errors.js';
 export {
   createServiceLocator,
   createEmptyServiceLocator,
