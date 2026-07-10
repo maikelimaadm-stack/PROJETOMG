@@ -1,4 +1,5 @@
 import { RuntimeV2DevPreviewHub } from '../hub/RuntimeV2DevPreviewHub.jsx';
+import { EmpresasGuardedReadUiOverlay } from '../../../migration/empresas-guarded-read-ui/overlay/components/EmpresasGuardedReadUiOverlay.jsx';
 
 /**
  * Dev-only page rendered at the runtime v2 preview route. Presentational: shows
@@ -40,6 +41,10 @@ export function RuntimeV2DevPreviewRoutePage({ routeModel, env }) {
       ) : (
         <p className="text-xs" data-testid="dev-route-no-hub">Hub not rendered (hub flag off or unavailable).</p>
       )}
+
+      {/* DEV-ONLY, opt-in: Empresas guarded read UI overlay. Renders its own safe fallback when its
+          flag is off; never fetches, never writes, never touches the real Empresas screen. */}
+      <EmpresasGuardedReadUiOverlay model={model.empresasGuardedReadUiOverlay} env={env} />
 
       <section className="mak-dev-route-limitations" data-testid="dev-route-limitations">
         <h4 className="text-xs font-semibold">Limitations</h4>
