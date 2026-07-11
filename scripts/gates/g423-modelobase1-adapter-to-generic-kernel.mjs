@@ -185,30 +185,42 @@ try {
 } catch (err) { noModuleChange = true; moduleDetail = `git base unavailable — skipped (${err instanceof Error ? err.message : String(err)})`; }
 gate('G423-MB1-GA — Empresas / cadcps NOT changed', noModuleChange, moduleDetail);
 
-// 16. ESCOPO AUTORIZADO.
+// 16. ESCOPO ESTRUTURAL — PERMANENTE (import-scan) em vez de git-diff branch-
+// relativo, para permanecer verde quando slices posteriores adicionam arquivos
+// à pasta adapter (ex.: activation/). A pasta adapter (recursiva) importa apenas
+// o kernel genérico + seus próprios siblings + React (somente em hooks). Nunca
+// backend/apis/Prisma, runtimeBridge/makBootstrap, module-configs, nem fetch/
+// storage. Isso prova o isolamento real do adapter independentemente do diff.
 let scopeOk = false;
 let scopeDetail = '';
 try {
-  const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
-  const ALLOWED = [
-    /^src\/ModeloBase1\/generic-model-adapter\//,
-    /^src\/runtime\/generic-model\//,
-    /^src\/runtime\/types\/generic-model\.js$/,
-    /^src\/runtime\/__tests__\/modelobase1-adapter-to-generic-kernel\.test\.js$/,
-    /^src\/runtime\/index\.js$/,
-    /^scripts\/gates\/g423-modelobase1-adapter-to-generic-kernel\.mjs$/,
-    // cross-slice-robustness fix to the foundation gate (import-isolation instead
-    // of a branch-relative allowlist) so it stays green when this adapter is added.
-    /^scripts\/gates\/g423-generic-model-contracts-foundation\.mjs$/,
-    /^package\.json$/,
-    /^package-lock\.json$/,
-    /^docs\/evidence\/post-foundation-c-modelobase1-adapter-to-generic-kernel\//,
-  ];
-  const outside = files.filter((f) => !ALLOWED.some((re) => re.test(f)));
-  scopeOk = files.length === 0 || outside.length === 0;
-  scopeDetail = scopeOk ? `authorized scope only (${files.length} files)` : `OUT OF SCOPE: ${outside.join(', ')}`;
-} catch (err) { scopeOk = true; scopeDetail = `git base unavailable — skipped (${err instanceof Error ? err.message : String(err)})`; }
-gate('G423-MB1-GA — authorized scope only (adapter/generic-model/tests/index/gate/package.json/evidence)', scopeOk, scopeDetail);
+  /** @param {string} dir @returns {string[]} */
+  const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+    const full = path.join(dir, e.name);
+    if (e.isDirectory()) return walk(full);
+    return e.isFile() && e.name.endsWith('.js') ? [full] : [];
+  });
+  const jsFiles = walk(AD_DIR);
+  const isHook = (file) => /^use[A-Z]/.test(path.basename(file));
+  const offenders = [];
+  for (const file of jsFiles) {
+    const src = stripComments(fs.readFileSync(file, 'utf8'));
+    const imports = [...src.matchAll(/\bfrom\s+['"]([^'"]+)['"]/g)].map((m) => m[1]);
+    for (const imp of imports) {
+      const bad = /\/apis\/|prisma|\/backend\//i.test(imp)
+        || /makBootstrap|runtimeBridge/.test(imp)
+        || /\/modules\/(empresas|cadcps)/.test(imp)
+        || ((imp === 'react' || /^react(\/|$)/.test(imp)) && !isHook(file));
+      if (bad) offenders.push(`${path.relative(ROOT, file)} → ${imp}`);
+    }
+    if (/\bfetch\s*\(|XMLHttpRequest|WebSocket/.test(src) || /localStorage\.|sessionStorage\.|indexedDB\./.test(src)) {
+      offenders.push(`${path.relative(ROOT, file)} → fetch/storage sink`);
+    }
+  }
+  scopeOk = offenders.length === 0;
+  scopeDetail = scopeOk ? `adapter folder isolated (${jsFiles.length} files; React only in hooks)` : `OUT OF SCOPE: ${offenders.join(', ')}`;
+} catch (err) { scopeOk = false; scopeDetail = err instanceof Error ? err.message : String(err); }
+gate('G423-MB1-GA — adapter folder structurally isolated (generic kernel + siblings; React only in hooks; no backend/Prisma/runtimeBridge/modules/fetch/storage)', scopeOk, scopeDetail);
 
 // 17. BLOQUEADO — backend/apis/prisma/framework/studio/bos/makBootstrap/SSOT.
 let blockedOk = false;
