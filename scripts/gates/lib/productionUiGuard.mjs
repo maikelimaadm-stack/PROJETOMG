@@ -8,11 +8,12 @@ import { execSync } from 'node:child_process';
  * production UI change" — the existing gate logic (`diff.length === 0`) then
  * reports clean.
  *
- * The ONLY tolerated production-UI change is the single, sanctioned dev-only
- * route mount in `src/App.jsx` — mounting `/__dev/runtime-v2/previews` behind
- * `shouldMountRuntimeV2DevPreviewRoute()` (dev-only, flag-protected,
- * fail-closed in production, not in the menu). This exception is strict and
- * specific: it is NOT a generic relaxation. Any OTHER change to `src/App.jsx`,
+ * The ONLY tolerated production-UI changes are the sanctioned dev-only route
+ * mounts in `src/App.jsx` — mounting `/__dev/runtime-v2/previews` behind
+ * `shouldMountRuntimeV2DevPreviewRoute()` and `/__dev/modelobase2/fuel` behind
+ * `shouldMountModeloBase2FuelDevPreviewRoute()` (both dev-only, flag-protected,
+ * fail-closed in production, not in the menu). These exceptions are strict and
+ * specific: they are NOT a generic relaxation. Any OTHER change to `src/App.jsx`,
  * or ANY change to `src/shared`, `src/framework`, `src/modules`, `src/studio`,
  * is still reported as offending.
  *
@@ -94,7 +95,7 @@ function moduleBetaChangeIsAuthorized(ROOT, file) {
   return true;
 }
 
-const DEV_ROUTE_MARKER = /RuntimeV2DevPreview|RUNTIME_V2_DEV_PREVIEW_ROUTE|shouldMountRuntimeV2DevPreviewRoute|__dev\/runtime-v2\/previews|DEV-ONLY: runtime v2/;
+const DEV_ROUTE_MARKER = /RuntimeV2DevPreview|RUNTIME_V2_DEV_PREVIEW_ROUTE|shouldMountRuntimeV2DevPreviewRoute|__dev\/runtime-v2\/previews|DEV-ONLY: runtime v2|ModeloBase2FuelDevPreview|MODELOBASE2_FUEL_DEV_PREVIEW_ROUTE|shouldMountModeloBase2FuelDevPreviewRoute|__dev\/modelobase2\/fuel|DEV-ONLY: ModeloBase2 fuel/;
 const FORBIDDEN = /prisma|PrismaClient|\/backend\/|\bfetch\s*\(|localStorage|sessionStorage|indexedDB|addMenuItem|navItems|menu\.push/i;
 
 /**
@@ -120,8 +121,8 @@ function appJsxChangeIsOnlyDevRouteMount(ROOT) {
   let sawMarker = false;
   for (const a of added) {
     if (FORBIDDEN.test(a)) return false;
-    // Any added route path must be the dev-only path — never a new production route.
-    if (/path\s*[=:]/.test(a) && !/RUNTIME_V2_DEV_PREVIEW_ROUTE_PATH|__dev\/runtime-v2\/previews/.test(a)) return false;
+    // Any added route path must be a sanctioned dev-only path — never a new production route.
+    if (/path\s*[=:]/.test(a) && !/RUNTIME_V2_DEV_PREVIEW_ROUTE_PATH|__dev\/runtime-v2\/previews|MODELOBASE2_FUEL_DEV_PREVIEW_ROUTE_PATH|__dev\/modelobase2\/fuel/.test(a)) return false;
     if (DEV_ROUTE_MARKER.test(a)) sawMarker = true;
   }
   return sawMarker;

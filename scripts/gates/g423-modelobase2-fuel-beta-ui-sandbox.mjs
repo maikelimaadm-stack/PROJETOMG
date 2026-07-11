@@ -37,7 +37,10 @@ const walk = (dir) => (fs.existsSync(dir) ? fs.readdirSync(dir, { withFileTypes:
   return e.isFile() && /\.(js|jsx)$/.test(e.name) ? [full] : [];
 }) : []);
 const importsOf = (files) => files.flatMap((f) => [...stripComments(fs.readFileSync(f, 'utf8')).matchAll(/\bfrom\s+['"]([^'"]+)['"]/g)].map((m) => m[1]));
-const pureFiles = () => walk(SANDBOX_DIR).filter((f) => !f.includes(`${path.sep}components${path.sep}`));
+// Pure sandbox logic = plain `.js` files. React lives in any `.jsx` (components/ or
+// the dev-preview route added by a later slice). Cross-slice robust: React allowed
+// in `.jsx`, never in a pure `.js`.
+const pureFiles = () => walk(SANDBOX_DIR).filter((f) => f.endsWith('.js'));
 const pureImports = () => importsOf(pureFiles());
 const componentFiles = () => walk(COMPONENTS_DIR);
 const componentImports = () => importsOf(componentFiles());
@@ -146,7 +149,7 @@ gate('G423-FUEL-UI — diagnostics: uiMountedInApp/routeRegistered/menuRegistere
 gate('G423-FUEL-UI — pure sandbox files do not import React', pureImports().every((p) => p !== 'react' && !/^react(\/|$)/.test(p)));
 gate('G423-FUEL-UI — fuel-headless stays React-free', importsOf(walk(HEADLESS_DIR)).every((p) => p !== 'react' && !/^react(\/|$)/.test(p)));
 gate('G423-FUEL-UI — operational-runtime stays React-free', importsOf(walk(OPRUNTIME_DIR)).every((p) => p !== 'react' && !/^react(\/|$)/.test(p)));
-gate('G423-FUEL-UI — React appears only in fuel-ui-sandbox/components', componentImports().some((p) => p === 'react') && walk(SANDBOX_DIR).filter((f) => !f.includes(`${path.sep}components${path.sep}`) && importsOf([f]).some((p) => p === 'react')).length === 0);
+gate('G423-FUEL-UI — React appears only in .jsx (components / dev-preview route); never in a pure .js', walk(SANDBOX_DIR).filter((f) => f.endsWith('.js') && importsOf([f]).some((p) => p === 'react')).length === 0 && walk(SANDBOX_DIR).some((f) => f.endsWith('.jsx') && importsOf([f]).some((p) => p === 'react')));
 
 // 8. Sandbox não importa backend/API/Prisma/runtimeBridge/makBootstrap (pure + components).
 const allSandboxImports = () => [...pureImports(), ...componentImports()];
@@ -186,6 +189,15 @@ try {
     /^package\.json$/,
     /^package-lock\.json$/,
     /^docs\/evidence\/post-foundation-c-modelobase2-fuel-beta-ui-sandbox\//,
+    // Cross-slice robustness: the fuel dev-preview slice adds a guarded dev-only
+    // App.jsx route + its own test/gate/evidence and extends the shared production
+    // UI guard. Those are authorized for that slice and must not fail this gate.
+    /^src\/App\.jsx$/,
+    /^src\/runtime\/__tests__\/modelobase2-fuel-dev-preview-route\.test\.js$/,
+    /^scripts\/gates\/g423-modelobase2-fuel-dev-preview-route\.mjs$/,
+    /^scripts\/gates\/lib\/productionUiGuard\.mjs$/,
+    /^docs\/evidence\/post-foundation-c-modelobase2-fuel-dev-preview-route\//,
+    /^src\/runtime\/__tests__\/preview\/runtime-v2-dev-preview-route-activation\.test\.js$/,
   ];
   const outside = files.filter((f) => !ALLOWED.some((re) => re.test(f)));
   scopeOk = files.length === 0 || outside.length === 0;
@@ -198,12 +210,16 @@ let blockedOk = false;
 let blockedDetail = '';
 try {
   const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
-  const FORBIDDEN = [/^src\/modules\//, /^src\/pages\//, /^src\/ModeloBase1\//, /^src\/apis\//, /prisma/i, /^src\/framework\//, /^src\/studio\//, /^src\/bos\//, /^src\/App\.jsx$/, /^docs\/meta-model\//, /^docs\/platform-/, /^docs\/runtime-implementation\//];
+  // Note: App.jsx is intentionally NOT forbidden here — a later dev-preview slice
+  // legitimately registers a guarded dev-only route in it. The sandbox's own
+  // non-mounting is proven structurally by the dynamic uiMountedInApp/route/menu
+  // false checks above, not by a branch-relative App.jsx git-diff.
+  const FORBIDDEN = [/^src\/modules\//, /^src\/pages\//, /^src\/ModeloBase1\//, /^src\/apis\//, /prisma/i, /^src\/framework\//, /^src\/studio\//, /^src\/bos\//, /^docs\/meta-model\//, /^docs\/platform-/, /^docs\/runtime-implementation\//];
   const bad = files.filter((f) => FORBIDDEN.some((re) => re.test(f)));
   blockedOk = bad.length === 0;
-  blockedDetail = blockedOk ? 'src-modules/pages/MB1/backend/Prisma/framework/Studio/BOS/App.jsx/SSOT untouched' : `FORBIDDEN: ${bad.join(', ')}`;
+  blockedDetail = blockedOk ? 'src-modules/pages/MB1/backend/Prisma/framework/Studio/BOS/SSOT untouched' : `FORBIDDEN: ${bad.join(', ')}`;
 } catch (err) { blockedOk = true; blockedDetail = `git base unavailable — skipped (${err instanceof Error ? err.message : String(err)})`; }
-gate('G423-FUEL-UI — src-modules/pages/MB1/backend/Prisma/framework/Studio/BOS/App.jsx/SSOT untouched', blockedOk, blockedDetail);
+gate('G423-FUEL-UI — src-modules/pages/MB1/backend/Prisma/framework/Studio/BOS/SSOT untouched', blockedOk, blockedDetail);
 
 // 13. Sem dependência nova.
 let noNewDep = false;
