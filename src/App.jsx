@@ -17,9 +17,12 @@ import { StudioTechnicalGuard } from "@/bos/guards/StudioTechnicalGuard";
 // DEV-ONLY: runtime v2 preview route mount gate + path (dev-only, flag-protected, fail-closed in production, not in the menu).
 import { shouldMountRuntimeV2DevPreviewRoute } from "@/runtime/preview/dev/route/registerRuntimeV2DevPreviewRoute.js";
 import { RUNTIME_V2_DEV_PREVIEW_ROUTE_PATH } from "@/runtime/preview/dev/route/devPreviewRouteConfig.js";
+// DEV-ONLY: ModeloBase2 fuel preview route mount gate + path (dev-only, flag-protected, fail-closed in production, not in the menu).
+import { shouldMountModeloBase2FuelDevPreviewRoute, MODELOBASE2_FUEL_DEV_PREVIEW_ROUTE_PATH } from "@/ModeloBase2/fuel-ui-sandbox/dev-preview/modeloBase2FuelDevPreviewConfig.js";
 
 const generatedPageLoaders = import.meta.glob("/src/modules/*/pages/PAG*.jsx");
 const RuntimeV2DevPreviewRoute = lazy(() => import("@/runtime/preview/dev/route/RuntimeV2DevPreviewRoute.jsx"));
+const ModeloBase2FuelDevPreviewRoute = lazy(() => import("@/ModeloBase2/fuel-ui-sandbox/dev-preview/ModeloBase2FuelDevPreviewRoute.jsx"));
 const EmpresasPage = lazy(() => import("@/modules/empresas/pages/PAGEMP"));
 const BosHomePage = lazy(() => import("@/bos/pages/BosHomePage"));
 const BusinessFirstPage = lazy(() => import("@/bos/pages/BusinessFirstPage"));
@@ -254,6 +257,16 @@ const AuthenticatedApp = () => {
           element={
             <Suspense fallback={<ModuleLoadingFallback />}>
               <RuntimeV2DevPreviewRoute />
+            </Suspense>
+          }
+        />
+      )}
+      {shouldMountModeloBase2FuelDevPreviewRoute() && (
+        <Route
+          path={MODELOBASE2_FUEL_DEV_PREVIEW_ROUTE_PATH}
+          element={
+            <Suspense fallback={<ModuleLoadingFallback />}>
+              <ModeloBase2FuelDevPreviewRoute />
             </Suspense>
           }
         />

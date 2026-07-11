@@ -188,7 +188,9 @@ describe('Runtime v2 Dev Preview Route Activation (post-Foundation C)', () => {
     for (const a of added) {
       assert.equal(/prisma|PrismaClient|\/backend\/|\bfetch\s*\(|localStorage|sessionStorage|indexedDB/i.test(a), false, `linha proibida adicionada: ${a}`);
       if (/path\s*[=:]/.test(a)) {
-        assert.equal(/RUNTIME_V2_DEV_PREVIEW_ROUTE_PATH|__dev\/runtime-v2\/previews/.test(a), true, `path adicionado não é o dev: ${a}`);
+        // Sanctioned dev-only route paths: runtime-v2 previews AND the ModeloBase2
+        // fuel dev preview (a later slice adds its own guarded dev route in App.jsx).
+        assert.equal(/RUNTIME_V2_DEV_PREVIEW_ROUTE_PATH|__dev\/runtime-v2\/previews|MODELOBASE2_FUEL_DEV_PREVIEW_ROUTE_PATH|__dev\/modelobase2\/fuel/.test(a), true, `path adicionado não é um dev route sancionado: ${a}`);
       }
     }
   });

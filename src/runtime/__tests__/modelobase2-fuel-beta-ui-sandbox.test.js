@@ -25,8 +25,10 @@ const walk = (dir) => (fs.existsSync(dir) ? fs.readdirSync(dir, { withFileTypes:
   return e.isFile() && /\.(js|jsx)$/.test(e.name) ? [full] : [];
 }) : []);
 const codeOnly = (s) => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
-// Pure (non-component) sandbox files only.
-const pureFiles = () => walk(SANDBOX_DIR).filter((f) => !f.includes(`${path.sep}components${path.sep}`));
+// Pure sandbox logic = plain `.js` files. React lives in any `.jsx` (components/ or
+// the dev-preview route added by a later slice). This keeps the rule cross-slice
+// robust: React is allowed in `.jsx`, never in a pure `.js`.
+const pureFiles = () => walk(SANDBOX_DIR).filter((f) => f.endsWith('.js'));
 const pureSource = () => pureFiles().map((f) => fs.readFileSync(f, 'utf8')).join('\n');
 const pureImports = () => [...codeOnly(pureSource()).matchAll(/\bfrom\s+['"]([^'"]+)['"]/g)].map((m) => m[1]);
 const componentFiles = () => walk(COMPONENTS_DIR);
