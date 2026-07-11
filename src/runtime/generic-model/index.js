@@ -43,6 +43,27 @@ export { createGenericModelWriteContract } from './write/createGenericModelWrite
 export { validateGenericModelReadModel } from './read/validateGenericModelReadModel.js';
 export { createGenericModelReadContract } from './read/createGenericModelReadContract.js';
 
+// model-types (multi-type hardening)
+export { GENERIC_MODEL_TYPE_DEFINITIONS, GENERIC_MODEL_KNOWN_TYPES } from './model-types/genericModelTypes.js';
+export { createGenericModelTypeRegistry } from './model-types/createGenericModelTypeRegistry.js';
+export { validateGenericModelTypeDefinition } from './model-types/validateGenericModelTypeDefinition.js';
+
+// capabilities (multi-type hardening)
+export {
+  GENERIC_MODEL_CAPABILITY_KEYS,
+  GENERIC_MODEL_DANGEROUS_CAPABILITY_KEYS,
+  GENERIC_MODEL_CAPABILITY_DEFAULTS,
+} from './capabilities/genericModelCapabilityDefaults.js';
+export { createGenericModelCapabilityMatrix, getGenericModelCapabilities } from './capabilities/createGenericModelCapabilityMatrix.js';
+export { validateGenericModelCapabilities } from './capabilities/validateGenericModelCapabilities.js';
+
+// conformance (multi-type hardening)
+export { GENERIC_MODEL_CONFORMANCE_RULES, getApplicableConformanceRules } from './conformance/genericModelConformanceRules.js';
+export { validateGenericModelAdapterConformance } from './conformance/validateGenericModelAdapterConformance.js';
+export { createGenericModelAdapterConformanceReport } from './conformance/createGenericModelAdapterConformanceReport.js';
+export { createGenericModelMultiTypeConformanceSuite } from './conformance/createGenericModelMultiTypeConformanceSuite.js';
+export { createGenericModelMultiTypeDiagnostics } from './diagnostics/createGenericModelMultiTypeDiagnostics.js';
+
 // contracts
 export { createGenericModelRuntimeContract } from './contracts/createGenericModelRuntimeContract.js';
 export {
