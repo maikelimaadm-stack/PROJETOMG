@@ -35,6 +35,11 @@ const AUTHORIZED = [
   /^package-lock\.json$/,
   /^docs\/evidence\/post-foundation-c-empresas-local-read-contract-certification\//,
   /^scripts\/gates\/lib\/productionUiGuard\.mjs$/,
+  // POST-FOUNDATION C — Studio Foundation Contracts slice paths (cross-slice robustness).
+  /^src\/studio\/foundation-contracts\//,
+  /^src\/runtime\/__tests__\/studio-foundation-contracts\.test\.js$/,
+  /^scripts\/gates\/g423-studio-foundation-contracts\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-foundation-contracts\//,
 ];
 const changed = () => { try { return execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean); } catch { return null; } };
 const foreign = () => { const f = changed(); return f === null ? null : f.filter((x) => !AUTHORIZED.some((re) => re.test(x))); };

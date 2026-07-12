@@ -40,6 +40,11 @@ const AUTHORIZED = [
   // The shared production-UI guard gains this isolated read-only test subtree as a
   // sanctioned exception (mirrors the runtime-v2/fuel dev-route exceptions).
   /^scripts\/gates\/lib\/productionUiGuard\.mjs$/,
+  // POST-FOUNDATION C — Studio Foundation Contracts slice paths (cross-slice robustness).
+  /^src\/studio\/foundation-contracts\//,
+  /^src\/runtime\/__tests__\/studio-foundation-contracts\.test\.js$/,
+  /^scripts\/gates\/g423-studio-foundation-contracts\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-foundation-contracts\//,
   // Prior-slice tests whose branch-relative git-diff scope allowlists are widened
   // to tolerate this slice's authorized paths (cross-slice robustness).
   /^src\/runtime\/__tests__\/post-foundation-c-empresas-production-baseline-audit\.test\.js$/,
