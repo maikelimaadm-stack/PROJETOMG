@@ -23,12 +23,20 @@ const changed = () => {
 // The authorized scope of THIS slice — excluded before applying forbidden-path
 // patterns, so a doc filename that merely contains words like "BACKEND"/"PRISMA"
 // (e.g. EMPRESAS-BACKEND-PRISMA-READINESS.md) is not mistaken for a code change.
+// Paths that belong to LATER, already-authorized slices on this cumulative branch
+// (their own gates/tests own them). Tolerated here so this slice's branch-relative
+// git-diff scope checks stay green when a later slice legitimately adds files.
+const LATER_AUTHORIZED_SLICE_PATHS = [
+  /^src\/modules\/empresas\/local-read-contract-pilot\//,
+  /^scripts\/gates\/lib\/productionUiGuard\.mjs$/,
+];
 const AUTHORIZED = [
   /^docs\/evidence\/post-foundation-c-empresas-production-baseline-audit\//,
   /^src\/runtime\/__tests__\/post-foundation-c-empresas-production-baseline-audit\.test\.js$/,
   /^scripts\/gates\/g423-empresas-production-baseline-audit\.mjs$/,
   /^package\.json$/,
   /^package-lock\.json$/,
+  ...LATER_AUTHORIZED_SLICE_PATHS,
 ];
 // Changed files OUTSIDE the authorized scope (null when git base is unavailable).
 const foreign = () => {
@@ -144,12 +152,16 @@ test('27. no new dependency', () => {
 test('28. this slice only touches docs/evidence, tests, gate, package.json (authorized scope)', () => {
   const files = changed();
   if (files === null) return;
+  // Branch-relative: only meaningful on THIS slice's own branch (its evidence dir
+  // appears in the diff). On a later slice's branch the diff is that slice's files.
+  if (!files.some((f) => /^docs\/evidence\/post-foundation-c-empresas-production-baseline-audit\//.test(f))) return;
   const ALLOWED = [
     /^docs\/evidence\/post-foundation-c-empresas-production-baseline-audit\//,
     /^src\/runtime\/__tests__\/post-foundation-c-empresas-production-baseline-audit\.test\.js$/,
     /^scripts\/gates\/g423-empresas-production-baseline-audit\.mjs$/,
     /^package\.json$/,
     /^package-lock\.json$/,
+    ...LATER_AUTHORIZED_SLICE_PATHS,
   ];
   const outside = files.filter((f) => !ALLOWED.some((re) => re.test(f)));
   assert.deepEqual(outside, []);

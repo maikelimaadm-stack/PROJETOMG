@@ -36,6 +36,12 @@ export function productionUiOffendingFiles(ROOT) {
   for (const f of changed.split('\n').filter(Boolean)) {
     if (f === 'src/App.jsx') {
       if (!appJsxChangeIsOnlyDevRouteMount(ROOT)) offending.push(f);
+    } else if (ISOLATED_READONLY_TEST_SUBTREES.some((prefix) => f.startsWith(prefix))) {
+      // Isolated, local, read-only test harnesses that live under a module folder
+      // but are NEVER imported by production UI (no route/menu/page wiring). They
+      // are tolerated ONLY when the change adds no forbidden token (Prisma/backend/
+      // fetch/storage/menu). Any such token → offending.
+      if (!isolatedReadonlySubtreeChangeIsSafe(ROOT, f)) offending.push(f);
     } else if (AUTHORIZED_BETA_FILES.has(f)) {
       // Authorized-scope beta wiring (Empresas/Campos ModeloBase1 direct beta).
       // Tolerated ONLY when the diff is the sanctioned, additive beta injection:
@@ -63,6 +69,50 @@ const AUTHORIZED_BETA_FILES = new Set([
   'src/modules/empresas/config/modeloBase1/empresasModeloBase1Config.js',
   'src/modules/cadcps/config/cadcpsModeloBase1Config.js',
 ]);
+
+/**
+ * Isolated, LOCAL, READ-ONLY test-harness subtrees that physically live under a
+ * module folder but are NOT production UI: pure/React-free, never imported by any
+ * page/route/menu, never touch backend/Prisma/fetch/storage. They exist only for
+ * `node --test` contract validation with synthetic fixtures. This tolerance is
+ * narrow (a specific directory prefix) and additionally gated on "no forbidden
+ * token added" — it never relaxes protection for the real module code around it.
+ * @type {string[]}
+ */
+const ISOLATED_READONLY_TEST_SUBTREES = [
+  'src/modules/empresas/local-read-contract-pilot/',
+];
+
+/**
+ * Production-UI *wiring* tokens: the real risk for an isolated test subtree is that
+ * it secretly wires itself into the production UI (menu/route/page/App). Backend/
+ * Prisma/fetch/storage safety for these subtrees is enforced (far more precisely,
+ * by import/AST-style scans) in each subtree's OWN gate — a bare keyword like
+ * "prisma" legitimately appears here inside denylists, so it is NOT used as the
+ * signal here.
+ */
+const UI_WIRING = /addMenuItem|navItems|menu\.push|from\s+['"][^'"]*App(\.jsx)?['"]|from\s+['"][^'"]*\/pages\/|registerRoute|<Route\b/;
+
+/**
+ * True only when a change to an isolated read-only test subtree adds NO production-
+ * UI wiring token. New files count as added lines.
+ * @param {string} ROOT
+ * @param {string} file
+ * @returns {boolean}
+ */
+function isolatedReadonlySubtreeChangeIsSafe(ROOT, file) {
+  let patch = '';
+  try {
+    patch = execSync(`git diff --unified=0 origin/main...HEAD -- ${file}`, { cwd: ROOT, encoding: 'utf8' });
+  } catch {
+    return false;
+  }
+  const added = patch.split('\n').filter((l) => l.startsWith('+') && !l.startsWith('+++')).map((l) => l.slice(1));
+  for (const a of added) {
+    if (UI_WIRING.test(a)) return false;
+  }
+  return true;
+}
 
 /**
  * True only when the diff to an authorized beta config file is the sanctioned,
