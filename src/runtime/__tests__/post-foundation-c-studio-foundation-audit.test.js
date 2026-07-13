@@ -28,6 +28,10 @@ const AUTHORIZED = [
   /^src\/runtime\/__tests__\/studio-blueprint-contract-hardening\.test\.js$/,
   /^scripts\/gates\/g423-studio-blueprint-contract-hardening\.mjs$/,
   /^docs\/evidence\/post-foundation-c-studio-blueprint-contract-hardening\//,
+  // POST-FOUNDATION C — Studio Blueprint Contract Certification slice paths (cross-slice robustness).
+  /^src\/runtime\/__tests__\/studio-blueprint-contract-certification\.test\.js$/,
+  /^scripts\/gates\/g423-studio-blueprint-contract-certification\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-blueprint-contract-certification\//,
 ];
 const changed = () => { try { return execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean); } catch { return null; } };
 const foreign = () => { const f = changed(); return f === null ? null : f.filter((x) => !AUTHORIZED.some((re) => re.test(x))); };

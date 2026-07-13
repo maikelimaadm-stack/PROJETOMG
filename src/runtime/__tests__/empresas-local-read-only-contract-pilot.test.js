@@ -49,6 +49,10 @@ const AUTHORIZED = [
   /^src\/runtime\/__tests__\/studio-blueprint-contract-hardening\.test\.js$/,
   /^scripts\/gates\/g423-studio-blueprint-contract-hardening\.mjs$/,
   /^docs\/evidence\/post-foundation-c-studio-blueprint-contract-hardening\//,
+  // POST-FOUNDATION C — Studio Blueprint Contract Certification slice paths (cross-slice robustness).
+  /^src\/runtime\/__tests__\/studio-blueprint-contract-certification\.test\.js$/,
+  /^scripts\/gates\/g423-studio-blueprint-contract-certification\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-blueprint-contract-certification\//,
   // Prior-slice tests whose branch-relative git-diff scope allowlists are widened
   // to tolerate this slice's authorized paths (cross-slice robustness).
   /^src\/runtime\/__tests__\/post-foundation-c-empresas-production-baseline-audit\.test\.js$/,
