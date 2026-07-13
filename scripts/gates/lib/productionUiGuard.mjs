@@ -82,6 +82,7 @@ const AUTHORIZED_BETA_FILES = new Set([
 const ISOLATED_READONLY_TEST_SUBTREES = [
   'src/modules/empresas/local-read-contract-pilot/',
   'src/studio/foundation-contracts/',
+  'src/studio/blueprint-mirrors/empresas/',
 ];
 
 /**

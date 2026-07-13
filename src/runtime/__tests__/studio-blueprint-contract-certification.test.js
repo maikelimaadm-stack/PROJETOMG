@@ -310,6 +310,11 @@ const AUTHORIZED = [
   /^package\.json$/,
   /^package-lock\.json$/,
   /^docs\/evidence\/post-foundation-c-studio-blueprint-contract-certification\//,
+  // POST-FOUNDATION C — Empresas Certified Blueprint Mirror & Alignment Audit slice paths (cross-slice robustness).
+  /^src\/studio\/blueprint-mirrors\/empresas\//,
+  /^src\/runtime\/__tests__\/empresas-certified-blueprint-mirror-alignment-audit\.test\.js$/,
+  /^scripts\/gates\/g423-empresas-certified-blueprint-mirror-alignment-audit\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-empresas-certified-blueprint-mirror-alignment-audit\//,
   /^src\/runtime\/__tests__\/post-foundation-c-empresas-production-baseline-audit\.test\.js$/,
   /^src\/runtime\/__tests__\/post-foundation-c-empresas-controlled-production-test-plan\.test\.js$/,
   /^src\/runtime\/__tests__\/post-foundation-c-studio-first-module-policy\.test\.js$/,

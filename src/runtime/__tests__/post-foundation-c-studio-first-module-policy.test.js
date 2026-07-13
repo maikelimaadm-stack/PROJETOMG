@@ -39,6 +39,11 @@ const LATER_AUTHORIZED_SLICE_PATHS = [
   /^src\/runtime\/__tests__\/studio-blueprint-contract-certification\.test\.js$/,
   /^scripts\/gates\/g423-studio-blueprint-contract-certification\.mjs$/,
   /^docs\/evidence\/post-foundation-c-studio-blueprint-contract-certification\//,
+  // POST-FOUNDATION C — Empresas Certified Blueprint Mirror & Alignment Audit slice paths (cross-slice robustness).
+  /^src\/studio\/blueprint-mirrors\/empresas\//,
+  /^src\/runtime\/__tests__\/empresas-certified-blueprint-mirror-alignment-audit\.test\.js$/,
+  /^scripts\/gates\/g423-empresas-certified-blueprint-mirror-alignment-audit\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-empresas-certified-blueprint-mirror-alignment-audit\//,
 ];
 const isLaterAuthorized = (f) => LATER_AUTHORIZED_SLICE_PATHS.some((re) => re.test(f));
 

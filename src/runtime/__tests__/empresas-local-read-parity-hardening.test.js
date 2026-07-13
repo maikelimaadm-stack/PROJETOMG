@@ -52,6 +52,11 @@ const AUTHORIZED = [
   /^src\/runtime\/__tests__\/studio-blueprint-contract-certification\.test\.js$/,
   /^scripts\/gates\/g423-studio-blueprint-contract-certification\.mjs$/,
   /^docs\/evidence\/post-foundation-c-studio-blueprint-contract-certification\//,
+  // POST-FOUNDATION C — Empresas Certified Blueprint Mirror & Alignment Audit slice paths (cross-slice robustness).
+  /^src\/studio\/blueprint-mirrors\/empresas\//,
+  /^src\/runtime\/__tests__\/empresas-certified-blueprint-mirror-alignment-audit\.test\.js$/,
+  /^scripts\/gates\/g423-empresas-certified-blueprint-mirror-alignment-audit\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-empresas-certified-blueprint-mirror-alignment-audit\//,
 ];
 const changed = () => { try { return execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean); } catch { return null; } };
 const foreign = () => { const f = changed(); return f === null ? null : f.filter((x) => !AUTHORIZED.some((re) => re.test(x))); };
