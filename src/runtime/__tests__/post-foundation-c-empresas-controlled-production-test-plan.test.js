@@ -48,6 +48,11 @@ const LATER_AUTHORIZED_SLICE_PATHS = [
   /^src\/runtime\/__tests__\/studio-blueprint-engine-foundation\.test\.js$/,
   /^scripts\/gates\/g423-studio-blueprint-engine-foundation\.mjs$/,
   /^docs\/evidence\/post-foundation-c-studio-blueprint-engine-foundation\//,
+  // POST-FOUNDATION C — Studio Blueprint Module Reference Planner slice paths (cross-slice robustness).
+  /^src\/studio\/blueprint-engine\/module-reference-planner\//,
+  /^src\/runtime\/__tests__\/studio-blueprint-module-reference-planner\.test\.js$/,
+  /^scripts\/gates\/g423-studio-blueprint-module-reference-planner\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-blueprint-module-reference-planner\//,
 ];
 const AUTHORIZED = [
   /^docs\/evidence\/post-foundation-c-empresas-controlled-production-test-plan\//,
