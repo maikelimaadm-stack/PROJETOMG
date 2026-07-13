@@ -29,6 +29,11 @@ const changed = () => {
 const LATER_AUTHORIZED_SLICE_PATHS = [
   /^src\/modules\/empresas\/local-read-contract-pilot\//,
   /^scripts\/gates\/lib\/productionUiGuard\.mjs$/,
+  // POST-FOUNDATION C — Studio Foundation Contracts slice paths (cross-slice robustness).
+  /^src\/studio\/foundation-contracts\//,
+  /^src\/runtime\/__tests__\/studio-foundation-contracts\.test\.js$/,
+  /^scripts\/gates\/g423-studio-foundation-contracts\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-foundation-contracts\//,
 ];
 const AUTHORIZED = [
   /^docs\/evidence\/post-foundation-c-empresas-production-baseline-audit\//,
