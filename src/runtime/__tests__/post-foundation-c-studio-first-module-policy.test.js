@@ -44,6 +44,10 @@ const LATER_AUTHORIZED_SLICE_PATHS = [
   /^src\/runtime\/__tests__\/empresas-certified-blueprint-mirror-alignment-audit\.test\.js$/,
   /^scripts\/gates\/g423-empresas-certified-blueprint-mirror-alignment-audit\.mjs$/,
   /^docs\/evidence\/post-foundation-c-empresas-certified-blueprint-mirror-alignment-audit\//,
+  // POST-FOUNDATION C — Empresas Studio Compatibility Slice 1 slice paths (cross-slice robustness).
+  /^src\/runtime\/__tests__\/empresas-studio-compatibility-slice-1\.test\.js$/,
+  /^scripts\/gates\/g423-empresas-studio-compatibility-slice-1\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-empresas-studio-compatibility-slice-1\//,
 ];
 const isLaterAuthorized = (f) => LATER_AUTHORIZED_SLICE_PATHS.some((re) => re.test(f));
 
@@ -162,7 +166,7 @@ test('31. backend not changed', () => {
 test('32. Prisma/schema not changed', () => {
   const files = changed();
   if (files === null) return;
-  assert.ok(files.every((f) => !/prisma|schema\.prisma/i.test(f)));
+  assert.ok(files.filter((f) => !isLaterAuthorized(f)).every((f) => !/prisma|schema\.prisma/i.test(f)));
 });
 
 test('33. runtimeBridge real not changed', () => {

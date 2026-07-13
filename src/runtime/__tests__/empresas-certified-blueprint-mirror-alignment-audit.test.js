@@ -236,6 +236,10 @@ const AUTHORIZED = [
   /^package\.json$/,
   /^package-lock\.json$/,
   /^docs\/evidence\/post-foundation-c-empresas-certified-blueprint-mirror-alignment-audit\//,
+  // POST-FOUNDATION C — Empresas Studio Compatibility Slice 1 slice paths (cross-slice robustness).
+  /^src\/runtime\/__tests__\/empresas-studio-compatibility-slice-1\.test\.js$/,
+  /^scripts\/gates\/g423-empresas-studio-compatibility-slice-1\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-empresas-studio-compatibility-slice-1\//,
   /^src\/runtime\/__tests__\/post-foundation-c-empresas-production-baseline-audit\.test\.js$/,
   /^src\/runtime\/__tests__\/post-foundation-c-empresas-controlled-production-test-plan\.test\.js$/,
   /^src\/runtime\/__tests__\/post-foundation-c-studio-first-module-policy\.test\.js$/,

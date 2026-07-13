@@ -47,6 +47,10 @@ const LATER_AUTHORIZED_SLICE_PATHS = [
   /^src\/runtime\/__tests__\/empresas-certified-blueprint-mirror-alignment-audit\.test\.js$/,
   /^scripts\/gates\/g423-empresas-certified-blueprint-mirror-alignment-audit\.mjs$/,
   /^docs\/evidence\/post-foundation-c-empresas-certified-blueprint-mirror-alignment-audit\//,
+  // POST-FOUNDATION C — Empresas Studio Compatibility Slice 1 slice paths (cross-slice robustness).
+  /^src\/runtime\/__tests__\/empresas-studio-compatibility-slice-1\.test\.js$/,
+  /^scripts\/gates\/g423-empresas-studio-compatibility-slice-1\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-empresas-studio-compatibility-slice-1\//,
 ];
 const AUTHORIZED = [
   /^docs\/evidence\/post-foundation-c-empresas-production-baseline-audit\//,
