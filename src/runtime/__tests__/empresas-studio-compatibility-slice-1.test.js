@@ -230,6 +230,11 @@ const AUTHORIZED = [
   /^src\/runtime\/__tests__\/studio-blueprint-contract-hardening\.test\.js$/,
   /^src\/runtime\/__tests__\/studio-blueprint-contract-certification\.test\.js$/,
   /^src\/runtime\/__tests__\/empresas-certified-blueprint-mirror-alignment-audit\.test\.js$/,
+  // POST-FOUNDATION C — Studio Blueprint Engine Foundation slice paths (cross-slice robustness).
+  /^src\/studio\/blueprint-engine\//,
+  /^src\/runtime\/__tests__\/studio-blueprint-engine-foundation\.test\.js$/,
+  /^scripts\/gates\/g423-studio-blueprint-engine-foundation\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-blueprint-engine-foundation\//,
 ];
 const changed = () => { try { return execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean); } catch { return null; } };
 const foreign = () => { const f = changed(); return f === null ? null : f.filter((x) => !AUTHORIZED.some((re) => re.test(x))); };

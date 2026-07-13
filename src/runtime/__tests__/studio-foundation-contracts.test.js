@@ -438,6 +438,11 @@ const AUTHORIZED = [
   /^src\/runtime\/__tests__\/empresas-studio-compatibility-slice-1\.test\.js$/,
   /^scripts\/gates\/g423-empresas-studio-compatibility-slice-1\.mjs$/,
   /^docs\/evidence\/post-foundation-c-empresas-studio-compatibility-slice-1\//,
+  // POST-FOUNDATION C — Studio Blueprint Engine Foundation slice paths (cross-slice robustness).
+  /^src\/studio\/blueprint-engine\//,
+  /^src\/runtime\/__tests__\/studio-blueprint-engine-foundation\.test\.js$/,
+  /^scripts\/gates\/g423-studio-blueprint-engine-foundation\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-blueprint-engine-foundation\//,
   /^src\/runtime\/__tests__\/post-foundation-c-empresas-production-baseline-audit\.test\.js$/,
   /^src\/runtime\/__tests__\/post-foundation-c-empresas-controlled-production-test-plan\.test\.js$/,
   /^src\/runtime\/__tests__\/post-foundation-c-studio-first-module-policy\.test\.js$/,

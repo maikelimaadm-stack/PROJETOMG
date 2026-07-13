@@ -48,6 +48,11 @@ const LATER_AUTHORIZED_SLICE_PATHS = [
   /^src\/runtime\/__tests__\/empresas-studio-compatibility-slice-1\.test\.js$/,
   /^scripts\/gates\/g423-empresas-studio-compatibility-slice-1\.mjs$/,
   /^docs\/evidence\/post-foundation-c-empresas-studio-compatibility-slice-1\//,
+  // POST-FOUNDATION C — Studio Blueprint Engine Foundation slice paths (cross-slice robustness).
+  /^src\/studio\/blueprint-engine\//,
+  /^src\/runtime\/__tests__\/studio-blueprint-engine-foundation\.test\.js$/,
+  /^scripts\/gates\/g423-studio-blueprint-engine-foundation\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-blueprint-engine-foundation\//,
 ];
 const isLaterAuthorized = (f) => LATER_AUTHORIZED_SLICE_PATHS.some((re) => re.test(f));
 
