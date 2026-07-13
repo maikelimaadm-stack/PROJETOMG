@@ -35,6 +35,10 @@ const LATER_AUTHORIZED_SLICE_PATHS = [
   /^src\/runtime\/__tests__\/studio-blueprint-contract-hardening\.test\.js$/,
   /^scripts\/gates\/g423-studio-blueprint-contract-hardening\.mjs$/,
   /^docs\/evidence\/post-foundation-c-studio-blueprint-contract-hardening\//,
+  // POST-FOUNDATION C — Studio Blueprint Contract Certification slice paths (cross-slice robustness).
+  /^src\/runtime\/__tests__\/studio-blueprint-contract-certification\.test\.js$/,
+  /^scripts\/gates\/g423-studio-blueprint-contract-certification\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-blueprint-contract-certification\//,
 ];
 const isLaterAuthorized = (f) => LATER_AUTHORIZED_SLICE_PATHS.some((re) => re.test(f));
 
