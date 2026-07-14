@@ -60,7 +60,12 @@ export const FORBIDDEN_SCOPE_PATTERNS = Object.freeze([
  * @type {RegExp[]}
  */
 export const KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS = Object.freeze([
-  // Studio Dev Preview Isolated Runtime Implementation Plan (this slice).
+  // Studio Dev Preview Isolated Runtime (this slice).
+  /^src\/studio\/blueprint-engine\/dev-preview-isolated-runtime\//,
+  /^src\/runtime\/__tests__\/studio-dev-preview-isolated-runtime\.test\.js$/,
+  /^scripts\/gates\/g423-studio-dev-preview-isolated-runtime\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-dev-preview-isolated-runtime\//,
+  // Studio Dev Preview Isolated Runtime Implementation Plan (PR #468).
   /^src\/studio\/blueprint-engine\/dev-preview-isolated-runtime-implementation-plan\//,
   /^src\/runtime\/__tests__\/studio-dev-preview-isolated-runtime-implementation-plan\.test\.js$/,
   /^scripts\/gates\/g423-studio-dev-preview-isolated-runtime-implementation-plan\.mjs$/,
