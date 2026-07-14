@@ -60,7 +60,12 @@ export const FORBIDDEN_SCOPE_PATTERNS = Object.freeze([
  * @type {RegExp[]}
  */
 export const KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS = Object.freeze([
-  // Studio Dev Preview Runtime UI Implementation Plan (this slice).
+  // Studio Dev Preview Runtime UI (this slice — first isolated UI runtime; .jsx is confined here).
+  /^src\/studio\/blueprint-engine\/dev-preview-runtime-ui\//,
+  /^src\/runtime\/__tests__\/studio-dev-preview-runtime-ui\.test\.js$/,
+  /^scripts\/gates\/g423-studio-dev-preview-runtime-ui\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-dev-preview-runtime-ui\//,
+  // Studio Dev Preview Runtime UI Implementation Plan (PR #471).
   /^src\/studio\/blueprint-engine\/dev-preview-runtime-ui-implementation-plan\//,
   /^src\/runtime\/__tests__\/studio-dev-preview-runtime-ui-implementation-plan\.test\.js$/,
   /^scripts\/gates\/g423-studio-dev-preview-runtime-ui-implementation-plan\.mjs$/,
