@@ -17,6 +17,7 @@ import {
   FORBIDDEN_SCOPE_PATTERNS,
   KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS,
   FORBIDDEN_BROAD_ALLOW_SOURCES,
+  STUDIO_SCOPE_GUARD_CONSUMER_GATES,
 } from '../../../scripts/gates/lib/studioScopeGovernanceRegistry.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -144,6 +145,36 @@ test('35. helper performs no mutation/side effect (report flags false)', () => {
 // ===== FORBIDDEN registry sanity (36-37) =====
 test('36. FORBIDDEN patterns are all RegExp and frozen', () => { assert.ok(Object.isFrozen(FORBIDDEN_SCOPE_PATTERNS)); assert.ok(FORBIDDEN_SCOPE_PATTERNS.every((re) => re instanceof RegExp)); });
 test('37. KNOWN_LATER patterns are all RegExp and frozen', () => { assert.ok(Object.isFrozen(KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS)); assert.ok(KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS.every((re) => re instanceof RegExp)); });
+
+// ===== Enterprise-chain gate coverage (C1-C12) =====
+const gateSrc = (rel) => (exists(rel) ? fs.readFileSync(path.join(ROOT, rel), 'utf8') : '');
+const consumesGuard = (rel) => /isKnownLaterStudioHeadlessArtifact|studioScopeGovernanceGuard/.test(gateSrc(rel));
+const scopeStrip = (rel) => strip(gateSrc(rel));
+
+test('C1. registry lists all 8 enterprise-chain consumer gates', () => assert.equal(STUDIO_SCOPE_GUARD_CONSUMER_GATES.length, 8));
+test('C2. every enterprise-chain gate consumes the central guard', () => {
+  const missing = STUDIO_SCOPE_GUARD_CONSUMER_GATES.filter((g) => !consumesGuard(g));
+  assert.deepEqual(missing, []);
+});
+test('C3. engine-foundation gate consumes guard', () => assert.ok(consumesGuard('scripts/gates/g423-studio-blueprint-engine-foundation.mjs')));
+test('C4. module-reference-planner gate consumes guard', () => assert.ok(consumesGuard('scripts/gates/g423-studio-blueprint-module-reference-planner.mjs')));
+test('C5. contract-certification gate consumes guard', () => assert.ok(consumesGuard('scripts/gates/g423-studio-blueprint-contract-certification.mjs')));
+test('C6. contract-hardening gate consumes guard', () => assert.ok(consumesGuard('scripts/gates/g423-studio-blueprint-contract-hardening.mjs')));
+test('C7. foundation-contracts gate consumes guard', () => assert.ok(consumesGuard('scripts/gates/g423-studio-foundation-contracts.mjs')));
+test('C8. empresas mirror gate consumes guard', () => assert.ok(consumesGuard('scripts/gates/g423-empresas-certified-blueprint-mirror-alignment-audit.mjs')));
+test('C9. empresas read-contract gate consumes guard', () => assert.ok(consumesGuard('scripts/gates/g423-empresas-local-read-contract-certification.mjs')));
+test('C10. studio-first-module-policy gate consumes guard', () => assert.ok(consumesGuard('scripts/gates/g423-studio-first-module-policy.mjs')));
+test('C11. engine-foundation TEST S16 consumes guard', () => assert.ok(/isKnownLaterStudioHeadlessArtifact/.test(gateSrc('src/runtime/__tests__/studio-blueprint-engine-foundation.test.js'))));
+test('C12. wired gates still keep a FORBIDDEN block (safety not removed) and never tolerate forbidden', () => {
+  // Each wired gate still has a FORBIDDEN/forbidden pattern list, and known-later can never
+  // release a forbidden path (forbidden wins in classify).
+  for (const g of STUDIO_SCOPE_GUARD_CONSUMER_GATES) {
+    const code = scopeStrip(g);
+    assert.ok(/FORBIDDEN|forbidden|AUTHORIZED|ALLOWED/.test(code), `${g} lost its scope block`);
+  }
+  assert.equal(isKnownLaterStudioHeadlessArtifact('src/modules/x.js'), false);
+  assert.equal(isKnownLaterStudioHeadlessArtifact('backend/x.js'), false);
+});
 
 // ===== Evidence docs (D1-D8) =====
 const DOCS = [

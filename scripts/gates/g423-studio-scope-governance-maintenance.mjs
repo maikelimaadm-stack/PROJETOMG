@@ -57,6 +57,22 @@ gate('G423-SGM — helper blocks productionUiGuard (no explicit auth)', cls('scr
 gate('G423-SGM — helper fails unknown path by default', cls('src/random/rogue.js') === 'unknown_scope');
 gate('G423-SGM — known later never becomes own_slice_allowed', cls('src/studio/blueprint-engine/module-preview-sandbox/index.js') !== 'own_slice_allowed');
 
+// Every enterprise-chain gate consumes the central guard (coverage).
+gate('G423-SGM — all enterprise-chain gates consume the central guard', (() => {
+  try {
+    const consumers = reg.STUDIO_SCOPE_GUARD_CONSUMER_GATES;
+    if (!Array.isArray(consumers) || consumers.length !== 8) return false;
+    return consumers.every((rel) => {
+      const p = path.join(ROOT, rel);
+      if (!fs.existsSync(p)) return false;
+      return /isKnownLaterStudioHeadlessArtifact|studioScopeGovernanceGuard/.test(fs.readFileSync(p, 'utf8'));
+    });
+  } catch { return false; }
+})());
+gate('G423-SGM — engine-foundation TEST S16 consumes guard', (() => {
+  try { return /isKnownLaterStudioHeadlessArtifact/.test(fs.readFileSync(path.join(ROOT, 'src/runtime/__tests__/studio-blueprint-engine-foundation.test.js'), 'utf8')); } catch { return false; }
+})());
+
 // Registry has no dangerous broad wildcard.
 gate('G423-SGM — registry has no broad wildcard in known-later', (() => {
   try {

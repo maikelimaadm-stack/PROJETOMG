@@ -11,9 +11,9 @@ Depois que esta PR de governança mergear na main:
 
 ## Adoção incremental
 
-Gates standalone remanescentes de slices anteriores que ainda não consomem o helper podem
-migrar incrementalmente, importando `isKnownLaterStudioHeadlessArtifact` e filtrando o
-`outside`. Nenhuma mudança de assert funcional é necessária.
+**Complemento PR #463:** todos os 8 gates standalone da cadeia enterprise atual já
+consomem o helper. Slices/gates futuros podem seguir o mesmo padrão de uma linha
+(`.filter((f) => !isKnownLaterStudioHeadlessArtifact(f))`), sem mudar assert funcional.
 
 ## Slices Studio headless futuros
 

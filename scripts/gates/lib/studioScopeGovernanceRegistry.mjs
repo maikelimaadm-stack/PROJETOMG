@@ -84,6 +84,28 @@ export const KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS = Object.freeze([
   /^src\/runtime\/__tests__\/studio-blueprint-engine-foundation\.test\.js$/,
   /^scripts\/gates\/g423-studio-blueprint-engine-foundation\.mjs$/,
   /^scripts\/gates\/g423-studio-blueprint-module-reference-planner\.mjs$/,
+  /^scripts\/gates\/g423-studio-blueprint-contract-certification\.mjs$/,
+  /^scripts\/gates\/g423-studio-blueprint-contract-hardening\.mjs$/,
+  /^scripts\/gates\/g423-studio-foundation-contracts\.mjs$/,
+  /^scripts\/gates\/g423-empresas-certified-blueprint-mirror-alignment-audit\.mjs$/,
+  /^scripts\/gates\/g423-empresas-local-read-contract-certification\.mjs$/,
+  /^scripts\/gates\/g423-studio-first-module-policy\.mjs$/,
+]);
+
+/**
+ * The full set of enterprise-chain gate files whose branch-relative scope checks consume
+ * the central guard. Used by the governance test/gate to prove coverage.
+ * @type {string[]}
+ */
+export const STUDIO_SCOPE_GUARD_CONSUMER_GATES = Object.freeze([
+  'scripts/gates/g423-studio-blueprint-engine-foundation.mjs',
+  'scripts/gates/g423-studio-blueprint-module-reference-planner.mjs',
+  'scripts/gates/g423-studio-blueprint-contract-certification.mjs',
+  'scripts/gates/g423-studio-blueprint-contract-hardening.mjs',
+  'scripts/gates/g423-studio-foundation-contracts.mjs',
+  'scripts/gates/g423-empresas-certified-blueprint-mirror-alignment-audit.mjs',
+  'scripts/gates/g423-empresas-local-read-contract-certification.mjs',
+  'scripts/gates/g423-studio-first-module-policy.mjs',
 ]);
 
 /** Path shapes that are structurally test/gate/evidence/package (used for reporting). */
