@@ -176,6 +176,54 @@ test('C12. wired gates still keep a FORBIDDEN block (safety not removed) and nev
   assert.equal(isKnownLaterStudioHeadlessArtifact('backend/x.js'), false);
 });
 
+// ===== Self-guard branch-relative tolerance (SG1-SG16) =====
+// Emulates the governance gate's self-guard exactly: outsideOwn = files not in OWN and not
+// known-later. Forbidden is checked separately (filterForbiddenScopePaths).
+const OWN = [
+  /^scripts\/gates\/lib\/studioScopeGovernance(Registry|Guard)\.mjs$/,
+  /^scripts\/gates\/g423-studio-scope-governance-maintenance\.mjs$/,
+  /^src\/runtime\/__tests__\/studio-scope-governance-maintenance\.test\.js$/,
+  /^docs\/evidence\/post-foundation-c-studio-scope-governance-maintenance\//,
+  /^package\.json$/, /^package-lock\.json$/,
+  /^src\/runtime\/__tests__\/[a-z0-9-]+\.test\.js$/,
+  /^scripts\/gates\/g423-[a-z0-9-]+\.mjs$/,
+];
+const selfGuard = (files) => {
+  const forbidden = filterForbiddenScopePaths(files);
+  const outsideOwn = files
+    .filter((f) => !OWN.some((re) => re.test(f)))
+    .filter((f) => !isKnownLaterStudioHeadlessArtifact(f));
+  return { forbidden, outsideOwn, ok: forbidden.length === 0 && outsideOwn.length === 0 };
+};
+const PREVIEW_ONLY = [
+  'src/studio/blueprint-engine/module-preview-sandbox/index.js',
+  'src/studio/blueprint-engine/module-preview-sandbox/createStudioModulePreviewSandboxContract.js',
+  'src/runtime/__tests__/studio-module-preview-sandbox-contract.test.js',
+  'scripts/gates/g423-studio-module-preview-sandbox-contract.mjs',
+  'docs/evidence/post-foundation-c-studio-module-preview-sandbox-contract/CERTIFICATION-REPORT.md',
+  'package.json',
+];
+
+test('SG1. self-guard tolerates the Preview Sandbox (#462) branch (known-later)', () => assert.equal(selfGuard(PREVIEW_ONLY).ok, true));
+test('SG2. self-guard: preview source not treated as outsideOwn', () => assert.ok(!selfGuard(PREVIEW_ONLY).outsideOwn.includes('src/studio/blueprint-engine/module-preview-sandbox/index.js')));
+test('SG3. self-guard blocks src/modules/studio', () => { const r = selfGuard([...PREVIEW_ONLY, 'src/modules/studio/foo.js']); assert.ok(r.ok === false && r.forbidden.includes('src/modules/studio/foo.js')); });
+test('SG4. self-guard blocks src/modules/empresas', () => assert.equal(selfGuard([...PREVIEW_ONLY, 'src/modules/empresas/foo.js']).ok, false));
+test('SG5. self-guard blocks backend', () => assert.equal(selfGuard([...PREVIEW_ONLY, 'backend/foo.js']).ok, false));
+test('SG6. self-guard blocks Prisma schema', () => assert.equal(selfGuard([...PREVIEW_ONLY, 'backend/prisma/schema.prisma']).ok, false));
+test('SG7. self-guard blocks migrations', () => assert.equal(selfGuard([...PREVIEW_ONLY, 'migrations/001.sql']).ok, false));
+test('SG8. self-guard blocks App.jsx', () => assert.equal(selfGuard([...PREVIEW_ONLY, 'src/App.jsx']).ok, false));
+test('SG9. self-guard blocks pages/components', () => assert.ok(selfGuard([...PREVIEW_ONLY, 'src/pages/Foo.jsx']).ok === false && selfGuard([...PREVIEW_ONLY, 'src/components/Foo.jsx']).ok === false));
+test('SG10. self-guard blocks productionUiGuard', () => assert.equal(selfGuard([...PREVIEW_ONLY, 'scripts/gates/lib/productionUiGuard.mjs']).ok, false));
+test('SG11. self-guard blocks unknown path (outsideOwn)', () => { const r = selfGuard([...PREVIEW_ONLY, 'src/rogue/random.js']); assert.ok(r.ok === false && r.outsideOwn.includes('src/rogue/random.js')); });
+test('SG12. self-guard: forbidden does not become warning (surfaces in forbidden)', () => assert.ok(selfGuard([...PREVIEW_ONLY, 'backend/x.js']).forbidden.includes('backend/x.js')));
+test('SG13. self-guard: unknown does not become warning (surfaces in outsideOwn)', () => assert.ok(selfGuard([...PREVIEW_ONLY, 'src/rogue/y.js']).outsideOwn.includes('src/rogue/y.js')));
+test('SG14. self-guard: known-later never own_slice_allowed', () => assert.notEqual(classifyStudioScopePath('src/studio/blueprint-engine/module-preview-sandbox/index.js'), 'own_slice_allowed'));
+test('SG15. governance gate file wires the self-guard with the central helper', () => {
+  const gate = fs.readFileSync(path.join(ROOT, 'scripts/gates/g423-studio-scope-governance-maintenance.mjs'), 'utf8');
+  assert.match(gate, /outsideOwn[\s\S]{0,160}isKnownLaterStudioHeadlessArtifact/);
+});
+test('SG16. self-guard deterministic', () => assert.deepEqual(selfGuard([...PREVIEW_ONLY]), selfGuard([...PREVIEW_ONLY].reverse())));
+
 // ===== Evidence docs (D1-D8) =====
 const DOCS = [
   'CERTIFICATION-REPORT.md', 'SCOPE-GOVERNANCE-REPORT.md', 'BRANCH-RELATIVE-SCOPE-ROOT-CAUSE.md',

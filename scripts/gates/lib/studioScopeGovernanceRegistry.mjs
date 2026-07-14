@@ -77,6 +77,7 @@ export const KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS = Object.freeze([
   /^scripts\/gates\/g423-studio-scope-governance-maintenance\.mjs$/,
   /^src\/runtime\/__tests__\/studio-scope-governance-maintenance\.test\.js$/,
   /^docs\/evidence\/post-foundation-c-studio-scope-governance-maintenance\//,
+  /^docs\/evidence\/post-foundation-c-studio-scope-governance-self-guard-fix\//,
   // Prior scope-check host files that THIS governance slice minimally wires to consume the
   // central guard (branch-relative scope check only — no functional/safety assert changed).
   // Enumerated explicitly (specific files, never a wildcard) so a sibling gate does not
