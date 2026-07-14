@@ -502,6 +502,48 @@ test('295. net-new scope is ui-contract only (branch-relative)', () => {
 });
 test('296. upstream isolated runtime present', () => assert.ok(exists('src/studio/blueprint-engine/dev-preview-isolated-runtime/index.js')));
 
+// ===== Extended coverage — contract parts deep invariants (297-336) =====
+test('297. node contract root is uiRoot', () => assert.equal(nodeC.root.nodeKind, 'uiRoot'));
+test('298. node contract all node kinds known', () => assert.equal(nodeC.allNodeKindsKnown, true));
+test('299. node contract no react element/jsx', () => { assert.equal(nodeC.reactElement, false); assert.equal(nodeC.jsx, false); });
+test('300. node contract no dom node / real css class / real handler', () => { assert.equal(nodeC.domNode, false); assert.equal(nodeC.requiredRealCssClass, false); assert.equal(nodeC.realHandler, false); });
+test('301. node kinds subset of UI_NODE_KINDS const', () => assert.ok(Object.isFrozen(UI_NODE_KINDS) && UI_NODE_KINDS.includes('uiRoot')));
+test('302. layout contract kind', () => assert.equal(layout.kind, 'runtime-ui-layout-contract'));
+test('303. layout contract no real css / tailwind / dom', () => { assert.equal(layout.realCss, false); assert.equal(layout.requiredTailwind, false); assert.equal(layout.dom, false); });
+test('304. component binding anyBindingAllowed false', () => assert.equal(compBind.anyBindingAllowed, false));
+test('305. component binding anyRealComponentPath false', () => assert.equal(compBind.anyRealComponentPath, false));
+test('306. component binding each realComponentPath null', () => assert.ok(compBind.bindings.every((b) => b.realComponentPath === null)));
+test('307. component binding no react/jsx/tsx/dom', () => assert.ok(compBind.bindings.every((b) => b.reactComponent === false && b.jsx === false && b.tsx === false && b.dom === false)));
+test('308. component binding each bindingAllowed false', () => assert.ok(compBind.bindings.every((b) => b.bindingAllowed === false)));
+test('309. interaction binding allBlockedNow', () => assert.equal(intBind.allBlockedNow, true));
+test('310. interaction binding anyHandlerCreated false', () => assert.equal(intBind.anyHandlerCreated, false));
+test('311. interaction binding anyMutationAllowed false', () => assert.equal(intBind.anyMutationAllowed, false));
+test('312. interaction binding requires future impl', () => assert.ok(intBind.interactions.every((i) => i.requiresFutureRuntimeImplementation === true)));
+test('313. interaction kinds frozen const', () => assert.ok(Object.isFrozen(INTERACTION_KINDS) && INTERACTION_KINDS.length >= 1));
+test('314. render boundary renderAllowed false', () => assert.equal(renderB.renderAllowed, false));
+test('315. render boundary no real render produced', () => assert.equal(renderB.realRenderProduced, false));
+test('316. render boundary virtual render contract produced', () => assert.equal(renderB.virtualRenderContractProduced, true));
+test('317. render boundary no react element/dom/css produced', () => { assert.equal(renderB.reactElementProduced, false); assert.equal(renderB.domProduced, false); assert.equal(renderB.cssProduced, false); });
+test('318. state projection no react-state/hooks', () => { assert.equal(stateP.reactState, false); assert.equal(stateP.hooks, false); });
+test('319. state projection no storage/persistence/dom', () => { assert.equal(stateP.storage, false); assert.equal(stateP.persistence, false); assert.equal(stateP.dom, false); });
+test('320. accessibility projection labels + announcements', () => { assert.equal(a11yP.labelsRequired, true); assert.equal(a11yP.blockedInteractionsAnnounced, true); });
+test('321. accessibility projection no dom / no real aria', () => { assert.equal(a11yP.domTouched, false); assert.equal(a11yP.setsRealAria, false); });
+test('322. theme projection >= 7 groups', () => assert.ok(themeP.groups.length >= 7));
+test('323. theme projection no real css / tailwind', () => { assert.equal(themeP.realCss, false); assert.equal(themeP.requiredTailwind, false); });
+test('324. theme projection no stylesheet / css runtime', () => { assert.equal(themeP.stylesheetCreated, false); assert.equal(themeP.cssRuntime, false); });
+test('325. frame mapping no react element / dom / css runtime', () => { assert.equal(mapping.reactElement, false); assert.equal(mapping.domNode, false); assert.equal(mapping.cssRuntime, false); });
+test('326. verifier detects reactComponentCreated', () => assert.ok(verifyRuntimeUiContract({ contract: { capabilities: { ...caps, reactComponentCreated: true } } }).blockers.includes('capability_reactComponentCreated_must_be_false')));
+test('327. verifier detects jsxCreated/tsxCreated', () => { const r = verifyRuntimeUiContract({ contract: { capabilities: { ...caps, jsxCreated: true, tsxCreated: true } } }); assert.ok(r.blockers.includes('capability_jsxCreated_must_be_false') && r.blockers.includes('capability_tsxCreated_must_be_false')); });
+test('328. verifier detects fetchUsed', () => assert.ok(verifyRuntimeUiContract({ contract: { capabilities: { ...caps, fetchUsed: true } } }).blockers.includes('capability_fetchUsed_must_be_false')));
+test('329. verifier detects production/staging access', () => { const r = verifyRuntimeUiContract({ contract: { capabilities: { ...caps, productionAccessed: true, stagingAccessed: true } } }); assert.ok(r.blockers.includes('capability_productionAccessed_must_be_false') && r.blockers.includes('capability_stagingAccessed_must_be_false')); });
+test('330. verifier detects moduleGenerated/registered/filesWritten', () => { const r = verifyRuntimeUiContract({ contract: { capabilities: { ...caps, moduleGenerated: true, moduleRegistered: true, filesWrittenToModule: true } } }); assert.ok(r.blockers.includes('capability_moduleGenerated_must_be_false') && r.blockers.includes('capability_moduleRegistered_must_be_false') && r.blockers.includes('capability_filesWrittenToModule_must_be_false')); });
+test('331. verifier detects rewriteEmpresas', () => assert.ok(verifyRuntimeUiContract({ contract: { capabilities: { ...caps, rewriteEmpresas: true } } }).blockers.includes('capability_rewriteEmpresas_must_be_false')));
+test('332. verifier detects real render produced', () => assert.ok(verifyRuntimeUiContract({ contract: { capabilities: caps, renderBoundary: { realRenderProduced: true } } }).blockers.includes('unsafe_real_render_produced')));
+test('333. verifier detects interaction mutation', () => assert.ok(verifyRuntimeUiContract({ contract: { capabilities: caps, interactionBinding: { anyMutationAllowed: true } } }).blockers.includes('unsafe_interaction_mutation')));
+test('334. verifier detects missing mustBeTrue flags', () => assert.ok(verifyRuntimeUiContract({ contract: { capabilities: { ...caps, headless: false } } }).blockers.includes('capability_headless_must_be_true')));
+test('335. verifier detects metadataOnly false', () => assert.ok(verifyRuntimeUiContract({ contract: { capabilities: caps, metadataOnly: false } }).blockers.includes('contract_must_be_metadata_only')));
+test('336. unsafe isolated runtime (dom node) input fail-closed', () => { const bad = createStudioDevPreviewRuntimeUiContract({ isolatedRuntime: { kind: 'other', domNode: true, fallback: false } }); assert.equal(bad.fallback, true); assert.equal(bad.readyForRuntimeUiContract, false); });
+
 // ===== Evidence docs (D1-D18) =====
 const DOCS = [
   'CERTIFICATION-REPORT.md', 'STUDIO-DEV-PREVIEW-RUNTIME-UI-CONTRACT-REPORT.md', 'CONTRACT-SESSION.md',

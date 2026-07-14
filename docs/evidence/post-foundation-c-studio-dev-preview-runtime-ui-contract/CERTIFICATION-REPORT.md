@@ -6,8 +6,8 @@
 
 ## Result
 - Status: **CERTIFIED (headless / contract-only)**
-- Test: `npm run test:runtime:studio-dev-preview-runtime-ui-contract` — 315 scenarios PASS
-- Gate: `npm run gate:g423-studio-dev-preview-runtime-ui-contract` — PASS
+- Test: `npm run test:runtime:studio-dev-preview-runtime-ui-contract` — 355 scenarios PASS (min 330)
+- Gate: `npm run gate:g423-studio-dev-preview-runtime-ui-contract` — 106/106 PASS
 - Blockers: 0 · Warnings: 0
 
 ## What this layer does

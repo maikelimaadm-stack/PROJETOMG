@@ -337,12 +337,15 @@ gate('G423-UIC — src/modules/studio does NOT exist', !exists(path.join(ROOT, '
 gate('G423-UIC — src/modules/clientes does NOT exist', !exists(path.join(ROOT, 'src/modules/clientes')));
 gate('G423-UIC — upstream isolated runtime present', exists(path.join(IR_DIR, 'index.js')));
 
-let testsOk = false;
+let testsOk = false; let testCount = 0;
 try {
-  execSync('node --test src/runtime/__tests__/studio-dev-preview-runtime-ui-contract.test.js', { cwd: ROOT, stdio: 'pipe', env: { ...process.env, NODE_ENV: 'test' } });
-  testsOk = true;
+  const out = execSync('node --test src/runtime/__tests__/studio-dev-preview-runtime-ui-contract.test.js', { cwd: ROOT, stdio: 'pipe', env: { ...process.env, NODE_ENV: 'test' } }).toString();
+  const mt = out.match(/# tests (\d+)/); const mp = out.match(/# pass (\d+)/); const mf = out.match(/# fail (\d+)/);
+  testCount = mt ? Number(mt[1]) : 0;
+  testsOk = mf ? Number(mf[1]) === 0 && mp && Number(mp[1]) === testCount : false;
 } catch (err) { if (err.stderr) console.error(String(err.stderr)); }
-gate('G423-UIC — runtime UI contract unit tests PASS', testsOk);
+gate('G423-UIC — runtime UI contract unit tests PASS', testsOk, `${testCount} scenarios`);
+gate('G423-UIC — unit test has >= 330 scenarios', testCount >= 330, `${testCount} scenarios (min 330)`);
 
 const failed = results.filter((r) => !r.ok);
 console.log('\n--- G423-STUDIO-DEV-PREVIEW-RUNTIME-UI-CONTRACT summary ---');
