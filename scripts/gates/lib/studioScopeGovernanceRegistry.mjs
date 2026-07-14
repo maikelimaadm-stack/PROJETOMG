@@ -60,7 +60,12 @@ export const FORBIDDEN_SCOPE_PATTERNS = Object.freeze([
  * @type {RegExp[]}
  */
 export const KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS = Object.freeze([
-  // Studio Dev Preview Runtime UI (this slice — first isolated UI runtime; .jsx is confined here).
+  // Studio Dev Preview Route/Menu Contract (this slice).
+  /^src\/studio\/blueprint-engine\/dev-preview-route-menu-contract\//,
+  /^src\/runtime\/__tests__\/studio-dev-preview-route-menu-contract\.test\.js$/,
+  /^scripts\/gates\/g423-studio-dev-preview-route-menu-contract\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-dev-preview-route-menu-contract\//,
+  // Studio Dev Preview Runtime UI (PR #472 — first isolated UI runtime; .jsx is confined here).
   /^src\/studio\/blueprint-engine\/dev-preview-runtime-ui\//,
   /^src\/runtime\/__tests__\/studio-dev-preview-runtime-ui\.test\.js$/,
   /^scripts\/gates\/g423-studio-dev-preview-runtime-ui\.mjs$/,
