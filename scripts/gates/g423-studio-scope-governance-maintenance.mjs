@@ -122,11 +122,47 @@ try {
     /^scripts\/gates\/g423-[a-z0-9-]+\.mjs$/,
   ];
   const forbidden = g.filterForbiddenScopePaths(files);
-  const outsideOwn = files.filter((f) => !OWN.some((re) => re.test(f)));
+  // Branch-relative self-guard checks may run on later Studio headless slices before merge.
+  // Known later Studio headless artifacts are tolerated here, but forbidden and unknown scopes still fail.
+  const outsideOwn = files
+    .filter((f) => !OWN.some((re) => re.test(f)))
+    .filter((f) => !g.isKnownLaterStudioHeadlessArtifact(f));
   noForbiddenChange = forbidden.length === 0 && outsideOwn.length === 0;
   ncDetail = noForbiddenChange ? `authorized-only (${files.length} files)` : `forbidden=${forbidden.join(',')}; outsideOwn=${outsideOwn.join(',')}`;
 } catch (err) { noForbiddenChange = true; ncDetail = `git base unavailable — skipped (${err instanceof Error ? err.message : String(err)})`; }
 gate('G423-SGM — this PR changed no forbidden path (git-diff self-guard)', noForbiddenChange, ncDetail);
+
+// Self-guard tolerates known-later while blocking forbidden/unknown (branch-relative safety).
+gate('G423-SGM — self-guard tolerates known-later but blocks forbidden/unknown', (() => {
+  try {
+    const OWN_RE = [
+      /^scripts\/gates\/lib\/studioScopeGovernance(Registry|Guard)\.mjs$/,
+      /^scripts\/gates\/g423-studio-scope-governance-maintenance\.mjs$/,
+      /^src\/runtime\/__tests__\/studio-scope-governance-maintenance\.test\.js$/,
+      /^docs\/evidence\/post-foundation-c-studio-scope-governance-maintenance\//,
+      /^package\.json$/, /^package-lock\.json$/,
+      /^src\/runtime\/__tests__\/[a-z0-9-]+\.test\.js$/,
+      /^scripts\/gates\/g423-[a-z0-9-]+\.mjs$/,
+    ];
+    const sg = (files) => {
+      const forbidden = g.filterForbiddenScopePaths(files);
+      const outsideOwn = files.filter((f) => !OWN_RE.some((re) => re.test(f))).filter((f) => !g.isKnownLaterStudioHeadlessArtifact(f));
+      return forbidden.length === 0 && outsideOwn.length === 0;
+    };
+    const preview = ['src/studio/blueprint-engine/module-preview-sandbox/index.js', 'docs/evidence/post-foundation-c-studio-module-preview-sandbox-contract/CERTIFICATION-REPORT.md'];
+    return sg(preview) === true
+      && sg([...preview, 'src/modules/x.js']) === false
+      && sg([...preview, 'backend/x.js']) === false
+      && sg([...preview, 'src/App.jsx']) === false
+      && sg([...preview, 'src/rogue/unknown.js']) === false;
+  } catch { return false; }
+})());
+gate('G423-SGM — self-guard wired to central helper (not a raw outsideOwn)', (() => {
+  try {
+    const src = fs.readFileSync(path.join(ROOT, 'scripts/gates/g423-studio-scope-governance-maintenance.mjs'), 'utf8');
+    return /outsideOwn[\s\S]{0,160}isKnownLaterStudioHeadlessArtifact/.test(src);
+  } catch { return false; }
+})());
 
 gate('G423-SGM — src/modules not changed', !exists('src/modules/studio') && !exists('src/modules/combustivel') && !exists('src/modules/fuel'));
 gate('G423-SGM — productionUiGuard not changed by this PR', (() => {
