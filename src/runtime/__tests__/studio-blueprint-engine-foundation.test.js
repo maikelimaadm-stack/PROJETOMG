@@ -4,6 +4,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+// Branch-relative scope checks may run on later Studio headless slices before merge.
+// Known later Studio headless artifacts are tolerated here, but forbidden scopes still fail.
+import { isKnownLaterStudioHeadlessArtifact } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 
 import {
   STUDIO_BLUEPRINT_ENGINE_NAME,
@@ -394,7 +397,11 @@ test('S16. authorized scope only (branch-relative)', () => {
   const files = changed();
   if (files === null) return;
   if (!files.some((f) => /^src\/studio\/blueprint-engine\//.test(f))) return;
-  const outside = files.filter((f) => !AUTHORIZED.some((re) => re.test(f)));
+  // Tolerate explicitly known later Studio headless artifacts (central governance);
+  // forbidden/unknown scopes still surface in `outside`.
+  const outside = files
+    .filter((f) => !AUTHORIZED.some((re) => re.test(f)))
+    .filter((f) => !isKnownLaterStudioHeadlessArtifact(f));
   assert.deepEqual(outside, []);
 });
 

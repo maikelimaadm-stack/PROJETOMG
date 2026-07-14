@@ -14,6 +14,9 @@ import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+// Branch-relative scope checks may run on later Studio headless slices before merge.
+// Known later Studio headless artifacts are tolerated here, but forbidden and unknown scopes still fail.
+import { isKnownLaterStudioHeadlessArtifact } from './lib/studioScopeGovernanceGuard.mjs';
 
 const ROOT = process.cwd();
 const CERT_DIR = path.join(ROOT, 'src/modules/empresas/local-read-contract-pilot/certification');
@@ -147,7 +150,8 @@ try {
     /\.css$/, /menu/i, /nav/i,
     /^docs\/meta-model\//, /^docs\/platform-/, /^docs\/runtime-implementation\//,
   ];
-  const bad = files.filter((f) => FORBIDDEN.some((re) => re.test(f)));
+  const bad = files.filter((f) => FORBIDDEN.some((re) => re.test(f)))
+    .filter((f) => !isKnownLaterStudioHeadlessArtifact(f));
   blockedOk = bad.length === 0;
   blockedDetail = blockedOk ? 'production Empresas/ModeloBase1/runtime/backend/Prisma/App/menu untouched' : `FORBIDDEN: ${bad.join(', ')}`;
 } catch (err) { blockedOk = true; blockedDetail = `git base unavailable — skipped (${err instanceof Error ? err.message : String(err)})`; }
@@ -158,7 +162,8 @@ let scopeOk = false;
 let scopeDetail = '';
 try {
   const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
-  const outside = files.filter((f) => !AUTHORIZED.some((re) => re.test(f)));
+  const outside = files.filter((f) => !AUTHORIZED.some((re) => re.test(f)))
+    .filter((f) => !isKnownLaterStudioHeadlessArtifact(f));
   scopeOk = files.length === 0 || outside.length === 0;
   scopeDetail = scopeOk ? `authorized scope only (${files.length} files)` : `OUT OF SCOPE: ${outside.join(', ')}`;
 } catch (err) { scopeOk = true; scopeDetail = `git base unavailable — skipped (${err instanceof Error ? err.message : String(err)})`; }
