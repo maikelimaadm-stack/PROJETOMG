@@ -60,7 +60,12 @@ export const FORBIDDEN_SCOPE_PATTERNS = Object.freeze([
  * @type {RegExp[]}
  */
 export const KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS = Object.freeze([
-  // Studio Dev Preview Contract Bridge (this slice).
+  // Studio Dev Preview Visual Contract (this slice).
+  /^src\/studio\/blueprint-engine\/dev-preview-visual-contract\//,
+  /^src\/runtime\/__tests__\/studio-dev-preview-visual-contract\.test\.js$/,
+  /^scripts\/gates\/g423-studio-dev-preview-visual-contract\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-dev-preview-visual-contract\//,
+  // Studio Dev Preview Contract Bridge (PR #465).
   /^src\/studio\/blueprint-engine\/dev-preview-contract-bridge\//,
   /^src\/runtime\/__tests__\/studio-dev-preview-contract-bridge\.test\.js$/,
   /^scripts\/gates\/g423-studio-dev-preview-contract-bridge\.mjs$/,
