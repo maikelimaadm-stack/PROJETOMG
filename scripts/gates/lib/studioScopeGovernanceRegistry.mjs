@@ -60,7 +60,12 @@ export const FORBIDDEN_SCOPE_PATTERNS = Object.freeze([
  * @type {RegExp[]}
  */
 export const KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS = Object.freeze([
-  // Studio Dev Preview Route/Menu Contract (this slice).
+  // Studio Dev Preview Route/Menu Implementation Plan (this slice).
+  /^src\/studio\/blueprint-engine\/dev-preview-route-menu-implementation-plan\//,
+  /^src\/runtime\/__tests__\/studio-dev-preview-route-menu-implementation-plan\.test\.js$/,
+  /^scripts\/gates\/g423-studio-dev-preview-route-menu-implementation-plan\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-dev-preview-route-menu-implementation-plan\//,
+  // Studio Dev Preview Route/Menu Contract (PR #473).
   /^src\/studio\/blueprint-engine\/dev-preview-route-menu-contract\//,
   /^src\/runtime\/__tests__\/studio-dev-preview-route-menu-contract\.test\.js$/,
   /^scripts\/gates\/g423-studio-dev-preview-route-menu-contract\.mjs$/,
