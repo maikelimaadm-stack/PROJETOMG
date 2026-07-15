@@ -60,7 +60,12 @@ export const FORBIDDEN_SCOPE_PATTERNS = Object.freeze([
  * @type {RegExp[]}
  */
 export const KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS = Object.freeze([
-  // Studio Dev Preview Route/Menu — first isolated dev-only route/menu runtime (this slice).
+  // Studio Dev Preview App Integration Contract — headless contract-only (this slice).
+  /^src\/studio\/blueprint-engine\/dev-preview-app-integration-contract\//,
+  /^src\/runtime\/__tests__\/studio-dev-preview-app-integration-contract\.test\.js$/,
+  /^scripts\/gates\/g423-studio-dev-preview-app-integration-contract\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-dev-preview-app-integration-contract\//,
+  // Studio Dev Preview Route/Menu — first isolated dev-only route/menu runtime (PR #475).
   /^src\/studio\/blueprint-engine\/dev-preview-route-menu\//,
   /^src\/runtime\/__tests__\/studio-dev-preview-route-menu\.test\.js$/,
   /^scripts\/gates\/g423-studio-dev-preview-route-menu\.mjs$/,
