@@ -60,7 +60,12 @@ export const FORBIDDEN_SCOPE_PATTERNS = Object.freeze([
  * @type {RegExp[]}
  */
 export const KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS = Object.freeze([
-  // Studio Dev Preview App Integration Contract — headless contract-only (this slice).
+  // Studio Dev Preview App Integration Implementation Plan — headless plan-only (this slice).
+  /^src\/studio\/blueprint-engine\/dev-preview-app-integration-implementation-plan\//,
+  /^src\/runtime\/__tests__\/studio-dev-preview-app-integration-implementation-plan\.test\.js$/,
+  /^scripts\/gates\/g423-studio-dev-preview-app-integration-implementation-plan\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-dev-preview-app-integration-implementation-plan\//,
+  // Studio Dev Preview App Integration Contract — headless contract-only (PR #476).
   /^src\/studio\/blueprint-engine\/dev-preview-app-integration-contract\//,
   /^src\/runtime\/__tests__\/studio-dev-preview-app-integration-contract\.test\.js$/,
   /^scripts\/gates\/g423-studio-dev-preview-app-integration-contract\.mjs$/,
