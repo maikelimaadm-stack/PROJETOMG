@@ -148,7 +148,7 @@ function moduleBetaChangeIsAuthorized(ROOT, file) {
   return true;
 }
 
-const DEV_ROUTE_MARKER = /RuntimeV2DevPreview|RUNTIME_V2_DEV_PREVIEW_ROUTE|shouldMountRuntimeV2DevPreviewRoute|__dev\/runtime-v2\/previews|DEV-ONLY: runtime v2|ModeloBase2FuelDevPreview|MODELOBASE2_FUEL_DEV_PREVIEW_ROUTE|shouldMountModeloBase2FuelDevPreviewRoute|__dev\/modelobase2\/fuel|DEV-ONLY: ModeloBase2 fuel/;
+const DEV_ROUTE_MARKER = /RuntimeV2DevPreview|RUNTIME_V2_DEV_PREVIEW_ROUTE|shouldMountRuntimeV2DevPreviewRoute|__dev\/runtime-v2\/previews|DEV-ONLY: runtime v2|ModeloBase2FuelDevPreview|MODELOBASE2_FUEL_DEV_PREVIEW_ROUTE|shouldMountModeloBase2FuelDevPreviewRoute|__dev\/modelobase2\/fuel|DEV-ONLY: ModeloBase2 fuel|StudioDevPreviewAppRoute|STUDIO_DEV_PREVIEW_ROUTE_PATH|shouldMountStudioDevPreviewRoute|__dev\/studio\/preview|DEV-ONLY: Studio dev preview|dev-preview-app-integration/;
 const FORBIDDEN = /prisma|PrismaClient|\/backend\/|\bfetch\s*\(|localStorage|sessionStorage|indexedDB|addMenuItem|navItems|menu\.push/i;
 
 /**
@@ -175,7 +175,7 @@ function appJsxChangeIsOnlyDevRouteMount(ROOT) {
   for (const a of added) {
     if (FORBIDDEN.test(a)) return false;
     // Any added route path must be a sanctioned dev-only path — never a new production route.
-    if (/path\s*[=:]/.test(a) && !/RUNTIME_V2_DEV_PREVIEW_ROUTE_PATH|__dev\/runtime-v2\/previews|MODELOBASE2_FUEL_DEV_PREVIEW_ROUTE_PATH|__dev\/modelobase2\/fuel/.test(a)) return false;
+    if (/path\s*[=:]/.test(a) && !/RUNTIME_V2_DEV_PREVIEW_ROUTE_PATH|__dev\/runtime-v2\/previews|MODELOBASE2_FUEL_DEV_PREVIEW_ROUTE_PATH|__dev\/modelobase2\/fuel|STUDIO_DEV_PREVIEW_ROUTE_PATH|__dev\/studio\/preview/.test(a)) return false;
     if (DEV_ROUTE_MARKER.test(a)) sawMarker = true;
   }
   return sawMarker;

@@ -60,7 +60,15 @@ export const FORBIDDEN_SCOPE_PATTERNS = Object.freeze([
  * @type {RegExp[]}
  */
 export const KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS = Object.freeze([
-  // Studio Dev Preview App Integration Implementation Plan — headless plan-only (this slice).
+  // Studio Dev Preview App Integration — minimal dev-only App mount (this slice). App.jsx and
+  // productionUiGuard.mjs are NOT listed here (forbidden always wins); they are authorized for THIS
+  // slice ONLY via the guard's explicitlyAuthorizedForbidden mechanism — see
+  // STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN below.
+  /^src\/studio\/blueprint-engine\/dev-preview-app-integration\//,
+  /^src\/runtime\/__tests__\/studio-dev-preview-app-integration\.test\.js$/,
+  /^scripts\/gates\/g423-studio-dev-preview-app-integration\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-dev-preview-app-integration\//,
+  // Studio Dev Preview App Integration Implementation Plan — headless plan-only (PR #477).
   /^src\/studio\/blueprint-engine\/dev-preview-app-integration-implementation-plan\//,
   /^src\/runtime\/__tests__\/studio-dev-preview-app-integration-implementation-plan\.test\.js$/,
   /^scripts\/gates\/g423-studio-dev-preview-app-integration-implementation-plan\.mjs$/,
@@ -172,6 +180,21 @@ export const STUDIO_SCOPE_GUARD_CONSUMER_GATES = Object.freeze([
   'scripts/gates/g423-empresas-certified-blueprint-mirror-alignment-audit.mjs',
   'scripts/gates/g423-empresas-local-read-contract-certification.mjs',
   'scripts/gates/g423-studio-first-module-policy.mjs',
+]);
+
+/**
+ * Forbidden paths the CURRENT slice (Studio Dev Preview App Integration) explicitly authorizes for
+ * its OWN gate — passed as `explicitlyAuthorizedForbidden` to `classifyStudioScopePath`. This is the
+ * ONLY sanctioned way a forbidden path (App.jsx / productionUiGuard) is tolerated, and ONLY for this
+ * slice's own gate: `src/App.jsx` receives the minimal additive dev-only route mount, and
+ * `scripts/gates/lib/productionUiGuard.mjs` receives the additive Studio dev-route marker. It never
+ * relaxes protection for any other path, and prior slices' gates (which pass no such option) still
+ * treat both as forbidden. Specific files only — never a broad wildcard.
+ * @type {RegExp[]}
+ */
+export const STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN = Object.freeze([
+  /^src\/App\.jsx$/,
+  /^scripts\/gates\/lib\/productionUiGuard\.mjs$/,
 ]);
 
 /** Path shapes that are structurally test/gate/evidence/package (used for reporting). */
