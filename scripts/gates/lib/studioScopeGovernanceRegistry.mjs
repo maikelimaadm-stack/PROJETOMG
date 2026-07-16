@@ -60,6 +60,12 @@ export const FORBIDDEN_SCOPE_PATTERNS = Object.freeze([
  * @type {RegExp[]}
  */
 export const KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS = Object.freeze([
+  // Studio Module Blueprint Authoring Foundation Contract — headless contract-only foundation for
+  // future Module Blueprint authoring (no runtime/UI/editor/module/persistence/product exposure).
+  /^src\/studio\/blueprint-engine\/module-blueprint-authoring-foundation-contract\//,
+  /^src\/runtime\/__tests__\/studio-module-blueprint-authoring-foundation-contract\.test\.js$/,
+  /^scripts\/gates\/g423-studio-module-blueprint-authoring-foundation-contract\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-module-blueprint-authoring-foundation-contract\//,
   // Studio Dev Preview App Integration — minimal dev-only App mount (this slice). App.jsx and
   // productionUiGuard.mjs are NOT listed here (forbidden always wins); they are authorized for THIS
   // slice ONLY via the guard's explicitlyAuthorizedForbidden mechanism — see
