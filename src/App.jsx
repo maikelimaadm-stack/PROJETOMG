@@ -19,10 +19,16 @@ import { shouldMountRuntimeV2DevPreviewRoute } from "@/runtime/preview/dev/route
 import { RUNTIME_V2_DEV_PREVIEW_ROUTE_PATH } from "@/runtime/preview/dev/route/devPreviewRouteConfig.js";
 // DEV-ONLY: ModeloBase2 fuel preview route mount gate + path (dev-only, flag-protected, fail-closed in production, not in the menu).
 import { shouldMountModeloBase2FuelDevPreviewRoute, MODELOBASE2_FUEL_DEV_PREVIEW_ROUTE_PATH } from "@/ModeloBase2/fuel-ui-sandbox/dev-preview/modeloBase2FuelDevPreviewConfig.js";
+// DEV-ONLY: Studio dev preview route mount gate + path (dev-only, flag + checkpoint protected, fail-closed in production/staging, not in the menu; lazy chunk stripped from the production build).
+import { shouldMountStudioDevPreviewRoute, STUDIO_DEV_PREVIEW_ROUTE_PATH } from "@/studio/blueprint-engine/dev-preview-app-integration/appIntegrationConfig.js";
 
 const generatedPageLoaders = import.meta.glob("/src/modules/*/pages/PAG*.jsx");
 const RuntimeV2DevPreviewRoute = lazy(() => import("@/runtime/preview/dev/route/RuntimeV2DevPreviewRoute.jsx"));
 const ModeloBase2FuelDevPreviewRoute = lazy(() => import("@/ModeloBase2/fuel-ui-sandbox/dev-preview/ModeloBase2FuelDevPreviewRoute.jsx"));
+// DEV-ONLY: build-time `import.meta.env.DEV` guard so the production bundle strips the Studio dev preview chunk entirely (no chunk emitted in production).
+const StudioDevPreviewAppRoute = import.meta.env.DEV
+  ? lazy(() => import("@/studio/blueprint-engine/dev-preview-app-integration/StudioDevPreviewAppBoundary.jsx"))
+  : null;
 const EmpresasPage = lazy(() => import("@/modules/empresas/pages/PAGEMP"));
 const BosHomePage = lazy(() => import("@/bos/pages/BosHomePage"));
 const BusinessFirstPage = lazy(() => import("@/bos/pages/BusinessFirstPage"));
@@ -267,6 +273,16 @@ const AuthenticatedApp = () => {
           element={
             <Suspense fallback={<ModuleLoadingFallback />}>
               <ModeloBase2FuelDevPreviewRoute />
+            </Suspense>
+          }
+        />
+      )}
+      {StudioDevPreviewAppRoute && shouldMountStudioDevPreviewRoute() && (
+        <Route
+          path={STUDIO_DEV_PREVIEW_ROUTE_PATH}
+          element={
+            <Suspense fallback={<ModuleLoadingFallback />}>
+              <StudioDevPreviewAppRoute />
             </Suspense>
           }
         />
