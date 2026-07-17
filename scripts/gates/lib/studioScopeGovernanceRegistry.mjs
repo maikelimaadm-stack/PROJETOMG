@@ -60,6 +60,12 @@ export const FORBIDDEN_SCOPE_PATTERNS = Object.freeze([
  * @type {RegExp[]}
  */
 export const KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS = Object.freeze([
+  // Studio Module Blueprint Authoring Runtime — headless, synthetic, in-memory, deterministic,
+  // immutable, fail-closed authoring runtime (no UI/editor/persistence/module/backend/product exposure).
+  /^src\/studio\/blueprint-engine\/module-blueprint-authoring-runtime\//,
+  /^src\/runtime\/__tests__\/studio-module-blueprint-authoring-runtime\.test\.js$/,
+  /^scripts\/gates\/g423-studio-module-blueprint-authoring-runtime\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-module-blueprint-authoring-runtime\//,
   // Studio Module Blueprint Authoring Implementation Plan — headless plan-only plan for a future
   // authoring runtime (no runtime/UI/editor/module/persistence/product exposure).
   /^src\/studio\/blueprint-engine\/module-blueprint-authoring-implementation-plan\//,
