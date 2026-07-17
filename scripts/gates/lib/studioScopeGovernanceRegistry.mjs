@@ -60,6 +60,14 @@ export const FORBIDDEN_SCOPE_PATTERNS = Object.freeze([
  * @type {RegExp[]}
  */
 export const KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS = Object.freeze([
+  // Studio Authoring Runtime-to-Preview Bridge Contract — headless, contract-only, metadata-only,
+  // synthetic-only, deterministic, fail-closed bridge contract between the Authoring Runtime's
+  // synthetic_preview_candidate handoff and the Module Preview Sandbox contract (no bridge/adapter/
+  // payload/mount/UI/persistence/backend/module/certification/product exposure implemented).
+  /^src\/studio\/blueprint-engine\/authoring-runtime-to-preview-bridge-contract\//,
+  /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge-contract\.test\.js$/,
+  /^scripts\/gates\/g423-studio-authoring-runtime-to-preview-bridge-contract\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-authoring-runtime-to-preview-bridge-contract\//,
   // Studio Module Blueprint Authoring Runtime — headless, synthetic, in-memory, deterministic,
   // immutable, fail-closed authoring runtime (no UI/editor/persistence/module/backend/product exposure).
   /^src\/studio\/blueprint-engine\/module-blueprint-authoring-runtime\//,
