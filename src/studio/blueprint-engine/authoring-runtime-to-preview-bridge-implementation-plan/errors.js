@@ -1,0 +1,112 @@
+/**
+ * Error catalog + safe error descriptor for the bridge implementation plan. Descriptors are pure data:
+ * sanitized, side-effect-free, and never carry secrets or authorize anything real.
+ */
+
+export const BRIDGE_IMPLEMENTATION_PLAN_ERROR_CODES = Object.freeze([
+  'BRIDGE_PLAN_INVALID_OPTIONS',
+  'BRIDGE_PLAN_INVALID_BRIDGE_CONTRACT',
+  'BRIDGE_PLAN_MISSING_BRIDGE_CONTRACT',
+  'BRIDGE_PLAN_FALLBACK_BRIDGE_CONTRACT',
+  'BRIDGE_PLAN_INVALID_AUTHORING_RUNTIME',
+  'BRIDGE_PLAN_INVALID_PREVIEW_SANDBOX_CONTRACT',
+  'BRIDGE_PLAN_PHASE_IMPLEMENTED_UNSAFE',
+  'BRIDGE_PLAN_PHASE_COMPLETED_UNSAFE',
+  'BRIDGE_PLAN_BRIDGE_IMPLEMENTED_UNSAFE',
+  'BRIDGE_PLAN_ADAPTER_IMPLEMENTED_UNSAFE',
+  'BRIDGE_PLAN_SOURCE_VALIDATION_IMPLEMENTED_UNSAFE',
+  'BRIDGE_PLAN_DRAFT_IDENTITY_ENFORCEMENT_IMPLEMENTED_UNSAFE',
+  'BRIDGE_PLAN_SOURCE_VERSION_VALIDATION_IMPLEMENTED_UNSAFE',
+  'BRIDGE_PLAN_SOURCE_DIGEST_VALIDATION_IMPLEMENTED_UNSAFE',
+  'BRIDGE_PLAN_SOURCE_BOUNDARY_VALIDATION_IMPLEMENTED_UNSAFE',
+  'BRIDGE_PLAN_MAPPING_EXECUTOR_IMPLEMENTED_UNSAFE',
+  'BRIDGE_PLAN_TARGET_DESCRIPTOR_BUILDER_IMPLEMENTED_UNSAFE',
+  'BRIDGE_PLAN_TARGET_VERSION_VALIDATION_IMPLEMENTED_UNSAFE',
+  'BRIDGE_PLAN_CANONICALIZATION_VALIDATION_IMPLEMENTED_UNSAFE',
+  'BRIDGE_PLAN_EXTENSIBILITY_ENFORCEMENT_IMPLEMENTED_UNSAFE',
+  'BRIDGE_PLAN_VALIDATION_PIPELINE_IMPLEMENTED_UNSAFE',
+  'BRIDGE_PLAN_REPLAY_IDEMPOTENCY_IMPLEMENTED_UNSAFE',
+  'BRIDGE_PLAN_RESOURCE_LIMITS_IMPLEMENTED_UNSAFE',
+  'BRIDGE_PLAN_FAILURE_CONTAINMENT_IMPLEMENTED_UNSAFE',
+  'BRIDGE_PLAN_TARGET_PAYLOAD_CREATED_UNSAFE',
+  'BRIDGE_PLAN_PREVIEW_MOUNTED_UNSAFE',
+  'BRIDGE_PLAN_APP_TOUCHED_UNSAFE',
+  'BRIDGE_PLAN_ROUTE_CREATED_UNSAFE',
+  'BRIDGE_PLAN_MENU_CREATED_UNSAFE',
+  'BRIDGE_PLAN_SIDEBAR_CREATED_UNSAFE',
+  'BRIDGE_PLAN_PERSISTENCE_UNSAFE',
+  'BRIDGE_PLAN_FILESYSTEM_WRITE_UNSAFE',
+  'BRIDGE_PLAN_BACKEND_ACCESS_UNSAFE',
+  'BRIDGE_PLAN_PRISMA_ACCESS_UNSAFE',
+  'BRIDGE_PLAN_FETCH_UNSAFE',
+  'BRIDGE_PLAN_NETWORK_UNSAFE',
+  'BRIDGE_PLAN_REAL_DATA_READ_UNSAFE',
+  'BRIDGE_PLAN_REAL_DATA_WRITE_UNSAFE',
+  'BRIDGE_PLAN_MODULE_GENERATION_UNSAFE',
+  'BRIDGE_PLAN_MODULE_REGISTRATION_UNSAFE',
+  'BRIDGE_PLAN_CERTIFICATION_UNSAFE',
+  'BRIDGE_PLAN_SELF_CERTIFICATION_UNSAFE',
+  'BRIDGE_PLAN_CANDIDATE_CANONICAL_UNSAFE',
+  'BRIDGE_PLAN_PRODUCT_EXPOSURE_UNSAFE',
+  'BRIDGE_PLAN_PRODUCTION_ACCESS_UNSAFE',
+  'BRIDGE_PLAN_STAGING_ACCESS_UNSAFE',
+  'BRIDGE_PLAN_PROTOTYPE_RELINK_UNSAFE',
+  'BRIDGE_PLAN_PERMISSION_MODEL_INTEGRATED_UNSAFE',
+  'BRIDGE_PLAN_TENANT_MODEL_INTEGRATED_UNSAFE',
+  'BRIDGE_PLAN_SERVER_AUTHORIZATION_INTEGRATED_UNSAFE',
+  'BRIDGE_PLAN_DRAFT_IDENTITY_NON_STRICT_UNSAFE',
+  'BRIDGE_PLAN_SINGLE_DRAFT_FALLBACK_UNSAFE',
+  'BRIDGE_PLAN_UNKNOWN_RESOURCE_DIMENSION_UNSAFE',
+  'BRIDGE_PLAN_PERMISSIVE_VERSION_UNSAFE',
+  'BRIDGE_PLAN_DIGEST_TREATED_AS_CRYPTOGRAPHIC_UNSAFE',
+  'BRIDGE_PLAN_CRITICAL_DEFAULT_UNSAFE',
+  'BRIDGE_PLAN_LOSSY_CRITICAL_MAPPING_UNSAFE',
+  'BRIDGE_PLAN_UNKNOWN_CRITICAL_FIELD_UNSAFE',
+  'BRIDGE_PLAN_EXTENSION_OVERRIDE_UNSAFE',
+  'BRIDGE_PLAN_SSOT_INVERSION_UNSAFE',
+  'BRIDGE_PLAN_MISSING_MANUAL_GATE',
+  'BRIDGE_PLAN_NONDETERMINISM_UNSAFE',
+]);
+
+const CODE_SET = new Set(BRIDGE_IMPLEMENTATION_PLAN_ERROR_CODES);
+
+/** @param {string} code @returns {boolean} */
+export function isBridgeImplementationPlanErrorCode(code) {
+  return CODE_SET.has(code);
+}
+
+export class BridgeImplementationPlanError extends Error {
+  /** @param {string} code @param {string} [message] @param {Record<string, unknown>} [meta] */
+  constructor(code, message, meta) {
+    super(message || code);
+    this.name = 'BridgeImplementationPlanError';
+    this.code = isBridgeImplementationPlanErrorCode(code) ? code : 'BRIDGE_PLAN_INVALID_OPTIONS';
+    this.meta = meta && typeof meta === 'object' ? { ...meta } : {};
+  }
+}
+
+/**
+ * Builds a SANITIZED, side-effect-free error descriptor (never certifies, reads real data, or persists).
+ * @param {string} code @param {Object} [options] @returns {Object}
+ */
+export function createBridgeImplementationPlanError(code, options = {}) {
+  const o = options && typeof options === 'object' ? options : {};
+  const safeCode = isBridgeImplementationPlanErrorCode(code) ? code : 'BRIDGE_PLAN_INVALID_OPTIONS';
+  return Object.freeze({
+    kind: 'bridge-implementation-plan-error',
+    code: safeCode,
+    message: typeof o.message === 'string' && o.message.length > 0 ? o.message : safeCode,
+    safe: true,
+    sideEffects: false,
+    certificationPerformed: false,
+    realDataRead: false,
+    persisted: false,
+  });
+}
+
+/** @param {string} code @param {string} [message] @param {Record<string, unknown>} [meta] */
+export function bridgeImplementationPlanError(code, message, meta) {
+  return new BridgeImplementationPlanError(code, message, meta);
+}
+
+export default BridgeImplementationPlanError;
