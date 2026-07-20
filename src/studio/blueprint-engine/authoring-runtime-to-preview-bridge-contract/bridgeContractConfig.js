@@ -42,25 +42,63 @@ export const SOURCE_HANDOFF_KIND = 'synthetic_preview_candidate';
 /** The target descriptor kind this bridge would emit. */
 export const TARGET_SANDBOX_KIND = 'module_preview_sandbox_candidate';
 
-/** Critical fields that MUST be present on a valid source handoff (mapping is lossless). */
-export const CRITICAL_SOURCE_FIELDS = Object.freeze([
-  'handoffKind', 'draftId', 'draftRevision', 'draftDigest', 'runtimeVersion', 'upstreamVersions',
-  'synthetic', 'immutable', 'validated', 'payload', 'digest',
+/**
+ * The EXACT field names the real Authoring Runtime `createSyntheticPreviewHandoff` emits. This is the
+ * source of truth every source field / mapping is validated against; there are NO invented aliases. The
+ * real handoff exposes explicit version fields (`handoffVersion`/`runtimeVersion`/`targetSandboxVersion`)
+ * and a `handoffDigest` — it does NOT expose an aggregated `upstreamVersions` field nor a generic `digest`.
+ */
+export const REAL_HANDOFF_FIELDS = Object.freeze([
+  'kind', 'handoffKind', 'handoffVersion', 'runtimeVersion', 'targetSandboxVersion', 'draftId',
+  'draftRevision', 'draftDigest', 'synthetic', 'immutable', 'validated', 'previewPayloadCreated',
+  'previewMounted', 'realDataAttached', 'routeCreated', 'menuCreated', 'productExposed', 'payload', 'ok',
+  'handoffDigest',
 ]);
 
-/** The mapped fields (source -> target), in fixed deterministic order. */
+/** Source-field names that MUST NOT appear (removed legacy aliases that the real handoff never emits). */
+export const FORBIDDEN_LEGACY_SOURCE_FIELDS = Object.freeze(['upstreamVersions', 'digest']);
+
+/** Required fields a valid source handoff MUST carry (all real, all present in REAL_HANDOFF_FIELDS). */
+export const SOURCE_HANDOFF_REQUIRED_FIELDS = Object.freeze([
+  'handoffKind', 'handoffVersion', 'runtimeVersion', 'targetSandboxVersion', 'draftId', 'draftRevision',
+  'synthetic', 'immutable', 'validated', 'previewPayloadCreated', 'payload', 'ok', 'handoffDigest',
+]);
+
+/** Security-boundary fields validated (asserted false/true) but NOT copied into the target descriptor. */
+export const SOURCE_HANDOFF_SECURITY_FIELDS = Object.freeze([
+  'previewMounted', 'realDataAttached', 'routeCreated', 'menuCreated', 'productExposed',
+]);
+
+/** Explicit version fields (real). No aggregated `upstreamVersions`. */
+export const SOURCE_HANDOFF_VERSION_FIELDS = Object.freeze(['handoffVersion', 'runtimeVersion', 'targetSandboxVersion']);
+
+/** Digest field (real). No generic `digest`. */
+export const SOURCE_HANDOFF_DIGEST_FIELDS = Object.freeze(['handoffDigest']);
+
+/** Critical (mapped, lossless) source fields — the sourceField of every BRIDGE_FIELD_MAPPING. All real. */
+export const CRITICAL_SOURCE_FIELDS = Object.freeze([
+  'handoffKind', 'draftId', 'draftRevision', 'draftDigest', 'runtimeVersion', 'handoffVersion',
+  'targetSandboxVersion', 'synthetic', 'immutable', 'validated', 'payload', 'handoffDigest',
+]);
+
+/**
+ * The mapped fields (source -> target), fixed deterministic order. Count derives from the real model —
+ * every sourceField exists in REAL_HANDOFF_FIELDS; security fields are validated not copied; there is no
+ * aggregated `upstreamVersions` and no generic `digest`.
+ */
 export const BRIDGE_FIELD_MAPPINGS = Object.freeze([
   { sourceField: 'handoffKind', targetField: 'sourceHandoffKind', required: true, transformKind: 'identity', defaultAllowed: false, losslessRequired: true },
   { sourceField: 'draftId', targetField: 'candidateDraftId', required: true, transformKind: 'identity', defaultAllowed: false, losslessRequired: true },
   { sourceField: 'draftRevision', targetField: 'candidateDraftRevision', required: true, transformKind: 'identity', defaultAllowed: false, losslessRequired: true },
   { sourceField: 'draftDigest', targetField: 'candidateDraftDigest', required: true, transformKind: 'identity', defaultAllowed: false, losslessRequired: true },
   { sourceField: 'runtimeVersion', targetField: 'sourceRuntimeVersion', required: true, transformKind: 'identity', defaultAllowed: false, losslessRequired: true },
-  { sourceField: 'upstreamVersions', targetField: 'sourceUpstreamVersions', required: true, transformKind: 'identity', defaultAllowed: false, losslessRequired: true },
+  { sourceField: 'handoffVersion', targetField: 'sourceHandoffVersion', required: true, transformKind: 'identity', defaultAllowed: false, losslessRequired: true },
+  { sourceField: 'targetSandboxVersion', targetField: 'sourceTargetSandboxVersion', required: true, transformKind: 'identity', defaultAllowed: false, losslessRequired: true },
   { sourceField: 'synthetic', targetField: 'synthetic', required: true, transformKind: 'assert_true', defaultAllowed: false, losslessRequired: true },
   { sourceField: 'immutable', targetField: 'immutable', required: true, transformKind: 'assert_true', defaultAllowed: false, losslessRequired: true },
   { sourceField: 'validated', targetField: 'validated', required: true, transformKind: 'assert_true', defaultAllowed: false, losslessRequired: true },
   { sourceField: 'payload', targetField: 'syntheticPayload', required: true, transformKind: 'clone_synthetic', defaultAllowed: false, losslessRequired: true },
-  { sourceField: 'digest', targetField: 'sourceDigest', required: true, transformKind: 'identity', defaultAllowed: false, losslessRequired: true },
+  { sourceField: 'handoffDigest', targetField: 'sourceDigest', required: true, transformKind: 'identity', defaultAllowed: false, losslessRequired: true },
 ]);
 
 /** Allowed transform kinds; anything else fails closed. */
@@ -78,10 +116,10 @@ export const BRIDGE_VALIDATION_STAGES = Object.freeze([
 /** Issue severities (ascending order for stable sort). */
 export const BRIDGE_ISSUE_SEVERITIES = Object.freeze(['info', 'warning', 'error', 'blocker']);
 
-/** Capability flags that an extension can NEVER override. */
+/** Capability flags that an extension can NEVER override. Uses real field names (no legacy aliases). */
 export const EXTENSION_PROTECTED_FIELDS = Object.freeze([
   'synthetic', 'validated', 'canonical', 'certified', 'productExposed', 'moduleGenerated',
-  'realDataAttached', 'digest', 'runtimeVersion', 'targetContractVersion', 'upstreamVersions',
+  'realDataAttached', 'handoffDigest', 'runtimeVersion', 'targetSandboxVersion', 'handoffVersion',
 ]);
 
 /** Old Studio prototype paths that must NEVER be relinked/imported. */

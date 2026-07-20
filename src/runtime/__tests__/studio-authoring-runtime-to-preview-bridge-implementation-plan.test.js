@@ -158,8 +158,8 @@ test('35. compatibility embedded', () => assert.equal(P.compatibility.kind, 'bri
 test('36. sourceHandoffKind const', () => assert.equal(SOURCE_HANDOFF_KIND, 'synthetic_preview_candidate'));
 test('37. targetSandboxKind const', () => assert.equal(TARGET_SANDBOX_KIND, 'module_preview_sandbox_candidate'));
 test('38. phase ids 16', () => assert.equal(BRIDGE_IMPLEMENTATION_PHASE_IDS.length, 16));
-test('39. critical source fields 11', () => assert.equal(CRITICAL_SOURCE_FIELDS.length, 11));
-test('40. field mappings 11', () => assert.equal(BRIDGE_FIELD_MAPPINGS.length, 11));
+test('39. critical source fields 12 (real, aligned)', () => assert.equal(CRITICAL_SOURCE_FIELDS.length, 12));
+test('40. field mappings 12 (real model)', () => assert.equal(BRIDGE_FIELD_MAPPINGS.length, 12));
 test('41. validation stages 13', () => assert.equal(BRIDGE_VALIDATION_STAGES.length, 13));
 test('42. protected fields 11', () => assert.equal(EXTENSION_PROTECTED_FIELDS.length, 11));
 test('43. resource dimensions 7', () => assert.equal(BRIDGE_RESOURCE_LIMIT_DIMENSIONS.length, 7));
@@ -235,7 +235,7 @@ test('169. strict source shape', () => assert.equal(SV.strictSourceShape, true))
 test('170. unknown critical fields rejected', () => assert.equal(SV.unknownCriticalFieldsRejected, true));
 test('171. missing critical fields fail-closed', () => assert.equal(SV.missingCriticalFieldsFailClosed, true));
 test('172. source validation no side effects', () => assert.equal(SV.sourceValidationSideEffectsAllowed, false));
-test('173. critical fields 11', () => assert.equal(SV.criticalFieldCount, 11));
+test('173. critical fields 12 (real)', () => assert.equal(SV.criticalFieldCount, 12));
 test('174. boundary fields 5', () => assert.equal(SV.boundaryFields.length, 5));
 test('175. expected synthetic true', () => assert.equal(SV.expected.synthetic, true));
 test('176. expected productExposed false', () => assert.equal(SV.expected.productExposed, false));
@@ -305,7 +305,7 @@ const FM = createFieldMappingExecutionPlan();
 test('231. mapping kind', () => assert.equal(FM.kind, 'bridge-field-mapping-execution-plan'));
 test('232. mapping planned', () => assert.equal(FM.mappingExecutionPlanned, true));
 test('233. mapping executor not implemented', () => assert.equal(FM.mappingExecutorImplemented, false));
-test('234. mapping count 11', () => assert.equal(FM.mappingCount, 11));
+test('234. mapping count 12 (real model)', () => assert.equal(FM.mappingCount, 12));
 test('235. every critical mapped', () => assert.equal(FM.everyCriticalMapped, true));
 test('236. target critical fields all covered', () => assert.equal(FM.targetCriticalFieldsAllCovered, true));
 test('237. any unknown transform false', () => assert.equal(FM.anyUnknownTransform, false));
@@ -338,7 +338,7 @@ test('261. handoffKind mapped', () => assert.ok(FM.mappings.some((m) => m.source
 test('262. draftId mapped', () => assert.ok(FM.mappings.some((m) => m.sourceField === 'draftId' && m.targetField === 'candidateDraftId')));
 test('263. synthetic assert_true', () => assert.ok(FM.mappings.some((m) => m.sourceField === 'synthetic' && m.transformKind === 'assert_true')));
 test('264. payload clone_synthetic', () => assert.ok(FM.mappings.some((m) => m.sourceField === 'payload' && m.transformKind === 'clone_synthetic')));
-test('265. digest mapped to sourceDigest', () => assert.ok(FM.mappings.some((m) => m.sourceField === 'digest' && m.targetField === 'sourceDigest')));
+test('265. handoffDigest mapped to sourceDigest (no generic digest)', () => { assert.ok(FM.mappings.some((m) => m.sourceField === 'handoffDigest' && m.targetField === 'sourceDigest')); assert.ok(!FM.mappings.some((m) => m.sourceField === 'digest')); });
 test('266. every critical field appears', () => assert.ok(CRITICAL_SOURCE_FIELDS.every((f) => FM.mappings.some((m) => m.sourceField === f))));
 test('267. all mappings syntheticOnly', () => assert.ok(FM.mappings.every((m) => m.syntheticOnly === true)));
 test('268. all mappings deterministic', () => assert.ok(FM.mappings.every((m) => m.deterministic === true)));
@@ -386,7 +386,7 @@ test('304. extension schema required', () => assert.equal(EXT.extensionSchemaReq
 test('305. extension cannot override critical', () => assert.equal(EXT.extensionCannotOverrideCriticalFields, true));
 test('306. protected fields = const', () => assert.deepEqual(EXT.protectedFields, [...EXTENSION_PROTECTED_FIELDS]));
 test('307. protected includes synthetic', () => assert.ok(EXTENSION_PROTECTED_FIELDS.includes('synthetic')));
-test('308. protected includes digest', () => assert.ok(EXTENSION_PROTECTED_FIELDS.includes('digest')));
+test('308. protected includes handoffDigest not digest', () => { assert.ok(EXTENSION_PROTECTED_FIELDS.includes('handoffDigest')); assert.ok(!EXTENSION_PROTECTED_FIELDS.includes('digest')); });
 test('309. protected includes certified', () => assert.ok(EXTENSION_PROTECTED_FIELDS.includes('certified')));
 test('310. extensibility digest fnv1a', () => assert.ok(String(EXT.extensibilityEnforcementPlanDigest).startsWith('fnv1a-')));
 

@@ -158,7 +158,7 @@ test('36. diagnostics embedded', () => assert.equal(C.diagnostics.kind, 'bridge-
 test('37. readinessDecision embedded', () => assert.equal(C.readinessDecision.kind, 'bridge-readiness-decision'));
 test('38. compatibility embedded', () => assert.equal(C.compatibility.kind, 'bridge-compatibility'));
 test('39. targetSandboxKind const', () => assert.equal(TARGET_SANDBOX_KIND, 'module_preview_sandbox_candidate'));
-test('40. critical source fields 11', () => assert.equal(CRITICAL_SOURCE_FIELDS.length, 11));
+test('40. critical source fields 12 (real, aligned)', () => assert.equal(CRITICAL_SOURCE_FIELDS.length, 12));
 
 // ===== Capabilities (41-105) =====
 const TRUE_CAPS = ['headless', 'contractOnly', 'metadataOnly', 'syntheticOnly', 'devOnly', 'deterministic', 'failClosed', 'ssotPreserved', 'sourceConsumedReadOnly', 'targetContractConsumedReadOnly'];
@@ -196,8 +196,8 @@ const SRC = createSourceHandoffContract();
 test('106. source contract kind', () => assert.equal(SRC.kind, 'bridge-source-handoff-contract'));
 test('107. source handoffKind', () => assert.equal(SRC.handoffKind, SOURCE_HANDOFF_KIND));
 test('108. source runtime version', () => assert.equal(SRC.sourceRuntimeVersion, AUTHORING_RUNTIME_VERSION));
-test('109. source requiredFields 11', () => assert.equal(SRC.requiredFields.length, 11));
-test('110. source requiredFields = critical', () => assert.deepEqual(SRC.requiredFields, [...CRITICAL_SOURCE_FIELDS]));
+test('109. source requiredFields 13 (real)', () => assert.equal(SRC.requiredFields.length, 13));
+test('110. source requiredFields all real (no legacy alias)', () => { assert.ok(SRC.requiredFields.every((x) => SRC.realHandoffFields.includes(x))); assert.ok(!SRC.requiredFields.includes('upstreamVersions')); assert.ok(!SRC.requiredFields.includes('digest')); });
 test('111. source strict draft identity', () => assert.equal(SRC.strictDraftIdentityRequired, true));
 test('112. source single-draft fallback forbidden', () => assert.equal(SRC.singleDraftFallbackAllowed, false));
 test('113. source missing draft id fails closed', () => assert.equal(SRC.missingDraftIdFailsClosed, true));
@@ -206,8 +206,8 @@ test('115. source draftId required', () => assert.equal(SRC.draftIdRequired, tru
 test('116. source draftRevision non-negative integer', () => assert.equal(SRC.draftRevisionMustBeNonNegativeInteger, true));
 test('117. source draftDigest required', () => assert.equal(SRC.draftDigestRequired, true));
 test('118. source runtimeVersion required', () => assert.equal(SRC.runtimeVersionRequired, true));
-test('119. source upstreamVersions required', () => assert.equal(SRC.upstreamVersionsRequired, true));
-test('120. source digest required', () => assert.equal(SRC.digestRequired, true));
+test('119. source handoffVersion required, upstreamVersions field forbidden', () => { assert.equal(SRC.handoffVersionRequired, true); assert.equal(SRC.upstreamVersionsSourceFieldAllowed, false); });
+test('120. source handoffDigest required, generic digest forbidden', () => { assert.equal(SRC.handoffDigestRequired, true); assert.equal(SRC.genericDigestSourceFieldAllowed, false); });
 test('121. source consumed read-only', () => assert.equal(SRC.sourceConsumedReadOnly, true));
 test('122. source expected.synthetic true', () => assert.equal(SRC.expected.synthetic, true));
 test('123. source expected.immutable true', () => assert.equal(SRC.expected.immutable, true));
@@ -226,7 +226,7 @@ test('135. handoff previewMounted false', () => assert.equal(HANDOFF.previewMoun
 test('136. handoff realDataAttached false', () => assert.equal(HANDOFF.realDataAttached, false));
 test('137. handoff productExposed false', () => assert.equal(HANDOFF.productExposed, false));
 test('138. critical fields include draftId', () => assert.ok(CRITICAL_SOURCE_FIELDS.includes('draftId')));
-test('139. critical fields include digest', () => assert.ok(CRITICAL_SOURCE_FIELDS.includes('digest')));
+test('139. critical fields include handoffDigest not digest', () => { assert.ok(CRITICAL_SOURCE_FIELDS.includes('handoffDigest')); assert.ok(!CRITICAL_SOURCE_FIELDS.includes('digest')); });
 test('140. critical fields include payload', () => assert.ok(CRITICAL_SOURCE_FIELDS.includes('payload')));
 
 // ===== Target preview sandbox contract (141-160) =====
@@ -255,7 +255,7 @@ test('160. target no product path', () => assert.equal(TGT.productExposed, false
 // ===== Field mapping contract (161-200) =====
 const FM = createBridgeFieldMappingContract();
 test('161. mapping kind', () => assert.equal(FM.kind, 'bridge-field-mapping-contract'));
-test('162. mapping count 11', () => assert.equal(FM.mappingCount, 11));
+test('162. mapping count 12 (real model)', () => assert.equal(FM.mappingCount, 12));
 test('163. mapping = const length', () => assert.equal(FM.mappings.length, BRIDGE_FIELD_MAPPINGS.length));
 test('164. mapping everyCriticalMapped', () => assert.equal(FM.everyCriticalMapped, true));
 test('165. mapping anyUnknownTransform false', () => assert.equal(FM.anyUnknownTransform, false));
@@ -288,7 +288,7 @@ test('190. handoffKind mapped to sourceHandoffKind', () => assert.ok(FM.mappings
 test('191. draftId mapped to candidateDraftId', () => assert.ok(FM.mappings.some((m2) => m2.sourceField === 'draftId' && m2.targetField === 'candidateDraftId')));
 test('192. synthetic uses assert_true', () => assert.ok(FM.mappings.some((m2) => m2.sourceField === 'synthetic' && m2.transformKind === 'assert_true')));
 test('193. payload uses clone_synthetic', () => assert.ok(FM.mappings.some((m2) => m2.sourceField === 'payload' && m2.transformKind === 'clone_synthetic')));
-test('194. digest mapped to sourceDigest', () => assert.ok(FM.mappings.some((m2) => m2.sourceField === 'digest' && m2.targetField === 'sourceDigest')));
+test('194. handoffDigest mapped to sourceDigest (no generic digest)', () => { assert.ok(FM.mappings.some((m2) => m2.sourceField === 'handoffDigest' && m2.targetField === 'sourceDigest')); assert.ok(!FM.mappings.some((m2) => m2.sourceField === 'digest')); });
 test('195. all mappings syntheticOnly', () => assert.ok(FM.mappings.every((m2) => m2.syntheticOnly === true)));
 test('196. all mappings deterministic', () => assert.ok(FM.mappings.every((m2) => m2.deterministic === true)));
 test('197. all mappings required', () => assert.ok(FM.mappings.every((m2) => m2.required === true)));
@@ -420,7 +420,7 @@ test('309. protected fields = const', () => assert.deepEqual(EXT.protectedFields
 test('310. protected field count', () => assert.equal(EXT.protectedFieldCount, EXTENSION_PROTECTED_FIELDS.length));
 test('311. protected includes synthetic', () => assert.ok(EXTENSION_PROTECTED_FIELDS.includes('synthetic')));
 test('312. protected includes certified', () => assert.ok(EXTENSION_PROTECTED_FIELDS.includes('certified')));
-test('313. protected includes digest', () => assert.ok(EXTENSION_PROTECTED_FIELDS.includes('digest')));
+test('313. protected includes handoffDigest not digest', () => { assert.ok(EXTENSION_PROTECTED_FIELDS.includes('handoffDigest')); assert.ok(!EXTENSION_PROTECTED_FIELDS.includes('digest')); });
 test('314. protected includes productExposed', () => assert.ok(EXTENSION_PROTECTED_FIELDS.includes('productExposed')));
 test('315. protected includes moduleGenerated', () => assert.ok(EXTENSION_PROTECTED_FIELDS.includes('moduleGenerated')));
 test('316. extensibility digest fnv1a', () => assert.ok(String(EXT.extensibilityPolicyContractDigest).startsWith('fnv1a-')));
@@ -438,7 +438,7 @@ test('326. C.replayIdempotency embedded', () => assert.equal(C.replayIdempotency
 test('327. extensibility deterministic', () => assert.equal(createBridgeExtensibilityPolicyContract().extensibilityPolicyContractDigest, EXT.extensibilityPolicyContractDigest));
 test('328. replay deterministic', () => assert.equal(createBridgeReplayIdempotencyContract().replayIdempotencyContractDigest, RP.replayIdempotencyContractDigest));
 test('329. protected fields 11', () => assert.equal(EXTENSION_PROTECTED_FIELDS.length, 11));
-test('330. protected includes upstreamVersions', () => assert.ok(EXTENSION_PROTECTED_FIELDS.includes('upstreamVersions')));
+test('330. protected includes handoffVersion not upstreamVersions', () => { assert.ok(EXTENSION_PROTECTED_FIELDS.includes('handoffVersion')); assert.ok(!EXTENSION_PROTECTED_FIELDS.includes('upstreamVersions')); });
 
 // ===== SSOT + certification boundary (331-360) =====
 const SS = createBridgeSsotBoundaryContract();
