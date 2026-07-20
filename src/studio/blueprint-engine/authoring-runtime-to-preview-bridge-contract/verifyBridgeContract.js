@@ -46,6 +46,14 @@ export function verifyBridgeContract(options = {}) {
   if (src.singleDraftFallbackAllowed === true) blockers.push('unsafe_source_single_draft_fallback');
   if (src.missingDraftIdFailsClosed === false) blockers.push('unsafe_source_missing_draft_id_not_fail_closed');
   if (src.unknownDraftIdFailsClosed === false) blockers.push('unsafe_source_unknown_draft_id_not_fail_closed');
+  // Source-shape alignment: real handoff field names only — no upstreamVersions / generic digest / invented alias.
+  const req = Array.isArray(src.requiredFields) ? src.requiredFields : [];
+  if (req.includes('upstreamVersions') || src.upstreamVersionsSourceFieldAllowed === true) blockers.push('unsafe_source_upstreamVersions_field');
+  if (req.includes('digest') || src.genericDigestSourceFieldAllowed === true) blockers.push('unsafe_source_generic_digest_field');
+  if (src.realSourceFieldNamesRequired === false) blockers.push('unsafe_source_real_field_names_not_required');
+  if (src.legacyInventedSourceFieldAliasesAllowed === true) blockers.push('unsafe_source_legacy_alias_allowed');
+  if (src.everyRequiredFieldExistsInRealHandoff === false) blockers.push('unsafe_source_required_field_not_in_real_handoff');
+  if (src.bridgeMayInvokeSingleDraftFallback === true) blockers.push('unsafe_source_bridge_single_draft_fallback');
 
   // Target preview sandbox contract: metadata only, no mount / route / menu / module / real payload.
   const tgt = isGenericModelPlainObject(contract.targetPreviewSandbox) ? contract.targetPreviewSandbox : {};
@@ -53,12 +61,16 @@ export function verifyBridgeContract(options = {}) {
     || tgt.routeCreated === true || tgt.menuCreated === true || tgt.moduleGenerated === true
     || tgt.persistenceAllowed === true) blockers.push('unsafe_target_real_effect');
 
-  // Field mapping contract: no unknown transform, no critical default, no lossy critical, all critical mapped.
+  // Field mapping contract: real source fields only, no unknown transform / default / lossy, all critical mapped.
   const fm = isGenericModelPlainObject(contract.fieldMapping) ? contract.fieldMapping : {};
   if (fm.anyUnknownTransform === true) blockers.push('unsafe_mapping_unknown_transform');
   if (fm.anyCriticalDefault === true) blockers.push('unsafe_mapping_critical_default');
   if (fm.anyLossyCritical === true) blockers.push('unsafe_mapping_lossy_critical');
   if (fm.everyCriticalMapped === false) blockers.push('unsafe_mapping_missing_critical');
+  if (fm.anyInventedSourceField === true || fm.everyMappingSourceExistsInRealHandoff === false) blockers.push('unsafe_mapping_invented_source_field');
+  if (fm.anyLegacyAliasSourceField === true) blockers.push('unsafe_mapping_legacy_alias');
+  if (fm.noDuplicateSourceField === false || fm.noDuplicateTargetField === false) blockers.push('unsafe_mapping_duplicate');
+  if (fm.everyRequiredTargetMapped === false) blockers.push('unsafe_mapping_target_not_mapped');
 
   // Version compatibility contract: exact versions, unknown fails closed, no downgrade, upgrade not assumed.
   const vc = isGenericModelPlainObject(contract.versionCompatibility) ? contract.versionCompatibility : {};
@@ -72,6 +84,13 @@ export function verifyBridgeContract(options = {}) {
   if (ds.cryptographicIntegrityProvided === true) blockers.push('unsafe_digest_claimed_cryptographic');
   if (ds.digestMayAuthorizeCertification === true || ds.digestMayAuthorizeModuleGeneration === true
     || ds.digestMayAuthorizeProduction === true) blockers.push('unsafe_digest_authorizes_real');
+  // Digest alignment: recompute_and_compare over handoffDigest, no alternative serializer, declared preimage.
+  if (ds.sourceDigestField !== undefined && ds.sourceDigestField !== 'handoffDigest') blockers.push('unsafe_digest_wrong_source_field');
+  if (ds.digestValidationMode !== undefined && ds.digestValidationMode !== 'recompute_and_compare') blockers.push('unsafe_digest_wrong_validation_mode');
+  if (ds.alternativeSerializerAllowed === true) blockers.push('unsafe_digest_alternative_serializer');
+  if (ds.canonicalSerializer !== undefined && (typeof ds.canonicalSerializer !== 'string' || ds.canonicalSerializer.length === 0)) blockers.push('unsafe_digest_serializer_undeclared');
+  if (ds.digestHelper !== undefined && (typeof ds.digestHelper !== 'string' || ds.digestHelper.length === 0)) blockers.push('unsafe_digest_helper_undeclared');
+  if (ds.handoffDigestExcludedFromOwnPreimage === false) blockers.push('unsafe_digest_preimage_includes_self');
 
   // Validation pipeline: fail-closed, no auto-correction, no permissive fallback, not yet implemented.
   const vp = isGenericModelPlainObject(contract.validationPipeline) ? contract.validationPipeline : {};

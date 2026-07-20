@@ -60,6 +60,12 @@ export const FORBIDDEN_SCOPE_PATTERNS = Object.freeze([
  * @type {RegExp[]}
  */
 export const KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS = Object.freeze([
+  // Studio Bridge Source-Shape Alignment Correction — realigns the merged bridge contract + implementation
+  // plan to the real Authoring Runtime synthetic handoff shape (real source field names, handoffDigest
+  // recompute-and-compare, explicit version tuple, resource-limit coherence). Headless, no bridge runtime.
+  /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge-source-shape-alignment\.test\.js$/,
+  /^scripts\/gates\/g423-studio-authoring-runtime-to-preview-bridge-source-shape-alignment\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-authoring-runtime-to-preview-bridge-source-shape-alignment\//,
   // Studio Authoring Runtime-to-Preview Bridge Implementation Plan — headless, contract-only, metadata-
   // only, plan-only, synthetic-only, deterministic, fail-closed plan for a future headless bridge (every
   // phase planned, none implemented; no bridge/adapter/validator/payload/mount/UI/persistence/backend/

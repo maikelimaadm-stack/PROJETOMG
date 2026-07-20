@@ -66,30 +66,56 @@ export const BRIDGE_IMPLEMENTATION_PHASE_IDS = Object.freeze([
   'phase_15_rollout_blocked',
 ]);
 
-/** Critical fields a valid source handoff must carry (the future validator's target). */
-export const CRITICAL_SOURCE_FIELDS = Object.freeze([
-  'handoffKind', 'draftId', 'draftRevision', 'draftDigest', 'runtimeVersion', 'upstreamVersions',
-  'synthetic', 'immutable', 'validated', 'payload', 'digest',
+/**
+ * The EXACT field names the real Authoring Runtime `createSyntheticPreviewHandoff` emits — the source of
+ * truth every planned source field / mapping is validated against. Explicit version fields + `handoffDigest`;
+ * NO aggregated `upstreamVersions`, NO generic `digest`.
+ */
+export const REAL_HANDOFF_FIELDS = Object.freeze([
+  'kind', 'handoffKind', 'handoffVersion', 'runtimeVersion', 'targetSandboxVersion', 'draftId',
+  'draftRevision', 'draftDigest', 'synthetic', 'immutable', 'validated', 'previewPayloadCreated',
+  'previewMounted', 'realDataAttached', 'routeCreated', 'menuCreated', 'productExposed', 'payload', 'ok',
+  'handoffDigest',
 ]);
 
-/** Boundary fields the future validator asserts on the source handoff. */
+/** Source-field names that MUST NOT appear (removed legacy aliases the real handoff never emits). */
+export const FORBIDDEN_LEGACY_SOURCE_FIELDS = Object.freeze(['upstreamVersions', 'digest']);
+
+/** Critical (mapped, lossless) source fields — the sourceField of every BRIDGE_FIELD_MAPPING. All real. */
+export const CRITICAL_SOURCE_FIELDS = Object.freeze([
+  'handoffKind', 'draftId', 'draftRevision', 'draftDigest', 'runtimeVersion', 'handoffVersion',
+  'targetSandboxVersion', 'synthetic', 'immutable', 'validated', 'payload', 'handoffDigest',
+]);
+
+/** Boundary (security) fields the future validator asserts but never copies to the target. */
 export const SOURCE_BOUNDARY_FIELDS = Object.freeze([
   'previewMounted', 'realDataAttached', 'routeCreated', 'menuCreated', 'productExposed',
 ]);
 
-/** The 11 field mappings (source -> target) the future executor will run, fixed deterministic order. */
+/** Explicit version fields (real). No aggregated `upstreamVersions`. */
+export const SOURCE_HANDOFF_VERSION_FIELDS = Object.freeze(['handoffVersion', 'runtimeVersion', 'targetSandboxVersion']);
+
+/** Digest field (real). No generic `digest`. */
+export const SOURCE_HANDOFF_DIGEST_FIELDS = Object.freeze(['handoffDigest']);
+
+/**
+ * The field mappings (source -> target) the future executor will run, fixed deterministic order. Count
+ * derives from the real model — every sourceField exists in REAL_HANDOFF_FIELDS (no invented alias);
+ * security fields are validated not copied; no aggregated `upstreamVersions`, no generic `digest`.
+ */
 export const BRIDGE_FIELD_MAPPINGS = Object.freeze([
   { sourceField: 'handoffKind', targetField: 'sourceHandoffKind', required: true, transformKind: 'identity', defaultAllowed: false, losslessRequired: true },
   { sourceField: 'draftId', targetField: 'candidateDraftId', required: true, transformKind: 'identity', defaultAllowed: false, losslessRequired: true },
   { sourceField: 'draftRevision', targetField: 'candidateDraftRevision', required: true, transformKind: 'identity', defaultAllowed: false, losslessRequired: true },
   { sourceField: 'draftDigest', targetField: 'candidateDraftDigest', required: true, transformKind: 'identity', defaultAllowed: false, losslessRequired: true },
   { sourceField: 'runtimeVersion', targetField: 'sourceRuntimeVersion', required: true, transformKind: 'identity', defaultAllowed: false, losslessRequired: true },
-  { sourceField: 'upstreamVersions', targetField: 'sourceUpstreamVersions', required: true, transformKind: 'identity', defaultAllowed: false, losslessRequired: true },
+  { sourceField: 'handoffVersion', targetField: 'sourceHandoffVersion', required: true, transformKind: 'identity', defaultAllowed: false, losslessRequired: true },
+  { sourceField: 'targetSandboxVersion', targetField: 'sourceTargetSandboxVersion', required: true, transformKind: 'identity', defaultAllowed: false, losslessRequired: true },
   { sourceField: 'synthetic', targetField: 'synthetic', required: true, transformKind: 'assert_true', defaultAllowed: false, losslessRequired: true },
   { sourceField: 'immutable', targetField: 'immutable', required: true, transformKind: 'assert_true', defaultAllowed: false, losslessRequired: true },
   { sourceField: 'validated', targetField: 'validated', required: true, transformKind: 'assert_true', defaultAllowed: false, losslessRequired: true },
   { sourceField: 'payload', targetField: 'syntheticPayload', required: true, transformKind: 'clone_synthetic', defaultAllowed: false, losslessRequired: true },
-  { sourceField: 'digest', targetField: 'sourceDigest', required: true, transformKind: 'identity', defaultAllowed: false, losslessRequired: true },
+  { sourceField: 'handoffDigest', targetField: 'sourceDigest', required: true, transformKind: 'identity', defaultAllowed: false, losslessRequired: true },
 ]);
 
 /** Allowed transform kinds; anything else fails closed in the plan. */
@@ -107,10 +133,10 @@ export const BRIDGE_VALIDATION_STAGES = Object.freeze([
 /** Issue severities (ascending order for stable sort). */
 export const BRIDGE_ISSUE_SEVERITIES = Object.freeze(['info', 'warning', 'error', 'blocker']);
 
-/** Capability flags an extension can NEVER override. */
+/** Capability flags an extension can NEVER override. Uses real field names (no legacy aliases). */
 export const EXTENSION_PROTECTED_FIELDS = Object.freeze([
   'synthetic', 'validated', 'canonical', 'certified', 'productExposed', 'moduleGenerated',
-  'realDataAttached', 'digest', 'runtimeVersion', 'targetContractVersion', 'upstreamVersions',
+  'realDataAttached', 'handoffDigest', 'runtimeVersion', 'targetSandboxVersion', 'handoffVersion',
 ]);
 
 /** Resource-limit dimensions the future bridge will bound (planned values, not executed). */

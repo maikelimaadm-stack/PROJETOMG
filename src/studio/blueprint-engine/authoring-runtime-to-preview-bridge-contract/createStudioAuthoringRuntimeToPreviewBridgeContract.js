@@ -82,6 +82,12 @@ export function createStudioAuthoringRuntimeToPreviewBridgeContract(options = {}
   if (fieldMapping.anyCriticalDefault === true) blockers.push('bridge_mapping_critical_default');
   if (fieldMapping.anyLossyCritical === true) blockers.push('bridge_mapping_lossy_critical');
   if (fieldMapping.everyCriticalMapped !== true) blockers.push('bridge_mapping_missing_critical');
+  if (fieldMapping.anyInventedSourceField === true || fieldMapping.everyMappingSourceExistsInRealHandoff !== true) blockers.push('bridge_mapping_invented_source_field');
+  if (fieldMapping.anyLegacyAliasSourceField === true) blockers.push('bridge_mapping_legacy_alias');
+  if (sourceHandoffContract.upstreamVersionsSourceFieldAllowed === true) blockers.push('bridge_source_upstreamVersions_field');
+  if (sourceHandoffContract.genericDigestSourceFieldAllowed === true) blockers.push('bridge_source_generic_digest_field');
+  if (digestSemantics.sourceDigestField !== 'handoffDigest') blockers.push('bridge_digest_wrong_source_field');
+  if (digestSemantics.digestValidationMode !== 'recompute_and_compare') blockers.push('bridge_digest_wrong_validation_mode');
   if (versionCompatibility.unknownVersionFailsClosed !== true) blockers.push('bridge_version_unknown_not_fail_closed');
   if (validationPipeline.failClosed !== true) blockers.push('bridge_validation_not_fail_closed');
   if (ssotBoundary.certifiedBlueprintRemainsSsot !== true) blockers.push('bridge_ssot_not_preserved');
@@ -139,6 +145,7 @@ export function createStudioAuthoringRuntimeToPreviewBridgeContract(options = {}
     manifest,
     readyForBridgeContract: ready,
     readyForBridgeImplementationPlan: ready,
+    readyForBridgeImplementationEnterpriseRevalidation: ready,
     readyForBridgeImplementationSlice: false,
     readyForPreviewMount: false,
     readyForAuthoringUi: false,
@@ -167,7 +174,11 @@ export function createStudioAuthoringRuntimeToPreviewBridgeContract(options = {}
   });
 }
 
-/** @param {unknown} handoff @returns {boolean} */
+/**
+ * Validates a REAL Authoring Runtime synthetic preview handoff (aligned to the real field names). Requires
+ * an explicit draftId (no single-draft fallback), the real version fields and the real `handoffDigest`.
+ * @param {unknown} handoff @returns {boolean}
+ */
 function isValidSourceHandoff(handoff) {
   if (!isGenericModelPlainObject(handoff)) return false;
   if (handoff.fallback === true) return false;
@@ -176,6 +187,10 @@ function isValidSourceHandoff(handoff) {
   if (handoff.validated !== true) return false;
   if (handoff.ok !== true) return false;
   if (typeof handoff.draftId !== 'string' || handoff.draftId.length === 0) return false;
+  if (typeof handoff.handoffVersion !== 'string' || handoff.handoffVersion.length === 0) return false;
+  if (typeof handoff.runtimeVersion !== 'string' || handoff.runtimeVersion.length === 0) return false;
+  if (typeof handoff.targetSandboxVersion !== 'string' || handoff.targetSandboxVersion.length === 0) return false;
+  if (typeof handoff.handoffDigest !== 'string' || handoff.handoffDigest.length === 0) return false;
   return true;
 }
 

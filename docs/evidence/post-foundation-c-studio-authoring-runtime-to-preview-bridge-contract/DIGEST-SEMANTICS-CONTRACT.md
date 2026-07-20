@@ -9,3 +9,10 @@ The digest algorithm is **fnv1a-32**, a deterministic **internal identity only**
 ## What this slice does NOT do
 
 This slice implements **no** bridge, adapter, source-validation runtime, target payload or preview mount. It creates **no** UI, editor, React component, `.jsx`/`.tsx`/`.css`, App/router/menu/sidebar wiring. It never persists, writes the filesystem, touches backend/Prisma/migration/network/production/staging, reads or writes real data, generates or registers a module, certifies/self-certifies/overwrites the certified SSOT, integrates a permission/tenant model, or relinks the old Studio prototype. The certified blueprint remains the canonical SSOT.
+
+
+---
+
+## Aligned by Source-Shape Correction (post-#482/#483)
+
+This contract/plan was realigned to the **real** Authoring Runtime synthetic handoff shape: source fields use real names only — explicit `handoffVersion`/`runtimeVersion`/`targetSandboxVersion` and `handoffDigest` — with **no** aggregated `upstreamVersions` and **no** generic `digest`. The digest is validated by `recompute_and_compare` over the runtime serializer/preimage. See `docs/evidence/post-foundation-c-studio-authoring-runtime-to-preview-bridge-source-shape-alignment/`.

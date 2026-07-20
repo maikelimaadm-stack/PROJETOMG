@@ -53,6 +53,14 @@ export function verifyBridgeImplementationPlan(options = {}) {
   if (sv.sourceValidationImplemented === true) blockers.push('unsafe_source_validation_implemented');
   if (sv.unknownCriticalFieldsRejected === false) blockers.push('unsafe_source_unknown_critical_accepted');
   if (sv.missingCriticalFieldsFailClosed === false) blockers.push('unsafe_source_missing_not_fail_closed');
+  // Source-shape alignment.
+  const svReq = Array.isArray(sv.requiredFields) ? sv.requiredFields : [];
+  const svCrit = Array.isArray(sv.criticalFields) ? sv.criticalFields : [];
+  if (svReq.includes('upstreamVersions') || svCrit.includes('upstreamVersions') || sv.upstreamVersionsSourceFieldAllowed === true) blockers.push('unsafe_source_upstreamVersions_field');
+  if (svReq.includes('digest') || svCrit.includes('digest') || sv.genericDigestSourceFieldAllowed === true) blockers.push('unsafe_source_generic_digest_field');
+  if (sv.realSourceFieldNamesRequired === false) blockers.push('unsafe_source_real_field_names_not_required');
+  if (sv.legacyInventedSourceFieldAliasesAllowed === true) blockers.push('unsafe_source_legacy_alias_allowed');
+  if (sv.everyRequiredFieldExistsInRealHandoff === false) blockers.push('unsafe_source_required_field_not_in_real_handoff');
 
   // Draft identity enforcement plan.
   const di = isGenericModelPlainObject(plan.draftIdentityEnforcementPlan) ? plan.draftIdentityEnforcementPlan : {};
@@ -71,11 +79,35 @@ export function verifyBridgeImplementationPlan(options = {}) {
   if (tvv.exactTargetSandboxVersionRequired === false) blockers.push('unsafe_target_version_not_exact');
   if (tvv.unknownVersionFailsClosed === false) blockers.push('unsafe_target_version_unknown_accepted');
 
-  // Digest validation plan: FNV internal-only; never cryptographic; authorizes nothing real.
+  // Digest validation plan: FNV internal-only; never cryptographic; authorizes nothing real; aligned.
   const dg = isGenericModelPlainObject(plan.sourceDigestValidationPlan) ? plan.sourceDigestValidationPlan : {};
   if (dg.cryptographicIntegrityProvided === true) blockers.push('unsafe_digest_claimed_cryptographic');
   if (dg.digestMayAuthorizeCertification === true || dg.digestMayAuthorizeModuleGeneration === true
     || dg.digestMayAuthorizeProduction === true) blockers.push('unsafe_digest_authorizes_real');
+  if (dg.sourceDigestField !== undefined && dg.sourceDigestField !== 'handoffDigest') blockers.push('unsafe_digest_wrong_source_field');
+  if (dg.digestValidationMode !== undefined && dg.digestValidationMode !== 'recompute_and_compare') blockers.push('unsafe_digest_wrong_validation_mode');
+  if (dg.alternativeSerializerAllowed === true) blockers.push('unsafe_digest_alternative_serializer');
+  if (dg.canonicalSerializer !== undefined && (typeof dg.canonicalSerializer !== 'string' || dg.canonicalSerializer.length === 0)) blockers.push('unsafe_digest_serializer_undeclared');
+  if (dg.digestHelper !== undefined && (typeof dg.digestHelper !== 'string' || dg.digestHelper.length === 0)) blockers.push('unsafe_digest_helper_undeclared');
+  if (dg.handoffDigestExcludedFromOwnPreimage === false) blockers.push('unsafe_digest_preimage_includes_self');
+
+  // Source version validation: explicit tuple, no aggregated upstreamVersions.
+  const svvAlign = isGenericModelPlainObject(plan.sourceVersionValidationPlan) ? plan.sourceVersionValidationPlan : {};
+  if (svvAlign.aggregatedUpstreamVersionsFieldRequired === true) blockers.push('unsafe_version_upstreamVersions_required');
+  if (svvAlign.explicitVersionTupleRequired === false) blockers.push('unsafe_version_no_explicit_tuple');
+  if (Array.isArray(svvAlign.versionTupleFields) && svvAlign.versionTupleFields.includes('upstreamVersions')) blockers.push('unsafe_version_tuple_has_upstreamVersions');
+
+  // Resource-limit coherence: mismatch never silent; stricter is intentional; no partial descriptor.
+  const rlc = isGenericModelPlainObject(plan.resourceLimitsPlan) ? plan.resourceLimitsPlan : {};
+  if (rlc.limitMismatchIsNotSilent === false) blockers.push('unsafe_limit_mismatch_silent');
+  if (rlc.limitExceededProducesDeterministicBlocker === false) blockers.push('unsafe_limit_not_deterministic_blocker');
+  if (rlc.partialTargetDescriptorAllowed === true) blockers.push('unsafe_limit_partial_descriptor');
+
+  // Field mapping alignment: real source fields only, no invented alias / duplicate.
+  const fma = isGenericModelPlainObject(plan.fieldMappingExecutionPlan) ? plan.fieldMappingExecutionPlan : {};
+  if (fma.anyInventedSourceField === true || fma.everyMappingSourceExistsInRealHandoff === false) blockers.push('unsafe_mapping_invented_source_field');
+  if (fma.anyLegacyAliasSourceField === true) blockers.push('unsafe_mapping_legacy_alias');
+  if (fma.noDuplicateSourceField === false || fma.noDuplicateTargetField === false) blockers.push('unsafe_mapping_duplicate');
 
   // Field mapping execution plan.
   const fm = isGenericModelPlainObject(plan.fieldMappingExecutionPlan) ? plan.fieldMappingExecutionPlan : {};

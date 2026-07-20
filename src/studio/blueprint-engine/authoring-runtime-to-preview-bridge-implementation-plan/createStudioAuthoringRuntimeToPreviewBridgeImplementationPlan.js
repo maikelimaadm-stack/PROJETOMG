@@ -103,7 +103,15 @@ export function createStudioAuthoringRuntimeToPreviewBridgeImplementationPlan(op
   if (fieldMappingExecutionPlan.anyUnknownTransform === true) blockers.push('bridge_plan_mapping_unknown_transform_unsafe');
   if (fieldMappingExecutionPlan.anyLossyCritical === true) blockers.push('bridge_plan_mapping_lossy_critical_unsafe');
   if (fieldMappingExecutionPlan.everyCriticalMapped !== true) blockers.push('bridge_plan_mapping_missing_critical_unsafe');
+  if (fieldMappingExecutionPlan.anyInventedSourceField === true || fieldMappingExecutionPlan.everyMappingSourceExistsInRealHandoff !== true) blockers.push('bridge_plan_mapping_invented_source_field_unsafe');
+  if (fieldMappingExecutionPlan.anyLegacyAliasSourceField === true) blockers.push('bridge_plan_mapping_legacy_alias_unsafe');
+  if (sourceValidationPlan.upstreamVersionsSourceFieldAllowed === true) blockers.push('bridge_plan_source_upstreamVersions_field_unsafe');
+  if (sourceValidationPlan.genericDigestSourceFieldAllowed === true) blockers.push('bridge_plan_source_generic_digest_field_unsafe');
+  if (sourceDigestValidationPlan.sourceDigestField !== 'handoffDigest') blockers.push('bridge_plan_digest_wrong_source_field_unsafe');
+  if (sourceDigestValidationPlan.digestValidationMode !== 'recompute_and_compare') blockers.push('bridge_plan_digest_wrong_validation_mode_unsafe');
+  if (sourceVersionValidationPlan.aggregatedUpstreamVersionsFieldRequired === true) blockers.push('bridge_plan_version_upstreamVersions_required_unsafe');
   if (sourceVersionValidationPlan.unknownVersionFailsClosed !== true) blockers.push('bridge_plan_version_permissive_unsafe');
+  if (resourceLimitsPlan.limitMismatchIsNotSilent !== true) blockers.push('bridge_plan_limit_mismatch_silent_unsafe');
   if (sourceDigestValidationPlan.cryptographicIntegrityProvided === true) blockers.push('bridge_plan_digest_cryptographic_unsafe');
   if (resourceLimitsPlan.unknownResourceDimensionRejected !== true) blockers.push('bridge_plan_unknown_resource_dimension_unsafe');
   if (ssotProtectionPlan.certifiedBlueprintRemainsSsot !== true) blockers.push('bridge_plan_ssot_not_preserved');
@@ -170,6 +178,7 @@ export function createStudioAuthoringRuntimeToPreviewBridgeImplementationPlan(op
     readinessDecision: readiness,
     manifest,
     readyForBridgeImplementationPlan: ready,
+    readyForBridgeImplementationEnterpriseRevalidation: ready,
     readyForBridgeImplementationSlice: false,
     readyForPreviewMount: false,
     readyForAuthoringUi: false,
