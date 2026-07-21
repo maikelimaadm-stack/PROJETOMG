@@ -60,6 +60,14 @@ export const FORBIDDEN_SCOPE_PATTERNS = Object.freeze([
  * @type {RegExp[]}
  */
 export const KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS = Object.freeze([
+  // Studio Authoring Runtime-to-Preview Bridge Hardening — hardens the merged headless bridge against
+  // cyclic, excessively deep, sparse, non-JSON-safe and otherwise adversarial inputs (bounded safe clone,
+  // cycle guard, deterministic depth cap, structural rejection, sanitized public exception boundary). The
+  // implementation edits stay inside the already-registered bridge subtree; only the dedicated test, gate
+  // and evidence directory are new. No UI/App/mount/persistence/backend/module/certification/product.
+  /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge-hardening\.test\.js$/,
+  /^scripts\/gates\/g423-studio-authoring-runtime-to-preview-bridge-hardening\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-authoring-runtime-to-preview-bridge-hardening\//,
   // Studio Authoring Runtime-to-Preview Bridge — the REAL headless, deterministic, immutable, fail-closed
   // bridge from the real Authoring Runtime synthetic preview handoff to a synthetic Module Preview Sandbox
   // target descriptor (strict draft identity, exact version tuple, handoffDigest recompute-and-compare,

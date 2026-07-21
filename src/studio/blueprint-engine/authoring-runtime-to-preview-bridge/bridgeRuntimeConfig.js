@@ -112,7 +112,43 @@ export const BRIDGE_ISSUE_CODES = Object.freeze([
   'BRIDGE_VALIDATION_ISSUES_TOO_MANY', 'BRIDGE_EXTENSIONS_TOO_MANY', 'BRIDGE_STRING_TOO_LONG',
   // Config.
   'BRIDGE_CONFIG_INVALID',
+  // Hardening — safe structural clone (cycle guard, deterministic depth cap, JSON-safe type policy,
+  // sparse-array + accessor + non-plain-object rejection) and the sanitized public exception boundary.
+  'BRIDGE_SOURCE_STRUCTURE_CYCLE', 'BRIDGE_SOURCE_STRUCTURE_TOO_DEEP', 'BRIDGE_SOURCE_UNSUPPORTED_VALUE_TYPE',
+  'BRIDGE_SOURCE_NON_FINITE_NUMBER', 'BRIDGE_SOURCE_NEGATIVE_ZERO_FORBIDDEN', 'BRIDGE_SOURCE_NON_PLAIN_OBJECT',
+  'BRIDGE_SOURCE_SPARSE_ARRAY_FORBIDDEN', 'BRIDGE_SOURCE_ACCESSOR_PROPERTY_FORBIDDEN',
+  'BRIDGE_UNEXPECTED_EXECUTION_FAILURE',
 ]);
+
+/**
+ * Deterministic maximum nesting depth for a source structure. Depth convention: the top-level source object
+ * is depth 0; each nested plain object or array adds 1. A structure whose deepest leaf exceeds this bound is
+ * rejected fail-closed (`BRIDGE_SOURCE_STRUCTURE_TOO_DEEP`) — never truncated, never partially cloned. The
+ * real Authoring Runtime handoff is shallow (well under this bound); the cap exists only to keep the bounded
+ * safe clone stack-safe against adversarial input.
+ */
+export const MAX_BRIDGE_SOURCE_STRUCTURE_DEPTH = 64;
+
+/**
+ * Hardening manifest (separate from BRIDGE_CAPABILITIES so the audited 28/25 capability split is preserved).
+ * All hardening guarantees are TRUE and all leak permissions are FALSE — fail-closed by construction.
+ */
+export const BRIDGE_HARDENING_CAPABILITIES = Object.freeze({
+  cycleGuardImplemented: true,
+  depthCapImplemented: true,
+  safeStructuralCloneImplemented: true,
+  unsupportedValueValidationImplemented: true,
+  sparseArrayValidationImplemented: true,
+  accessorValidationImplemented: true,
+  prototypePollutionProtectionImplemented: true,
+  publicExceptionBoundaryImplemented: true,
+  sanitizedEmergencyRejectionImplemented: true,
+  hostileConfigContainmentImplemented: true,
+  unexpectedExceptionsEscape: false,
+  stackLeakAllowed: false,
+  internalErrorMessageLeakAllowed: false,
+  secretLeakAllowed: false,
+});
 
 /** Extra target descriptor fields the Bridge Contract declares the bridge may emit. */
 export const TARGET_DESCRIPTOR_TARGET_FIELDS = Object.freeze([
@@ -187,6 +223,7 @@ export const BRIDGE_CAPABILITIES = Object.freeze({
 /** Readiness classifications the bridge can emit. */
 export const BRIDGE_READINESS_STATES = Object.freeze([
   'studio_authoring_runtime_to_preview_bridge_ready',
+  'studio_authoring_runtime_to_preview_bridge_hardened',
   'needs_bridge_fix', 'blocked', 'invalid',
 ]);
 
