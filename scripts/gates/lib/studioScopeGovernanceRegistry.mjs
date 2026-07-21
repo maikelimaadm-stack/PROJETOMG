@@ -60,6 +60,15 @@ export const FORBIDDEN_SCOPE_PATTERNS = Object.freeze([
  * @type {RegExp[]}
  */
 export const KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS = Object.freeze([
+  // Studio Authoring Runtime-to-Preview Bridge — the REAL headless, deterministic, immutable, fail-closed
+  // bridge from the real Authoring Runtime synthetic preview handoff to a synthetic Module Preview Sandbox
+  // target descriptor (strict draft identity, exact version tuple, handoffDigest recompute-and-compare,
+  // contract-driven mappings, extension + resource-limit enforcement, atomic failure containment). No UI/
+  // App/mount/persistence/backend/module/certification/product exposure.
+  /^src\/studio\/blueprint-engine\/authoring-runtime-to-preview-bridge\//,
+  /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge\.test\.js$/,
+  /^scripts\/gates\/g423-studio-authoring-runtime-to-preview-bridge\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-authoring-runtime-to-preview-bridge\//,
   // Studio Bridge Source-Shape Alignment Correction — realigns the merged bridge contract + implementation
   // plan to the real Authoring Runtime synthetic handoff shape (real source field names, handoffDigest
   // recompute-and-compare, explicit version tuple, resource-limit coherence). Headless, no bridge runtime.
