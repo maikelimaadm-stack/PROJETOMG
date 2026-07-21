@@ -47,6 +47,8 @@ export {
   SOURCE_CHECKPOINT,
   SOURCE_DECISION,
   REQUIRED_FUTURE_CHECKPOINT,
+  MAX_BRIDGE_SOURCE_STRUCTURE_DEPTH,
+  BRIDGE_HARDENING_CAPABILITIES,
   MAK_STUDIO_AUTHORING_RUNTIME_TO_PREVIEW_BRIDGE_FLAG,
   MAK_STUDIO_AUTHORING_RUNTIME_TO_PREVIEW_BRIDGE_VERIFY_FLAG,
   isProductionEnv,
@@ -56,7 +58,7 @@ export {
 
 export { BRIDGE_ERROR_CODES, isBridgeErrorCode, BridgeError, createBridgeError, bridgeError } from './errors.js';
 export { deepFreeze } from './deepFreeze.js';
-export { normalizeBridgeInput, isPlainObject, isNonEmptyString, isNonNegativeInteger } from './normalizeBridgeInput.js';
+export { normalizeBridgeInput, safeNormalizeSourceStructure, isPlainObject, isNonEmptyString, isNonNegativeInteger } from './normalizeBridgeInput.js';
 export { createBridgeIssue } from './createBridgeIssue.js';
 export { sortBridgeIssues } from './sortBridgeIssues.js';
 export { validateStrictDraftIdentity, STRICT_DRAFT_IDENTITY_POLICY } from './validateStrictDraftIdentity.js';
@@ -71,7 +73,7 @@ export { executeBridgeFieldMappings } from './executeBridgeFieldMappings.js';
 export { createTargetPreviewSandboxDescriptor } from './createTargetPreviewSandboxDescriptor.js';
 export { validateTargetDescriptor } from './validateTargetDescriptor.js';
 export { createBridgeValidationPipeline } from './createBridgeValidationPipeline.js';
-export { createBridgeDecision } from './createBridgeDecision.js';
+export { createBridgeDecision, createEmergencyBridgeRejection } from './createBridgeDecision.js';
 export { createBridgeDecisionDigest } from './createBridgeDecisionDigest.js';
 export { createBridgeReplayContract } from './createBridgeReplayContract.js';
 export { createBridgeFailureContainment } from './createBridgeFailureContainment.js';

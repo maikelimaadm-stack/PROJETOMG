@@ -1,12 +1,13 @@
 import {
   BRIDGE_NAME, BRIDGE_VERSION, BRIDGE_MODE, BRIDGE_CAPABILITIES, DEFAULT_EXPECTED_VERSIONS,
   DEFAULT_BRIDGE_RESOURCE_LIMITS, SOURCE_CHECKPOINT, SOURCE_DECISION, REQUIRED_FUTURE_CHECKPOINT,
+  BRIDGE_HARDENING_CAPABILITIES, MAX_BRIDGE_SOURCE_STRUCTURE_DEPTH,
 } from './bridgeRuntimeConfig.js';
 import { deepFreeze } from './deepFreeze.js';
 import { normalizeBridgeInput, isPlainObject } from './normalizeBridgeInput.js';
 import { resolveBridgeLimits } from './enforceBridgeResourceLimits.js';
 import { STRICT_DRAFT_IDENTITY_POLICY } from './validateStrictDraftIdentity.js';
-import { createBridgeDecision } from './createBridgeDecision.js';
+import { createBridgeDecision, createEmergencyBridgeRejection } from './createBridgeDecision.js';
 import { createBridgeReplayContract } from './createBridgeReplayContract.js';
 import { createBridgeFailureContainment } from './createBridgeFailureContainment.js';
 import { createBridgeSsotBoundary } from './createBridgeSsotBoundary.js';
@@ -54,6 +55,7 @@ const VERSION_POLICY = deepFreeze({
  * `execute` always rejects. @param {Object} [options] @returns {Object}
  */
 export function createStudioAuthoringRuntimeToPreviewBridge(options = {}) {
+ try {
   const o = isPlainObject(options) ? options : {};
   const expectedVersions = deepFreeze({ ...DEFAULT_EXPECTED_VERSIONS, ...(isPlainObject(o.expectedVersions) ? normalizeBridgeInput(o.expectedVersions) : {}) });
   const { limits: resolvedLimits, issues: limitIssues } = resolveBridgeLimits(o.limits);
@@ -145,6 +147,16 @@ export function createStudioAuthoringRuntimeToPreviewBridge(options = {}) {
     blockers,
     blockerCount: blockers.length,
     capabilities: { ...BRIDGE_CAPABILITIES },
+    hardening: deepFreeze({
+      kind: 'bridge-hardening-manifest',
+      ...BRIDGE_HARDENING_CAPABILITIES,
+      maxSourceStructureDepth: MAX_BRIDGE_SOURCE_STRUCTURE_DEPTH,
+      readiness: 'studio_authoring_runtime_to_preview_bridge_hardened',
+      readyForHeadlessBridge: true,
+      readyForBridgeEnterpriseRevalidation: true,
+      readyForPreviewMount: false,
+      readyForProductExposure: false,
+    }),
     metadataOnly: false,
   };
   const verification = verifyAuthoringRuntimeToPreviewBridge({ bridge: base });
@@ -156,23 +168,36 @@ export function createStudioAuthoringRuntimeToPreviewBridge(options = {}) {
     diagnostics,
     /**
      * Executes the bridge over a real handoff + explicit expectedDraftId. Returns a deep-frozen decision.
-     * @param {Object} input @returns {Object}
+     * PUBLIC EXCEPTION BOUNDARY: the entire body — including structural normalization inside
+     * `createBridgeDecision` — is wrapped so that ANY unexpected throw (cyclic/deep/hostile input, a Proxy
+     * whose traps throw, a poisoned accessor) is contained into a sanitized `bridge_rejected` emergency
+     * rejection carrying only `BRIDGE_UNEXPECTED_EXECUTION_FAILURE` and never leaking a stack, internal
+     * message, cause, path, config, payload or secret. The RAW source is passed through so the structural
+     * validator can detect and report cycles/depth/hostile types itself. @param {Object} input @returns {Object}
      */
     execute(input) {
-      const i = isPlainObject(input) ? input : {};
-      const sourceHandoff = normalizeBridgeInput(i.sourceHandoff);
-      const expectedDraftId = typeof i.expectedDraftId === 'string' ? i.expectedDraftId : i.expectedDraftId;
-      return createBridgeDecision({
-        sourceHandoff: isPlainObject(sourceHandoff) ? sourceHandoff : {},
-        expectedDraftId,
-        expectedVersions,
-        limits,
-        extensions: Array.isArray(i.extensions) ? normalizeBridgeInput(i.extensions) : [],
-        extensionSchemas,
-      });
+      try {
+        const i = isPlainObject(input) ? input : {};
+        return createBridgeDecision({
+          sourceHandoff: i.sourceHandoff,
+          expectedDraftId: i.expectedDraftId,
+          expectedVersions,
+          limits,
+          extensions: Array.isArray(i.extensions) ? i.extensions : [],
+          extensionSchemas,
+        });
+      } catch {
+        // No binding of the caught error: nothing from it can reach the returned decision.
+        return createEmergencyBridgeRejection();
+      }
     },
   };
   return Object.freeze(bridge);
+ } catch {
+   // Hostile construction options (e.g. a throwing getter or a Proxy trap on limits/expectedVersions/
+   // extensionSchemas) are contained into a safe fail-closed fallback whose execute() always rejects.
+   return createAuthoringRuntimeToPreviewBridgeFallback({ reason: 'hostile_bridge_config' });
+ }
 }
 
 export default createStudioAuthoringRuntimeToPreviewBridge;

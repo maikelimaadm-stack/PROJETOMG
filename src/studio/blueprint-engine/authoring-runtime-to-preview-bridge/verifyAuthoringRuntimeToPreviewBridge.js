@@ -98,6 +98,26 @@ export function verifyAuthoringRuntimeToPreviewBridge(options = {}) {
   if (bridge.readyForProductExposure === true) blockers.push('unsafe_ready_for_product_exposure');
   if (bridge.readyForProduction === true) blockers.push('unsafe_ready_for_production');
 
+  // Hardening manifest (when present): all safe-clone / boundary guarantees must be TRUE and every leak
+  // permission must be FALSE. Absent hardening manifest is tolerated (null-safe); a present-but-weakened one
+  // is a blocker.
+  const hd = isPlainObject(bridge.hardening) ? bridge.hardening : null;
+  if (hd) {
+    const hardeningMustBeTrue = [
+      'cycleGuardImplemented', 'depthCapImplemented', 'safeStructuralCloneImplemented',
+      'unsupportedValueValidationImplemented', 'sparseArrayValidationImplemented', 'accessorValidationImplemented',
+      'prototypePollutionProtectionImplemented', 'publicExceptionBoundaryImplemented',
+      'sanitizedEmergencyRejectionImplemented', 'hostileConfigContainmentImplemented',
+    ];
+    for (const k of hardeningMustBeTrue) { if (hd[k] !== true) blockers.push(`hardening_${k}_must_be_true`); }
+    if (hd.unexpectedExceptionsEscape === true) blockers.push('hardening_unexpected_exceptions_escape');
+    if (hd.stackLeakAllowed === true) blockers.push('hardening_stack_leak_allowed');
+    if (hd.internalErrorMessageLeakAllowed === true) blockers.push('hardening_internal_error_message_leak_allowed');
+    if (hd.secretLeakAllowed === true) blockers.push('hardening_secret_leak_allowed');
+    if (hd.readyForPreviewMount === true) blockers.push('hardening_ready_for_preview_mount');
+    if (hd.readyForProductExposure === true) blockers.push('hardening_ready_for_product_exposure');
+  }
+
   // Static nondeterminism scan over any embedded source string.
   let serialized = '';
   try { serialized = JSON.stringify(bridge) || ''; } catch { serialized = ''; }
