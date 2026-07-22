@@ -60,6 +60,16 @@ export const FORBIDDEN_SCOPE_PATTERNS = Object.freeze([
  * @type {RegExp[]}
  */
 export const KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS = Object.freeze([
+  // Studio Bridge Decision Envelope Identity Contract — the headless, deterministic, immutable, fail-closed
+  // CONTRACT (definition only, no runtime) that binds the REAL hardened bridgeDecisionDigest to its matching
+  // targetDescriptor as an explicit {bridgeDecisionDigest, targetDescriptor} identity/provenance envelope,
+  // closing the B-IDENTITY blocker at contract level (digest coverage proven, recompute-and-compare, no
+  // synthesis/alias/fallback). No envelope builder, consumer runtime, implementation plan, preview mount,
+  // UI/App/route/menu, persistence, backend/Prisma, module/certification, real data or product exposure.
+  /^src\/studio\/blueprint-engine\/bridge-decision-envelope-identity-contract\//,
+  /^src\/runtime\/__tests__\/studio-bridge-decision-envelope-identity-contract\.test\.js$/,
+  /^scripts\/gates\/g423-studio-bridge-decision-envelope-identity-contract\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-bridge-decision-envelope-identity-contract\//,
   // Studio Bridge-to-Preview Sandbox Runtime Contract — the headless, deterministic, immutable, fail-closed
   // CONTRACT (definition only, no runtime consumer) between the hardened bridge target descriptor and a
   // future Preview Sandbox consumer runtime: real descriptor/sandbox shapes, identity/provenance, version
