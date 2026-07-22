@@ -1,0 +1,16 @@
+# Risk Matrix
+
+- **B-RECOMPUTE-INPUT** [blocker, blocking: true] Envelope lacks 29 of 32 decision-preimage fields, so the runtime cannot recompute the digest — mitigation: Option A: amend future envelope to carry the missing preimage fields; block runtime until amended (owner: PHASE_04_DECISION_DIGEST_RECOMPUTE_AND_COMPARE)
+- **R-IDENTITY-MISMATCH** [high, blocking: true] digest/descriptor provenance mismatch — mitigation: recompute-and-compare; atomic pair (owner: PHASE_05_SAME_DECISION_PROVENANCE_VALIDATION)
+- **R-CROSS-DECISION-MIX** [high, blocking: true] digest A paired with descriptor B — mitigation: atomic pair required; recompute over descriptor (owner: PHASE_05_SAME_DECISION_PROVENANCE_VALIDATION)
+- **R-DIGEST-AMBIGUITY** [high, blocking: true] digest could be synthesized or aliased — mitigation: no synthesis/alias/fallback; FNV internal-identity only (owner: PHASE_04_DECISION_DIGEST_RECOMPUTE_AND_COMPARE)
+- **R-VERSION-DRIFT** [medium, blocking: true] source/target versions drift from contract — mitigation: exact version match; unknown fails closed (owner: PHASE_06_VERSION_TUPLE_VALIDATION)
+- **R-MAPPING-DRIFT** [medium, blocking: true] local mapping list diverges from the real 12 — mitigation: consume real FIELD_MAPPING_CONTRACT; no local list (owner: PHASE_10_MAPPING_CONTRACT_VALIDATION)
+- **R-PARTIAL-DESCRIPTOR** [high, blocking: true] partial sandbox descriptor emitted on blocker — mitigation: atomic decision; null on blocker (owner: PHASE_15_FAILURE_CONTAINMENT_AND_EMERGENCY_REJECTION)
+- **R-RESOURCE-EXHAUSTION** [medium, blocking: true] oversized input exhausts resources — mitigation: resource limit enforcement; no truncation (owner: PHASE_08_RESOURCE_LIMIT_ENFORCEMENT)
+- **R-PROTOTYPE-POLLUTION** [high, blocking: true] __proto__/constructor/prototype pollution — mitigation: drop forbidden keys; reject non-plain objects (owner: PHASE_02_SAFE_INPUT_NORMALIZATION)
+- **R-UNEXPECTED-EXCEPTION-LEAK** [high, blocking: true] stack/message/secret leak on exception — mitigation: public try/catch; sanitized emergency rejection (owner: PHASE_15_FAILURE_CONTAINMENT_AND_EMERGENCY_REJECTION)
+- **R-SSOT-INVERSION** [high, blocking: true] descriptor/decision treated as SSOT — mitigation: certified blueprint remains SSOT (owner: PHASE_07_SYNTHETIC_AND_SECURITY_BOUNDARY_VALIDATION)
+- **R-PERMISSION-BYPASS** [high, blocking: true] product exposed without permission/tenancy — mitigation: product exposure blocked by permission/tenancy foundation (owner: PHASE_18_TEST_GATE_EVIDENCE_CERTIFICATION)
+- **R-PREMATURE-MOUNT** [high, blocking: true] preview mounted / product exposed prematurely — mitigation: manual checkpoints; readiness flags false (owner: PHASE_18_TEST_GATE_EVIDENCE_CERTIFICATION)
+- **R-GATE-BRANCH-RELATIVE-DEBT** [low, blocking: false] prior slice gates fail branch-relative on working branch — mitigation: KNOWN_PRIOR_GATE_SCOPE_LIMITATION; vanishes on main (owner: PHASE_18_TEST_GATE_EVIDENCE_CERTIFICATION)
