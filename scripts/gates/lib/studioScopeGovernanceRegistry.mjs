@@ -60,6 +60,18 @@ export const FORBIDDEN_SCOPE_PATTERNS = Object.freeze([
  * @type {RegExp[]}
  */
 export const KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS = Object.freeze([
+  // Studio Bridge-to-Preview Sandbox Runtime IMPLEMENTATION PLAN — the headless, deterministic, immutable,
+  // fail-closed PLAN-ONLY subtree (constants, phase definitions, future file map, future function signatures
+  // as metadata, declarative input/output schemas, dependency graph, acceptance criteria, risk matrix,
+  // test/gate matrix, manual checkpoints, readiness, manifest/verifier/compatibility) for the FUTURE headless
+  // Preview Sandbox consumer runtime that will receive the {bridgeDecisionDigest, targetDescriptor} identity
+  // envelope. It implements NO consumer runtime, NO execute, NO envelope builder, NO identity verifier, NO
+  // pipeline, NO mapping executor, NO sandbox descriptor builder, NO consumer decision — no UI/App/mount/
+  // route/menu/persistence/backend/Prisma/module/certification/real-data/product/permission-tenancy.
+  /^src\/studio\/blueprint-engine\/bridge-to-preview-sandbox-runtime-implementation-plan\//,
+  /^src\/runtime\/__tests__\/studio-bridge-to-preview-sandbox-runtime-implementation-plan\.test\.js$/,
+  /^scripts\/gates\/g423-studio-bridge-to-preview-sandbox-runtime-implementation-plan\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-bridge-to-preview-sandbox-runtime-implementation-plan\//,
   // Studio Bridge Decision Envelope Identity Contract — the headless, deterministic, immutable, fail-closed
   // CONTRACT (definition only, no runtime) that binds the REAL hardened bridgeDecisionDigest to its matching
   // targetDescriptor as an explicit {bridgeDecisionDigest, targetDescriptor} identity/provenance envelope,
