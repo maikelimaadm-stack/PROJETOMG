@@ -60,6 +60,17 @@ export const FORBIDDEN_SCOPE_PATTERNS = Object.freeze([
  * @type {RegExp[]}
  */
 export const KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS = Object.freeze([
+  // Studio Bridge-to-Preview Sandbox Runtime Contract — the headless, deterministic, immutable, fail-closed
+  // CONTRACT (definition only, no runtime consumer) between the hardened bridge target descriptor and a
+  // future Preview Sandbox consumer runtime: real descriptor/sandbox shapes, identity/provenance, version
+  // tuple, digest semantics, read-only consumption policy, future field mappings, validation pipeline,
+  // failure containment, resource limits, extensibility, replay, SSOT/permission/product boundaries, manual
+  // checkpoint and readiness. No consumer/runtime/adapter/UI/App/mount/route/menu/persistence/backend/Prisma/
+  // module/certification/real-data/product/permission-tenancy.
+  /^src\/studio\/blueprint-engine\/bridge-to-preview-sandbox-runtime-contract\//,
+  /^src\/runtime\/__tests__\/studio-bridge-to-preview-sandbox-runtime-contract\.test\.js$/,
+  /^scripts\/gates\/g423-studio-bridge-to-preview-sandbox-runtime-contract\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-bridge-to-preview-sandbox-runtime-contract\//,
   // Studio Authoring Runtime-to-Preview Bridge Hardening — hardens the merged headless bridge against
   // cyclic, excessively deep, sparse, non-JSON-safe and otherwise adversarial inputs (bounded safe clone,
   // cycle guard, deterministic depth cap, structural rejection, sanitized public exception boundary). The
