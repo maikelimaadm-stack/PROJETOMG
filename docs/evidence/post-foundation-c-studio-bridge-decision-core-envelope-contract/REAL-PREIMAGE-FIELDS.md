@@ -1,0 +1,34 @@
+# Real Preimage Fields (32, derived)
+
+- kind
+- bridgeVersion
+- mode
+- ok
+- status
+- targetDescriptorCreated
+- targetDescriptor
+- issues
+- issueCount
+- blockerCount
+- errorCount
+- warningCount
+- stages
+- stageCount
+- sourceMutated
+- sideEffects
+- externalCleanupRequired
+- databaseRollbackRequired
+- filesystemCleanupRequired
+- rollbackByNonConsumption
+- partialTargetDescriptor
+- previewMounted
+- appTouched
+- routeCreated
+- menuCreated
+- persisted
+- productExposed
+- moduleGenerated
+- certificationPerformed
+- realDataRead
+- idempotent
+- replaySideEffectsAllowed

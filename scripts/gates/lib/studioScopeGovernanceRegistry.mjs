@@ -60,6 +60,17 @@ export const FORBIDDEN_SCOPE_PATTERNS = Object.freeze([
  * @type {RegExp[]}
  */
 export const KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS = Object.freeze([
+  // Studio Bridge Decision CORE Envelope Contract (v2) — the headless, deterministic, immutable, fail-closed
+  // CONTRACT (definition only, no runtime) for the v2 identity envelope { bridgeDecisionDigest, bridgeDecisionCore }
+  // that transports the COMPLETE real decision digest preimage as bridgeDecisionCore, so a future consumer runtime
+  // can recompute-and-compare the digest exactly — closing the B-RECOMPUTE-INPUT blocker AT CONTRACT LEVEL. It
+  // builds no envelope, verifies no identity at runtime, consumes no decision, mounts no preview, touches no App,
+  // creates no route/menu, persists nothing, keeps the v1 contract intact, and keeps runtime blocked pending
+  // Implementation Plan alignment. No UI/App/mount/persistence/backend/Prisma/module/certification/real-data/product.
+  /^src\/studio\/blueprint-engine\/bridge-decision-core-envelope-contract\//,
+  /^src\/runtime\/__tests__\/studio-bridge-decision-core-envelope-contract\.test\.js$/,
+  /^scripts\/gates\/g423-studio-bridge-decision-core-envelope-contract\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-bridge-decision-core-envelope-contract\//,
   // Studio Bridge-to-Preview Sandbox Runtime IMPLEMENTATION PLAN — the headless, deterministic, immutable,
   // fail-closed PLAN-ONLY subtree (constants, phase definitions, future file map, future function signatures
   // as metadata, declarative input/output schemas, dependency graph, acceptance criteria, risk matrix,
