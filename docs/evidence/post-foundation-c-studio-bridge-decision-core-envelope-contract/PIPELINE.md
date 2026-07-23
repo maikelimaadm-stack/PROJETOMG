@@ -1,0 +1,20 @@
+# 18-Stage Contractual Pipeline
+
+1. source_decision_shape_validation
+2. source_digest_presence_validation
+3. source_core_extraction_validation
+4. core_field_completeness_validation
+5. core_extra_field_validation
+6. core_version_validation
+7. target_descriptor_validation
+8. same_decision_atomicity_validation
+9. digest_recompute_validation
+10. synthetic_boundary_validation
+11. security_boundary_validation
+12. ssot_boundary_validation
+13. preview_mount_boundary_validation
+14. real_data_boundary_validation
+15. module_generation_boundary_validation
+16. certification_boundary_validation
+17. product_exposure_boundary_validation
+18. prototype_reference_validation
