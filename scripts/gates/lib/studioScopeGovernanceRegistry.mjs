@@ -60,6 +60,17 @@ export const FORBIDDEN_SCOPE_PATTERNS = Object.freeze([
  * @type {RegExp[]}
  */
 export const KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS = Object.freeze([
+  // Studio Bridge-to-Preview Sandbox Runtime Implementation Plan ALIGNMENT AMENDMENT — the headless, deterministic,
+  // immutable, fail-closed, AMENDMENT-ONLY subtree that aligns the merged Implementation Plan (#489) to the audited
+  // Core Envelope v2 contract (#490): supersedes the former Option A recompute-input assumption, selects
+  // OPTION_B_FULL_BRIDGE_DECISION_CORE, resolves B-RECOMPUTE-INPUT at plan level, declares the new pre-runtime
+  // blocker B-CORE-ENVELOPE-BUILDER, and keeps runtime blocked pending CHECKPOINT_02. It modifies no upstream plan
+  // or contract file, implements no runtime/builder/verifier/extractor, mounts no preview, touches no App, creates
+  // no route/menu, persists nothing — no UI/App/backend/Prisma/module/certification/real-data/product/permission.
+  /^src\/studio\/blueprint-engine\/bridge-to-preview-sandbox-runtime-implementation-plan-alignment-amendment\//,
+  /^src\/runtime\/__tests__\/studio-bridge-to-preview-sandbox-runtime-implementation-plan-alignment-amendment\.test\.js$/,
+  /^scripts\/gates\/g423-studio-bridge-to-preview-sandbox-runtime-implementation-plan-alignment-amendment\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-bridge-to-preview-sandbox-runtime-implementation-plan-alignment-amendment\//,
   // Studio Bridge Decision CORE Envelope Contract (v2) — the headless, deterministic, immutable, fail-closed
   // CONTRACT (definition only, no runtime) for the v2 identity envelope { bridgeDecisionDigest, bridgeDecisionCore }
   // that transports the COMPLETE real decision digest preimage as bridgeDecisionCore, so a future consumer runtime

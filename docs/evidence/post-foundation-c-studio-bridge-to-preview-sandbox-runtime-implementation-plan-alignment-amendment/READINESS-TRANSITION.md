@@ -1,0 +1,6 @@
+# Readiness Transition
+
+readyForEnterpriseAlignmentAudit: true
+readyForCoreEnvelopeBuilderContract: false
+readyForRuntimeImplementation: false
+readiness: studio_bridge_to_preview_sandbox_runtime_plan_alignment_ready_for_enterprise_audit
