@@ -60,6 +60,19 @@ export const FORBIDDEN_SCOPE_PATTERNS = Object.freeze([
  * @type {RegExp[]}
  */
 export const KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS = Object.freeze([
+  // Studio Bridge Decision Core Envelope BUILDER Contract — the headless, deterministic, immutable, fail-closed
+  // CONTRACT (definition only, no builder/runtime) for the FUTURE builder that receives a real hardened
+  // bridgeDecision, checks success eligibility, extracts the exact digest preimage as bridgeDecisionCore by real
+  // allowlist, recomputes and confirms bridgeDecisionDigest, and emits a Core Envelope v2 atomically. It builds
+  // no envelope, extracts no core at runtime, verifies no identity at runtime, mounts no preview, touches no App,
+  // creates no route/menu, persists nothing, keeps every upstream contract intact, and keeps runtime blocked. It
+  // declares the pre-implementation blocker B-CORE-ENVELOPE-BUILDER (closed-by-contract candidate) and, if the v2
+  // identityVerified invariant conflicts, the open blocker B-CORE-ENVELOPE-VERIFICATION-STATE. No UI/App/mount/
+  // persistence/backend/Prisma/module/certification/real-data/product/permission-tenancy.
+  /^src\/studio\/blueprint-engine\/bridge-decision-core-envelope-builder-contract\//,
+  /^src\/runtime\/__tests__\/studio-bridge-decision-core-envelope-builder-contract\.test\.js$/,
+  /^scripts\/gates\/g423-studio-bridge-decision-core-envelope-builder-contract\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-bridge-decision-core-envelope-builder-contract\//,
   // Studio Bridge-to-Preview Sandbox Runtime Implementation Plan ALIGNMENT AMENDMENT — the headless, deterministic,
   // immutable, fail-closed, AMENDMENT-ONLY subtree that aligns the merged Implementation Plan (#489) to the audited
   // Core Envelope v2 contract (#490): supersedes the former Option A recompute-input assumption, selects
