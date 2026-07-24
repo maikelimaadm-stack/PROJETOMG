@@ -6,9 +6,10 @@
  * digest preimage as `bridgeDecisionCore` by real allowlist, recomputes and confirms `bridgeDecisionDigest`, and
  * emits a Core Envelope v2 atomically. Reflects real merged upstream shapes/versions/arrays READ-ONLY. Builds no
  * envelope, extracts no core at runtime, verifies no identity at runtime, mounts no preview, touches no App, keeps
- * every upstream intact, and keeps runtime blocked. Declares the pre-implementation blocker B-CORE-ENVELOPE-BUILDER
- * and the OPEN blocker B-CORE-ENVELOPE-VERIFICATION-STATE (the v2 `identityVerified` invariant conflict). Exposes
- * only `.js`.
+ * every upstream intact, and keeps runtime blocked. Closes B-CORE-ENVELOPE-BUILDER by contract; classifies
+ * B-CORE-ENVELOPE-VERIFICATION-STATE as NOT_A_BLOCKER — no amendment required — because `identityVerified` is a
+ * consumer-owned lifecycle flag (builder verification lives in the builder decision; the immutable pre-consumer
+ * envelope correctly stays false). Exposes only `.js`.
  */
 export {
   BUILDER_CONTRACT_NAME, BUILDER_CONTRACT_SEMVER, BUILDER_CONTRACT_VERSION, BUILDER_CONTRACT_MODE, BUILDER_KIND,
@@ -22,7 +23,7 @@ export {
   OUTPUT_TARGET_DESCRIPTOR_FIELDS, BUILDER_DECISION_STATUSES, BUILDER_ISSUE_SEVERITIES, BUILDER_READINESS_STATES,
   BUILDER_MAX_STRUCTURE_DEPTH, BUILDER_ISSUE_CODES, BUILDER_CAPABILITIES, FORBIDDEN_PROTOTYPE_PATHS,
   FORBIDDEN_PROTOTYPE_KEYS, SOURCE_CHECKPOINT, SOURCE_DECISION, SOURCE_RECOMMENDATION, SELECTED_ARCHITECTURE,
-  CURRENT_SLICE_AUTHORIZATION, REQUIRED_FUTURE_CHECKPOINT, MAK_STUDIO_CORE_ENVELOPE_BUILDER_CONTRACT_FLAG,
+  IDENTITY_VERIFIED_ARCHITECTURE, CURRENT_SLICE_AUTHORIZATION, REQUIRED_FUTURE_CHECKPOINT, MAK_STUDIO_CORE_ENVELOPE_BUILDER_CONTRACT_FLAG,
   MAK_STUDIO_CORE_ENVELOPE_BUILDER_CONTRACT_VERIFY_FLAG, isProductionEnv,
   isStudioCoreEnvelopeBuilderContractEnabled, isStudioCoreEnvelopeBuilderContractVerifyEnabled,
 } from './contractConfig.js';

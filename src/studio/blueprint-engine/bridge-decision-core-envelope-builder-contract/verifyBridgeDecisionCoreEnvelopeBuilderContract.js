@@ -7,10 +7,14 @@ import { isPlainObject } from './builderInput.js';
 /**
  * Fail-closed verifier for the produced builder contract. Detects invented source fields, permissive success
  * eligibility, divergent allowlist, missing/extra core, digest inside core, target/digest duplication, digest
- * recompute disabled, cross-decision mixing, an incompatible identity-verification state that is falsely claimed
- * compatible, partial envelope, source mutation, side effects, any builder/runtime implementation flag true, a
- * prematurely-authorized builder plan, any UI/App/mount/storage/backend/module/product capability, SSOT
- * inversion, and a missing manual gate. Pure — never throws, mutates or does I/O.
+ * recompute disabled, cross-decision mixing, partial envelope, source mutation, side effects, and any builder/
+ * runtime implementation flag true. It also enforces the CORRECTED identity-verification classification: the state
+ * must be NOT_A_BLOCKER, identityVerified must be consumer-owned, no amendment may be required, the immutable
+ * envelope invariant must stay false, builder verification must be carried outside the envelope, the consumer must
+ * verify independently, the builder blocker must be closed by contract, and the contract must be ready for the
+ * Builder Implementation Plan — while the manual gate must NOT authorize executing that plan or any Core Envelope
+ * amendment, and builder implementation/runtime/preview/product stay blocked. Rejects SSOT inversion and a missing
+ * manual gate. Pure — never throws, mutates or does I/O.
  * @param {Object} [options] @param {Object} [options.contract] @returns {Object}
  */
 export function verifyBridgeDecisionCoreEnvelopeBuilderContract(options = {}) {
@@ -87,16 +91,26 @@ export function verifyBridgeDecisionCoreEnvelopeBuilderContract(options = {}) {
   if (oe.targetDescriptorOnlyInsideCore !== true) blockers.push('target_duplicated_in_envelope');
   if (oe.coreEnvelopeCreated === true || oe.builderExecuted === true) blockers.push('envelope_built');
 
-  // Identity verification state — must NOT be falsely claimed compatible; if open, must be honestly declared.
+  // Identity verification state — corrected classification (NOT_A_BLOCKER; consumer-owned; ARCHITECTURE 1 final).
   const iv = isPlainObject(c.identityVerificationState) ? c.identityVerificationState : {};
   if (iv.silentOverrideAllowed === true) blockers.push('identity_silent_override');
-  if (iv.coreEnvelopeCurrentInvariantIdentityVerified === false && iv.compatibleWithMergedV2Invariant === true) blockers.push('identity_state_falsely_compatible');
-  if (iv.coreEnvelopeCurrentInvariantIdentityVerified === false && iv.envelopeIdentityVerifiedRemainsFalse !== true) blockers.push('identity_envelope_state_inconsistent');
+  if (iv.verificationStateClassification !== 'NOT_A_BLOCKER') blockers.push('verification_state_not_classified_not_a_blocker');
+  if (iv.identityVerifiedSemanticOwner !== 'consumer_runtime') blockers.push('identity_owner_not_consumer_runtime');
+  if (iv.bCoreEnvelopeVerificationStateOpen === true) blockers.push('verification_state_falsely_open');
+  if (iv.coreEnvelopeVerificationStateAmendmentRequired === true) blockers.push('amendment_falsely_required');
+  if (iv.requiredAmendment !== null && iv.requiredAmendment !== undefined) blockers.push('required_amendment_not_null');
+  if (iv.builderResultCarriesVerifiedOutsideEnvelope !== true) blockers.push('builder_verified_not_outside_envelope');
+  if (iv.consumerPerformsIndependentVerification !== true) blockers.push('consumer_independent_verification_missing');
+  // The envelope's identityVerified invariant MUST remain false (a builder-emitted verified envelope is rejected).
+  if (iv.coreEnvelopeCurrentInvariantIdentityVerified !== false) blockers.push('envelope_identity_verified_expected_false');
+  if (iv.envelopeIdentityVerifiedRemainsFalse !== true) blockers.push('envelope_identity_state_inconsistent');
   if (iv.identityVerificationImplemented === true) blockers.push('identity_verification_implemented');
 
-  // Builder blocker closure — must NOT claim closed while verification state is open.
+  // Builder blocker closure — CLOSED by contract because the verification-state is not a blocker.
   const bc = isPlainObject(c.builderBlockerClosure) ? c.builderBlockerClosure : {};
-  if (bc.bCoreEnvelopeVerificationStateOpen === true && bc.bCoreEnvelopeBuilderClosedByContract === true) blockers.push('builder_falsely_closed');
+  if (bc.bCoreEnvelopeVerificationStateOpen === true) blockers.push('closure_verification_state_open');
+  if (bc.bCoreEnvelopeBuilderClosedByContract !== true) blockers.push('builder_not_closed_by_contract');
+  if (Array.isArray(bc.remainingBuilderContractBlockers) && bc.remainingBuilderContractBlockers.length > 0) blockers.push('builder_has_remaining_blockers');
   if (bc.builderImplementationPlanRequired !== true) blockers.push('builder_plan_not_required');
   if (bc.readyForBuilderImplementation === true || bc.readyForRuntimeImplementation === true) blockers.push('builder_closure_authorizes_impl');
 
@@ -116,15 +130,18 @@ export function verifyBridgeDecisionCoreEnvelopeBuilderContract(options = {}) {
   const pr = isPlainObject(c.prototypeRelinkProhibition) ? c.prototypeRelinkProhibition : {};
   if (pr.prototypeRelinkAllowed === true || pr.oldPrototypeImported === true) blockers.push('prototype_relink');
 
-  // Manual gate.
+  // Manual gate — authorizes the contract/correction ONLY; must NOT authorize the plan's execution or an amendment.
   const mg = isPlainObject(c.manualEnablementGate) ? c.manualEnablementGate : {};
   if (mg.manualGateRequired !== true) blockers.push('manual_gate_missing');
   if (mg.authorizesBuilderContract !== true) blockers.push('builder_contract_not_authorized');
-  if (mg.authorizesBuilderImplementationPlan === true || mg.authorizesBuilderImplementation === true
-    || mg.authorizesRuntimeImplementation === true || mg.authorizesPreviewMount === true || mg.authorizesProductExposure === true) blockers.push('manual_gate_authorizes_real');
+  if (mg.authorizesBuilderImplementationPlan === true) blockers.push('manual_gate_authorizes_plan');
+  if (mg.authorizesCoreEnvelopeAmendment === true) blockers.push('manual_gate_authorizes_amendment');
+  if (mg.authorizesBuilderImplementation === true || mg.authorizesRuntimeImplementation === true
+    || mg.authorizesPreviewMount === true || mg.authorizesProductExposure === true) blockers.push('manual_gate_authorizes_real');
 
-  // Premature readiness.
-  if (c.readyForBuilderImplementationPlan === true) blockers.push('premature_builder_plan');
+  // Readiness — corrected: the contract is TECHNICALLY ready for the Builder Implementation Plan audit, but builder
+  // implementation, runtime, preview mount and product exposure remain blocked.
+  if (c.readyForBuilderImplementationPlan !== true) blockers.push('not_ready_for_builder_plan');
   if (c.readyForBuilderImplementation === true) blockers.push('premature_builder_impl');
   if (c.readyForRuntimeImplementation === true) blockers.push('premature_runtime');
   if (c.readyForPreviewMount === true) blockers.push('premature_preview_mount');

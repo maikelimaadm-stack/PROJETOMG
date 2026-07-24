@@ -1,7 +1,10 @@
 import { BUILDER_READINESS_STATES } from './contractConfig.js';
 import { deepFreeze } from './deepFreeze.js';
 import { isPlainObject } from './builderInput.js';
-/** Deterministic readiness. Ready for ENTERPRISE CONTRACT AUDIT; never ready for builder-plan/impl/runtime here. */
+/**
+ * Deterministic readiness. Ready for the Builder Implementation Plan AUDIT once the builder blocker is closed by
+ * contract (verification-state is NOT_A_BLOCKER). Builder implementation and runtime remain unavailable here.
+ */
 export function createBuilderContractReadinessDecision(options = {}) {
   const o = isPlainObject(options) ? options : {};
   const blockers = Array.isArray(o.blockers) ? o.blockers : [];
@@ -19,8 +22,10 @@ export function createBuilderContractReadinessDecision(options = {}) {
     bCoreEnvelopeVerificationStateOpen,
     builderImplementationPlanRequired: true,
     readyForEnterpriseContractAudit,
-    // Builder Implementation Plan authorized ONLY if the builder blocker is closed (i.e., verification state closed).
-    readyForBuilderImplementationPlan: false,
+    // The Builder Implementation Plan is the next slice once the builder blocker is closed by contract and the
+    // verification-state is not open. This readiness is TECHNICAL — external authorization is still gated by the
+    // manual gate (authorizesBuilderImplementationPlan stays false in this correction PR).
+    readyForBuilderImplementationPlan: ok && bCoreEnvelopeBuilderClosedByContract && !bCoreEnvelopeVerificationStateOpen,
     readyForBuilderImplementation: false,
     readyForRuntimeImplementation: false,
     readyForPreviewMount: false,

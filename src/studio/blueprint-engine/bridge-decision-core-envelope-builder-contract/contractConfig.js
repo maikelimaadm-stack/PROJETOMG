@@ -5,9 +5,10 @@
  * builder that receives a real hardened `bridgeDecision`, checks success eligibility, extracts the EXACT digest
  * preimage as `bridgeDecisionCore` by real allowlist, recomputes and confirms `bridgeDecisionDigest`, and emits a
  * Core Envelope v2 atomically. It reflects the REAL merged upstream shapes/versions/arrays READ-ONLY and
- * implements NO builder — every implementation flag is false. It declares the pre-implementation blocker
- * B-CORE-ENVELOPE-BUILDER and, where the v2 `identityVerified` invariant conflicts with a builder-emitted
- * verified state, the open blocker B-CORE-ENVELOPE-VERIFICATION-STATE.
+ * implements NO builder — every implementation flag is false. It closes the pre-implementation blocker
+ * B-CORE-ENVELOPE-BUILDER by contract. `identityVerified` is a CONSUMER-owned lifecycle flag (ARCHITECTURE 1,
+ * final): builder verification is recorded in the builder decision OUTSIDE the immutable envelope, which correctly
+ * stays false pre-consumer — so B-CORE-ENVELOPE-VERIFICATION-STATE is NOT_A_BLOCKER and needs no amendment.
  */
 import {
   REAL_BRIDGE_DECISION_FIELDS, REAL_BRIDGE_DECISION_REQUIRED_FIELDS, REAL_BRIDGE_DECISION_IDENTITY_FIELDS,
@@ -66,7 +67,7 @@ export const BUILDER_DECISION_STATUSES = Object.freeze(['core_envelope_ready', '
 
 export const BUILDER_ISSUE_SEVERITIES = Object.freeze(['blocker', 'error', 'warning', 'info']);
 export const BUILDER_READINESS_STATES = Object.freeze([
-  'studio_bridge_decision_core_envelope_builder_contract_ready_for_enterprise_audit',
+  'studio_bridge_decision_core_envelope_builder_contract_ready_for_builder_implementation_plan_audit',
   'needs_contract_fix', 'blocked', 'invalid',
 ]);
 export const BUILDER_MAX_STRUCTURE_DEPTH = 64;
@@ -113,12 +114,13 @@ export const FORBIDDEN_PROTOTYPE_PATHS = Object.freeze([
 ]);
 export const FORBIDDEN_PROTOTYPE_KEYS = Object.freeze(['__proto__', 'constructor', 'prototype']);
 
-export const SOURCE_CHECKPOINT = 'pr_491_post_merge_deep_enterprise_plan_alignment_audit';
-export const SOURCE_DECISION = 'POST_MERGE_REVALIDATION_PASS_AND_PLAN_ALIGNMENT_ENTERPRISE_PASS';
-export const SOURCE_RECOMMENDATION = 'READY_FOR_BRIDGE_DECISION_CORE_ENVELOPE_BUILDER_CONTRACT';
+export const SOURCE_CHECKPOINT = 'pr_492_post_merge_deep_enterprise_builder_contract_audit';
+export const SOURCE_DECISION = 'POST_MERGE_REVALIDATION_PASS_BUT_BUILDER_CONTRACT_CORRECTION_REQUIRED';
+export const SOURCE_RECOMMENDATION = 'READY_FOR_BRIDGE_DECISION_CORE_ENVELOPE_BUILDER_IMPLEMENTATION_PLAN';
 export const SELECTED_ARCHITECTURE = 'OPTION_B_FULL_BRIDGE_DECISION_CORE';
-export const CURRENT_SLICE_AUTHORIZATION = 'core_envelope_builder_contract_only';
-export const REQUIRED_FUTURE_CHECKPOINT = 'post_core_envelope_builder_contract_enterprise_audit';
+export const IDENTITY_VERIFIED_ARCHITECTURE = 'ARCHITECTURE_1';
+export const CURRENT_SLICE_AUTHORIZATION = 'verification_state_classification_correction_only';
+export const REQUIRED_FUTURE_CHECKPOINT = 'post_verification_state_correction_enterprise_audit';
 
 export const MAK_STUDIO_CORE_ENVELOPE_BUILDER_CONTRACT_FLAG = 'MAK_STUDIO_CORE_ENVELOPE_BUILDER_CONTRACT';
 export const MAK_STUDIO_CORE_ENVELOPE_BUILDER_CONTRACT_VERIFY_FLAG = 'MAK_STUDIO_CORE_ENVELOPE_BUILDER_CONTRACT_VERIFY';

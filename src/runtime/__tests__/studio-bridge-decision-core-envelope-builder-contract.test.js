@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import * as B from '../../studio/blueprint-engine/bridge-decision-core-envelope-builder-contract/index.js';
 import * as ENV from '../../studio/blueprint-engine/bridge-decision-envelope-identity-contract/index.js';
 import * as CORE from '../../studio/blueprint-engine/bridge-decision-core-envelope-contract/index.js';
+import * as PLAN from '../../studio/blueprint-engine/bridge-to-preview-sandbox-runtime-implementation-plan/index.js';
 import { createStudioAuthoringRuntimeToPreviewBridge } from '../../studio/blueprint-engine/authoring-runtime-to-preview-bridge/index.js';
 import {
   createAuthoringRuntimeSession, executeAuthoringOperation, createSyntheticPreviewHandoff,
@@ -59,9 +60,10 @@ test('S002 config reflects real upstream versions', () => {
 test('S003 composed contract verifies clean', () => {
   assert.equal(CONTRACT.verification.ok, true, JSON.stringify(CONTRACT.verification.blockers));
   assert.equal(CONTRACT.verification.blockerCount, 0);
-  assert.equal(CONTRACT.readiness, 'studio_bridge_decision_core_envelope_builder_contract_ready_for_enterprise_audit');
+  assert.equal(CONTRACT.readiness, 'studio_bridge_decision_core_envelope_builder_contract_ready_for_builder_implementation_plan_audit');
   assert.equal(CONTRACT.readyForEnterpriseContractAudit, true);
-  assert.equal(CONTRACT.readyForBuilderImplementationPlan, false);
+  assert.equal(CONTRACT.readyForBuilderImplementationPlan, true);
+  assert.equal(CONTRACT.readyForBuilderImplementation, false);
   assert.equal(CONTRACT.readyForRuntimeImplementation, false);
   assert.equal(CONTRACT.metadataOnly, true);
 });
@@ -193,22 +195,48 @@ test('S070 output envelope == real Core Envelope v2', () => {
   assert.equal(oe.coreEnvelopeCreated, false);
 });
 
-// ---- CRITICAL: identity verification state ----
-test('S080 identityVerified conflict → B-CORE-ENVELOPE-VERIFICATION-STATE open', () => {
+// ---- CRITICAL: identity verification state (corrected — consumer-owned, NOT_A_BLOCKER, ARCHITECTURE 1 final) ----
+test('S080 identityVerified is consumer-owned → B-CORE-ENVELOPE-VERIFICATION-STATE NOT_A_BLOCKER', () => {
   const iv = B.IDENTITY_VERIFICATION_STATE_CONTRACT;
+  // Envelope invariant is unchanged and correct as a consumer-lifecycle flag.
   assert.equal(iv.coreEnvelopeCurrentInvariantIdentityVerified, false);
   assert.equal(iv.coreEnvelopeCurrentInvariantIdentityVerified, CORE.CORE_ENVELOPE_INVARIANTS.identityVerified);
-  assert.equal(iv.builderPerformsRecomputeAndCompare, true);
-  assert.equal(iv.builderDesiredEnvelopeIdentityVerifiedTrue, true);
-  assert.equal(iv.compatibleWithMergedV2Invariant, false);
-  assert.equal(iv.silentOverrideAllowed, false);
-  assert.equal(iv.selectedOption, 'B');
   assert.equal(iv.envelopeIdentityVerifiedRemainsFalse, true);
-  assert.equal(iv.bCoreEnvelopeVerificationStateOpen, true);
-  assert.equal(iv.requiredAmendment, 'Core Envelope Verification State Amendment');
-  assert.equal(iv.blocksBuilderImplementationPlan, true);
+  assert.equal(iv.envelopeFalseMeansAwaitingConsumerVerification, true);
+  assert.equal(iv.envelopeIsImmutable, true);
+  // Semantic ownership.
+  assert.equal(iv.identityVerifiedSemanticOwner, 'consumer_runtime');
+  assert.equal(iv.selectedArchitecture, 'ARCHITECTURE_1');
+  assert.equal(iv.ARCHITECTURE_1_IS_FINAL, true);
+  assert.equal(iv.optionBWasProvisional, false);
+  // Builder verification lives in the builder decision, outside the envelope.
+  assert.equal(iv.builderPerformsRecomputeAndCompare, true);
+  assert.equal(iv.builderVerificationRecordedInBuilderDecision, true);
+  assert.equal(iv.builderResultCarriesVerifiedOutsideEnvelope, true);
+  assert.equal(iv.builderDesiredEnvelopeIdentityVerifiedTrue, false);
+  // Consumer verifies independently.
+  assert.equal(iv.consumerVerificationRecordedInConsumerDecision, true);
+  assert.equal(iv.consumerPerformsIndependentVerification, true);
+  // Classification.
+  assert.equal(iv.verificationStateClassification, 'NOT_A_BLOCKER');
+  assert.equal(iv.bCoreEnvelopeVerificationStateOpen, false);
+  assert.equal(iv.coreEnvelopeVerificationStateAmendmentRequired, false);
+  assert.equal(iv.requiredAmendment, null);
+  assert.equal(iv.silentOverrideAllowed, false);
+  assert.equal(iv.blocksBuilderImplementationPlan, false);
   const opts = iv.options.map((o) => o.option).sort();
-  assert.deepEqual(opts, ['A', 'B', 'C']);
+  assert.deepEqual(opts, ['ARCHITECTURE_1', 'ARCHITECTURE_2', 'ARCHITECTURE_3']);
+  const a1 = iv.options.find((o) => o.option === 'ARCHITECTURE_1');
+  assert.equal(a1.selected, true);
+  assert.equal(a1.requiresCoreEnvelopeAmendment, false);
+});
+
+// ---- The consumer decision (upstream plan) owns its own identityVerified — proves ownership. ----
+test('S080b consumer decision shape owns identityVerified (upstream, unchanged)', () => {
+  assert.ok(PLAN.CONSUMER_DECISION_PLAN.decisionFields.includes('identityVerified'));
+  // Core Envelope v2 groups identityVerified among the consumer-lifecycle security fields (unchanged).
+  assert.ok(CORE.CORE_ENVELOPE_SECURITY_FIELDS.includes('identityVerified'));
+  assert.equal(CORE.CORE_ENVELOPE_INVARIANTS.identityVerified, false);
 });
 
 // ---- Safe normalization / pipeline ----
@@ -259,26 +287,33 @@ test('S130 SSOT / security / prototype', () => {
 });
 
 // ---- Builder blocker closure ----
-test('S140 B-CORE-ENVELOPE-BUILDER not fully closed (verification state open)', () => {
+test('S140 B-CORE-ENVELOPE-BUILDER CLOSED BY CONTRACT (verification state NOT_A_BLOCKER)', () => {
   const bc = B.BUILDER_BLOCKER_CLOSURE;
   assert.equal(bc.blockerId, 'B-CORE-ENVELOPE-BUILDER');
   assert.equal(bc.builderInputContractDefined, true);
   assert.equal(bc.coreExtractionContractDefined, true);
   assert.equal(bc.digestVerificationContractDefined, true);
   assert.equal(bc.outputEnvelopeContractDefined, true);
-  assert.equal(bc.bCoreEnvelopeVerificationStateOpen, true);
-  assert.equal(bc.bCoreEnvelopeBuilderClosedByContract, false);
+  assert.equal(bc.safeNormalizationContractDefined, true);
+  assert.equal(bc.failureContainmentContractDefined, true);
+  assert.equal(bc.bCoreEnvelopeVerificationStateOpen, false);
+  assert.equal(bc.verificationStateBlocksClosure, false);
+  assert.equal(bc.bCoreEnvelopeBuilderClosedByContract, true);
+  assert.deepEqual([...bc.remainingBuilderContractBlockers], []);
   assert.equal(bc.builderImplementationPlanRequired, true);
-  assert.equal(bc.readyForBuilderImplementationPlan, false);
+  assert.equal(bc.readyForBuilderImplementationPlan, true);
+  assert.equal(bc.readyForBuilderImplementation, false);
   assert.equal(bc.readyForRuntimeImplementation, false);
 });
 
 // ---- Manual gate / readiness ----
-test('S150 manual gate authorizes only builder contract', () => {
+test('S150 manual gate authorizes only the correction; not plan execution nor amendment', () => {
   const mg = B.MANUAL_ENABLEMENT_GATE;
   assert.equal(mg.manualGateRequired, true);
   assert.equal(mg.authorizesBuilderContract, true);
-  for (const k of ['authorizesBuilderImplementationPlan', 'authorizesBuilderImplementation', 'authorizesRuntimeImplementation', 'authorizesPreviewMount', 'authorizesProductExposure']) {
+  assert.equal(mg.authorizesVerificationStateCorrection, true);
+  assert.equal(mg.currentSliceAuthorization, 'verification_state_classification_correction_only');
+  for (const k of ['authorizesBuilderImplementationPlan', 'authorizesBuilderImplementation', 'authorizesRuntimeImplementation', 'authorizesCoreEnvelopeAmendment', 'authorizesPreviewMount', 'authorizesProductExposure']) {
     assert.equal(mg[k], false, `${k} must be false`);
   }
 });
@@ -292,24 +327,46 @@ test('S160 deterministic manifest', () => {
   assert.ok(a.manifest.partCount >= 18);
 });
 
-test('S161 compatibility, builder plan + runtime blocked', () => {
+test('S161 compatibility: builder blocker closed, ready for plan audit, runtime blocked', () => {
   const c = B.checkBridgeDecisionCoreEnvelopeBuilderCompatibility();
   assert.equal(c.compatibleWithHardenedBridge, true);
   assert.equal(c.compatibleWithCoreEnvelopeContractV2, true);
   assert.equal(c.compatibleWithPlanAlignmentAmendment, true);
-  assert.equal(c.bCoreEnvelopeVerificationStateOpen, true);
-  assert.equal(c.bCoreEnvelopeBuilderClosedByContract, false);
-  assert.equal(c.readyForBuilderImplementationPlan, false);
+  assert.equal(c.identityVerifiedSemanticOwner, 'consumer_runtime');
+  assert.equal(c.verificationStateClassification, 'NOT_A_BLOCKER');
+  assert.equal(c.coreEnvelopeVerificationStateAmendmentRequired, false);
+  assert.equal(c.bCoreEnvelopeVerificationStateOpen, false);
+  assert.equal(c.bCoreEnvelopeBuilderClosedByContract, true);
+  assert.equal(c.readyForBuilderImplementationPlan, true);
+  assert.equal(c.readyForBuilderImplementation, false);
   assert.equal(c.readyForRuntimeImplementation, false);
-  assert.equal(c.status, 'bridge_decision_core_envelope_builder_contract_ready_for_enterprise_audit');
+  assert.equal(c.status, 'bridge_decision_core_envelope_builder_contract_ready_for_builder_implementation_plan_audit');
 });
 
-// ---- Verifier tamper battery ----
-test('S170 verifier detects false closure + false compat + premature', () => {
-  assert.equal(B.verifyBridgeDecisionCoreEnvelopeBuilderContract({ contract: { ...CONTRACT, builderBlockerClosure: { ...CONTRACT.builderBlockerClosure, bCoreEnvelopeBuilderClosedByContract: true } } }).ok, false);
-  assert.equal(B.verifyBridgeDecisionCoreEnvelopeBuilderContract({ contract: { ...CONTRACT, identityVerificationState: { ...CONTRACT.identityVerificationState, compatibleWithMergedV2Invariant: true } } }).ok, false);
-  assert.equal(B.verifyBridgeDecisionCoreEnvelopeBuilderContract({ contract: { ...CONTRACT, readyForBuilderImplementationPlan: true } }).ok, false);
-  assert.equal(B.verifyBridgeDecisionCoreEnvelopeBuilderContract({ contract: { ...CONTRACT, readyForRuntimeImplementation: true } }).ok, false);
+// ---- Verifier tamper battery (corrected classification) ----
+test('S170 verifier rejects reverting the correction + premature impl/runtime', () => {
+  const bad = (mut) => assert.equal(B.verifyBridgeDecisionCoreEnvelopeBuilderContract({ contract: mut }).ok, false);
+  // Reverting to the old over-conservative classification must be rejected.
+  bad({ ...CONTRACT, identityVerificationState: { ...CONTRACT.identityVerificationState, verificationStateClassification: 'VALID_FUTURE_BLOCKER' } });
+  bad({ ...CONTRACT, identityVerificationState: { ...CONTRACT.identityVerificationState, identityVerifiedSemanticOwner: 'builder' } });
+  bad({ ...CONTRACT, identityVerificationState: { ...CONTRACT.identityVerificationState, bCoreEnvelopeVerificationStateOpen: true } });
+  bad({ ...CONTRACT, identityVerificationState: { ...CONTRACT.identityVerificationState, requiredAmendment: 'Core Envelope Verification State Amendment' } });
+  bad({ ...CONTRACT, identityVerificationState: { ...CONTRACT.identityVerificationState, coreEnvelopeVerificationStateAmendmentRequired: true } });
+  bad({ ...CONTRACT, identityVerificationState: { ...CONTRACT.identityVerificationState, builderResultCarriesVerifiedOutsideEnvelope: false } });
+  bad({ ...CONTRACT, identityVerificationState: { ...CONTRACT.identityVerificationState, consumerPerformsIndependentVerification: false } });
+  // Envelope invariant must remain false (a builder-emitted verified envelope is rejected).
+  bad({ ...CONTRACT, identityVerificationState: { ...CONTRACT.identityVerificationState, coreEnvelopeCurrentInvariantIdentityVerified: true } });
+  bad({ ...CONTRACT, identityVerificationState: { ...CONTRACT.identityVerificationState, envelopeIdentityVerifiedRemainsFalse: false } });
+  // Closure must stay closed with no remaining blockers.
+  bad({ ...CONTRACT, builderBlockerClosure: { ...CONTRACT.builderBlockerClosure, bCoreEnvelopeBuilderClosedByContract: false } });
+  bad({ ...CONTRACT, builderBlockerClosure: { ...CONTRACT.builderBlockerClosure, remainingBuilderContractBlockers: ['x'] } });
+  // Readiness: plan must be ready; impl/runtime must stay blocked.
+  bad({ ...CONTRACT, readyForBuilderImplementationPlan: false });
+  bad({ ...CONTRACT, readyForBuilderImplementation: true });
+  bad({ ...CONTRACT, readyForRuntimeImplementation: true });
+  // Manual gate must not authorize plan execution nor an amendment.
+  bad({ ...CONTRACT, manualEnablementGate: { ...CONTRACT.manualEnablementGate, authorizesBuilderImplementationPlan: true } });
+  bad({ ...CONTRACT, manualEnablementGate: { ...CONTRACT.manualEnablementGate, authorizesCoreEnvelopeAmendment: true } });
 });
 
 // ---- No builder/runtime (static) ----
@@ -461,6 +518,75 @@ for (const part of Object.keys(CONTRACT.manifest.partDigests)) {
     const again = B.createStudioBridgeDecisionCoreEnvelopeBuilderContract();
     assert.equal(again.manifest.partDigests[part], CONTRACT.manifest.partDigests[part]);
     assert.match(CONTRACT.manifest.partDigests[part], /^fnv1a-[0-9a-f]{8}$/);
+  });
+}
+
+// ---- Corrected identity-verification classification: per-field target values. ----
+const IV_TARGETS = [
+  ['identityVerifiedSemanticOwner', 'consumer_runtime'], ['selectedArchitecture', 'ARCHITECTURE_1'],
+  ['ARCHITECTURE_1_IS_FINAL', true], ['optionBWasProvisional', false],
+  ['verificationStateClassification', 'NOT_A_BLOCKER'], ['bCoreEnvelopeVerificationStateOpen', false],
+  ['coreEnvelopeVerificationStateAmendmentRequired', false], ['requiredAmendment', null],
+  ['silentOverrideAllowed', false], ['blocksBuilderImplementationPlan', false],
+  ['coreEnvelopeCurrentInvariantIdentityVerified', false], ['envelopeIdentityVerifiedRemainsFalse', true],
+  ['envelopeFalseMeansAwaitingConsumerVerification', true], ['envelopeIsImmutable', true],
+  ['builderPerformsRecomputeAndCompare', true], ['builderVerificationRecordedInBuilderDecision', true],
+  ['builderResultCarriesVerifiedOutsideEnvelope', true], ['builderDesiredEnvelopeIdentityVerifiedTrue', false],
+  ['consumerVerificationRecordedInConsumerDecision', true], ['consumerPerformsIndependentVerification', true],
+  ['identityVerificationImplemented', false],
+];
+for (const [k, v] of IV_TARGETS) {
+  test(`GIVT-identity ${k} == ${JSON.stringify(v)}`, () => {
+    assert.strictEqual(B.IDENTITY_VERIFICATION_STATE_CONTRACT[k], v);
+    assert.strictEqual(CONTRACT.identityVerificationState[k], v);
+  });
+}
+
+// ---- Verifier rejects each attempt to revert the correction. ----
+const REVERTS = [
+  ['identityVerificationState', 'verificationStateClassification', 'VALID_FUTURE_BLOCKER'],
+  ['identityVerificationState', 'verificationStateClassification', 'CONTRACT_DEFECT'],
+  ['identityVerificationState', 'identityVerifiedSemanticOwner', 'builder'],
+  ['identityVerificationState', 'identityVerifiedSemanticOwner', 'lifecycle'],
+  ['identityVerificationState', 'bCoreEnvelopeVerificationStateOpen', true],
+  ['identityVerificationState', 'coreEnvelopeVerificationStateAmendmentRequired', true],
+  ['identityVerificationState', 'requiredAmendment', 'Core Envelope Verification State Amendment'],
+  ['identityVerificationState', 'builderResultCarriesVerifiedOutsideEnvelope', false],
+  ['identityVerificationState', 'consumerPerformsIndependentVerification', false],
+  ['identityVerificationState', 'coreEnvelopeCurrentInvariantIdentityVerified', true],
+  ['identityVerificationState', 'envelopeIdentityVerifiedRemainsFalse', false],
+  ['identityVerificationState', 'silentOverrideAllowed', true],
+  ['builderBlockerClosure', 'bCoreEnvelopeBuilderClosedByContract', false],
+  ['builderBlockerClosure', 'bCoreEnvelopeVerificationStateOpen', true],
+  ['manualEnablementGate', 'authorizesBuilderImplementationPlan', true],
+  ['manualEnablementGate', 'authorizesCoreEnvelopeAmendment', true],
+  ['manualEnablementGate', 'authorizesBuilderImplementation', true],
+];
+for (const [part, key, val] of REVERTS) {
+  test(`GVRJ-verifier rejects ${part}.${key}=${JSON.stringify(val)}`, () => {
+    const mut = { ...CONTRACT, [part]: { ...CONTRACT[part], [key]: val } };
+    assert.equal(B.verifyBridgeDecisionCoreEnvelopeBuilderContract({ contract: mut }).ok, false);
+  });
+}
+
+// ---- Readiness targets (plan ready; impl/runtime/mount/exposure blocked). ----
+const READY_TARGETS = [
+  ['readyForEnterpriseContractAudit', true], ['readyForBuilderImplementationPlan', true],
+  ['readyForBuilderImplementation', false], ['readyForRuntimeImplementation', false],
+  ['readyForPreviewMount', false], ['readyForProductExposure', false],
+  ['bCoreEnvelopeBuilderClosedByContract', true], ['bCoreEnvelopeVerificationStateOpen', false],
+  ['builderImplementationPlanRequired', true],
+];
+for (const [k, v] of READY_TARGETS) {
+  test(`GRDY-readiness ${k} == ${v}`, () => { assert.strictEqual(CONTRACT[k], v); });
+}
+
+// ---- Extra multi-seed digest equivalence (padding the corrected suite). ----
+for (const i of Array.from({ length: 24 }, (_, k) => k)) {
+  const seed = `corr${i}`;
+  test(`GCEQ-corrected ${seed} digest(core)==realDigest`, () => {
+    const d = buildRealDecision(seed);
+    assert.equal(createDeterministicDigest(extractCore(d)), d.bridgeDecisionDigest);
   });
 }
 

@@ -32,9 +32,12 @@ import { createBuilderContractDiagnostics } from './contractDiagnostics.js';
 /**
  * Composes the STUDIO BRIDGE DECISION CORE ENVELOPE BUILDER CONTRACT. Definition only — no builder is built, no
  * decision consumed, no core extracted at runtime, no digest recomputed at runtime, no envelope emitted, nothing
- * mounted or exposed. Deterministic, immutable (deep-frozen), fail-closed, side-effect-free. Declares the
- * B-CORE-ENVELOPE-BUILDER sub-contracts and the OPEN B-CORE-ENVELOPE-VERIFICATION-STATE blocker (the v2
- * identityVerified invariant conflict), so the Builder Implementation Plan and runtime stay blocked.
+ * mounted or exposed. Deterministic, immutable (deep-frozen), fail-closed, side-effect-free. Closes the
+ * B-CORE-ENVELOPE-BUILDER blocker by contract; classifies B-CORE-ENVELOPE-VERIFICATION-STATE as NOT_A_BLOCKER
+ * (identityVerified is consumer-owned; builder verification lives in the builder decision; the immutable
+ * pre-consumer envelope stays false; no amendment required). The contract is technically ready for the Builder
+ * Implementation Plan audit, but this slice's manual gate does NOT authorize executing that plan, and builder
+ * implementation and runtime stay blocked.
  * @param {Object} [options] @returns {Object}
  */
 export function createStudioBridgeDecisionCoreEnvelopeBuilderContract(options = {}) {
@@ -95,6 +98,15 @@ export function createStudioBridgeDecisionCoreEnvelopeBuilderContract(options = 
     bRecomputeInputResolvedByPlan: true,
     bCoreEnvelopeBuilderClosedByContract,
     bCoreEnvelopeVerificationStateOpen,
+    // ---- identityVerified semantic classification (corrected). ----
+    identityVerifiedSemanticOwner: IDENTITY_VERIFICATION_STATE_CONTRACT.identityVerifiedSemanticOwner,
+    verificationStateClassification: IDENTITY_VERIFICATION_STATE_CONTRACT.verificationStateClassification,
+    identityVerifiedArchitecture: IDENTITY_VERIFICATION_STATE_CONTRACT.selectedArchitecture,
+    coreEnvelopeVerificationStateAmendmentRequired: IDENTITY_VERIFICATION_STATE_CONTRACT.coreEnvelopeVerificationStateAmendmentRequired === true,
+    requiredAmendment: IDENTITY_VERIFICATION_STATE_CONTRACT.requiredAmendment,
+    builderResultCarriesVerifiedOutsideEnvelope: IDENTITY_VERIFICATION_STATE_CONTRACT.builderResultCarriesVerifiedOutsideEnvelope === true,
+    envelopeIdentityVerifiedRemainsFalse: IDENTITY_VERIFICATION_STATE_CONTRACT.envelopeIdentityVerifiedRemainsFalse === true,
+    consumerPerformsIndependentVerification: IDENTITY_VERIFICATION_STATE_CONTRACT.consumerPerformsIndependentVerification === true,
     builderImplementationPlanRequired: true,
     // ---- Nothing implemented. ----
     builderFactoryImplemented: false,
@@ -119,7 +131,7 @@ export function createStudioBridgeDecisionCoreEnvelopeBuilderContract(options = 
     productionAccessed: false,
     // ---- Readiness gates. ----
     readyForEnterpriseContractAudit: true,
-    readyForBuilderImplementationPlan: false,
+    readyForBuilderImplementationPlan: readinessDecision.readyForBuilderImplementationPlan,
     readyForBuilderImplementation: false,
     readyForRuntimeImplementation: false,
     readyForPreviewMount: false,

@@ -7,10 +7,12 @@
  * eligibility, extracts the exact digest preimage as `bridgeDecisionCore` by real allowlist, recompute-and-compares
  * `bridgeDecisionDigest`, and emits a Core Envelope v2 atomically. It LIVE-proves (multi-seed, real decisions) that
  * createDeterministicDigest(core) === real bridgeDecisionDigest and that mutating any single allowlisted core field
- * breaks the recomputed digest. It declares the OPEN blocker B-CORE-ENVELOPE-VERIFICATION-STATE (the merged v2
- * `identityVerified:false` absolute invariant conflict) — so `bCoreEnvelopeBuilderClosedByContract:false` and
- * `readyForBuilderImplementationPlan:false`. Keeps every runtime/builder flag false, upstreams intact, builds no
- * envelope, mounts no preview, touches no App, exposes nothing.
+ * breaks the recomputed digest. It proves the CORRECTED classification: `identityVerified` is CONSUMER-owned (the
+ * consumer decision carries its own; the envelope groups it among consumer-lifecycle security fields), so
+ * B-CORE-ENVELOPE-VERIFICATION-STATE is NOT_A_BLOCKER, no amendment is required, B-CORE-ENVELOPE-BUILDER is CLOSED
+ * BY CONTRACT, and the contract is ready for the Builder Implementation Plan — while the manual gate does NOT
+ * authorize executing that plan or any amendment. Keeps every runtime/builder flag false, upstreams intact, builds
+ * no envelope, mounts no preview, touches no App, exposes nothing.
  */
 import { execSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -47,9 +49,11 @@ const AUTHORIZED = [
 ];
 const authorized = (f) => AUTHORIZED.some((re) => re.test(f)) || isKnownLaterStudioHeadlessArtifact(f);
 
+const PLAN_DIR = path.join(ROOT, 'src/studio/blueprint-engine/bridge-to-preview-sandbox-runtime-implementation-plan');
 const B = await import(pathToFileURL(path.join(DIR, 'index.js')).href);
 const ENV = await import(pathToFileURL(path.join(ENV_DIR, 'index.js')).href);
 const CORE = await import(pathToFileURL(path.join(CORE_DIR, 'index.js')).href);
+const PLAN = await import(pathToFileURL(path.join(PLAN_DIR, 'index.js')).href);
 const bridge = await import(pathToFileURL(path.join(BRIDGE_DIR, 'index.js')).href);
 const rt = await import(pathToFileURL(path.join(RUNTIME_DIR, 'index.js')).href);
 const CONTRACT = B.createStudioBridgeDecisionCoreEnvelopeBuilderContract();
@@ -173,22 +177,35 @@ gate('G423-BB — atomicity same-decision required', B.SAME_DECISION_ATOMICITY_C
 gate('G423-BB — atomicity cross-decision forbidden', B.SAME_DECISION_ATOMICITY_CONTRACT.crossDecisionMixingAllowed === false);
 gate('G423-BB — atomicity no core/digest replacement', B.SAME_DECISION_ATOMICITY_CONTRACT.coreReplacementAllowed === false && B.SAME_DECISION_ATOMICITY_CONTRACT.digestReplacementAllowed === false);
 
-// ---- Identity verification state (B-CORE-ENVELOPE-VERIFICATION-STATE) ----
+// ---- Identity verification state — CORRECTED (B-CORE-ENVELOPE-VERIFICATION-STATE = NOT_A_BLOCKER) ----
 const IV = B.IDENTITY_VERIFICATION_STATE_CONTRACT;
-gate('G423-BB — v2 invariant identityVerified false', IV.coreEnvelopeCurrentInvariantIdentityVerified === false);
-gate('G423-BB — invariant is absolute instance invariant', IV.coreEnvelopeInvariantIsAbsoluteInstanceInvariant === true);
-gate('G423-BB — builder performs recompute-and-compare', IV.builderPerformsRecomputeAndCompare === true);
-gate('G423-BB — builder wants identityVerified true', IV.builderDesiredEnvelopeIdentityVerifiedTrue === true);
-gate('G423-BB — NOT compatible with merged v2 invariant', IV.compatibleWithMergedV2Invariant === false);
+gate('G423-BB — envelope invariant identityVerified false (unchanged)', IV.coreEnvelopeCurrentInvariantIdentityVerified === false);
+gate('G423-BB — envelope invariant mirrors v2', IV.coreEnvelopeCurrentInvariantIdentityVerified === CORE.CORE_ENVELOPE_INVARIANTS.identityVerified);
+gate('G423-BB — identityVerified owner = consumer_runtime', IV.identityVerifiedSemanticOwner === 'consumer_runtime');
+gate('G423-BB — selected ARCHITECTURE_1', IV.selectedArchitecture === 'ARCHITECTURE_1');
+gate('G423-BB — ARCHITECTURE_1 is final', IV.ARCHITECTURE_1_IS_FINAL === true);
+gate('G423-BB — Option B was NOT provisional', IV.optionBWasProvisional === false);
+gate('G423-BB — classification NOT_A_BLOCKER', IV.verificationStateClassification === 'NOT_A_BLOCKER');
+gate('G423-BB — verification-state NOT open', IV.bCoreEnvelopeVerificationStateOpen === false);
+gate('G423-BB — no amendment required', IV.coreEnvelopeVerificationStateAmendmentRequired === false);
+gate('G423-BB — requiredAmendment null', IV.requiredAmendment === null);
+gate('G423-BB — does NOT block builder implementation plan', IV.blocksBuilderImplementationPlan === false);
 gate('G423-BB — silent override forbidden', IV.silentOverrideAllowed === false);
-gate('G423-BB — selected Option B', IV.selectedOption === 'B');
-gate('G423-BB — options include A/B/C', ['A', 'B', 'C'].every((o) => (IV.options ?? []).some((x) => (x.option ?? x) === o || JSON.stringify(x).includes(`"${o}"`))));
-gate('G423-BB — result carries verified outside envelope', IV.builderResultCarriesVerifiedOutsideEnvelope === true);
+gate('G423-BB — builder performs recompute-and-compare', IV.builderPerformsRecomputeAndCompare === true);
+gate('G423-BB — builder verification recorded in builder decision', IV.builderVerificationRecordedInBuilderDecision === true);
+gate('G423-BB — builder verified carried OUTSIDE envelope', IV.builderResultCarriesVerifiedOutsideEnvelope === true);
+gate('G423-BB — builder does NOT need envelope verified true', IV.builderDesiredEnvelopeIdentityVerifiedTrue === false);
+gate('G423-BB — consumer verifies independently', IV.consumerPerformsIndependentVerification === true);
+gate('G423-BB — consumer verification recorded in consumer decision', IV.consumerVerificationRecordedInConsumerDecision === true);
 gate('G423-BB — envelope identityVerified remains false', IV.envelopeIdentityVerifiedRemainsFalse === true);
-gate('G423-BB — verification-state blocker OPEN', IV.bCoreEnvelopeVerificationStateOpen === true);
-gate('G423-BB — required amendment named', IV.requiredAmendment === 'Core Envelope Verification State Amendment');
-gate('G423-BB — blocks builder implementation plan', IV.blocksBuilderImplementationPlan === true);
+gate('G423-BB — envelope false means awaiting consumer verification', IV.envelopeFalseMeansAwaitingConsumerVerification === true);
+gate('G423-BB — envelope immutable', IV.envelopeIsImmutable === true);
+gate('G423-BB — options are ARCHITECTURE_1/2/3', JSON.stringify(IV.options.map((o) => o.option).sort()) === JSON.stringify(['ARCHITECTURE_1', 'ARCHITECTURE_2', 'ARCHITECTURE_3']));
+gate('G423-BB — ARCHITECTURE_1 selected + no amendment', (() => { const a = IV.options.find((o) => o.option === 'ARCHITECTURE_1'); return a.selected === true && a.requiresCoreEnvelopeAmendment === false; })());
 gate('G423-BB — identity verification not implemented', IV.identityVerificationImplemented === false);
+// Semantic ownership proven against real upstreams (consumer decision + core-envelope security fields).
+gate('G423-BB — consumer decision owns identityVerified', PLAN.CONSUMER_DECISION_PLAN.decisionFields.includes('identityVerified'));
+gate('G423-BB — identityVerified is a core-envelope security field', CORE.CORE_ENVELOPE_SECURITY_FIELDS.includes('identityVerified'));
 
 // ---- Output core envelope ----
 for (const f of B.OUTPUT_CORE_ENVELOPE_FIELDS) gate(`G423-BB — output envelope field ${f} declared`, B.OUTPUT_ENVELOPE_CONTRACT.fields.includes(f));
@@ -238,24 +255,34 @@ gate('G423-BB — prototype relink forbidden', B.PROTOTYPE_RELINK_PROHIBITION.pr
 gate('G423-BB — safe normalization max depth', B.SAFE_NORMALIZATION_CONTRACT.maxStructureDepth >= 8 && B.SAFE_NORMALIZATION_CONTRACT.failClosed === true);
 gate('G423-BB — safe normalization not implemented', B.SAFE_NORMALIZATION_CONTRACT.normalizationImplemented === false);
 
-// ---- Blocker closure / manual gate / readiness ----
+// ---- Blocker closure / manual gate / readiness (CORRECTED) ----
 const bc = B.BUILDER_BLOCKER_CLOSURE;
 gate('G423-BB — builder blocker root cause confirmed', bc.bCoreEnvelopeBuilderRootCauseConfirmed === true);
-gate('G423-BB — sub-contracts defined', bc.builderInputContractDefined === true && bc.coreExtractionContractDefined === true && bc.digestVerificationContractDefined === true && bc.outputEnvelopeContractDefined === true);
-gate('G423-BB — verification-state OPEN in closure', bc.bCoreEnvelopeVerificationStateOpen === true);
-gate('G423-BB — builder NOT closed by contract', bc.bCoreEnvelopeBuilderClosedByContract === false);
+gate('G423-BB — sub-contracts defined', bc.builderInputContractDefined === true && bc.coreExtractionContractDefined === true && bc.digestVerificationContractDefined === true && bc.outputEnvelopeContractDefined === true && bc.safeNormalizationContractDefined === true && bc.failureContainmentContractDefined === true);
+gate('G423-BB — verification-state NOT open in closure', bc.bCoreEnvelopeVerificationStateOpen === false);
+gate('G423-BB — verification-state does not block closure', bc.verificationStateBlocksClosure === false);
+gate('G423-BB — builder CLOSED by contract', bc.bCoreEnvelopeBuilderClosedByContract === true);
+gate('G423-BB — no remaining builder contract blockers', Array.isArray(bc.remainingBuilderContractBlockers) && bc.remainingBuilderContractBlockers.length === 0);
 gate('G423-BB — implementation plan required', bc.builderImplementationPlanRequired === true);
-gate('G423-BB — closure blocks builder plan', bc.readyForBuilderImplementationPlan === false && bc.readyForBuilderImplementation === false && bc.readyForRuntimeImplementation === false);
+gate('G423-BB — closure ready for builder plan, impl/runtime blocked', bc.readyForBuilderImplementationPlan === true && bc.readyForBuilderImplementation === false && bc.readyForRuntimeImplementation === false);
 gate('G423-BB — manual gate required', B.MANUAL_ENABLEMENT_GATE.manualGateRequired === true);
-gate('G423-BB — manual gate authorizes only contract', B.MANUAL_ENABLEMENT_GATE.authorizesBuilderContract === true);
-for (const k of ['authorizesBuilderImplementationPlan', 'authorizesBuilderImplementation', 'authorizesRuntimeImplementation', 'authorizesPreviewMount', 'authorizesUi', 'authorizesAppTouch', 'authorizesPersistence', 'authorizesBackend', 'authorizesPrisma', 'authorizesModuleGeneration', 'authorizesCertification', 'authorizesProductExposure']) gate(`G423-BB — manual gate ${k} false`, B.MANUAL_ENABLEMENT_GATE[k] === false);
-gate('G423-BB — readiness state', CONTRACT.readiness === 'studio_bridge_decision_core_envelope_builder_contract_ready_for_enterprise_audit');
+gate('G423-BB — manual gate authorizes only contract/correction', B.MANUAL_ENABLEMENT_GATE.authorizesBuilderContract === true && B.MANUAL_ENABLEMENT_GATE.authorizesVerificationStateCorrection === true);
+gate('G423-BB — manual gate slice = correction only', B.MANUAL_ENABLEMENT_GATE.currentSliceAuthorization === 'verification_state_classification_correction_only');
+for (const k of ['authorizesBuilderImplementationPlan', 'authorizesBuilderImplementation', 'authorizesRuntimeImplementation', 'authorizesCoreEnvelopeAmendment', 'authorizesPreviewMount', 'authorizesUi', 'authorizesAppTouch', 'authorizesPersistence', 'authorizesBackend', 'authorizesPrisma', 'authorizesModuleGeneration', 'authorizesCertification', 'authorizesProductExposure']) gate(`G423-BB — manual gate ${k} false`, B.MANUAL_ENABLEMENT_GATE[k] === false);
+gate('G423-BB — readiness state (plan audit)', CONTRACT.readiness === 'studio_bridge_decision_core_envelope_builder_contract_ready_for_builder_implementation_plan_audit');
 gate('G423-BB — readyForEnterpriseContractAudit', CONTRACT.readyForEnterpriseContractAudit === true);
-gate('G423-BB — readyForBuilderImplementationPlan false', CONTRACT.readyForBuilderImplementationPlan === false);
+gate('G423-BB — readyForBuilderImplementationPlan true', CONTRACT.readyForBuilderImplementationPlan === true);
 gate('G423-BB — readyForBuilderImplementation false', CONTRACT.readyForBuilderImplementation === false);
 gate('G423-BB — readyForRuntimeImplementation false', CONTRACT.readyForRuntimeImplementation === false);
-gate('G423-BB — bCoreEnvelopeVerificationStateOpen', CONTRACT.bCoreEnvelopeVerificationStateOpen === true);
-gate('G423-BB — bCoreEnvelopeBuilderClosedByContract false', CONTRACT.bCoreEnvelopeBuilderClosedByContract === false);
+gate('G423-BB — readyForPreviewMount false', CONTRACT.readyForPreviewMount === false);
+gate('G423-BB — readyForProductExposure false', CONTRACT.readyForProductExposure === false);
+gate('G423-BB — bCoreEnvelopeVerificationStateOpen false', CONTRACT.bCoreEnvelopeVerificationStateOpen === false);
+gate('G423-BB — bCoreEnvelopeBuilderClosedByContract true', CONTRACT.bCoreEnvelopeBuilderClosedByContract === true);
+gate('G423-BB — top-level classification NOT_A_BLOCKER', CONTRACT.verificationStateClassification === 'NOT_A_BLOCKER');
+gate('G423-BB — top-level owner consumer_runtime', CONTRACT.identityVerifiedSemanticOwner === 'consumer_runtime');
+gate('G423-BB — top-level amendment not required', CONTRACT.coreEnvelopeVerificationStateAmendmentRequired === false && CONTRACT.requiredAmendment === null);
+gate('G423-BB — top-level envelope stays false', CONTRACT.envelopeIdentityVerifiedRemainsFalse === true);
+gate('G423-BB — top-level consumer independent verification', CONTRACT.consumerPerformsIndependentVerification === true);
 
 // ---- Capabilities ----
 const CAP_TRUE = ['headless', 'devOnly', 'syntheticOnly', 'inMemoryOnly', 'ephemeralOnly', 'deterministic', 'immutable', 'failClosed', 'sideEffectFree', 'metadataOnly', 'contractOnly', 'realSourceBridgeDecisionShapeCaptured', 'realCorePreimageAllowlistCaptured', 'realOutputEnvelopeCaptured', 'ssotPreserved', 'sourceConsumedReadOnly', 'upstreamsConsumedReadOnly', 'bIdentityClosedByContract', 'bRecomputeInputClosedByContract', 'bRecomputeInputResolvedByPlan'];
@@ -263,13 +290,29 @@ for (const f of CAP_TRUE) gate(`G423-BB — capability ${f} true`, B.BUILDER_CAP
 const CAP_FALSE = ['builderFactoryImplemented', 'buildImplemented', 'coreExtractionImplemented', 'digestRecomputeImplemented', 'identityVerificationImplemented', 'envelopeConstructionImplemented', 'consumerRuntimeImplemented', 'validationExecuted', 'builderExecuted', 'sourceDecisionConsumed', 'coreExtracted', 'coreEnvelopeCreated', 'previewMounted', 'appTouched', 'routeCreated', 'menuCreated', 'persistenceImplemented', 'backendAccessed', 'prismaAccessed', 'networkUsed', 'realDataRead', 'moduleGenerated', 'certificationPerformed', 'productExposed', 'productionAccessed', 'prototypeRelinked', 'permissionModelIntegrated', 'tenantModelIntegrated', 'serverSideAuthorizationIntegrated'];
 for (const f of CAP_FALSE) gate(`G423-BB — capability ${f} false`, B.BUILDER_CAPABILITIES[f] === false);
 
-// ---- Verifier tamper battery ----
+// ---- Verifier tamper battery (corrected classification) ----
+const vbad = (label, mut) => gate(`G423-BB — verifier rejects ${label}`, B.verifyBridgeDecisionCoreEnvelopeBuilderContract({ contract: mut }).ok === false);
 gate('G423-BB — verifier passes clean', CONTRACT.verification.ok === true && CONTRACT.verification.blockers.length === 0);
-gate('G423-BB — verifier rejects premature runtime', B.verifyBridgeDecisionCoreEnvelopeBuilderContract({ contract: { ...CONTRACT, readyForRuntimeImplementation: true } }).ok === false);
-gate('G423-BB — verifier rejects premature builder plan', B.verifyBridgeDecisionCoreEnvelopeBuilderContract({ contract: { ...CONTRACT, readyForBuilderImplementationPlan: true } }).ok === false);
-gate('G423-BB — verifier rejects build implemented', B.verifyBridgeDecisionCoreEnvelopeBuilderContract({ contract: { ...CONTRACT, capabilities: { ...CONTRACT.capabilities, buildImplemented: true } } }).ok === false);
-gate('G423-BB — verifier rejects failClosed off', B.verifyBridgeDecisionCoreEnvelopeBuilderContract({ contract: { ...CONTRACT, capabilities: { ...CONTRACT.capabilities, failClosed: false } } }).ok === false);
-gate('G423-BB — verifier rejects identity falsely compatible', B.verifyBridgeDecisionCoreEnvelopeBuilderContract({ contract: { ...CONTRACT, identityVerificationState: { ...CONTRACT.identityVerificationState, compatibleWithMergedV2Invariant: true } } }).ok === false);
+vbad('premature runtime', { ...CONTRACT, readyForRuntimeImplementation: true });
+vbad('premature builder impl', { ...CONTRACT, readyForBuilderImplementation: true });
+vbad('builder plan NOT ready', { ...CONTRACT, readyForBuilderImplementationPlan: false });
+vbad('build implemented', { ...CONTRACT, capabilities: { ...CONTRACT.capabilities, buildImplemented: true } });
+vbad('failClosed off', { ...CONTRACT, capabilities: { ...CONTRACT.capabilities, failClosed: false } });
+vbad('classification not NOT_A_BLOCKER', { ...CONTRACT, identityVerificationState: { ...CONTRACT.identityVerificationState, verificationStateClassification: 'VALID_FUTURE_BLOCKER' } });
+vbad('owner not consumer', { ...CONTRACT, identityVerificationState: { ...CONTRACT.identityVerificationState, identityVerifiedSemanticOwner: 'builder' } });
+vbad('verification-state open', { ...CONTRACT, identityVerificationState: { ...CONTRACT.identityVerificationState, bCoreEnvelopeVerificationStateOpen: true } });
+vbad('amendment required flag', { ...CONTRACT, identityVerificationState: { ...CONTRACT.identityVerificationState, coreEnvelopeVerificationStateAmendmentRequired: true } });
+vbad('requiredAmendment not null', { ...CONTRACT, identityVerificationState: { ...CONTRACT.identityVerificationState, requiredAmendment: 'Core Envelope Verification State Amendment' } });
+vbad('builder verified not outside envelope', { ...CONTRACT, identityVerificationState: { ...CONTRACT.identityVerificationState, builderResultCarriesVerifiedOutsideEnvelope: false } });
+vbad('consumer independent verification missing', { ...CONTRACT, identityVerificationState: { ...CONTRACT.identityVerificationState, consumerPerformsIndependentVerification: false } });
+vbad('envelope invariant true', { ...CONTRACT, identityVerificationState: { ...CONTRACT.identityVerificationState, coreEnvelopeCurrentInvariantIdentityVerified: true } });
+vbad('envelope remains-false=false', { ...CONTRACT, identityVerificationState: { ...CONTRACT.identityVerificationState, envelopeIdentityVerifiedRemainsFalse: false } });
+vbad('silent override', { ...CONTRACT, identityVerificationState: { ...CONTRACT.identityVerificationState, silentOverrideAllowed: true } });
+vbad('closure not closed', { ...CONTRACT, builderBlockerClosure: { ...CONTRACT.builderBlockerClosure, bCoreEnvelopeBuilderClosedByContract: false } });
+vbad('closure verification-state open', { ...CONTRACT, builderBlockerClosure: { ...CONTRACT.builderBlockerClosure, bCoreEnvelopeVerificationStateOpen: true } });
+vbad('closure remaining blockers', { ...CONTRACT, builderBlockerClosure: { ...CONTRACT.builderBlockerClosure, remainingBuilderContractBlockers: ['x'] } });
+vbad('manual gate authorizes plan', { ...CONTRACT, manualEnablementGate: { ...CONTRACT.manualEnablementGate, authorizesBuilderImplementationPlan: true } });
+vbad('manual gate authorizes amendment', { ...CONTRACT, manualEnablementGate: { ...CONTRACT.manualEnablementGate, authorizesCoreEnvelopeAmendment: true } });
 
 // ---- Manifest / compatibility ----
 const a1 = B.createStudioBridgeDecisionCoreEnvelopeBuilderContract();
@@ -282,8 +325,13 @@ gate('G423-BB — compatible with hardened bridge', comp.compatibleWithHardenedB
 gate('G423-BB — compatible with core envelope v2', comp.compatibleWithCoreEnvelopeContractV2 === true);
 gate('G423-BB — compatible with plan-alignment amendment', comp.compatibleWithPlanAlignmentAmendment === true);
 gate('G423-BB — compatible with v1 identity envelope', comp.compatibleWithIdentityEnvelopeV1 === true);
-gate('G423-BB — compat verification-state open + plan blocked', comp.bCoreEnvelopeVerificationStateOpen === true && comp.readyForBuilderImplementationPlan === false);
-gate('G423-BB — compat status', comp.status === 'bridge_decision_core_envelope_builder_contract_ready_for_enterprise_audit');
+gate('G423-BB — compat verification-state closed + plan ready', comp.bCoreEnvelopeVerificationStateOpen === false && comp.readyForBuilderImplementationPlan === true);
+gate('G423-BB — compat builder closed by contract', comp.bCoreEnvelopeBuilderClosedByContract === true);
+gate('G423-BB — compat owner consumer_runtime', comp.identityVerifiedSemanticOwner === 'consumer_runtime');
+gate('G423-BB — compat classification NOT_A_BLOCKER', comp.verificationStateClassification === 'NOT_A_BLOCKER');
+gate('G423-BB — compat amendment not required', comp.coreEnvelopeVerificationStateAmendmentRequired === false);
+gate('G423-BB — compat impl/runtime blocked', comp.readyForBuilderImplementation === false && comp.readyForRuntimeImplementation === false);
+gate('G423-BB — compat status', comp.status === 'bridge_decision_core_envelope_builder_contract_ready_for_builder_implementation_plan_audit');
 
 // ---- No runtime / no builder (static) ----
 const code = codeNoVerifier();
@@ -303,7 +351,10 @@ gate('G423-BB — no App/backend/prisma import', !importsOf().some((i) => /App\.
 const DOCS = ['CERTIFICATION-REPORT.md', 'BUILDER-CONTRACT-REPORT.md', 'B-CORE-ENVELOPE-BUILDER-ROOT-CAUSE.md', 'REAL-SOURCE-BRIDGE-DECISION-SHAPE.md', 'SOURCE-ELIGIBILITY-CONTRACT.md', 'CORE-EXTRACTION-CONTRACT.md', 'DIGEST-RECOMPUTE-CONTRACT.md', 'SAME-DECISION-ATOMICITY.md', 'FUTURE-BUILDER-PUBLIC-API.md', 'OUTPUT-CORE-ENVELOPE-CONTRACT.md', 'IDENTITY-VERIFICATION-STATE-ANALYSIS.md', 'SAFE-NORMALIZATION-CONTRACT.md', 'VALIDATION-PIPELINE-CONTRACT.md', 'ISSUE-MODEL-CONTRACT.md', 'FAILURE-CONTAINMENT-CONTRACT.md', 'RESOURCE-LIMITS-CONTRACT.md', 'EXTENSIBILITY-CONTRACT.md', 'REPLAY-IDEMPOTENCY-CONTRACT.md', 'SSOT-SECURITY-PERMISSION-BOUNDARY.md', 'PROTOTYPE-RELINK-PROHIBITION.md', 'B-CORE-ENVELOPE-BUILDER-CLOSURE.md', 'MANUAL-ENABLEMENT-GATE.md', 'READINESS-TRANSITION.md', 'MANIFEST-VERIFIER-COMPATIBILITY.md', 'NO-BUILDER-NO-RUNTIME-NO-UI-NO-APP.md', 'BUILD-BUNDLE-ABSENCE.md', 'QUALITY-SCALABILITY-RISK-NOTES.md', 'NEXT-ENTERPRISE-CONTRACT-AUDIT.md'];
 gate('G423-BB — 28 evidence docs listed', DOCS.length === 28);
 for (const d of DOCS) gate(`G423-BB — doc ${d}`, readEv(d).length > 60);
-gate('G423-BB — identity analysis declares B-CORE-ENVELOPE-VERIFICATION-STATE open', /B-CORE-ENVELOPE-VERIFICATION-STATE/.test(readEv('IDENTITY-VERIFICATION-STATE-ANALYSIS.md')) && /ABERTO/.test(readEv('IDENTITY-VERIFICATION-STATE-ANALYSIS.md')));
+gate('G423-BB — identity analysis declares NOT_A_BLOCKER + no amendment', (() => { const d = readEv('IDENTITY-VERIFICATION-STATE-ANALYSIS.md'); return /B-CORE-ENVELOPE-VERIFICATION-STATE/.test(d) && /NOT_A_BLOCKER/.test(d) && /no amendment required/i.test(d) && /consumer-owned/.test(d); })());
+gate('G423-BB — every evidence doc declaring the historical id also declares NOT_A_BLOCKER', (() => {
+  for (const f of fs.readdirSync(EV)) { const d = readEv(f); if (/B-CORE-ENVELOPE-VERIFICATION-STATE/.test(d) && !/NOT_A_BLOCKER/.test(d)) return false; } return true;
+})());
 
 // ---- Scope ----
 const files = (() => { try { return execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean); } catch { return null; } })();
@@ -326,7 +377,7 @@ try {
   testOk = Boolean(fail) && Number(fail[1]) === 0 && testCount > 0;
 } catch { testOk = false; }
 gate('G423-BB — contract unit tests PASS', testOk, `${testCount} scenarios`);
-gate('G423-BB — unit test has >= 820 scenarios', testCount >= 820, `${testCount} (min 820)`);
+gate('G423-BB — unit test has >= 920 scenarios', testCount >= 920, `${testCount} (min 920)`);
 
 const failed = results.filter((r) => !r.ok);
 console.log(`\n--- G423-STUDIO-BRIDGE-DECISION-CORE-ENVELOPE-BUILDER-CONTRACT summary ---`);
