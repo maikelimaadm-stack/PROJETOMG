@@ -21,13 +21,16 @@ export function checkBridgeDecisionCoreEnvelopeBuilderCompatibility() {
     bIdentityClosedByContract: true,
     bRecomputeInputClosedByContract: true,
     bRecomputeInputResolvedByPlan: true,
+    identityVerifiedSemanticOwner: IDENTITY_VERIFICATION_STATE_CONTRACT.identityVerifiedSemanticOwner,
+    verificationStateClassification: IDENTITY_VERIFICATION_STATE_CONTRACT.verificationStateClassification,
+    coreEnvelopeVerificationStateAmendmentRequired: IDENTITY_VERIFICATION_STATE_CONTRACT.coreEnvelopeVerificationStateAmendmentRequired === true,
     bCoreEnvelopeBuilderClosedByContract: BUILDER_BLOCKER_CLOSURE.bCoreEnvelopeBuilderClosedByContract === true,
     bCoreEnvelopeVerificationStateOpen: IDENTITY_VERIFICATION_STATE_CONTRACT.bCoreEnvelopeVerificationStateOpen === true,
     readyForEnterpriseContractAudit: true,
-    readyForBuilderImplementationPlan: false,
+    readyForBuilderImplementationPlan: BUILDER_BLOCKER_CLOSURE.readyForBuilderImplementationPlan === true,
     readyForBuilderImplementation: false,
     readyForRuntimeImplementation: false,
-    status: 'bridge_decision_core_envelope_builder_contract_ready_for_enterprise_audit',
+    status: 'bridge_decision_core_envelope_builder_contract_ready_for_builder_implementation_plan_audit',
   });
 }
 export default checkBridgeDecisionCoreEnvelopeBuilderCompatibility;

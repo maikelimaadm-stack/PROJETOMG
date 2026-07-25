@@ -15,7 +15,7 @@ export function createBuilderContractDiagnostics(options = {}) {
     readyForRuntimeImplementation: v.readyForRuntimeImplementation === true,
     blockerCount: blockers.length, firstBlockers: deepFreeze(blockers.slice(0, 12)),
     summary: v.ok === true
-      ? 'BUILDER CONTRACT valid: contract-only; B-CORE-ENVELOPE-BUILDER sub-contracts defined; B-CORE-ENVELOPE-VERIFICATION-STATE OPEN (identityVerified invariant conflict); builder implementation plan NOT authorized; runtime blocked.'
+      ? 'BUILDER CONTRACT valid: contract-only; B-CORE-ENVELOPE-BUILDER CLOSED BY CONTRACT; B-CORE-ENVELOPE-VERIFICATION-STATE NOT_A_BLOCKER (identityVerified is consumer-owned; builder verification recorded in the builder decision; immutable pre-consumer envelope stays false; no amendment required); technically ready for the Builder Implementation Plan audit; execution not authorized here; builder implementation and runtime blocked.'
       : `BUILDER CONTRACT invalid: ${blockers.length} blocker(s).`,
   });
 }

@@ -38,5 +38,7 @@ Allowlist:
 - `idempotent`
 - `replaySideEffectsAllowed`
 
+Inalterado por esta correção.
+
 ---
-_Evidência gerada como parte do slice Post-Foundation C — Studio Bridge Decision Core Envelope Builder Contract. Memória = repositório._
+_Evidência do slice Post-Foundation C — Studio Core Envelope Builder Verification State Classification Correction (correção pós-#492). Memória = repositório._

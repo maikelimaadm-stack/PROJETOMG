@@ -1,24 +1,37 @@
-# Identity Verification State — Analysis (B-CORE-ENVELOPE-VERIFICATION-STATE)
+# Identity Verification State — Analysis (CORRECTED: NOT_A_BLOCKER)
 
 > Contrato: `studio-bridge-decision-core-envelope-builder-contract@1.0.0` — headless, dev-only, síntese-only, in-memory, efêmero, determinístico, imutável, fail-closed, side-effect-free. Definição apenas; nenhum builder é construído, nenhuma decisão consumida, nenhum core extraído, nenhum digest recomputado, nenhum envelope emitido em runtime.
 
-### O conflito
+### Owner semântico
 
-O Core Envelope v2 fixa `CORE_ENVELOPE_INVARIANTS.identityVerified = false` como invariante absoluta de instância. Simultaneamente, `identityVerified` é um campo de segurança do consumer-runtime. O builder executa recompute-and-compare (uma verificação real de integridade), mas NÃO pode emitir `identityVerified:true` no envelope sem violar a invariante mergeada.
+`identityVerified` é **consumer-owned** (`identityVerifiedSemanticOwner = consumer_runtime`). Evidência: no Core Envelope v2 ele pertence a `CORE_ENVELOPE_SECURITY_FIELDS` junto de `coreConsumed`/`consumerRuntimeInvoked`/`previewMounted`/`productExposed`; e a `CONSUMER_DECISION_PLAN.decisionFields` inclui o seu próprio `identityVerified`.
 
-### Decisão
+### Builder vs consumer
 
-NÃO sobrescrever silenciosamente. Declarar **B-CORE-ENVELOPE-VERIFICATION-STATE = ABERTO**.
+```
+builder verification  !=  consumer identity verification
+```
 
-### Opções avaliadas (de upstreams reais)
+- **Builder**: valida a bridgeDecision, extrai o core, recomputa e compara o digest, e grava `builderDecision.identityVerified=true`. Essa flag pertence à decisão do builder, FORA do envelope.
+- **Envelope**: imutável, pré-consumer, permanece `identityVerified=false` = "ainda não verificado pelo consumer"; não é mutado pelo consumer.
+- **Consumer**: recebe o envelope, recomputa o digest independentemente, e produz `consumerDecision.identityVerified=true` quando válido.
 
-- **Option A** — emendar a invariante do Core Envelope v2 para permitir `identityVerified` derivado do recompute-and-compare (mudança de contrato/estado; exige amendment).
-- **Option B (selecionada agora)** — o RESULT do builder carrega o estado verificado FORA do envelope; o envelope permanece `identityVerified:false`. Compatível com o v2 mergeado sem alteração.
-- **Option C** — introduzir um campo/estado de lifecycle separado no envelope via amendment.
+### Arquiteturas
 
-### Recomendação
+- **ARCHITECTURE 1 (selecionada, FINAL)** — consumer-owned; builder verifica na builder decision; envelope imutável permanece false; consumer reverifica. **Sem amendment.**
+- **ARCHITECTURE 2** — lifecycle amendment (envelope emitido pelo builder poderia anunciar `identityVerified=true`, ou versão/estado "verified"). Requer amendment. **NÃO selecionada.**
+- **ARCHITECTURE 3** — remover/renomear o campo em versão futura do envelope. Requer amendment. **NÃO selecionada.**
 
-Option B para este slice (sem alteração de SSOT). Para verificação anunciada pelo envelope, uma futura **Core Envelope Verification State Amendment** (Option A ou C). `compatibleWithMergedV2Invariant = false`.
+### Classificação
+
+```
+verificationStateClassification: NOT_A_BLOCKER
+bCoreEnvelopeVerificationStateOpen: false
+coreEnvelopeVerificationStateAmendmentRequired: false
+requiredAmendment: null
+```
+
+**B-CORE-ENVELOPE-VERIFICATION-STATE = NOT_A_BLOCKER — no amendment required.** **Correção semântica (pós-auditoria da PR #492).** O identificador histórico **B-CORE-ENVELOPE-VERIFICATION-STATE** é reclassificado como **NOT_A_BLOCKER** — **no amendment required**. O campo `identityVerified` é **consumer-owned**: no Core Envelope v2 ele pertence a `CORE_ENVELOPE_SECURITY_FIELDS` (ao lado de `coreConsumed`, `consumerRuntimeInvoked`, `previewMounted`, `productExposed`), e a decisão do consumer carrega o SEU próprio `identityVerified`. A verificação do builder (recompute-and-compare) é registrada na **builder decision**, FORA do envelope imutável; o envelope pré-consumer permanece corretamente `identityVerified:false` (= "ainda não verificado pelo consumer"); o consumer reverifica independentemente. Isto é a **ARCHITECTURE 1**, e ela é **FINAL**. Consequência: `bCoreEnvelopeBuilderClosedByContract:true` e `readyForBuilderImplementationPlan:true`. Nenhum Core Envelope Verification State Amendment será criado.
 
 ---
-_Evidência gerada como parte do slice Post-Foundation C — Studio Bridge Decision Core Envelope Builder Contract. Memória = repositório._
+_Evidência do slice Post-Foundation C — Studio Core Envelope Builder Verification State Classification Correction (correção pós-#492). Memória = repositório._
