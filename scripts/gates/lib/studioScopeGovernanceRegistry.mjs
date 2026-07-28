@@ -60,6 +60,20 @@ export const FORBIDDEN_SCOPE_PATTERNS = Object.freeze([
  * @type {RegExp[]}
  */
 export const KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS = Object.freeze([
+  // Studio Bridge Decision Core Envelope BUILDER (real implementation) — the headless, dev-only, in-memory,
+  // ephemeral, deterministic, immutable, fail-closed, side-effect-free builder that receives a real complete
+  // bridgeDecision, safely normalizes config/source (no getter execution), validates shape/eligibility/versions/
+  // security/target against the real merged upstreams, resolves the real DECISION_DIGEST_PREIMAGE_FIELDS allowlist,
+  // extracts the exact bridgeDecisionCore, recomputes and exactly compares bridgeDecisionDigest, preserves
+  // same-decision atomicity, constructs an immutable Core Envelope v2 (identityVerified stays false), records
+  // builderDecision.identityVerified=true OUTSIDE the envelope on success (ARCHITECTURE 1, final), and returns a
+  // deep-frozen success or atomic sanitized rejection. It implements NO consumer runtime, NO preview runtime, mounts
+  // no preview, touches no App, creates no route/menu/UI, persists nothing, accesses no backend/Prisma/network,
+  // generates no module, certifies no product and creates no Core Envelope Verification State Amendment.
+  /^src\/studio\/blueprint-engine\/bridge-decision-core-envelope-builder\//,
+  /^src\/runtime\/__tests__\/studio-bridge-decision-core-envelope-builder\.test\.js$/,
+  /^scripts\/gates\/g423-studio-bridge-decision-core-envelope-builder\.mjs$/,
+  /^docs\/evidence\/post-foundation-c-studio-bridge-decision-core-envelope-builder\//,
   // Studio Bridge Decision Core Envelope Builder IMPLEMENTATION PLAN — the headless, deterministic, immutable,
   // fail-closed, PLAN-ONLY definition of the enterprise implementation plan for the FUTURE builder. It consumes the
   // audited Builder Contract (B-CORE-ENVELOPE-BUILDER closed-by-contract; identityVerified consumer-owned,
