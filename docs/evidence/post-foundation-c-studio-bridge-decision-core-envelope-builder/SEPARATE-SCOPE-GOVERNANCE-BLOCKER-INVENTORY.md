@@ -2,7 +2,7 @@
 
 Inventário medido na branch REAL, no mesmo worktree, sem mover refs e sem diff vazio.
 
-- `HEAD` = `d0d84f0` (working tree desta rodada, antes do commit final)
+- `HEAD` = `bb1a65a3bf0e5460ce066b9fea6413f0a6aa4c77`
 - `origin/main` = `73d298e09fea349f9bc836555360d6adcb74655c`
 - `merge-base` = `73d298e09fea349f9bc836555360d6adcb74655c`
 - caminhos em `git diff --name-only origin/main...HEAD` fora de `docs/evidence/…/` e `package.json`:
