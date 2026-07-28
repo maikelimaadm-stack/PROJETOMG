@@ -27,6 +27,7 @@ import {
 import {
   SOURCE_HANDOFF_KIND as UPSTREAM_SOURCE_HANDOFF_KIND,
   SOURCE_HANDOFF_VERSION as UPSTREAM_SOURCE_HANDOFF_VERSION,
+  createTargetPreviewSandboxDescriptor,
 } from '../authoring-runtime-to-preview-bridge/index.js';
 import { deepFreeze } from './deepFreeze.js';
 
@@ -90,20 +91,11 @@ export const AUTHORING_RUNTIME_VERSION_REF = UPSTREAM_AUTHORING_RUNTIME_VERSION;
 export const SOURCE_HANDOFF_KIND_REF = UPSTREAM_SOURCE_HANDOFF_KIND;                   // upstream
 export const SOURCE_HANDOFF_VERSION_REF = UPSTREAM_SOURCE_HANDOFF_VERSION;             // upstream
 /**
- * TARGET_DESCRIPTOR_KIND_LOCAL_REFERENCE_EXCEPTION
- * The descriptor's own `kind` ('bridge-target-preview-sandbox-descriptor') has NO upstream constant export (the
- * runtime contract exports FUTURE_SANDBOX_DESCRIPTOR_KIND / SANDBOX_DESCRIPTOR_CONTRACT.kind, which are different
- * values). It is therefore a documented LOCAL REFERENCE, not a derivation — and the verifier, test and gate all
- * prove it equals the kind emitted by a REAL bridge decision.
+ * The descriptor's own `kind` is DERIVED from the pure upstream factory that emits it — there is no local literal
+ * and no documented exception. `createTargetPreviewSandboxDescriptor` is pure, synchronous, side-effect-free and
+ * deep-freezes its result, so probing it with an empty mapping is a safe read of the single source of truth.
  */
-export const TARGET_DESCRIPTOR_KIND = 'bridge-target-preview-sandbox-descriptor';
-export const TARGET_DESCRIPTOR_KIND_LOCAL_REFERENCE_EXCEPTION = deepFreeze({
-  field: 'targetDescriptor.kind',
-  value: TARGET_DESCRIPTOR_KIND,
-  derivedFromUpstreamConstant: false,
-  reason: 'no upstream constant exports this descriptor kind',
-  provenAgainstRealBridgeDecision: true,
-});
+export const TARGET_DESCRIPTOR_KIND = createTargetPreviewSandboxDescriptor({ mapped: {} }).kind;
 export const SOURCE_SECURITY_DECISION_FIELDS = deepFreeze([...SOURCE_SECURITY_FIELDS]);
 
 /**
@@ -152,11 +144,18 @@ export function isStudioCoreEnvelopeBuilderEnabled() {
   try { return globalThis.process.env[MAK_STUDIO_CORE_ENVELOPE_BUILDER_FLAG] === '1'; } catch { return false; }
 }
 
-// ---- Default config (frozen). ----
+/**
+ * Default config (frozen). The builder is ALWAYS strict — the contract declares `silentCorrectionAllowed:false` and
+ * `permissiveFallbackAllowed:false`, so there is no `strict` option to turn off and none is accepted. The only
+ * configurable knob is `maxStructureDepth`, and it must be an integer in 1..MAX_STRUCTURE_DEPTH.
+ */
 export const DEFAULT_BUILDER_CONFIG = deepFreeze({
-  strict: true,
   maxStructureDepth: MAX_STRUCTURE_DEPTH,
 });
+/** The EXACT set of accepted config keys. Anything else is rejected; nothing is silently defaulted over. */
+export const BUILDER_CONFIG_ALLOWED_KEYS = deepFreeze(Object.keys(DEFAULT_BUILDER_CONFIG));
+/** The builder never runs in a non-strict mode; this is a fact, not an option. */
+export const BUILDER_ALWAYS_STRICT = true;
 // Config keys whose override is FORBIDDEN (critical invariants come from upstream only).
 export const FORBIDDEN_CONFIG_OVERRIDE_KEYS = deepFreeze([
   'sourceFields', 'coreAllowlist', 'digestPreimageFields', 'digestHelper', 'envelopeFields', 'envelopeInvariants',

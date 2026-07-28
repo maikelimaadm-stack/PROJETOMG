@@ -2,10 +2,23 @@ import { ISSUE_CODES, ISSUE_SEVERITIES, ISSUE_SHAPE_FIELDS, RESOURCE_LIMITS, PIP
 import { deepFreeze } from './deepFreeze.js';
 
 /**
+ * INTERNAL, sanitized construction failure. Carries a fixed reason token only — never the offending value, a raw
+ * message, a stack, a cause, the source decision, the config or an internal path. The public boundary converts it
+ * into the single deterministic `BUILDER_UNEXPECTED_EXECUTION_FAILURE` rejection.
+ */
+export class BuilderIssueConstructionError extends Error {
+  constructor(reason) {
+    super('builder_issue_construction_failed');
+    this.name = 'BuilderIssueConstructionError';
+    this.reason = typeof reason === 'string' ? reason : 'unknown';
+  }
+}
+
+/**
  * CLOSED stage allowlist: the 23 canonical pipeline stages plus the only two non-pipeline boundaries the builder
  * legitimately reports from — `config_normalization` (before the pipeline starts) and `public_boundary` (the public
- * API edge). There is NO pattern fallback: an arbitrary lowercase token such as `made_up_stage` is NOT accepted and
- * collapses deterministically to `unknown`.
+ * API edge). There is NO pattern fallback and NO `unknown` bucket: a stage outside this list is a construction
+ * failure, not a silently corrected value.
  */
 export const ISSUE_STAGE_ALLOWLIST = deepFreeze([...PIPELINE_STAGES, 'config_normalization', 'public_boundary']);
 
@@ -14,12 +27,11 @@ export function isAllowedIssueStage(stage) {
   return typeof stage === 'string' && ISSUE_STAGE_ALLOWLIST.includes(stage);
 }
 
-/** Safe, deterministic, relative path token. Never an absolute path, raw value or secret. */
-function sanitizePath(p) {
-  if (typeof p !== 'string' || p.length === 0) return '';
-  // Only a dotted/relative field path made of safe tokens; anything else collapses deterministically.
-  return /^[A-Za-z0-9_.[\]]{1,120}$/.test(p) && !p.startsWith('/') ? p : '';
+/** A safe, deterministic, relative field path token. Never an absolute path, raw value or secret. */
+export function isValidIssuePath(p) {
+  return typeof p === 'string' && p.length > 0 && /^[A-Za-z0-9_.[\]]{1,120}$/.test(p) && !p.startsWith('/');
 }
+
 /** Deterministic, code-derived message. Never an exception message, stack, cause or raw value. */
 function deterministicMessage(issueCode) {
   return `builder rejected: ${issueCode}`;
@@ -28,20 +40,24 @@ function deterministicMessage(issueCode) {
 /**
  * Builds a single issue in the EXACT contract shape (10 fields):
  * issueCode, severity, stage, path, message, deterministic, blocksBuilder, blocksEnvelope, blocksRuntime,
- * blocksPreviewSandbox. Only a known issue code, a known stage, a sanitized relative path and a code-derived
- * message are ever emitted.
+ * blocksPreviewSandbox.
+ *
+ * STRICT, NO FALLBACK — the contract declares `silentCorrectionAllowed:false` and `permissiveFallbackAllowed:false`.
+ * An unknown issue code, an unknown severity, a stage outside the allowlist or a supplied-but-invalid path THROWS
+ * `BuilderIssueConstructionError`. Nothing is coerced, defaulted or downgraded. An OMITTED path stays `''`.
  */
 export function makeIssue(issueCode, stage, severity = 'blocker', path = '') {
-  const safeCode = ISSUE_CODES.includes(issueCode) ? issueCode : 'BUILDER_CONFIG_INVALID';
-  const safeSeverity = ISSUE_SEVERITIES.includes(severity) ? severity : 'blocker';
-  const safeStage = isAllowedIssueStage(stage) ? stage : 'unknown';
-  const blocking = safeSeverity === 'blocker' || safeSeverity === 'error';
+  if (!ISSUE_CODES.includes(issueCode)) throw new BuilderIssueConstructionError('unknown_issue_code');
+  if (!ISSUE_SEVERITIES.includes(severity)) throw new BuilderIssueConstructionError('unknown_severity');
+  if (!isAllowedIssueStage(stage)) throw new BuilderIssueConstructionError('stage_outside_allowlist');
+  if (path !== '' && !isValidIssuePath(path)) throw new BuilderIssueConstructionError('invalid_path');
+  const blocking = severity === 'blocker' || severity === 'error';
   return {
-    issueCode: safeCode,
-    severity: safeSeverity,
-    stage: safeStage,
-    path: sanitizePath(path),
-    message: deterministicMessage(safeCode),
+    issueCode,
+    severity,
+    stage,
+    path,
+    message: deterministicMessage(issueCode),
     deterministic: true,
     blocksBuilder: blocking,
     blocksEnvelope: blocking,
@@ -52,24 +68,27 @@ export function makeIssue(issueCode, stage, severity = 'blocker', path = '') {
 
 /** True iff the value has exactly the contract issue shape. */
 export function hasExactIssueShape(issue) {
-  if (!issue || typeof issue !== 'object') return false;
+  if (!issue || typeof issue !== 'object' || Array.isArray(issue)) return false;
   const keys = Object.keys(issue);
   return keys.length === ISSUE_SHAPE_FIELDS.length && ISSUE_SHAPE_FIELDS.every((f) => Object.prototype.hasOwnProperty.call(issue, f));
 }
 
 /**
- * Deterministically normalizes an issue list: exact shape, dedupe by (issueCode+stage+path), stable ordering, and a
- * HARD cap at maxIssues — overflow is NOT truncated silently; the caller receives an explicit
- * BUILDER_LIMIT_EXCEEDED issue instead (see normalizeIssuesWithOverflow).
+ * Deterministically normalizes an issue list: EXACT shape only, dedupe by (issueCode+stage+path), stable ordering.
+ *
+ * FAIL-CLOSED — a non-object entry, an incomplete shape, an incompatible extra field, an invalid code / stage /
+ * severity / path, or the undocumented `code` alias all THROW `BuilderIssueConstructionError`. Nothing is skipped,
+ * ignored or silently corrected.
  */
 export function normalizeIssues(issues) {
-  const list = Array.isArray(issues) ? issues : [];
+  if (!Array.isArray(issues)) throw new BuilderIssueConstructionError('issue_list_not_array');
   const seen = new Set();
   const out = [];
-  for (const it of list) {
-    if (!it || typeof it !== 'object') continue;
-    // EXACT contract field only — there is no `code` alias. An entry without a valid `issueCode` collapses
-    // fail-closed to BUILDER_CONFIG_INVALID inside makeIssue rather than being silently reinterpreted.
+  for (const it of issues) {
+    if (!it || typeof it !== 'object' || Array.isArray(it)) throw new BuilderIssueConstructionError('issue_not_object');
+    if (Object.prototype.hasOwnProperty.call(it, 'code')) throw new BuilderIssueConstructionError('issue_code_alias_forbidden');
+    if (!hasExactIssueShape(it)) throw new BuilderIssueConstructionError('issue_shape_incomplete_or_extended');
+    // Rebuilt from the declared fields only — makeIssue re-validates code, severity, stage and path.
     const iss = makeIssue(it.issueCode, it.stage, it.severity, it.path);
     const key = `${iss.issueCode}::${iss.stage}::${iss.path}`;
     if (seen.has(key)) continue;

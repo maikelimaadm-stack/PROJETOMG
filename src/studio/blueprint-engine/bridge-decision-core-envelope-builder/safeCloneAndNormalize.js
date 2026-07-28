@@ -8,6 +8,14 @@ export class BuilderNormalizationError extends Error {
   constructor(code) { super(code); this.name = 'BuilderNormalizationError'; this.code = code; }
 }
 
+/**
+ * Array-length preflight budget, MATHEMATICALLY IMPLIED by the real `maxSourceDecisionBytes` dimension — not a new
+ * contractual limit. In the canonical serialization every array element costs at least one byte plus one separator,
+ * so an array longer than `maxSourceDecisionBytes / 2` can never serialize inside the real byte ceiling. It exists
+ * only to bound work before serialization; the real byte, depth and string limits still decide afterwards.
+ */
+const ARRAY_LENGTH_BYTE_BUDGET = Math.floor(RESOURCE_LIMITS.maxSourceDecisionBytes / 2);
+
 const isPlainObject = (v) => {
   if (v === null || typeof v !== 'object' || Array.isArray(v)) return false;
   const proto = Object.getPrototypeOf(v);
@@ -58,7 +66,12 @@ export function safeCloneAndNormalize(value, opts = {}) {
         if (typeof lenDesc.get === 'function' || typeof lenDesc.set === 'function') throw new BuilderNormalizationError('BUILDER_SOURCE_ACCESSOR_FORBIDDEN');
         const len = lenDesc.value;
         if (!Number.isSafeInteger(len) || len < 0) throw new BuilderNormalizationError('BUILDER_SOURCE_UNSUPPORTED_VALUE');
-        if (len > RESOURCE_LIMITS.maxSourceDecisionFields) throw new BuilderNormalizationError('BUILDER_LIMIT_EXCEEDED');
+        // Array length is NOT bounded by maxSourceDecisionFields — that dimension means "top-level fields of the
+        // bridgeDecision", not "elements of any nested array". The only preflight here is a budget MATHEMATICALLY
+        // IMPLIED by maxSourceDecisionBytes: the shortest possible serialization of one element is a single byte
+        // plus its separator, so a length beyond that ceiling cannot serialize within the real byte limit. No new
+        // contractual dimension is introduced and the real byte/depth/string limits still decide afterwards.
+        if (len > ARRAY_LENGTH_BYTE_BUDGET) throw new BuilderNormalizationError('BUILDER_LIMIT_EXCEEDED');
         const out = [];
         for (let i = 0; i < len; i += 1) {
           const desc = Object.getOwnPropertyDescriptor(v, String(i));

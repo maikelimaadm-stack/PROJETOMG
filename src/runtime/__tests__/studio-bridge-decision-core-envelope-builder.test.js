@@ -15,8 +15,17 @@ import * as LIM from '../../studio/blueprint-engine/bridge-decision-core-envelop
 import { executeBuilderValidationPipeline } from '../../studio/blueprint-engine/bridge-decision-core-envelope-builder/executeBuilderValidationPipeline.js';
 import { normalizeBuilderConfig } from '../../studio/blueprint-engine/bridge-decision-core-envelope-builder/normalizeBuilderConfig.js';
 import { safeCloneAndNormalize } from '../../studio/blueprint-engine/bridge-decision-core-envelope-builder/safeCloneAndNormalize.js';
+import { createEmergencyBuilderRejection } from '../../studio/blueprint-engine/bridge-decision-core-envelope-builder/createEmergencyBuilderRejection.js';
 import { ISSUE_STAGE_ALLOWLIST, isAllowedIssueStage } from '../../studio/blueprint-engine/bridge-decision-core-envelope-builder/normalizeIssues.js';
-import { BUILDER_COMPATIBILITY_SNAPSHOT, evaluateBuilderCompatibilitySnapshot } from '../../studio/blueprint-engine/bridge-decision-core-envelope-builder/verifyBuilderCompatibility.js';
+import {
+  BUILDER_COMPATIBILITY_SNAPSHOT, evaluateBuilderCompatibilitySnapshot, PUBLIC_INDEX_EXPORT_ALLOWLIST,
+} from '../../studio/blueprint-engine/bridge-decision-core-envelope-builder/verifyBuilderCompatibility.js';
+import {
+  BOUNDARY_STAGE_VALIDATORS, PIPELINE_STAGE_PROOF_MATRIX,
+} from '../../studio/blueprint-engine/bridge-decision-core-envelope-builder/executeBuilderValidationPipeline.js';
+import { MANIFEST_PART_NAMES, digestManifestParts } from '../../studio/blueprint-engine/bridge-decision-core-envelope-builder/builderManifest.js';
+import { IDENTITY_ARCHITECTURE } from '../../studio/blueprint-engine/bridge-decision-core-envelope-builder/identityArchitecture.js';
+import { BuilderIssueConstructionError, isValidIssuePath } from '../../studio/blueprint-engine/bridge-decision-core-envelope-builder/normalizeIssues.js';
 import { READINESS_READY, READINESS_NEEDS_FIX } from '../../studio/blueprint-engine/bridge-decision-core-envelope-builder/builderReadiness.js';
 import * as RC from '../../studio/blueprint-engine/bridge-to-preview-sandbox-runtime-contract/index.js';
 import * as BR from '../../studio/blueprint-engine/authoring-runtime-to-preview-bridge/index.js';
@@ -617,11 +626,11 @@ test('C-ISSUE exact 10-field shape from the contract', () => {
   assert.equal(typeof i.message, 'string');
   assert.ok(!i.path.startsWith('/'));
 });
-test('C-ISSUE unknown code + hostile path sanitized', () => {
-  const i = makeIssue('NOT_A_REAL_CODE', 'x', 'weird', '/etc/passwd');
-  assert.ok(CFG.ISSUE_CODES.includes(i.issueCode));
-  assert.equal(i.path, '');
-  assert.equal(i.severity, 'blocker');
+test('C-ISSUE unknown code / stage / severity / path THROW (no silent correction)', () => {
+  assert.throws(() => makeIssue('NOT_A_REAL_CODE', 'source_structure_normalization'), /builder_issue_construction_failed/);
+  assert.throws(() => makeIssue('BUILDER_CONFIG_INVALID', 'x'), /builder_issue_construction_failed/);
+  assert.throws(() => makeIssue('BUILDER_CONFIG_INVALID', 'config_normalization', 'weird'), /builder_issue_construction_failed/);
+  assert.throws(() => makeIssue('BUILDER_CONFIG_INVALID', 'config_normalization', 'blocker', '/etc/passwd'), /builder_issue_construction_failed/);
 });
 test('C-ISSUE deterministic ordering + dedupe', () => {
   const a = makeIssue('BUILDER_CORE_FIELD_EXTRA', 'core_completeness_validation');
@@ -751,11 +760,12 @@ test('R2-TSSOT targetKind/contract version come from upstream constants', () => 
   assert.equal(CFG.SOURCE_HANDOFF_KIND_REF, BR.SOURCE_HANDOFF_KIND);
   assert.equal(CFG.SOURCE_HANDOFF_VERSION_REF, BR.SOURCE_HANDOFF_VERSION);
 });
-test('R2-TSSOT descriptor kind is the DOCUMENTED local-reference exception, proven live', () => {
-  const ex = CFG.TARGET_DESCRIPTOR_KIND_LOCAL_REFERENCE_EXCEPTION;
-  assert.equal(ex.derivedFromUpstreamConstant, false);
-  assert.equal(ex.provenAgainstRealBridgeDecision, true);
+test('R2-TSSOT descriptor kind is DERIVED from the pure upstream factory (no local literal, no exception)', () => {
+  assert.equal(CFG.TARGET_DESCRIPTOR_KIND, BR.createTargetPreviewSandboxDescriptor({ mapped: {} }).kind);
   assert.equal(buildRealDecision('kindx').targetDescriptor.kind, CFG.TARGET_DESCRIPTOR_KIND);
+  assert.equal(typeof CFG.TARGET_DESCRIPTOR_KIND_LOCAL_REFERENCE_EXCEPTION, 'undefined');
+  const src = fs.readFileSync(path.join(DIR, 'builderConfig.js'), 'utf8');
+  assert.ok(!/'bridge-target-preview-sandbox-descriptor'/.test(src), 'no local kind literal may remain');
 });
 
 // ---- R2-VTUPLE: every version field is compared EXACTLY, not merely semver-shaped ----
@@ -859,21 +869,21 @@ for (const s of ISSUE_STAGE_ALLOWLIST) {
 }
 for (const bad of ['made_up_stage', 'resource_limit_enforcement', 'target_limit_enforcement', 'core_limit_enforcement',
   'envelope_limit_enforcement', 'depth_limit_enforcement', 'issue_limit_enforcement', 'extension_validation',
-  'a', 'zzz', 'x_y_z', '', 'Source_Structure_Normalization', 'source structure normalization', '../etc/passwd']) {
-  test(`R2-STAGE arbitrary token rejected → unknown: ${JSON.stringify(bad)}`, () => {
+  'a', 'zzz', 'x_y_z', '', 'unknown', 'Source_Structure_Normalization', 'source structure normalization', '../etc/passwd']) {
+  test(`R2-STAGE arbitrary token THROWS (no unknown bucket): ${JSON.stringify(bad)}`, () => {
     assert.equal(isAllowedIssueStage(bad), false);
-    assert.equal(makeIssue('BUILDER_CONFIG_INVALID', bad).stage, 'unknown');
+    assert.throws(() => makeIssue('BUILDER_CONFIG_INVALID', bad), /builder_issue_construction_failed/);
   });
 }
 for (const bad of [null, undefined, 1, true, {}, [], Symbol('s')]) {
-  test(`R2-STAGE non-string stage rejected → unknown: ${String(typeof bad)}`, () => {
+  test(`R2-STAGE non-string stage THROWS: ${String(typeof bad)}`, () => {
     assert.equal(isAllowedIssueStage(bad), false);
-    assert.equal(makeIssue('BUILDER_CONFIG_INVALID', bad).stage, 'unknown');
+    assert.throws(() => makeIssue('BUILDER_CONFIG_INVALID', bad), /builder_issue_construction_failed/);
   });
 }
-test('R2-STAGE normalizeIssues reads issueCode only (no `code` alias)', () => {
-  const out = normalizeIssues([{ code: 'BUILDER_DIGEST_MISMATCH', stage: 'digest_recompute_validation' }]);
-  assert.equal(out[0].issueCode, 'BUILDER_CONFIG_INVALID');
+test('R2-STAGE normalizeIssues rejects the `code` alias fail-closed', () => {
+  assert.throws(() => normalizeIssues([{ code: 'BUILDER_DIGEST_MISMATCH', stage: 'digest_recompute_validation' }]),
+    /builder_issue_construction_failed/);
 });
 test('R2-STAGE every issue the builder can emit carries an allowlisted stage', () => {
   for (const mutate of [(d) => ({ ...d, __x: 1 }), (d) => ({ ...d, status: 'nope' }), (d) => ({ ...d, ok: false }),
@@ -971,8 +981,9 @@ test('R2-READY audit-ready wording appears only when compatibility passes', () =
   assert.equal(rd.readiness, READINESS_READY);
   assert.equal(rd.readiness === READINESS_READY, rd.compatibilityOk === true);
 });
-for (const flag of ['pipelineImplemented', 'all23StagesImplemented', 'all23StagesExecuted',
-  'boundaryStages17To23Executed', 'firstBlockerStageAtomic', 'issueStageAllowlistClosed',
+for (const flag of ['pipelineImplemented', 'all23StagesExecutedOnSuccess', 'all23StagesHaveDirectValidationProof',
+  'boundaryStages17To23HaveDirectValidationProof', 'firstBlockerStageAtomic', 'issueModelStrictNoFallback',
+  'configFailClosed', 'arrayLimitSemanticsCorrect', 'manifestComplete',
   'exactTargetDescriptorComparison', 'exactVersionTupleComparison']) {
   test(`R2-READY declares ${flag} true`, () => { assert.equal(B.createBuilderReadiness()[flag], true); });
 }
@@ -982,4 +993,362 @@ test('R2-READY still declares every downstream NOT implemented', () => {
     'productExposed', 'moduleGenerated', 'certificationPerformed', 'backendAccessed', 'prismaAccessed']) {
     assert.equal(rd[f], false, f);
   }
+});
+
+// ===========================================================================
+// ROUND 3 — final hardening proofs.
+// ===========================================================================
+
+// ---- R3-KIND: no local target-kind literal anywhere in the subtree ----
+test('R3-KIND no literal descriptor kind anywhere in the builder subtree', () => {
+  for (const f of jsFiles()) {
+    assert.ok(!/'bridge-target-preview-sandbox-descriptor'/.test(fs.readFileSync(f, 'utf8')), f);
+  }
+});
+test('R3-KIND tampering the snapshot descriptor kind is a blocker', () => {
+  const blockers = evaluateBuilderCompatibilitySnapshot({ ...BUILDER_COMPATIBILITY_SNAPSHOT, targetDescriptorKind: 'other-kind' });
+  assert.ok(blockers.includes('target_descriptor_kind_diverges'));
+});
+test('R3-KIND builder rejects a decision whose descriptor kind is tampered', () => {
+  const d = buildRealDecision('r3kind');
+  const res = builder.build({ ...d, targetDescriptor: { ...d.targetDescriptor, kind: 'other-kind' } });
+  assert.equal(res.ok, false);
+  assert.equal(res.coreEnvelope, null);
+});
+
+// ---- R3-COMPAT: full snapshot coverage + tamper on EVERY key ----
+const R3_SNAPSHOT_KEYS = [
+  'sourceFields', 'requiredSourceFields', 'eligibilityFields', 'sourceSecurityFields', 'coreAllowlist',
+  'envelopeFields', 'envelopeInvariants', 'pipelineStages', 'issueCodes', 'issueShapeFields', 'issueStageAllowlist',
+  'resourceDimensions', 'resourceLimits', 'targetFields', 'targetRequiredFields', 'targetSecurityFields',
+  'targetVersionFields', 'targetDigestFields', 'targetInvariants', 'targetDescriptorKind', 'targetKind',
+  'targetContractVersion', 'authoringRuntimeVersion', 'sourceHandoffKind', 'sourceHandoffVersion',
+  'previewSandboxContractVersion', 'identityVerifiedSemanticOwner', 'selectedArchitecture', 'architectureOneFinal',
+  'coreEnvelopeIdentityVerifiedInvariant', 'builderContractVersion', 'coreEnvelopeV2Version', 'bridgeVersion',
+  'factoryResultKeys',
+];
+test('R3-COMPAT snapshot covers exactly the required key set', () => {
+  assert.deepEqual(Object.keys(BUILDER_COMPATIBILITY_SNAPSHOT).sort(), [...R3_SNAPSHOT_KEYS].sort());
+  assert.equal(Object.keys(BUILDER_COMPATIBILITY_SNAPSHOT).length, 34);
+});
+for (const key of R3_SNAPSHOT_KEYS) {
+  const value = BUILDER_COMPATIBILITY_SNAPSHOT[key];
+  test(`R3-COMPAT missing snapshot.${key} is a blocker`, () => {
+    const { [key]: _drop, ...rest } = BUILDER_COMPATIBILITY_SNAPSHOT;
+    assert.ok(evaluateBuilderCompatibilitySnapshot(rest).length > 0, key);
+  });
+  test(`R3-COMPAT divergent snapshot.${key} is a blocker`, () => {
+    const bad = Array.isArray(value) ? [...value, 'kind']
+      : (value && typeof value === 'object' ? { ...value, __extra__: 1 }
+        : (typeof value === 'boolean' ? !value : 'tampered-value'));
+    assert.ok(evaluateBuilderCompatibilitySnapshot({ ...BUILDER_COMPATIBILITY_SNAPSHOT, [key]: bad }).length > 0, key);
+  });
+}
+for (const key of ['envelopeInvariants', 'resourceLimits', 'targetInvariants']) {
+  test(`R3-COMPAT EXTRA key in ${key} is a blocker (exact map, not superset)`, () => {
+    const bad = { ...BUILDER_COMPATIBILITY_SNAPSHOT[key], __invented__: 1 };
+    assert.ok(evaluateBuilderCompatibilitySnapshot({ ...BUILDER_COMPATIBILITY_SNAPSHOT, [key]: bad }).length > 0);
+  });
+  test(`R3-COMPAT MISSING key in ${key} is a blocker`, () => {
+    const bad = Object.fromEntries(Object.entries(BUILDER_COMPATIBILITY_SNAPSHOT[key]).slice(1));
+    assert.ok(evaluateBuilderCompatibilitySnapshot({ ...BUILDER_COMPATIBILITY_SNAPSHOT, [key]: bad }).length > 0);
+  });
+}
+test('R3-COMPAT owner and architecture are DERIVED from the upstream contract', () => {
+  assert.equal(BUILDER_COMPATIBILITY_SNAPSHOT.identityVerifiedSemanticOwner, BC.IDENTITY_VERIFICATION_STATE_CONTRACT.identityVerifiedSemanticOwner);
+  assert.equal(BUILDER_COMPATIBILITY_SNAPSHOT.selectedArchitecture, BC.IDENTITY_VERIFICATION_STATE_CONTRACT.selectedArchitecture);
+  assert.equal(BUILDER_COMPATIBILITY_SNAPSHOT.architectureOneFinal, BC.IDENTITY_VERIFICATION_STATE_CONTRACT.ARCHITECTURE_1_IS_FINAL);
+});
+test('R3-COMPAT separates the three surface claims', () => {
+  const c = B.verifyBuilderCompatibility();
+  assert.equal(c.contractSnapshotExact, true);
+  assert.equal(c.factorySurfaceExact, true);
+  assert.equal(c.publicIndexSurfaceVerifiedByDedicatedTestAndGate, true);
+  assert.equal(c.subsetComparisonsPerformed, false);
+});
+test('R3-COMPAT public index surface is EXACTLY the allowlist', () => {
+  assert.deepEqual(Object.keys(B).sort(), [...PUBLIC_INDEX_EXPORT_ALLOWLIST].sort());
+});
+for (const forbidden of ['executeBuilderValidationPipeline', 'BOUNDARY_STAGE_VALIDATORS', 'extractBridgeDecisionCore',
+  'recomputeBridgeDecisionDigest', 'constructCoreEnvelope', 'makeIssue', 'normalizeIssues', 'safeCloneAndNormalize',
+  'normalizeBuilderConfig', 'validateTargetDescriptor', 'evaluateBuilderCompatibilitySnapshot', 'digestManifestParts',
+  'createBuilderDecision', 'createBuilderRejection', 'createEmergencyBuilderRejection']) {
+  test(`R3-COMPAT public index exports no partial-execution helper: ${forbidden}`, () => {
+    assert.equal(typeof B[forbidden], 'undefined');
+  });
+}
+
+// ---- R3-ISSUE: strict issue model, no fallback ----
+for (const code of ['NOT_A_REAL_CODE', '', 'builder_config_invalid', 'BUILDER_', null, undefined, 1, {}]) {
+  test(`R3-ISSUE unknown issueCode THROWS: ${String(code)}`, () => {
+    assert.throws(() => makeIssue(code, 'public_boundary'), BuilderIssueConstructionError);
+  });
+}
+for (const sev of ['weird', '', 'BLOCKER', null, 1, {}]) {
+  test(`R3-ISSUE unknown severity THROWS: ${String(sev)}`, () => {
+    assert.throws(() => makeIssue('BUILDER_CONFIG_INVALID', 'public_boundary', sev), BuilderIssueConstructionError);
+  });
+}
+for (const bad of ['/etc/passwd', '../up', 'a b', 'x'.repeat(200), 'weird$char', null, 1, {}]) {
+  test(`R3-ISSUE invalid supplied path THROWS: ${String(bad)}`, () => {
+    assert.equal(isValidIssuePath(bad), false);
+    assert.throws(() => makeIssue('BUILDER_CONFIG_INVALID', 'public_boundary', 'blocker', bad), BuilderIssueConstructionError);
+  });
+}
+test('R3-ISSUE an OMITTED path is still allowed and stays empty', () => {
+  assert.equal(makeIssue('BUILDER_CONFIG_INVALID', 'public_boundary').path, '');
+  assert.equal(makeIssue('BUILDER_CONFIG_INVALID', 'public_boundary', 'blocker', '').path, '');
+});
+test('R3-ISSUE no builder issue may ever carry the stage `unknown`', () => {
+  for (const mutate of [(d) => ({ ...d, __x: 1 }), (d) => ({ ...d, status: 'nope' }), (d) => ({ ...d, ok: false }),
+    (d) => ({ ...d, bridgeDecisionDigest: 'fnv1a-deadbeef' }), () => 42, () => null]) {
+    for (const i of builder.build(mutate(buildRealDecision('r3unk'))).issues) assert.notEqual(i.stage, 'unknown');
+  }
+});
+for (const [label, bad] of [['non-array list', 'nope'], ['non-object entry', [1]], ['null entry', [null]],
+  ['array entry', [[]]], ['incomplete shape', [{ issueCode: 'BUILDER_CONFIG_INVALID' }]],
+  ['extra field', [{ ...makeIssue('BUILDER_CONFIG_INVALID', 'public_boundary'), extra: 1 }]],
+  ['invalid code', [{ ...makeIssue('BUILDER_CONFIG_INVALID', 'public_boundary'), issueCode: 'NOPE' }]],
+  ['invalid stage', [{ ...makeIssue('BUILDER_CONFIG_INVALID', 'public_boundary'), stage: 'nope' }]],
+  ['invalid severity', [{ ...makeIssue('BUILDER_CONFIG_INVALID', 'public_boundary'), severity: 'nope' }]],
+  ['invalid path', [{ ...makeIssue('BUILDER_CONFIG_INVALID', 'public_boundary'), path: '/etc/passwd' }]],
+  ['code alias', [{ ...makeIssue('BUILDER_CONFIG_INVALID', 'public_boundary'), code: 'X' }]]]) {
+  test(`R3-ISSUE normalizeIssues fails closed on ${label}`, () => {
+    assert.throws(() => normalizeIssues(bad), BuilderIssueConstructionError);
+  });
+}
+test('R3-ISSUE severity is optional and defaults to blocker only when OMITTED', () => {
+  assert.equal(makeIssue('BUILDER_CONFIG_INVALID', 'public_boundary').severity, 'blocker');
+  assert.equal(makeIssue('BUILDER_CONFIG_INVALID', 'public_boundary', undefined).severity, 'blocker');
+});
+test('R3-ISSUE an internal failure becomes ONE fixed public rejection', () => {
+  const res = createEmergencyBuilderRejection();
+  assert.equal(res.ok, false);
+  assert.equal(res.coreEnvelope, null);
+  assert.equal(res.coreEnvelopeCreated, false);
+  assert.equal(res.identityVerified, false);
+  assert.equal(res.rollbackByNonEmission, true);
+  assert.equal(res.issues.length, 1);
+  assert.equal(res.issues[0].issueCode, 'BUILDER_UNEXPECTED_EXECUTION_FAILURE');
+  assert.equal(res.issues[0].stage, 'public_boundary');
+  assert.equal(res.issues[0].severity, 'blocker');
+  assert.equal(hasExactIssueShape(res.issues[0]), true);
+  assert.equal(Object.isFrozen(res), true);
+});
+test('R3-ISSUE the emergency path is self-contained and can never throw', () => {
+  assert.doesNotThrow(() => createEmergencyBuilderRejection());
+  assert.equal(createEmergencyBuilderRejection().builderDecisionDigest, createEmergencyBuilderRejection().builderDecisionDigest);
+});
+test('R3-ISSUE a hostile trap is contained as a sanitized TYPED rejection, not a leak', () => {
+  const res = builder.build(new Proxy({}, { ownKeys() { throw new Error('SECRET-boom'); } }));
+  assert.equal(res.ok, false);
+  assert.equal(res.coreEnvelope, null);
+  assert.ok(CFG.ISSUE_CODES.includes(res.issues[0].issueCode));
+  assert.ok(isAllowedIssueStage(res.issues[0].stage));
+  const dump = JSON.stringify(res);
+  for (const leak of ['SECRET', 'stack', 'cause', 'boom', 'Proxy', '/home/']) assert.ok(!dump.includes(leak), leak);
+});
+test('R3-ISSUE the public builder NEVER throws to the caller', () => {
+  for (const hostile of [new Proxy({}, { ownKeys() { throw new Error('x'); } }),
+    new Proxy({}, { getOwnPropertyDescriptor() { throw new Error('x'); } }),
+    new Proxy({}, { getPrototypeOf() { throw new Error('x'); } }), 42, 'str', null, undefined, Symbol('s'), () => {}]) {
+    assert.doesNotThrow(() => builder.build(hostile));
+  }
+});
+
+// ---- R3-ARRAY: length is bounded by BYTES, not by maxSourceDecisionFields ----
+for (const n of [33, 34, 40, 128, 512]) {
+  test(`R3-ARRAY dense array of ${n} safe items is accepted`, () => {
+    const arr = Array.from({ length: n }, (_, i) => `v${i}`);
+    const out = safeCloneAndNormalize({ arr });
+    assert.equal(out.arr.length, n);
+  });
+}
+test('R3-ARRAY maxSourceDecisionFields still bounds TOP-LEVEL decision fields only', () => {
+  const over = {}; for (let i = 0; i < CFG.RESOURCE_LIMITS.maxSourceDecisionFields + 1; i += 1) over[`f${i}`] = 1;
+  assert.ok(LIM.enforceSourceFieldCountLimit(over).some((i) => i.issueCode === 'BUILDER_LIMIT_EXCEEDED'));
+  assert.equal(LIM.enforceSourceFieldCountLimit({ arr: Array.from({ length: 128 }, (_, i) => i) }).length, 0);
+});
+test('R3-ARRAY sparse / accessor / hostile proxy / pollution still rejected', () => {
+  assert.throws(() => safeCloneAndNormalize({ a: [1, , 3] })); // eslint-disable-line no-sparse-arrays
+  const acc = []; Object.defineProperty(acc, '0', { get() { return 1; }, enumerable: true, configurable: true });
+  Object.defineProperty(acc, 'length', { value: 1, writable: true });
+  assert.throws(() => safeCloneAndNormalize({ acc }));
+  const withExtra = ['a']; withExtra.extra = 1;
+  assert.throws(() => safeCloneAndNormalize({ withExtra }));
+  assert.throws(() => safeCloneAndNormalize({ p: JSON.parse('{"__proto__":{"x":1}}') }));
+});
+
+// ---- R3-CFG: fail-closed config ----
+test('R3-CFG accepts only omitted / null / {} / a valid depth', () => {
+  for (const ok of [undefined, null, {}, { maxStructureDepth: 1 }, { maxStructureDepth: 8 },
+    { maxStructureDepth: CFG.MAX_STRUCTURE_DEPTH }]) {
+    assert.equal(normalizeBuilderConfig(ok).ok, true, JSON.stringify(ok));
+  }
+});
+const R3_BAD_CONFIGS = [
+  ['unknown key', { nope: 1 }],
+  ['strict true (no longer an option)', { strict: true }],
+  ['strict false', { strict: false }],
+  ['strict wrong type', { strict: 'yes' }],
+  ['depth 0', { maxStructureDepth: 0 }],
+  ['depth negative', { maxStructureDepth: -1 }],
+  ['depth non-integer', { maxStructureDepth: 1.5 }],
+  ['depth string', { maxStructureDepth: '8' }],
+  ['depth over max', { maxStructureDepth: CFG.MAX_STRUCTURE_DEPTH + 1 }],
+  ['depth NaN', { maxStructureDepth: NaN }],
+  ['array config', [1, 2]],
+  ['forbidden override', { coreAllowlist: [] }],
+  ['pollution key', JSON.parse('{"__proto__":{"x":1}}')],
+];
+for (const [label, cfg] of R3_BAD_CONFIGS) {
+  test(`R3-CFG rejects ${label}`, () => {
+    const r = normalizeBuilderConfig(cfg);
+    assert.equal(r.ok, false, label);
+    assert.equal(r.config, undefined);
+  });
+  test(`R3-CFG a rejected config yields a rejecting builder, never a default: ${label}`, () => {
+    const res = createBridgeDecisionCoreEnvelopeBuilder(cfg).build(buildRealDecision('r3cfg'));
+    assert.equal(res.ok, false);
+    assert.equal(res.coreEnvelope, null);
+  });
+}
+test('R3-CFG accessor / cycle / custom prototype / hostile proxy rejected', () => {
+  const acc = {}; Object.defineProperty(acc, 'maxStructureDepth', { get() { return 8; }, enumerable: true, configurable: true });
+  assert.equal(normalizeBuilderConfig(acc).ok, false);
+  const cyc = {}; cyc.self = cyc;
+  assert.equal(normalizeBuilderConfig(cyc).ok, false);
+  class Weird { constructor() { this.maxStructureDepth = 8; } }
+  assert.equal(normalizeBuilderConfig(new Weird()).ok, false);
+  for (const trap of ['ownKeys', 'getOwnPropertyDescriptor', 'getPrototypeOf', 'has', 'get']) {
+    assert.doesNotThrow(() => normalizeBuilderConfig(new Proxy({}, { [trap]() { throw new Error('x'); } })));
+  }
+});
+test('R3-CFG a default applies only when the property is ABSENT', () => {
+  assert.equal(normalizeBuilderConfig({}).config.maxStructureDepth, CFG.MAX_STRUCTURE_DEPTH);
+  assert.equal(normalizeBuilderConfig({ maxStructureDepth: 5 }).config.maxStructureDepth, 5);
+  assert.equal(normalizeBuilderConfig({ maxStructureDepth: 0 }).ok, false);
+});
+test('R3-CFG `strict` is not a fictional option anywhere', () => {
+  assert.equal(CFG.BUILDER_ALWAYS_STRICT, true);
+  assert.deepEqual([...CFG.BUILDER_CONFIG_ALLOWED_KEYS], ['maxStructureDepth']);
+  assert.equal(Object.prototype.hasOwnProperty.call(CFG.DEFAULT_BUILDER_CONFIG, 'strict'), false);
+});
+
+// ---- R3-MANIFEST: 23 enterprise parts ----
+const R3_EXPECTED_PARTS = ['configSchema', 'publicApi', 'sourceFields', 'sourceRequiredFields', 'sourceEligibility',
+  'sourceSecurity', 'targetFields', 'targetRequiredFields', 'targetSecurityFields', 'targetVersionTuple',
+  'targetDigestFields', 'targetInvariants', 'coreAllowlist', 'envelopeFields', 'envelopeInvariants', 'pipelineStages',
+  'issueCodes', 'issueShape', 'issueStageAllowlist', 'resourceDimensionsAndValues', 'identityArchitecture',
+  'failureContainmentAndReplay', 'readinessAndManualGate'];
+test('R3-MANIFEST has exactly the 23 canonical parts in order', () => {
+  assert.deepEqual([...MANIFEST_PART_NAMES], R3_EXPECTED_PARTS);
+  const mf = B.createBuilderManifest();
+  assert.equal(mf.partCount, 23);
+  assert.deepEqual([...mf.partNames], R3_EXPECTED_PARTS);
+  assert.equal(Object.keys(mf.partDigests).length, 23);
+  assert.equal(mf.cryptographicIntegrityProvided, false);
+});
+for (const part of R3_EXPECTED_PARTS) {
+  test(`R3-MANIFEST part ${part} has a deterministic digest`, () => {
+    const a = B.createBuilderManifest(); const b = B.createBuilderManifest();
+    assert.match(a.partDigests[part], /^fnv1a-[0-9a-f]{8}$/);
+    assert.equal(a.partDigests[part], b.partDigests[part]);
+  });
+  test(`R3-MANIFEST tampering part ${part} changes its digest AND the overall digest`, () => {
+    const mf = B.createBuilderManifest();
+    const tampered = JSON.parse(JSON.stringify(mf.parts));
+    tampered[part] = Array.isArray(tampered[part]) ? [...tampered[part], '__tamper__']
+      : (tampered[part] && typeof tampered[part] === 'object' ? { ...tampered[part], __tamper__: 1 } : '__tamper__');
+    const re = digestManifestParts(tampered);
+    assert.notEqual(re.partDigests[part], mf.partDigests[part]);
+    assert.notEqual(re.overallDigest, mf.overallDigest);
+  });
+}
+test('R3-MANIFEST carries the limit VALUES, the public API, owner/architecture and the manual gate', () => {
+  const mf = B.createBuilderManifest();
+  for (const d of CFG.RESOURCE_DIMENSIONS) assert.equal(mf.parts.resourceDimensionsAndValues.values[d], CFG.RESOURCE_LIMITS[d]);
+  assert.deepEqual(mf.parts.publicApi.factoryResultKeys, ['build']);
+  assert.equal(mf.parts.publicApi.partialExecutionHelperExported, false);
+  assert.equal(mf.parts.identityArchitecture.identityVerifiedSemanticOwner, 'consumer_runtime');
+  assert.equal(mf.parts.identityArchitecture.selectedArchitecture, 'ARCHITECTURE_1');
+  assert.equal(mf.parts.readinessAndManualGate.manualGateRequired, true);
+  assert.equal(mf.parts.readinessAndManualGate.authorizesConsumerRuntime, false);
+  assert.equal(mf.parts.configSchema.alwaysStrict, true);
+});
+
+// ---- R3-PIPE: honest 23-stage proof ----
+test('R3-PIPE proof matrix covers all 23 stages with a direct validation proof', () => {
+  assert.equal(PIPELINE_STAGE_PROOF_MATRIX.length, 23);
+  assert.deepEqual(PIPELINE_STAGE_PROOF_MATRIX.map((r) => r.stage), [...CFG.PIPELINE_STAGES]);
+  for (const row of PIPELINE_STAGE_PROOF_MATRIX) {
+    assert.equal(row.directValidationProof, true, row.stage);
+    assert.equal(typeof row.responsibility, 'string');
+    assert.equal(typeof row.reachableAsFirstBlocker, 'boolean');
+    assert.equal(row.defenseInDepth, !row.reachableAsFirstBlocker);
+  }
+});
+test('R3-PIPE executedStages is a strict PREFIX of the canonical order', () => {
+  for (const mutate of [(d) => d, (d) => ({ ...d, __x: 1 }), (d) => ({ ...d, status: 'nope' }),
+    (d) => ({ ...d, targetDescriptor: { ...d.targetDescriptor, targetContractVersion: 'x@1.0.0' } })]) {
+    const r = runPipeline(mutate(buildRealDecision('r3pre')));
+    assert.deepEqual([...r.executedStages], CFG.PIPELINE_STAGES.slice(0, r.executedStages.length));
+  }
+});
+// Direct unit proof of each boundary validator (17-23): valid context passes, tampered context blocks.
+const R3_BOUNDARY_CASES = [
+  ['ssot_boundary_validation', (ctx) => ({ ...ctx, envelope: { ...ctx.envelope, metadataOnly: false } })],
+  ['preview_mount_boundary_validation', (ctx) => ({ ...ctx, envelope: { ...ctx.envelope, previewMounted: true } })],
+  ['real_data_boundary_validation', (ctx) => ({ ...ctx, source: { ...ctx.source, realDataRead: true } })],
+  ['module_generation_boundary_validation', (ctx) => ({ ...ctx, source: { ...ctx.source, moduleGenerated: true } })],
+  ['certification_boundary_validation', (ctx) => ({ ...ctx, source: { ...ctx.source, certificationPerformed: true } })],
+  ['product_exposure_boundary_validation', (ctx) => ({ ...ctx, source: { ...ctx.source, productExposed: true } })],
+  ['prototype_reference_validation', (ctx) => ({ ...ctx, envelope: JSON.parse('{"__proto__":{"x":1},"a":1}') })],
+];
+for (const [stage, tamper] of R3_BOUNDARY_CASES) {
+  test(`R3-PIPE boundary ${stage} passes on a VALID context`, () => {
+    const d = buildRealDecision('r3bv');
+    const run = runPipeline(d);
+    const ctx = { source: d, envelope: run.envelope };
+    assert.deepEqual(BOUNDARY_STAGE_VALIDATORS[stage](ctx), []);
+  });
+  test(`R3-PIPE boundary ${stage} BLOCKS on a tampered context`, () => {
+    const d = buildRealDecision('r3bt');
+    const run = runPipeline(d);
+    const issues = BOUNDARY_STAGE_VALIDATORS[stage](tamper({ source: d, envelope: run.envelope }));
+    assert.ok(issues.length > 0, stage);
+    assert.equal(issues[0].stage, stage);
+    assert.equal(issues[0].blocksBuilder, true);
+  });
+  test(`R3-PIPE boundary ${stage} blocks a null/absent context fail-closed`, () => {
+    assert.ok(BOUNDARY_STAGE_VALIDATORS[stage]({ source: null, envelope: null }).length > 0);
+  });
+}
+test('R3-PIPE the 17-23 boundary validators are exactly seven and are internal', () => {
+  assert.deepEqual(Object.keys(BOUNDARY_STAGE_VALIDATORS), CFG.PIPELINE_STAGES.slice(16));
+  assert.equal(Object.keys(BOUNDARY_STAGE_VALIDATORS).length, 7);
+  assert.equal(typeof B.BOUNDARY_STAGE_VALIDATORS, 'undefined');
+});
+
+// ---- R3-READY: derived, honest, fail-closed ----
+test('R3-READY distinguishes execution, direct proof and first-blocker reachability', () => {
+  const rd = B.createBuilderReadiness();
+  assert.equal(rd.all23StagesExecutedOnSuccess, true);
+  assert.equal(rd.all23StagesHaveDirectValidationProof, true);
+  assert.equal(rd.all23StagesReachableAsFirstBlocker, false);
+  assert.equal(rd.boundaryStages17To23HaveDirectValidationProof, true);
+});
+test('R3-READY capability flags are derived from real counts', () => {
+  const rd = B.createBuilderReadiness();
+  assert.equal(rd.manifestPartCount, 23);
+  assert.equal(rd.pipelineStageCount, 23);
+  assert.equal(rd.resourceDimensionCount, 9);
+  assert.equal(rd.architectureOneExact, true);
+  assert.equal(rd.readiness, READINESS_READY);
+});
+test('R3-READY identity architecture is derived from the upstream contract', () => {
+  assert.equal(IDENTITY_ARCHITECTURE.identityVerifiedSemanticOwner, BC.IDENTITY_VERIFICATION_STATE_CONTRACT.identityVerifiedSemanticOwner);
+  assert.equal(IDENTITY_ARCHITECTURE.selectedArchitecture, BC.IDENTITY_VERIFICATION_STATE_CONTRACT.selectedArchitecture);
+  assert.equal(IDENTITY_ARCHITECTURE.coreEnvelopeIdentityVerifiedInvariant, false);
+  assert.equal(IDENTITY_ARCHITECTURE.coreEnvelopeVerificationStateAmendmentRequired, false);
 });

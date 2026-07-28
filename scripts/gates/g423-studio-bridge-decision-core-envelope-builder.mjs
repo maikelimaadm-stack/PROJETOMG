@@ -63,6 +63,9 @@ const NCFG = await import(pathToFileURL(path.join(DIR, 'normalizeBuilderConfig.j
 const CLONE = await import(pathToFileURL(path.join(DIR, 'safeCloneAndNormalize.js')).href);
 const COMPAT = await import(pathToFileURL(path.join(DIR, 'verifyBuilderCompatibility.js')).href);
 const RDY = await import(pathToFileURL(path.join(DIR, 'builderReadiness.js')).href);
+const MAN = await import(pathToFileURL(path.join(DIR, 'builderManifest.js')).href);
+const IDA = await import(pathToFileURL(path.join(DIR, 'identityArchitecture.js')).href);
+const EMR = await import(pathToFileURL(path.join(DIR, 'createEmergencyBuilderRejection.js')).href);
 const builder = FACTORY.createBridgeDecisionCoreEnvelopeBuilder();
 
 function buildRealDecision(seed, moduleId = 'clientes', name = 'C', fieldKey = 'nome') {
@@ -370,7 +373,12 @@ gate('G423-BLD — UTF-8 byte counting (not .length)', LIM.utf8ByteLength({ a: '
   const i = ISS.makeIssue('BUILDER_DIGEST_MISMATCH', 'digest_recompute_validation', 'blocker', 'core.digest');
   gate('G423-BLD — issue has exact shape', ISS.hasExactIssueShape(i) && JSON.stringify(Object.keys(i)) === JSON.stringify([...CFG.ISSUE_SHAPE_FIELDS]));
   gate('G423-BLD — issue blocks flags coherent', i.blocksBuilder === true && i.blocksEnvelope === true && i.blocksRuntime === true && i.blocksPreviewSandbox === true && i.deterministic === true);
-  gate('G423-BLD — issue path sanitized (absolute rejected)', ISS.makeIssue('BUILDER_CONFIG_INVALID', 'x', 'blocker', '/etc/passwd').path === '');
+  // STRICT issue model: an invalid stage or a supplied-but-invalid path is a construction FAILURE, never a
+  // silently corrected value.
+  let threwStage = false; try { ISS.makeIssue('BUILDER_CONFIG_INVALID', 'x'); } catch { threwStage = true; }
+  let threwPath = false; try { ISS.makeIssue('BUILDER_CONFIG_INVALID', 'public_boundary', 'blocker', '/etc/passwd'); } catch { threwPath = true; }
+  gate('G423-BLD — invalid stage THROWS (no unknown bucket)', threwStage);
+  gate('G423-BLD — invalid supplied path THROWS (no silent blanking)', threwPath);
   const d = buildRealDecision('gis');
   gate('G423-BLD — all builder issues have exact shape', builder.build({ ...d, kind: 'x' }).issues.every((x) => ISS.hasExactIssueShape(x)));
 }
@@ -431,7 +439,9 @@ gate('G423-BLD — readiness gated by compatibility', B.createBuilderReadiness()
   gate('G423-BLD — R2 preview sandbox version from upstream', CFG.PREVIEW_SANDBOX_CONTRACT_VERSION_REF === RC.SOURCE_PREVIEW_SANDBOX_CONTRACT_VERSION);
   gate('G423-BLD — R2 source handoff kind from upstream', CFG.SOURCE_HANDOFF_KIND_REF === bridge.SOURCE_HANDOFF_KIND);
   gate('G423-BLD — R2 source handoff version from upstream', CFG.SOURCE_HANDOFF_VERSION_REF === bridge.SOURCE_HANDOFF_VERSION);
-  gate('G423-BLD — R2 descriptor kind exception documented + proven live', CFG.TARGET_DESCRIPTOR_KIND_LOCAL_REFERENCE_EXCEPTION.derivedFromUpstreamConstant === false && d0.targetDescriptor.kind === CFG.TARGET_DESCRIPTOR_KIND);
+  gate('G423-BLD — R3 descriptor kind DERIVED from the pure upstream factory', CFG.TARGET_DESCRIPTOR_KIND === bridge.createTargetPreviewSandboxDescriptor({ mapped: {} }).kind && d0.targetDescriptor.kind === CFG.TARGET_DESCRIPTOR_KIND);
+  gate('G423-BLD — R3 no local descriptor-kind literal in the subtree', !jsFiles().some((f) => /'bridge-target-preview-sandbox-descriptor'/.test(fs.readFileSync(f, 'utf8'))));
+  gate('G423-BLD — R3 local-reference exception removed', typeof CFG.TARGET_DESCRIPTOR_KIND_LOCAL_REFERENCE_EXCEPTION === 'undefined');
   gate('G423-BLD — R2 no local target array literal in config', !/TARGET_DESCRIPTOR_(FIELDS|REQUIRED_FIELDS|SECURITY_FIELDS|VERSION_FIELDS|DIGEST_FIELDS)\s*=\s*deepFreeze\(\[\s*'/.test(fs.readFileSync(path.join(DIR, 'builderConfig.js'), 'utf8')));
 
   // R2-VTUPLE — every version field compared EXACTLY.
@@ -478,11 +488,13 @@ gate('G423-BLD — readiness gated by compatibility', B.createBuilderReadiness()
   // R2-STAGE — closed issue stage allowlist.
   gate('G423-BLD — R2 stage allowlist = 23 canonical + 2 boundaries', JSON.stringify([...ISS.ISSUE_STAGE_ALLOWLIST]) === JSON.stringify([...CFG.PIPELINE_STAGES, 'config_normalization', 'public_boundary']));
   for (const st of ISS.ISSUE_STAGE_ALLOWLIST) gate(`G423-BLD — R2 stage allowed preserved ${st}`, ISS.makeIssue('BUILDER_CONFIG_INVALID', st).stage === st);
-  for (const bad of ['made_up_stage', 'resource_limit_enforcement', 'target_limit_enforcement', 'core_limit_enforcement', 'envelope_limit_enforcement', 'depth_limit_enforcement', 'issue_limit_enforcement', 'extension_validation', 'a', 'zzz']) {
-    gate(`G423-BLD — R2 stage arbitrary token rejected ${bad}`, ISS.isAllowedIssueStage(bad) === false && ISS.makeIssue('BUILDER_CONFIG_INVALID', bad).stage === 'unknown');
+  for (const bad of ['made_up_stage', 'resource_limit_enforcement', 'target_limit_enforcement', 'core_limit_enforcement', 'envelope_limit_enforcement', 'depth_limit_enforcement', 'issue_limit_enforcement', 'extension_validation', 'a', 'zzz', 'unknown']) {
+    let threw = false; try { ISS.makeIssue('BUILDER_CONFIG_INVALID', bad); } catch { threw = true; }
+    gate(`G423-BLD — R2 stage arbitrary token THROWS ${bad}`, ISS.isAllowedIssueStage(bad) === false && threw);
   }
   gate('G423-BLD — R2 no permissive stage regex remains', !/\[a-z_\]\{1,64\}/.test(fs.readFileSync(path.join(DIR, 'normalizeIssues.js'), 'utf8')));
   gate('G423-BLD — R2 no `code` alias in normalizeIssues', !/issueCode \?\? /.test(fs.readFileSync(path.join(DIR, 'normalizeIssues.js'), 'utf8')));
+  gate('G423-BLD — R3 no `unknown` stage fallback in normalizeIssues', !/\?\s*stage\s*:\s*'unknown'/.test(fs.readFileSync(path.join(DIR, 'normalizeIssues.js'), 'utf8')));
   gate('G423-BLD — R2 no invented stage name anywhere in the subtree', !/_limit_enforcement|extension_validation/.test(code()));
 
   // R2-ARRAY — descriptor-only array read path.
@@ -520,9 +532,164 @@ gate('G423-BLD — readiness gated by compatibility', B.createBuilderReadiness()
   gate('G423-BLD — R2 readiness derived from the verifier', /readiness: ready \? READINESS_READY : READINESS_NEEDS_FIX/.test(rdSrc));
   gate('G423-BLD — R2 readiness never a hardcoded literal', !/readiness: '/.test(rdSrc));
   gate('G423-BLD — R2 audit-ready wording only when compatibility passes', B.createBuilderReadiness().readiness === (B.createBuilderReadiness().compatibilityOk ? RDY.READINESS_READY : RDY.READINESS_NEEDS_FIX));
-  for (const flag of ['pipelineImplemented', 'all23StagesImplemented', 'all23StagesExecuted', 'boundaryStages17To23Executed', 'firstBlockerStageAtomic', 'issueStageAllowlistClosed', 'exactTargetDescriptorComparison', 'exactVersionTupleComparison']) {
+  for (const flag of ['pipelineImplemented', 'all23StagesExecutedOnSuccess', 'all23StagesHaveDirectValidationProof', 'boundaryStages17To23HaveDirectValidationProof', 'firstBlockerStageAtomic', 'issueModelStrictNoFallback', 'configFailClosed', 'arrayLimitSemanticsCorrect', 'manifestComplete', 'exactTargetDescriptorComparison', 'exactVersionTupleComparison']) {
     gate(`G423-BLD — R2 readiness declares ${flag}`, B.createBuilderReadiness()[flag] === true);
   }
+}
+
+// ===========================================================================
+// ROUND 3 — final hardening gate proofs.
+// ===========================================================================
+{
+  const NC3 = NCFG.normalizeBuilderConfig();
+  const run3 = (dec) => EXEC.executeBuilderValidationPipeline(dec, NC3.config);
+  const d3 = buildRealDecision('gr3');
+
+  // R3 compatibility snapshot — full coverage + tamper on EVERY key.
+  const SNAP_KEYS = ['sourceFields', 'requiredSourceFields', 'eligibilityFields', 'sourceSecurityFields', 'coreAllowlist',
+    'envelopeFields', 'envelopeInvariants', 'pipelineStages', 'issueCodes', 'issueShapeFields', 'issueStageAllowlist',
+    'resourceDimensions', 'resourceLimits', 'targetFields', 'targetRequiredFields', 'targetSecurityFields',
+    'targetVersionFields', 'targetDigestFields', 'targetInvariants', 'targetDescriptorKind', 'targetKind',
+    'targetContractVersion', 'authoringRuntimeVersion', 'sourceHandoffKind', 'sourceHandoffVersion',
+    'previewSandboxContractVersion', 'identityVerifiedSemanticOwner', 'selectedArchitecture', 'architectureOneFinal',
+    'coreEnvelopeIdentityVerifiedInvariant', 'builderContractVersion', 'coreEnvelopeV2Version', 'bridgeVersion',
+    'factoryResultKeys'];
+  gate('G423-BLD — R3 snapshot covers exactly the required keys', JSON.stringify(Object.keys(COMPAT.BUILDER_COMPATIBILITY_SNAPSHOT).sort()) === JSON.stringify([...SNAP_KEYS].sort()));
+  for (const k of SNAP_KEYS) {
+    const v = COMPAT.BUILDER_COMPATIBILITY_SNAPSHOT[k];
+    const bad = Array.isArray(v) ? [...v, 'kind'] : (v && typeof v === 'object' ? { ...v, __extra__: 1 } : (typeof v === 'boolean' ? !v : 'tampered-value'));
+    gate(`G423-BLD — R3 divergent snapshot.${k} is a blocker`, COMPAT.evaluateBuilderCompatibilitySnapshot({ ...COMPAT.BUILDER_COMPATIBILITY_SNAPSHOT, [k]: bad }).length > 0);
+    const { [k]: _drop, ...rest } = COMPAT.BUILDER_COMPATIBILITY_SNAPSHOT;
+    gate(`G423-BLD — R3 missing snapshot.${k} is a blocker`, COMPAT.evaluateBuilderCompatibilitySnapshot(rest).length > 0);
+  }
+  for (const k of ['envelopeInvariants', 'resourceLimits', 'targetInvariants']) {
+    gate(`G423-BLD — R3 EXTRA key in ${k} is a blocker`, COMPAT.evaluateBuilderCompatibilitySnapshot({ ...COMPAT.BUILDER_COMPATIBILITY_SNAPSHOT, [k]: { ...COMPAT.BUILDER_COMPATIBILITY_SNAPSHOT[k], __x__: 1 } }).length > 0);
+    gate(`G423-BLD — R3 MISSING key in ${k} is a blocker`, COMPAT.evaluateBuilderCompatibilitySnapshot({ ...COMPAT.BUILDER_COMPATIBILITY_SNAPSHOT, [k]: Object.fromEntries(Object.entries(COMPAT.BUILDER_COMPATIBILITY_SNAPSHOT[k]).slice(1)) }).length > 0);
+  }
+  const c3 = B.verifyBuilderCompatibility();
+  gate('G423-BLD — R3 contractSnapshotExact separated', c3.contractSnapshotExact === true);
+  gate('G423-BLD — R3 factorySurfaceExact separated', c3.factorySurfaceExact === true);
+  gate('G423-BLD — R3 publicIndex surface delegated to test+gate', c3.publicIndexSurfaceVerifiedByDedicatedTestAndGate === true);
+  gate('G423-BLD — R3 owner derived from the identity contract', COMPAT.BUILDER_COMPATIBILITY_SNAPSHOT.identityVerifiedSemanticOwner === BC.IDENTITY_VERIFICATION_STATE_CONTRACT.identityVerifiedSemanticOwner);
+  gate('G423-BLD — R3 architecture derived from the identity contract', COMPAT.BUILDER_COMPATIBILITY_SNAPSHOT.selectedArchitecture === BC.IDENTITY_VERIFICATION_STATE_CONTRACT.selectedArchitecture && COMPAT.BUILDER_COMPATIBILITY_SNAPSHOT.architectureOneFinal === BC.IDENTITY_VERIFICATION_STATE_CONTRACT.ARCHITECTURE_1_IS_FINAL);
+  gate('G423-BLD — R3 public index surface EXACTLY the allowlist', JSON.stringify(Object.keys(B).sort()) === JSON.stringify([...COMPAT.PUBLIC_INDEX_EXPORT_ALLOWLIST].sort()));
+  for (const f of ['executeBuilderValidationPipeline', 'BOUNDARY_STAGE_VALIDATORS', 'PIPELINE_STAGE_PROOF_MATRIX', 'evaluateBuilderCompatibilitySnapshot', 'digestManifestParts', 'MANIFEST_PART_NAMES', 'IDENTITY_ARCHITECTURE', 'BuilderIssueConstructionError']) {
+    gate(`G423-BLD — R3 no execution seam exported: ${f}`, typeof B[f] === 'undefined');
+  }
+
+  // R3 strict issue model.
+  for (const bad of ['NOT_A_REAL_CODE', '', 'builder_config_invalid']) {
+    let t = false; try { ISS.makeIssue(bad, 'public_boundary'); } catch { t = true; }
+    gate(`G423-BLD — R3 unknown issueCode THROWS ${JSON.stringify(bad)}`, t);
+  }
+  for (const bad of ['weird', '', 'BLOCKER']) {
+    let t = false; try { ISS.makeIssue('BUILDER_CONFIG_INVALID', 'public_boundary', bad); } catch { t = true; }
+    gate(`G423-BLD — R3 unknown severity THROWS ${JSON.stringify(bad)}`, t);
+  }
+  for (const bad of ['/etc/passwd', '../up', 'a b', 'weird$char']) {
+    let t = false; try { ISS.makeIssue('BUILDER_CONFIG_INVALID', 'public_boundary', 'blocker', bad); } catch { t = true; }
+    gate(`G423-BLD — R3 invalid path THROWS ${JSON.stringify(bad)}`, ISS.isValidIssuePath(bad) === false && t);
+  }
+  gate('G423-BLD — R3 omitted path stays empty', ISS.makeIssue('BUILDER_CONFIG_INVALID', 'public_boundary').path === '');
+  for (const [label, bad] of [['non-array', 'nope'], ['non-object entry', [1]], ['incomplete shape', [{ issueCode: 'BUILDER_CONFIG_INVALID' }]],
+    ['extra field', [{ ...ISS.makeIssue('BUILDER_CONFIG_INVALID', 'public_boundary'), extra: 1 }]],
+    ['code alias', [{ ...ISS.makeIssue('BUILDER_CONFIG_INVALID', 'public_boundary'), code: 'X' }]],
+    ['invalid stage', [{ ...ISS.makeIssue('BUILDER_CONFIG_INVALID', 'public_boundary'), stage: 'nope' }]]]) {
+    let t = false; try { ISS.normalizeIssues(bad); } catch { t = true; }
+    gate(`G423-BLD — R3 normalizeIssues fails closed on ${label}`, t);
+  }
+  const em = EMR.createEmergencyBuilderRejection();
+  gate('G423-BLD — R3 emergency rejection is the single fixed shape', em.ok === false && em.coreEnvelope === null && em.issues.length === 1
+    && em.issues[0].issueCode === 'BUILDER_UNEXPECTED_EXECUTION_FAILURE' && em.issues[0].stage === 'public_boundary'
+    && em.issues[0].severity === 'blocker' && ISS.hasExactIssueShape(em.issues[0]) && Object.isFrozen(em));
+  {
+    let threw = false;
+    for (const hostile of [new Proxy({}, { ownKeys() { throw new Error('SECRET'); } }), 42, 'str', null, undefined, () => {}]) {
+      try { const r = builder.build(hostile); if (JSON.stringify(r).includes('SECRET')) threw = true; } catch { threw = true; }
+    }
+    gate('G423-BLD — R3 public build never throws and never leaks', threw === false);
+  }
+  gate('G423-BLD — R3 no builder issue carries the stage `unknown`', builder.build({ ...d3, __x: 1 }).issues.every((i) => ISS.isAllowedIssueStage(i.stage)));
+
+  // R3 array semantics.
+  for (const n of [33, 34, 40, 128, 512]) {
+    let ok3 = false; try { ok3 = CLONE.safeCloneAndNormalize({ arr: Array.from({ length: n }, (_, i) => `v${i}`) }).arr.length === n; } catch { ok3 = false; }
+    gate(`G423-BLD — R3 dense array of ${n} items accepted`, ok3);
+  }
+  gate('G423-BLD — R3 maxSourceDecisionFields no longer bounds arrays', LIM.enforceSourceFieldCountLimit({ arr: Array.from({ length: 128 }, (_, i) => i) }).length === 0);
+  gate('G423-BLD — R3 no array-length check against maxSourceDecisionFields', !/len > RESOURCE_LIMITS\.maxSourceDecisionFields/.test(fs.readFileSync(path.join(DIR, 'safeCloneAndNormalize.js'), 'utf8')));
+
+  // R3 config fail-closed.
+  for (const okCfg of [undefined, null, {}, { maxStructureDepth: 1 }, { maxStructureDepth: CFG.MAX_STRUCTURE_DEPTH }]) {
+    gate(`G423-BLD — R3 config accepted ${JSON.stringify(okCfg) || String(okCfg)}`, NCFG.normalizeBuilderConfig(okCfg).ok === true);
+  }
+  const BADC = [['unknown key', { nope: 1 }], ['strict true', { strict: true }], ['strict false', { strict: false }],
+    ['strict wrong type', { strict: 'yes' }], ['depth 0', { maxStructureDepth: 0 }], ['depth negative', { maxStructureDepth: -1 }],
+    ['depth float', { maxStructureDepth: 1.5 }], ['depth string', { maxStructureDepth: '8' }],
+    ['depth over max', { maxStructureDepth: CFG.MAX_STRUCTURE_DEPTH + 1 }], ['array', [1, 2]],
+    ['forbidden override', { coreAllowlist: [] }], ['pollution', JSON.parse('{"__proto__":{"x":1}}')]];
+  for (const [label, cfg] of BADC) {
+    const r = NCFG.normalizeBuilderConfig(cfg);
+    gate(`G423-BLD — R3 config rejected: ${label}`, r.ok === false && r.config === undefined);
+    gate(`G423-BLD — R3 rejected config yields a rejecting builder: ${label}`, FACTORY.createBridgeDecisionCoreEnvelopeBuilder(cfg).build(d3).ok === false);
+  }
+  gate('G423-BLD — R3 default only when absent', NCFG.normalizeBuilderConfig({}).config.maxStructureDepth === CFG.MAX_STRUCTURE_DEPTH && NCFG.normalizeBuilderConfig({ maxStructureDepth: 5 }).config.maxStructureDepth === 5);
+  gate('G423-BLD — R3 strict is not a fictional option', CFG.BUILDER_ALWAYS_STRICT === true && JSON.stringify([...CFG.BUILDER_CONFIG_ALLOWED_KEYS]) === '["maxStructureDepth"]' && !Object.prototype.hasOwnProperty.call(CFG.DEFAULT_BUILDER_CONFIG, 'strict'));
+
+  // R3 manifest — 23 parts.
+  const EXPECTED_PARTS = ['configSchema', 'publicApi', 'sourceFields', 'sourceRequiredFields', 'sourceEligibility',
+    'sourceSecurity', 'targetFields', 'targetRequiredFields', 'targetSecurityFields', 'targetVersionTuple',
+    'targetDigestFields', 'targetInvariants', 'coreAllowlist', 'envelopeFields', 'envelopeInvariants', 'pipelineStages',
+    'issueCodes', 'issueShape', 'issueStageAllowlist', 'resourceDimensionsAndValues', 'identityArchitecture',
+    'failureContainmentAndReplay', 'readinessAndManualGate'];
+  const mf3 = B.createBuilderManifest();
+  gate('G423-BLD — R3 manifest has exactly 23 canonical parts in order', mf3.partCount === 23 && JSON.stringify([...mf3.partNames]) === JSON.stringify(EXPECTED_PARTS));
+  gate('G423-BLD — R3 manifest overall digest deterministic', mf3.overallDigest === B.createBuilderManifest().overallDigest && /^fnv1a-[0-9a-f]{8}$/.test(mf3.overallDigest));
+  gate('G423-BLD — R3 manifest declares no cryptographic integrity', mf3.cryptographicIntegrityProvided === false);
+  for (const part of EXPECTED_PARTS) {
+    const tampered = JSON.parse(JSON.stringify(mf3.parts));
+    tampered[part] = Array.isArray(tampered[part]) ? [...tampered[part], '__t__'] : (tampered[part] && typeof tampered[part] === 'object' ? { ...tampered[part], __t__: 1 } : '__t__');
+    const re = MAN.digestManifestParts(tampered);
+    gate(`G423-BLD — R3 manifest tamper ${part} changes part + overall digest`, re.partDigests[part] !== mf3.partDigests[part] && re.overallDigest !== mf3.overallDigest);
+  }
+  gate('G423-BLD — R3 manifest carries limit VALUES', CFG.RESOURCE_DIMENSIONS.every((d) => mf3.parts.resourceDimensionsAndValues.values[d] === CFG.RESOURCE_LIMITS[d]));
+  gate('G423-BLD — R3 manifest carries the public API', JSON.stringify(mf3.parts.publicApi.factoryResultKeys) === '["build"]' && mf3.parts.publicApi.partialExecutionHelperExported === false);
+  gate('G423-BLD — R3 manifest carries owner/architecture', mf3.parts.identityArchitecture.identityVerifiedSemanticOwner === 'consumer_runtime' && mf3.parts.identityArchitecture.selectedArchitecture === 'ARCHITECTURE_1');
+  gate('G423-BLD — R3 manifest carries the manual gate', mf3.parts.readinessAndManualGate.manualGateRequired === true && mf3.parts.readinessAndManualGate.authorizesConsumerRuntime === false);
+
+  // R3 pipeline — honest proof.
+  gate('G423-BLD — R3 proof matrix covers all 23 stages', EXEC.PIPELINE_STAGE_PROOF_MATRIX.length === 23 && JSON.stringify(EXEC.PIPELINE_STAGE_PROOF_MATRIX.map((r) => r.stage)) === JSON.stringify([...CFG.PIPELINE_STAGES]));
+  gate('G423-BLD — R3 every stage has a direct validation proof', EXEC.PIPELINE_STAGE_PROOF_MATRIX.every((r) => r.directValidationProof === true));
+  gate('G423-BLD — R3 defenseInDepth is the complement of first-blocker reachability', EXEC.PIPELINE_STAGE_PROOF_MATRIX.every((r) => r.defenseInDepth === !r.reachableAsFirstBlocker));
+  gate('G423-BLD — R3 exactly seven boundary validators', JSON.stringify(Object.keys(EXEC.BOUNDARY_STAGE_VALIDATORS)) === JSON.stringify(CFG.PIPELINE_STAGES.slice(16)));
+  {
+    const okRun3 = run3(d3);
+    const BCASES = [
+      ['ssot_boundary_validation', (c) => ({ ...c, envelope: { ...c.envelope, metadataOnly: false } })],
+      ['preview_mount_boundary_validation', (c) => ({ ...c, envelope: { ...c.envelope, previewMounted: true } })],
+      ['real_data_boundary_validation', (c) => ({ ...c, source: { ...c.source, realDataRead: true } })],
+      ['module_generation_boundary_validation', (c) => ({ ...c, source: { ...c.source, moduleGenerated: true } })],
+      ['certification_boundary_validation', (c) => ({ ...c, source: { ...c.source, certificationPerformed: true } })],
+      ['product_exposure_boundary_validation', (c) => ({ ...c, source: { ...c.source, productExposed: true } })],
+      ['prototype_reference_validation', (c) => ({ ...c, envelope: JSON.parse('{"__proto__":{"x":1},"a":1}') })],
+    ];
+    for (const [stage, tamper] of BCASES) {
+      const ctx = { source: d3, envelope: okRun3.envelope };
+      gate(`G423-BLD — R3 boundary ${stage} passes on a VALID context`, EXEC.BOUNDARY_STAGE_VALIDATORS[stage](ctx).length === 0);
+      const bad = EXEC.BOUNDARY_STAGE_VALIDATORS[stage](tamper(ctx));
+      gate(`G423-BLD — R3 boundary ${stage} BLOCKS on a tampered context`, bad.length > 0 && bad[0].stage === stage && bad[0].blocksBuilder === true);
+      gate(`G423-BLD — R3 boundary ${stage} blocks an absent context`, EXEC.BOUNDARY_STAGE_VALIDATORS[stage]({ source: null, envelope: null }).length > 0);
+    }
+    gate('G423-BLD — R3 executedStages is a canonical PREFIX', JSON.stringify([...okRun3.executedStages]) === JSON.stringify(CFG.PIPELINE_STAGES.slice(0, okRun3.executedStages.length)));
+  }
+
+  // R3 readiness — derived and honest.
+  const rd3 = B.createBuilderReadiness();
+  gate('G423-BLD — R3 readiness distinguishes execution vs direct proof vs first-blocker', rd3.all23StagesExecutedOnSuccess === true && rd3.all23StagesHaveDirectValidationProof === true && rd3.all23StagesReachableAsFirstBlocker === false);
+  gate('G423-BLD — R3 readiness derives real counts', rd3.manifestPartCount === 23 && rd3.pipelineStageCount === 23 && rd3.resourceDimensionCount === 9);
+  gate('G423-BLD — R3 readiness architecture exact', rd3.architectureOneExact === true && IDA.IDENTITY_ARCHITECTURE.coreEnvelopeIdentityVerifiedInvariant === false);
+  gate('G423-BLD — R3 readiness fail-closed string', rd3.readiness === (rd3.compatibilityOk && rd3.manifestComplete ? RDY.READINESS_READY : RDY.READINESS_NEEDS_FIX));
+  gate('G423-BLD — R3 downstream still not implemented', rd3.consumerRuntimeImplemented === false && rd3.previewRuntimeImplemented === false && rd3.productExposed === false);
 }
 
 const failed = results.filter((r) => !r.ok);

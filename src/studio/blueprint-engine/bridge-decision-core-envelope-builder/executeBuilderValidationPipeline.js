@@ -24,12 +24,74 @@ import { validateCoreEnvelopeShape, validateCoreEnvelopeVersion, validateIdentit
 const S = PIPELINE_STAGES; // canonical order, from the real contract
 
 /**
- * INTERNAL executable 23-stage pipeline (NOT exported by the public index). It walks BUILDER_PIPELINE_STAGES in the
- * exact canonical order and executes EACH stage explicitly — including the boundary stages 17-23, which are real
- * checks, not implicit coverage. It is STAGE-ATOMIC: the first stage producing a blocker/error stops the walk; no
- * later stage runs, no later-stage issue is produced, and the envelope is only created at its own stage after every
- * preceding stage passed. Returns a deep-frozen result with a sanitized `executedStages` trace (stage names only —
- * never raw source/target/secrets).
+ * The SEVEN boundary-stage validators (stages 17-23), exported INTERNALLY so each can be exercised DIRECTLY with a
+ * valid and a tampered context. They are real checks, not implicit coverage — but many of the defects they catch are
+ * already blocked by an earlier stage end-to-end, so their correctness is proved here rather than by claiming each
+ * can be reached as the first blocker. Every validator takes `{ source, envelope }` and returns that stage's issues.
+ */
+export const BOUNDARY_STAGE_VALIDATORS = deepFreeze({
+  // 17 — SSOT boundary: the envelope must never be declared canonical over the certified blueprint.
+  [S[16]]: ({ envelope }) => (envelope && envelope.metadataOnly === true && envelope.synthetic === true
+    ? [] : [makeIssue('BUILDER_SSOT_INVERSION_FORBIDDEN', S[16], 'blocker', 'coreEnvelope')]),
+  // 18 — preview mount boundary.
+  [S[17]]: ({ source, envelope }) => (envelope && envelope.previewMounted === false && source && source.previewMounted !== true
+    ? [] : [makeIssue('BUILDER_PREMATURE_RUNTIME_FORBIDDEN', S[17], 'blocker', 'previewMounted')]),
+  // 19 — real data boundary.
+  [S[18]]: ({ source }) => (source && source.realDataRead !== true && source.targetDescriptor && source.targetDescriptor.realDataAttached !== true
+    ? [] : [makeIssue('BUILDER_SOURCE_SECURITY_FLAG_FORBIDDEN', S[18], 'blocker', 'realDataRead')]),
+  // 20 — module generation boundary.
+  [S[19]]: ({ source }) => (source && source.moduleGenerated !== true && source.targetDescriptor && source.targetDescriptor.moduleGenerated !== true
+    ? [] : [makeIssue('BUILDER_SOURCE_SECURITY_FLAG_FORBIDDEN', S[19], 'blocker', 'moduleGenerated')]),
+  // 21 — certification boundary.
+  [S[20]]: ({ source }) => (source && source.certificationPerformed !== true
+    ? [] : [makeIssue('BUILDER_SOURCE_SECURITY_FLAG_FORBIDDEN', S[20], 'blocker', 'certificationPerformed')]),
+  // 22 — product exposure boundary.
+  [S[21]]: ({ source, envelope }) => (envelope && envelope.productExposed === false && source && source.productExposed !== true
+    && source.targetDescriptor && source.targetDescriptor.productExposed !== true
+    ? [] : [makeIssue('BUILDER_SOURCE_SECURITY_FLAG_FORBIDDEN', S[21], 'blocker', 'productExposed')]),
+  // 23 — prototype reference validation: neither the envelope nor its nested core may carry a pollution key.
+  [S[22]]: ({ envelope }) => (envelope && !hasPrototypePollutionKey(envelope, RESOURCE_LIMITS.maxStructureDepth)
+    ? [] : [makeIssue('BUILDER_PROTOTYPE_POLLUTION_KEY_FORBIDDEN', S[22], 'blocker', 'coreEnvelope')]),
+});
+
+/**
+ * Stage / responsibility / precedence / proof matrix. `directValidationProof` records that the stage's own validator
+ * is exercised directly (valid + tampered context); `reachableAsFirstBlocker` records honestly whether a defect can
+ * realistically make that stage the FIRST blocker end-to-end, or whether an earlier stage always catches it first
+ * (defense in depth).
+ */
+export const PIPELINE_STAGE_PROOF_MATRIX = deepFreeze([
+  { index: 1, stage: S[0], responsibility: 'safe structural normalization + depth + bytes/strings', directValidationProof: true, reachableAsFirstBlocker: true, defenseInDepth: false },
+  { index: 2, stage: S[1], responsibility: 'exact 33-field shape + forbidden extensions + field count', directValidationProof: true, reachableAsFirstBlocker: true, defenseInDepth: false },
+  { index: 3, stage: S[2], responsibility: 'success eligibility flags', directValidationProof: true, reachableAsFirstBlocker: true, defenseInDepth: false },
+  { index: 4, stage: S[3], responsibility: 'source version tuple', directValidationProof: true, reachableAsFirstBlocker: true, defenseInDepth: false },
+  { index: 5, stage: S[4], responsibility: 'source security boundary flags', directValidationProof: true, reachableAsFirstBlocker: true, defenseInDepth: false },
+  { index: 6, stage: S[5], responsibility: 'exact 23-field target descriptor + exact version tuple + limits', directValidationProof: true, reachableAsFirstBlocker: true, defenseInDepth: false },
+  { index: 7, stage: S[6], responsibility: 'core allowlist resolution (source minus digest)', directValidationProof: true, reachableAsFirstBlocker: false, defenseInDepth: true },
+  { index: 8, stage: S[7], responsibility: 'exact core extraction', directValidationProof: true, reachableAsFirstBlocker: false, defenseInDepth: true },
+  { index: 9, stage: S[8], responsibility: 'core completeness + core limits', directValidationProof: true, reachableAsFirstBlocker: false, defenseInDepth: true },
+  { index: 10, stage: S[9], responsibility: 'no extra core field', directValidationProof: true, reachableAsFirstBlocker: false, defenseInDepth: true },
+  { index: 11, stage: S[10], responsibility: 'digest present once, never inside core', directValidationProof: true, reachableAsFirstBlocker: true, defenseInDepth: false },
+  { index: 12, stage: S[11], responsibility: 'digest recompute + exact compare', directValidationProof: true, reachableAsFirstBlocker: true, defenseInDepth: false },
+  { index: 13, stage: S[12], responsibility: 'same-decision atomicity', directValidationProof: true, reachableAsFirstBlocker: false, defenseInDepth: true },
+  { index: 14, stage: S[13], responsibility: 'envelope declared version tuple', directValidationProof: true, reachableAsFirstBlocker: false, defenseInDepth: true },
+  { index: 15, stage: S[14], responsibility: 'envelope exact 12-field shape + byte ceiling before emission', directValidationProof: true, reachableAsFirstBlocker: false, defenseInDepth: true },
+  { index: 16, stage: S[15], responsibility: 'pre-consumer verification state (identityVerified false)', directValidationProof: true, reachableAsFirstBlocker: false, defenseInDepth: true },
+  { index: 17, stage: S[16], responsibility: 'SSOT boundary — envelope never canonical over the certified blueprint', directValidationProof: true, reachableAsFirstBlocker: false, defenseInDepth: true },
+  { index: 18, stage: S[17], responsibility: 'preview mount boundary', directValidationProof: true, reachableAsFirstBlocker: false, defenseInDepth: true },
+  { index: 19, stage: S[18], responsibility: 'real data boundary', directValidationProof: true, reachableAsFirstBlocker: false, defenseInDepth: true },
+  { index: 20, stage: S[19], responsibility: 'module generation boundary', directValidationProof: true, reachableAsFirstBlocker: false, defenseInDepth: true },
+  { index: 21, stage: S[20], responsibility: 'certification boundary', directValidationProof: true, reachableAsFirstBlocker: false, defenseInDepth: true },
+  { index: 22, stage: S[21], responsibility: 'product exposure boundary', directValidationProof: true, reachableAsFirstBlocker: false, defenseInDepth: true },
+  { index: 23, stage: S[22], responsibility: 'prototype reference validation on the emitted envelope', directValidationProof: true, reachableAsFirstBlocker: false, defenseInDepth: true },
+]);
+
+/**
+ * INTERNAL executable 23-stage pipeline (NOT exported by the public index, and NOT a test seam). It walks
+ * BUILDER_PIPELINE_STAGES in the exact canonical order and executes EACH stage explicitly — including the boundary
+ * stages 17-23. It is STAGE-ATOMIC: the first stage producing a blocking issue stops the walk; no later stage runs,
+ * no later-stage issue is produced, and the envelope only exists after every preceding stage passed. Returns a
+ * deep-frozen result with a sanitized `executedStages` PREFIX trace (stage names only — never raw source or secrets).
  * @returns {{ok:boolean, issues:Array, core:Object|null, envelope:Object|null, executedStages:string[], stoppedAtStage:string|null}}
  */
 export function executeBuilderValidationPipeline(bridgeDecision, builderConfig) {
@@ -87,21 +149,9 @@ export function executeBuilderValidationPipeline(bridgeDecision, builderConfig) 
     [S[14]]: () => [...validateCoreEnvelopeShape(envelope).map((i) => makeIssue(i.issueCode, S[14])), ...enforceEnvelopeResourceLimits(envelope).map((i) => makeIssue(i.issueCode, S[14]))],
     // 16
     [S[15]]: () => validateIdentityVerificationState(envelope).map((i) => makeIssue(i.issueCode, S[15])),
-    // 17 — SSOT boundary: the envelope/core must never be declared canonical over the certified blueprint.
-    [S[16]]: () => (envelope.metadataOnly === true && envelope.synthetic === true ? [] : [makeIssue('BUILDER_SSOT_INVERSION_FORBIDDEN', S[16])]),
-    // 18 — preview mount boundary.
-    [S[17]]: () => (envelope.previewMounted === false && source.previewMounted !== true ? [] : [makeIssue('BUILDER_SOURCE_SECURITY_FLAG_FORBIDDEN', S[17])]),
-    // 19 — real data boundary.
-    [S[18]]: () => (source.realDataRead !== true && source.targetDescriptor.realDataAttached !== true ? [] : [makeIssue('BUILDER_SOURCE_SECURITY_FLAG_FORBIDDEN', S[18])]),
-    // 20 — module generation boundary.
-    [S[19]]: () => (source.moduleGenerated !== true && source.targetDescriptor.moduleGenerated !== true ? [] : [makeIssue('BUILDER_SOURCE_SECURITY_FLAG_FORBIDDEN', S[19])]),
-    // 21 — certification boundary.
-    [S[20]]: () => (source.certificationPerformed !== true ? [] : [makeIssue('BUILDER_SOURCE_SECURITY_FLAG_FORBIDDEN', S[20])]),
-    // 22 — product exposure boundary.
-    [S[21]]: () => (envelope.productExposed === false && source.productExposed !== true && source.targetDescriptor.productExposed !== true ? [] : [makeIssue('BUILDER_SOURCE_SECURITY_FLAG_FORBIDDEN', S[21])]),
-    // 23 — prototype reference validation (envelope + core must carry no pollution key).
-    [S[22]]: () => (hasPrototypePollutionKey(envelope, RESOURCE_LIMITS.maxStructureDepth) ? [makeIssue('BUILDER_PROTOTYPE_POLLUTION_KEY_FORBIDDEN', S[22])] : []),
   };
+  // 17-23 — the boundary validators, executed through the SAME map so they are real stages, not implicit coverage.
+  for (const stage of S.slice(16)) runners[stage] = () => BOUNDARY_STAGE_VALIDATORS[stage]({ source, envelope });
 
   for (const stage of S) {
     executed.push(stage);
