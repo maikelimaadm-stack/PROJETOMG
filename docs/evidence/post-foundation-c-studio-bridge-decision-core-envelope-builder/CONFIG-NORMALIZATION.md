@@ -1,8 +1,16 @@
-# Config Normalization
+# Config Normalization (corrected — hostile containment)
 
-> Builder: `studio-bridge-decision-core-envelope-builder@1.0.0` — headless, dev-only, in-memory, efêmero, determinístico, imutável, fail-closed, side-effect-free. Recebe uma `bridgeDecision` real, extrai o core exato, recomputa e compara o digest, e emite um Core Envelope v2 imutável ou uma rejeição atômica sanitizada. Nenhum consumer runtime, preview, UI/App, persistência, backend/Prisma, módulo, certificação ou produto.
+> Builder: `studio-bridge-decision-core-envelope-builder@1.0.0`.
 
-Config normalizada, clonada e deep-frozen. Overrides críticos proibidos: `sourceFields`, `coreAllowlist`, `digestPreimageFields`, `digestHelper`, `envelopeFields`, `envelopeInvariants`, `envelopeVersion`, `coreEnvelopeVersion`, `identityLifecycle`, `securityInvariants`, `pipelineStages`, `issueCodes`, `resourceLimits`. Config inválida ⇒ rejeição fail-closed sanitizada.
+**A factory NUNCA lança.** Toda leitura do config CRU acontece dentro de um único boundary try/catch: o primeiro
+toque no objeto é o safe clone (que inspeciona descriptors, nunca `config[k]`), então traps hostis são contidas.
+
+Casos cobertos (factory retorna `{ build }` deep-frozen; `build()` retorna rejeição sanitizada determinística):
+`Proxy ownKeys throw`, `Proxy getPrototypeOf throw`, `Proxy getOwnPropertyDescriptor throw`, `Proxy get throw`,
+getter, setter, cycle, custom prototype, sparse array, `__proto__` / `constructor` / `prototype`.
+
+Overrides críticos proibidos: source allowlist, digest preimage fields, digest helper, core/envelope versions,
+identity lifecycle, security invariants, pipeline order, issue codes, resource limits.
 
 ---
 _Evidência do slice Post-Foundation C — Studio Bridge Decision Core Envelope Builder. Memória = repositório._

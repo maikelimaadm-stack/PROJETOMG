@@ -1,6 +1,6 @@
 import { createDeterministicDigest } from '../module-blueprint-authoring-runtime/index.js';
 import { STATUS_REJECTED } from './builderConfig.js';
-import { normalizeIssues } from './normalizeIssues.js';
+import { normalizeIssuesWithOverflow } from './normalizeIssues.js';
 import { deepFreeze } from './deepFreeze.js';
 /**
  * Deterministic, sanitized rejection. No envelope is emitted (rollbackByNonEmission=true). Issues are normalized
@@ -8,7 +8,7 @@ import { deepFreeze } from './deepFreeze.js';
  * codes. Never leaks a raw value, path, stack or secret.
  */
 export function createBuilderRejection(issues) {
-  const normalized = normalizeIssues(issues);
+  const normalized = normalizeIssuesWithOverflow(issues);
   const base = {
     ok: false,
     status: STATUS_REJECTED,
@@ -24,7 +24,7 @@ export function createBuilderRejection(issues) {
   };
   const builderDecisionDigest = createDeterministicDigest({
     ok: false, status: STATUS_REJECTED, envelopeDigest: null, coreEnvelopeCreated: false, identityVerified: false,
-    issueCodes: normalized.map((i) => `${i.code}::${i.stage}`),
+    issueCodes: normalized.map((i) => `${i.issueCode}::${i.stage}::${i.path}`),
   });
   return deepFreeze({ ...base, builderDecisionDigest });
 }

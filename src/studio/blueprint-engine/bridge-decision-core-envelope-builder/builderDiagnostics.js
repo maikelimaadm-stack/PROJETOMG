@@ -18,7 +18,7 @@ export function createBuilderDiagnostics(decision) {
     sourceMutated: d.sourceMutated === true,
     sideEffects: d.sideEffects === true,
     issueCount: issues.length,
-    issueCodes: deepFreeze(issues.map((i) => i.code)),
+    issueCodes: deepFreeze(issues.map((i) => i.issueCode)),
   });
 }
 export default createBuilderDiagnostics;

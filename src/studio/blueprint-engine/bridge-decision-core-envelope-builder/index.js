@@ -20,29 +20,10 @@ export {
   MAK_STUDIO_CORE_ENVELOPE_BUILDER_FLAG, isProductionEnv, isStudioCoreEnvelopeBuilderEnabled,
 } from './builderConfig.js';
 
-export { deepFreeze } from './deepFreeze.js';
-export { safeCloneAndNormalize, BuilderNormalizationError } from './safeCloneAndNormalize.js';
-export { hasPrototypePollutionKey } from './prototypePollutionGuard.js';
-export { makeIssue, normalizeIssues } from './normalizeIssues.js';
-export { normalizeBuilderConfig } from './normalizeBuilderConfig.js';
-export { normalizeSourceDecision } from './normalizeSourceDecision.js';
-export { validateSourceDecisionShape } from './validateSourceDecisionShape.js';
-export { validateSourceEligibility } from './validateSourceEligibility.js';
-export { validateSourceVersions } from './validateSourceVersions.js';
-export { validateSourceSecurityBoundary } from './validateSourceSecurityBoundary.js';
-export { validateTargetDescriptor } from './validateTargetDescriptor.js';
-export { validateNoForbiddenExtensions } from './extensionValidator.js';
-export { enforceSourceResourceLimits, enforceCoreResourceLimits } from './resourceLimitEnforcer.js';
-export { resolveCoreFieldAllowlist, coreAllowlistIsSourceMinusDigest } from './resolveCoreFieldAllowlist.js';
-export { extractBridgeDecisionCore } from './extractBridgeDecisionCore.js';
-export { validateExtractedCore } from './validateExtractedCore.js';
-export { recomputeBridgeDecisionDigest } from './recomputeBridgeDecisionDigest.js';
-export { validateSameDecisionAtomicity } from './validateSameDecisionAtomicity.js';
-export { constructCoreEnvelope } from './constructCoreEnvelope.js';
-export { validateCoreEnvelopeShape } from './validateCoreEnvelopeShape.js';
-export { createBuilderDecision } from './createBuilderDecision.js';
-export { createBuilderRejection } from './createBuilderRejection.js';
-export { createEmergencyBuilderRejection } from './createEmergencyBuilderRejection.js';
+// ---- Read-only helpers/metadata only. NO partial-execution bypass is exported: extraction, digest recompute,
+// envelope construction, decision/rejection creation, normalizers, validators and enforcers are INTERNAL. The only
+// way to execute the builder is the factory below. (Unit tests import internal modules directly by path.)
+export { coreAllowlistIsSourceMinusDigest } from './resolveCoreFieldAllowlist.js';
 export { REPLAY_IDEMPOTENCY } from './replayIdempotency.js';
 export { createBuilderDiagnostics } from './builderDiagnostics.js';
 export { createBuilderManifest } from './builderManifest.js';

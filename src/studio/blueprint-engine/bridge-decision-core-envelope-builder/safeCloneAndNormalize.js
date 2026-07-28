@@ -1,4 +1,4 @@
-import { MAX_STRUCTURE_DEPTH, PROTOTYPE_POLLUTION_KEYS } from './builderConfig.js';
+import { MAX_STRUCTURE_DEPTH, PROTOTYPE_POLLUTION_KEYS, RESOURCE_LIMITS } from './builderConfig.js';
 
 /**
  * A typed normalization failure. Carries a real issue CODE only — never the offending value, path source, stack or
@@ -31,7 +31,8 @@ export function safeCloneAndNormalize(value, opts = {}) {
     // Primitives.
     if (v === null) return null;
     const t = typeof v;
-    if (t === 'string') { if (v.length > 1048576) throw new BuilderNormalizationError('BUILDER_SOURCE_UNSUPPORTED_VALUE'); return v; }
+    // maxStringLength is the REAL contract limit, applied recursively at every string (values and keys).
+    if (t === 'string') { if (v.length > RESOURCE_LIMITS.maxStringLength) throw new BuilderNormalizationError('BUILDER_LIMIT_EXCEEDED'); return v; }
     if (t === 'boolean') return v;
     if (t === 'number') {
       if (!Number.isFinite(v)) throw new BuilderNormalizationError('BUILDER_SOURCE_UNSUPPORTED_VALUE');
@@ -65,6 +66,7 @@ export function safeCloneAndNormalize(value, opts = {}) {
       const out = {};
       for (const key of Object.keys(v)) {
         if (PROTOTYPE_POLLUTION_KEYS.includes(key)) throw new BuilderNormalizationError('BUILDER_SOURCE_PROTOTYPE_POLLUTION_KEY');
+        if (key.length > RESOURCE_LIMITS.maxStringLength) throw new BuilderNormalizationError('BUILDER_LIMIT_EXCEEDED');
         const desc = Object.getOwnPropertyDescriptor(v, key);
         if (!desc) continue;
         if (typeof desc.get === 'function' || typeof desc.set === 'function') throw new BuilderNormalizationError('BUILDER_SOURCE_ACCESSOR_FORBIDDEN');

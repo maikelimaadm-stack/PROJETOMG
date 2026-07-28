@@ -7,7 +7,7 @@ import { validateSourceVersions } from './validateSourceVersions.js';
 import { validateSourceSecurityBoundary } from './validateSourceSecurityBoundary.js';
 import { validateTargetDescriptor } from './validateTargetDescriptor.js';
 import { validateNoForbiddenExtensions } from './extensionValidator.js';
-import { enforceSourceResourceLimits, enforceCoreResourceLimits } from './resourceLimitEnforcer.js';
+import { enforceSourceResourceLimits, enforceCoreResourceLimits, enforceTargetDescriptorLimits, enforceEnvelopeResourceLimits } from './resourceLimitEnforcer.js';
 import { resolveCoreFieldAllowlist } from './resolveCoreFieldAllowlist.js';
 import { extractBridgeDecisionCore } from './extractBridgeDecisionCore.js';
 import { validateExtractedCore } from './validateExtractedCore.js';
@@ -31,8 +31,10 @@ import { deepFreeze } from './deepFreeze.js';
  * @param {Object} [config] @returns {{build:(bridgeDecision:*)=>Object}}
  */
 export function createBridgeDecisionCoreEnvelopeBuilder(config) {
-  const cfg = normalizeBuilderConfig(config);
-  const configOk = cfg.ok;
+  // The factory NEVER throws: config normalization is fully contained (hostile Proxy traps included).
+  let cfg;
+  try { cfg = normalizeBuilderConfig(config); } catch { cfg = { ok: false, code: 'BUILDER_CONFIG_INVALID' }; }
+  const configOk = cfg.ok === true;
   const configCode = cfg.code;
   const builderConfig = cfg.config || null;
 
@@ -56,6 +58,7 @@ export function createBridgeDecisionCoreEnvelopeBuilder(config) {
       issues = issues.concat(validateSourceVersions(source));
       issues = issues.concat(validateSourceSecurityBoundary(source));
       issues = issues.concat(validateTargetDescriptor(source));
+      issues = issues.concat(enforceTargetDescriptorLimits(source.targetDescriptor));
       if (issues.length) return createBuilderRejection(issues);
 
       // Stages 9-11 — allowlist resolution + exact extraction + core validation.
@@ -74,9 +77,10 @@ export function createBridgeDecisionCoreEnvelopeBuilder(config) {
       issues = validateSameDecisionAtomicity(source, core);
       if (issues.length) return createBuilderRejection(issues);
 
-      // Stages 14-16 — envelope construction + shape/identity validation.
+      // Stages 14-16 — envelope construction + shape/identity validation + byte ceiling BEFORE emission.
       const envelope = constructCoreEnvelope(core, sourceDigest);
       issues = validateCoreEnvelopeShape(envelope);
+      issues = issues.concat(enforceEnvelopeResourceLimits(envelope));
       if (issues.length) return createBuilderRejection(issues);
 
       // Success — builder decision carries verification OUTSIDE the (still-false) envelope.

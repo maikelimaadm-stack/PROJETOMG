@@ -79,11 +79,21 @@ test('S013 envelope invariant identityVerified false mirrors v2', () => {
 });
 
 // ---- Future runtime subtree (planned, NOT created) ----
-test('S020 future runtime subtree is planned, not created', () => {
+// NOTE (lifecycle correction): the plan originally asserted the PHYSICAL absence of the future builder subtree
+// (fs.existsSync). That was a temporal assertion, valid only during the plan-only slice and incompatible with the
+// next authorized slice that implements the builder. It is replaced by PERMANENT declarative proofs: the plan itself
+// must keep declaring that IT did not create/implement anything. These hold before AND after the builder exists.
+test('S020 future runtime subtree is declared planned, not created by the plan', () => {
   assert.equal(P.FUTURE_RUNTIME_SUBTREE.subtreeCreated, false);
   assert.equal(P.FUTURE_RUNTIME_SUBTREE.onlyJs, true);
   assert.ok(P.FUTURE_RUNTIME_FILE_MAP.length >= 28);
-  assert.ok(!fs.existsSync(FUTURE_DIR), 'future builder dir must NOT exist');
+  assert.equal(PLAN.futureRuntimeSubtreeCreated, false);
+  assert.equal(PLAN.builderFactoryImplemented, false);
+  assert.equal(PLAN.buildImplemented, false);
+  assert.equal(PLAN.coreExtractionImplemented, false);
+  assert.equal(PLAN.digestRecomputeImplemented, false);
+  assert.equal(PLAN.envelopeConstructionImplemented, false);
+  assert.equal(PLAN.consumerRuntimeImplemented, false);
 });
 
 test('S021 future public API declared not implemented', () => {
@@ -239,11 +249,17 @@ for (const ph of P.IMPLEMENTATION_PHASES) {
     assert.ok(Array.isArray(ph.futureFiles));
   });
 }
+// Per future file: PERMANENT metadata proofs (valid before and after the builder physically exists).
+const FUTURE_FILE_NAMES = P.FUTURE_RUNTIME_FILE_MAP.map((x) => x.file);
 for (const f of P.FUTURE_RUNTIME_FILE_MAP) {
-  test(`GFM-future-file ${f.file} planned only`, () => {
-    assert.match(f.file, /\.js$/);
-    assert.ok(typeof f.responsibility === 'string' && f.responsibility.length > 5);
-    assert.ok(!fs.existsSync(path2.join(FUTURE_DIR, f.file)), `${f.file} must not exist`);
+  test(`GFM-future-file ${f.file} metadata valid`, () => {
+    assert.match(f.file, /\.js$/);                                             // .js only
+    assert.ok(typeof f.responsibility === 'string' && f.responsibility.length > 5); // responsibility válida
+    assert.ok(!path2.isAbsolute(f.file) && !f.file.includes('..') && !f.file.includes('/'), 'safe relative path');
+    assert.equal(FUTURE_FILE_NAMES.filter((n) => n === f.file).length, 1, 'no duplicate');
+    // Belongs to the PLANNED future subtree (declared dir), and the plan still declares it did not create it.
+    assert.equal(P.FUTURE_RUNTIME_SUBTREE.plannedDir, 'src/studio/blueprint-engine/bridge-decision-core-envelope-builder');
+    assert.equal(P.FUTURE_RUNTIME_SUBTREE.subtreeCreated, false);
   });
 }
 for (const r of P.RISK_MATRIX) {

@@ -8,11 +8,13 @@
  */
 import {
   BUILDER_CONTRACT_VERSION, REAL_SOURCE_BRIDGE_DECISION_FIELDS, REQUIRED_SOURCE_BRIDGE_DECISION_FIELDS,
-  SOURCE_SUCCESS_ELIGIBILITY_FIELDS, SOURCE_DECISION_KIND, SOURCE_DECISION_SUCCESS_STATUS, SOURCE_DIGEST_FIELD,
-  DIGEST_PREIMAGE_ALLOWLIST, OUTPUT_CORE_ENVELOPE_FIELDS, OUTPUT_CORE_ENVELOPE_INVARIANTS, OUTPUT_CORE_ENVELOPE_KIND,
-  OUTPUT_CORE_ENVELOPE_VERSION_TAG, BUILDER_PIPELINE_STAGES, BUILDER_ISSUE_CODES, BUILDER_ISSUE_SEVERITIES,
-  BUILDER_DECISION_STATUSES, BUILDER_MAX_STRUCTURE_DEPTH, FORBIDDEN_PROTOTYPE_KEYS,
-  SOURCE_CORE_ENVELOPE_CONTRACT_VERSION, SOURCE_ENVELOPE_V1_CONTRACT_VERSION, SOURCE_BRIDGE_RUNTIME_VERSION,
+  SOURCE_SUCCESS_ELIGIBILITY_FIELDS, SOURCE_SECURITY_FIELDS, SOURCE_DECISION_KIND, SOURCE_DECISION_SUCCESS_STATUS,
+  SOURCE_DIGEST_FIELD, DIGEST_PREIMAGE_ALLOWLIST, OUTPUT_CORE_ENVELOPE_FIELDS, OUTPUT_CORE_ENVELOPE_INVARIANTS,
+  OUTPUT_CORE_ENVELOPE_KIND, OUTPUT_CORE_ENVELOPE_VERSION_TAG, OUTPUT_TARGET_DESCRIPTOR_FIELDS,
+  BUILDER_PIPELINE_STAGES, BUILDER_ISSUE_CODES, BUILDER_ISSUE_SEVERITIES, BUILDER_DECISION_STATUSES,
+  BUILDER_MAX_STRUCTURE_DEPTH, FORBIDDEN_PROTOTYPE_KEYS, RESOURCE_LIMITS_CONTRACT, RESOURCE_DIMENSION_NAMES,
+  ISSUE_MODEL_CONTRACT, SOURCE_CORE_ENVELOPE_CONTRACT_VERSION, SOURCE_ENVELOPE_V1_CONTRACT_VERSION,
+  SOURCE_BRIDGE_RUNTIME_VERSION, SOURCE_PREVIEW_SANDBOX_CONTRACT_VERSION,
 } from '../bridge-decision-core-envelope-builder-contract/index.js';
 import { deepFreeze } from './deepFreeze.js';
 
@@ -46,19 +48,48 @@ export const SOURCE_CORE_ENVELOPE_V2_VERSION = SOURCE_CORE_ENVELOPE_CONTRACT_VER
 export const SOURCE_ENVELOPE_V1_VERSION = SOURCE_ENVELOPE_V1_CONTRACT_VERSION;
 export const SOURCE_BRIDGE_VERSION = SOURCE_BRIDGE_RUNTIME_VERSION;
 
-// ---- Resource limits (derived; conservative defaults for a synthetic dev builder). ----
-export const RESOURCE_LIMITS = deepFreeze({
-  maxSourceDecisionFields: SOURCE_FIELDS.length,        // 33
-  maxCoreFields: CORE_FIELD_COUNT,                       // 32
-  maxTargetDescriptorFields: 64,
-  maxEnvelopeFields: ENVELOPE_FIELDS.length,             // 12
-  maxIssues: 128,
-  maxStringLength: 8192,
-  maxStructureDepth: MAX_STRUCTURE_DEPTH,                // 64
-  maxSourceDecisionBytes: 262144,
-  maxCoreBytes: 262144,
-});
-export const RESOURCE_DIMENSIONS = deepFreeze(Object.keys(RESOURCE_LIMITS));
+// ---- Issue model (exact shape from the contract; no local divergence). ----
+export const ISSUE_SHAPE_FIELDS = deepFreeze([...ISSUE_MODEL_CONTRACT.issueShapeFields]);
+
+// ---- Target descriptor (real 23 fields + derived subsets, all from the real upstream field list). ----
+export const TARGET_DESCRIPTOR_FIELDS = deepFreeze([...OUTPUT_TARGET_DESCRIPTOR_FIELDS]); // 23
+export const TARGET_DESCRIPTOR_REQUIRED_FIELDS = deepFreeze(['kind', 'targetKind', 'targetContractVersion', 'sourceHandoffKind', 'candidateDraftId', 'candidateDraftDigest', 'sourceDigest']);
+export const TARGET_DESCRIPTOR_SECURITY_FIELDS = deepFreeze(['previewMounted', 'routeCreated', 'menuCreated', 'productExposed', 'realDataAttached', 'moduleGenerated', 'persistenceAllowed']);
+export const TARGET_DESCRIPTOR_VERSION_FIELDS = deepFreeze(['targetContractVersion', 'sourceRuntimeVersion', 'sourceHandoffVersion', 'sourceTargetSandboxVersion']);
+export const TARGET_DESCRIPTOR_DIGEST_FIELDS = deepFreeze(['candidateDraftDigest', 'sourceDigest']);
+export const TARGET_DESCRIPTOR_INVARIANTS = deepFreeze({ synthetic: true, metadataOnly: true, immutable: true, validated: true });
+export const TARGET_DESCRIPTOR_KIND = 'bridge-target-preview-sandbox-descriptor';
+export const TARGET_DESCRIPTOR_TARGET_KIND = 'module_preview_sandbox_candidate';
+export const SOURCE_TARGET_CONTRACT_VERSION = SOURCE_PREVIEW_SANDBOX_CONTRACT_VERSION;
+export const SOURCE_SECURITY_DECISION_FIELDS = deepFreeze([...SOURCE_SECURITY_FIELDS]);
+
+/**
+ * Resource limits derived STRICTLY from RESOURCE_LIMITS_CONTRACT — no local divergent table. Fails closed (throws at
+ * module load, which the factory boundary converts into a sanitized rejection) on a missing, duplicated, unknown or
+ * invalid dimension. Every one of the real dimensions must be present exactly once with a positive integer limit.
+ */
+function deriveResourceLimits() {
+  const dims = Array.isArray(RESOURCE_LIMITS_CONTRACT.dimensions) ? RESOURCE_LIMITS_CONTRACT.dimensions : [];
+  const names = [...RESOURCE_DIMENSION_NAMES];
+  const out = {};
+  const seen = new Set();
+  for (const d of dims) {
+    if (!d || typeof d !== 'object') throw new Error('BUILDER_UNKNOWN_RESOURCE_DIMENSION');
+    const name = d.dimension;
+    if (!names.includes(name)) throw new Error('BUILDER_UNKNOWN_RESOURCE_DIMENSION');
+    if (seen.has(name)) throw new Error('BUILDER_UNKNOWN_RESOURCE_DIMENSION');
+    const limit = d.builderLimit;
+    if (!Number.isInteger(limit) || limit <= 0) throw new Error('BUILDER_UNKNOWN_RESOURCE_DIMENSION');
+    seen.add(name);
+    out[name] = limit;
+  }
+  for (const n of names) { if (!seen.has(n)) throw new Error('BUILDER_UNKNOWN_RESOURCE_DIMENSION'); }
+  return deepFreeze(out);
+}
+export const RESOURCE_LIMITS = deriveResourceLimits();
+export const RESOURCE_DIMENSIONS = deepFreeze([...RESOURCE_DIMENSION_NAMES]);
+export const RESOURCE_LIMITS_UNKNOWN_DIMENSION_REJECTED = RESOURCE_LIMITS_CONTRACT.unknownDimensionRejected === true;
+export const RESOURCE_LIMITS_SILENT_TRUNCATION_ALLOWED = RESOURCE_LIMITS_CONTRACT.silentTruncationAllowed === true;
 
 // ---- Statuses. ----
 export const STATUS_READY = 'core_envelope_ready';
