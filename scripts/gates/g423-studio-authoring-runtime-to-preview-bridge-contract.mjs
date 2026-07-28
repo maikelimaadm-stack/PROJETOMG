@@ -368,12 +368,8 @@ gate('G423-BR — no .jsx / .tsx / .css added in diff', noJsxTsxCss);
 
 let noOldEdit = false; let noOldEditDetail = '';
 try {
-  // Branch-relative check: it runs on later Studio headless slices before merge, so EXPLICITLY registered later
-  // Studio headless artifacts are filtered out via the CENTRAL governance guard (no wildcard). Unknown and
-  // forbidden paths still fail hard, and the guard libs are checked against the UNFILTERED list.
-  const rawFiles = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
-  const files = rawFiles.filter((f) => !isKnownLaterStudioHeadlessArtifact(f));
-  const touchedGuard = rawFiles.includes('scripts/gates/lib/productionUiGuard.mjs') || rawFiles.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs');
+  const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
+  const touchedGuard = files.includes('scripts/gates/lib/productionUiGuard.mjs') || files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs');
   const touchedUpstream = files.some((f) => /^src\/studio\/blueprint-engine\/module-blueprint-authoring-(foundation-contract|implementation-plan|runtime)\//.test(f) || /^src\/studio\/blueprint-engine\/module-preview-sandbox\//.test(f));
   const touchedOldGate = files.some((f) => /^scripts\/gates\/g423-.*\.mjs$/.test(f) && f !== GATE_REL);
   const touchedOldTest = files.some((f) => /^src\/runtime\/__tests__\/.*\.test\.js$/.test(f) && f !== TEST_REL);
