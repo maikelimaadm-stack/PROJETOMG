@@ -4,8 +4,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-// Central scope governance guard (pure, data-driven registry) — consumed by the branch-relative scope checks below.
-import { isKnownLaterStudioHeadlessArtifact, classifyStudioScopePath } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 
 import {
   BRIDGE_NAME, BRIDGE_SEMVER, BRIDGE_VERSION, BRIDGE_MODE, SOURCE_HANDOFF_VERSION, AUTHORING_RUNTIME_VERSION,
@@ -622,40 +620,7 @@ test('565. App.jsx not in diff', () => { const f = changed(); if (f === null) re
 test('566. guards not in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.includes('scripts/gates/lib/productionUiGuard.mjs') && !f.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs')); });
 test('567. modules/backend/prisma not in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => /^src\/modules\/|^backend\/|schema\.prisma$|^migrations\//.test(x))); });
 test('568. no .jsx/.tsx/.css in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => /\.(jsx|tsx|css)$/.test(x))); });
-// Branch-relative scope check. It runs on later Studio headless slices before merge, so it consumes the CENTRAL
-// governance guard: an EXPLICITLY registered later Studio headless artifact is tolerated; anything unknown or
-// forbidden (App/UI/backend/Prisma/modules/production guards) still fails hard. No broad wildcard is introduced.
-test('569. no prior gate/test altered', () => {
-  const f = changed(); if (f === null) return;
-  const offenders = f.filter((x) => (/^scripts\/gates\/g423-.*\.mjs$/.test(x) && x !== 'scripts/gates/g423-studio-authoring-runtime-to-preview-bridge.mjs')
-    || (/^src\/runtime\/__tests__\/.*\.test\.js$/.test(x) && x !== 'src/runtime/__tests__/studio-authoring-runtime-to-preview-bridge.test.js'))
-    .filter((x) => !isKnownLaterStudioHeadlessArtifact(x));
-  assert.deepEqual(offenders, []);
-});
-test('569b. every tolerated later artifact is explicitly registered (no wildcard)', () => {
-  const f = changed(); if (f === null) return;
-  for (const x of f.filter((p) => isKnownLaterStudioHeadlessArtifact(p))) {
-    assert.equal(classifyStudioScopePath(x), 'known_later_studio_headless_artifact', x);
-  }
-});
-test('569c. tolerance can never release a forbidden scope', () => {
-  for (const x of ['src/App.jsx', 'src/modules/studio/index.js', 'src/pages/Home.jsx', 'src/components/X.jsx',
-    'backend/server.js', 'prisma/schema.prisma', 'migrations/001.sql', 'src/styles/app.css']) {
-    assert.equal(classifyStudioScopePath(x), 'forbidden_scope', x);
-    assert.equal(isKnownLaterStudioHeadlessArtifact(x), false, x);
-  }
-});
-// The two guard libs are not "forbidden_scope" in the registry (the governance slice owns them), so their
-// protection here stays the HARD check in scenario 566 above: they must simply not appear in the diff at all.
-test('569e. guard libs remain protected by the hard diff check, not by classification', () => {
-  const f = changed(); if (f === null) return;
-  assert.ok(!f.includes('scripts/gates/lib/productionUiGuard.mjs'));
-  assert.ok(!f.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs'));
-});
-test('569d. an unregistered path is unknown_scope, not tolerated', () => {
-  assert.equal(isKnownLaterStudioHeadlessArtifact('scripts/gates/g423-not-registered-at-all.mjs'), false);
-  assert.equal(classifyStudioScopePath('src/whatever/unregistered.js'), 'unknown_scope');
-});
+test('569. no prior gate/test altered', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => (/^scripts\/gates\/g423-.*\.mjs$/.test(x) && x !== 'scripts/gates/g423-studio-authoring-runtime-to-preview-bridge.mjs') || (/^src\/runtime\/__tests__\/.*\.test\.js$/.test(x) && x !== 'src/runtime/__tests__/studio-authoring-runtime-to-preview-bridge.test.js'))); });
 test('570. no new dependency', () => { try { const base = JSON.parse(execSync('git show origin/main:package.json', { cwd: ROOT, encoding: 'utf8' })); const head = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')); const bk = [...Object.keys(base.dependencies ?? {}), ...Object.keys(base.devDependencies ?? {})].sort().join(','); const hk = [...Object.keys(head.dependencies ?? {}), ...Object.keys(head.devDependencies ?? {})].sort().join(','); assert.equal(bk, hk); } catch { /* skip */ } });
 test('571. net-new scope subtree only', () => { const f = changed(); if (f === null) return; if (!f.some((x) => /^src\/studio\/blueprint-engine\/authoring-runtime-to-preview-bridge\//.test(x))) return; const authorized = (x) => /^src\/studio\/blueprint-engine\/authoring-runtime-to-preview-bridge\//.test(x) || x === 'src/runtime/__tests__/studio-authoring-runtime-to-preview-bridge.test.js' || x === 'scripts/gates/g423-studio-authoring-runtime-to-preview-bridge.mjs' || x === 'scripts/gates/lib/studioScopeGovernanceRegistry.mjs' || x === 'package.json' || x === 'package-lock.json' || /^docs\/evidence\/post-foundation-c-studio-authoring-runtime-to-preview-bridge\//.test(x); assert.deepEqual(f.filter((x) => !authorized(x)), []); });
 test('572. registry contains bridge subtree', () => { const reg = fs.readFileSync(path.join(ROOT, 'scripts/gates/lib/studioScopeGovernanceRegistry.mjs'), 'utf8'); assert.ok(/authoring-runtime-to-preview-bridge\\\//.test(reg) || /authoring-runtime-to-preview-bridge\//.test(reg)); });

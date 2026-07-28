@@ -509,16 +509,7 @@ test('393. no backend/prisma/migration in diff', () => { const files = changed()
 test('394. no .tsx/.css in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => /\.(tsx|css)$/.test(f))); });
 test('395. only .jsx in diff are the subtree or the authorized additive App.jsx', () => { const files = changed(); if (files === null) return; assert.ok(files.filter((f) => /\.jsx$/.test(f)).every((f) => f === 'src/App.jsx' || /^src\/studio\/blueprint-engine\/dev-preview-app-integration\//.test(f))); });
 test('396. governance guard file not in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs')); });
-// Branch-relative scope check: it runs on later Studio headless slices before merge, so it consumes the CENTRAL
-// governance guard. Only EXPLICITLY registered later Studio headless artifacts are tolerated (no wildcard);
-// unknown_scope and forbidden_scope (App/UI/backend/Prisma/modules) still fail hard.
-test('397. no prior gate/test altered', () => {
-  const files = changed(); if (files === null) return;
-  const offenders = files.filter((f) => (/^scripts\/gates\/g423-.*\.mjs$/.test(f) && f !== 'scripts/gates/g423-studio-dev-preview-app-integration.mjs')
-    || (/^src\/runtime\/__tests__\/.*\.test\.js$/.test(f) && f !== 'src/runtime/__tests__/studio-dev-preview-app-integration.test.js'))
-    .filter((f) => !isKnownLaterStudioHeadlessArtifact(f));
-  assert.deepEqual(offenders, []);
-});
+test('397. no prior gate/test altered', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => (/^scripts\/gates\/g423-.*\.mjs$/.test(f) && f !== 'scripts/gates/g423-studio-dev-preview-app-integration.mjs') || (/^src\/runtime\/__tests__\/.*\.test\.js$/.test(f) && f !== 'src/runtime/__tests__/studio-dev-preview-app-integration.test.js'))); });
 test('398. no new dependency', () => { try { const base = JSON.parse(execSync('git show origin/main:package.json', { cwd: ROOT, encoding: 'utf8' })); const head = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')); const bk = [...Object.keys(base.dependencies ?? {}), ...Object.keys(base.devDependencies ?? {})].sort().join(','); const hk = [...Object.keys(head.dependencies ?? {}), ...Object.keys(head.devDependencies ?? {})].sort().join(','); assert.equal(bk, hk); } catch { /* skip */ } });
 test('399. src/modules/studio does NOT exist', () => assert.ok(!exists('src/modules/studio')));
 test('400. upstream route-menu runtime present', () => assert.ok(exists('src/studio/blueprint-engine/dev-preview-route-menu/index.js')));

@@ -4,8 +4,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-// Central scope governance guard (pure, registry-driven) — consumed by the branch-relative scope check below.
-import { isKnownLaterStudioHeadlessArtifact } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 
 import {
   AUTHORING_IMPLEMENTATION_PLAN_NAME,
@@ -621,16 +619,7 @@ test('480. no src/modules in diff', () => { const files = changed(); if (files =
 test('481. no backend/prisma in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => /^backend\/|schema\.prisma$|^migrations\//.test(f))); });
 test('482. no .jsx/.tsx/.css in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => /\.(jsx|tsx|css)$/.test(f))); });
 test('483. no productionUiGuard/governanceGuard in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.includes('scripts/gates/lib/productionUiGuard.mjs') && !files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs')); });
-// Branch-relative scope check: it runs on later Studio headless slices before merge, so it consumes the CENTRAL
-// governance guard. Only EXPLICITLY registered later Studio headless artifacts are tolerated (no wildcard);
-// unknown_scope and forbidden_scope (App/UI/backend/Prisma/modules) still fail hard.
-test('484. no prior gate/test altered', () => {
-  const files = changed(); if (files === null) return;
-  const offenders = files.filter((f) => (/^scripts\/gates\/g423-.*\.mjs$/.test(f) && f !== 'scripts/gates/g423-studio-module-blueprint-authoring-implementation-plan.mjs')
-    || (/^src\/runtime\/__tests__\/.*\.test\.js$/.test(f) && f !== 'src/runtime/__tests__/studio-module-blueprint-authoring-implementation-plan.test.js'))
-    .filter((f) => !isKnownLaterStudioHeadlessArtifact(f));
-  assert.deepEqual(offenders, []);
-});
+test('484. no prior gate/test altered', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => (/^scripts\/gates\/g423-.*\.mjs$/.test(f) && f !== 'scripts/gates/g423-studio-module-blueprint-authoring-implementation-plan.mjs') || (/^src\/runtime\/__tests__\/.*\.test\.js$/.test(f) && f !== 'src/runtime/__tests__/studio-module-blueprint-authoring-implementation-plan.test.js'))); });
 test('485. no new dependency', () => { try { const base = JSON.parse(execSync('git show origin/main:package.json', { cwd: ROOT, encoding: 'utf8' })); const head = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')); const bk = [...Object.keys(base.dependencies ?? {}), ...Object.keys(base.devDependencies ?? {})].sort().join(','); const hk = [...Object.keys(head.dependencies ?? {}), ...Object.keys(head.devDependencies ?? {})].sort().join(','); assert.equal(bk, hk); } catch { /* skip */ } });
 test('486. net-new scope is subtree only (branch-relative)', () => { const files = changed(); if (files === null) return; if (!files.some((f) => /^src\/studio\/blueprint-engine\/module-blueprint-authoring-implementation-plan\//.test(f))) return; assert.deepEqual(files.filter((f) => !authorized(f)), []); });
 test('487. upstream authoring foundation contract present', () => assert.ok(exists('src/studio/blueprint-engine/module-blueprint-authoring-foundation-contract/index.js')));
