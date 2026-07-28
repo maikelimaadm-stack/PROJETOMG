@@ -376,8 +376,12 @@ gate('G423-AI — .jsx only inside subtree (+ additive App.jsx); no .tsx / .css 
 
 let noOldEdit = false; let noOldEditDetail = '';
 try {
-  const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
-  const touchedGuardLib = files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs');
+  // Branch-relative check: it runs on later Studio headless slices before merge, so EXPLICITLY registered later
+  // Studio headless artifacts are filtered out via the CENTRAL governance guard (no wildcard). Unknown and
+  // forbidden paths still fail hard, and the guard libs are checked against the UNFILTERED list.
+  const rawFiles = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
+  const files = rawFiles.filter((f) => !isKnownLaterStudioHeadlessArtifact(f));
+  const touchedGuardLib = rawFiles.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs');
   const touchedOldGate = files.some((f) => /^scripts\/gates\/g423-.*\.mjs$/.test(f) && f !== 'scripts/gates/g423-studio-dev-preview-app-integration.mjs');
   const touchedOldTest = files.some((f) => /^src\/runtime\/__tests__\/.*\.test\.js$/.test(f) && f !== 'src/runtime/__tests__/studio-dev-preview-app-integration.test.js');
   const touchedVite = files.some((f) => /^vite\.config\./.test(f)) || files.includes('index.html');

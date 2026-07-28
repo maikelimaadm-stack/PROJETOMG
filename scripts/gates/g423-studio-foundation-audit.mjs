@@ -14,6 +14,8 @@
 import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+// Central scope governance guard (pure, registry-driven) — consumed by the branch-relative scope checks.
+import { isKnownLaterStudioHeadlessArtifact } from './lib/studioScopeGovernanceGuard.mjs';
 
 const ROOT = process.cwd();
 const EV = path.join(ROOT, 'docs/evidence/post-foundation-c-studio-foundation-audit');
@@ -73,8 +75,11 @@ const AUTHORIZED = [
 let blockedOk = false;
 let blockedDetail = '';
 try {
+  // Branch-relative: runs on later Studio headless slices before merge. EXPLICITLY registered later Studio
+  // headless artifacts are filtered out via the CENTRAL governance guard (no wildcard); everything else is judged.
   const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean)
-    .filter((f) => !AUTHORIZED.some((re) => re.test(f)));
+    .filter((f) => !AUTHORIZED.some((re) => re.test(f)))
+    .filter((f) => !isKnownLaterStudioHeadlessArtifact(f));
   const FORBIDDEN = [
     /^src\/modules\//, /^src\/pages\//, /^src\/components\//, /^src\/App\.jsx$/,
     /^src\/ModeloBase1\//, /^src\/ModeloBase2\//, /^src\/studio\//, /^src\/Studio\//,
@@ -93,7 +98,7 @@ let scopeOk = false;
 let scopeDetail = '';
 try {
   const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
-  const outside = files.filter((f) => !AUTHORIZED.some((re) => re.test(f)));
+  const outside = files.filter((f) => !AUTHORIZED.some((re) => re.test(f)) && !isKnownLaterStudioHeadlessArtifact(f));
   scopeOk = files.length === 0 || outside.length === 0;
   scopeDetail = scopeOk ? `authorized scope only (${files.length} files)` : `OUT OF SCOPE: ${outside.join(', ')}`;
 } catch (err) { scopeOk = true; scopeDetail = `git base unavailable — skipped (${err instanceof Error ? err.message : String(err)})`; }

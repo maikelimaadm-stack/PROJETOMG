@@ -56,6 +56,13 @@ const BC = await import(pathToFileURL(path.join(BC_DIR, 'index.js')).href);
 const ENV = await import(pathToFileURL(path.join(ENV_DIR, 'index.js')).href);
 const bridge = await import(pathToFileURL(path.join(BRIDGE_DIR, 'index.js')).href);
 const rt = await import(pathToFileURL(path.join(RUNTIME_DIR, 'index.js')).href);
+const RC_DIR = path.join(ROOT, 'src/studio/blueprint-engine/bridge-to-preview-sandbox-runtime-contract');
+const RC = await import(pathToFileURL(path.join(RC_DIR, 'index.js')).href);
+const EXEC = await import(pathToFileURL(path.join(DIR, 'executeBuilderValidationPipeline.js')).href);
+const NCFG = await import(pathToFileURL(path.join(DIR, 'normalizeBuilderConfig.js')).href);
+const CLONE = await import(pathToFileURL(path.join(DIR, 'safeCloneAndNormalize.js')).href);
+const COMPAT = await import(pathToFileURL(path.join(DIR, 'verifyBuilderCompatibility.js')).href);
+const RDY = await import(pathToFileURL(path.join(DIR, 'builderReadiness.js')).href);
 const builder = FACTORY.createBridgeDecisionCoreEnvelopeBuilder();
 
 function buildRealDecision(seed, moduleId = 'clientes', name = 'C', fieldKey = 'nome') {
@@ -299,7 +306,8 @@ gate('G423-BLD — UTF-8 byte counting (not .length)', LIM.utf8ByteLength({ a: '
   for (const k of ['minus1', 'exact', 'plus1']) {
     const over = k === 'plus1';
     const n = (lim) => (k === 'minus1' ? lim - 1 : k === 'exact' ? lim : lim + 1);
-    gate(`G423-BLD — boundary maxSourceDecisionFields ${k}`, LIM.enforceSourceResourceLimits(fields(n(L.maxSourceDecisionFields))).some((i) => i.path === 'source') === over);
+    // Field count is enforced on the SHAPE stage so an invented field is never shadowed by an earlier limit issue.
+    gate(`G423-BLD — boundary maxSourceDecisionFields ${k}`, LIM.enforceSourceFieldCountLimit(fields(n(L.maxSourceDecisionFields))).some((i) => i.path === 'source' && i.stage === 'source_decision_shape_validation') === over);
     gate(`G423-BLD — boundary maxCoreFields ${k}`, LIM.enforceCoreResourceLimits(fields(n(L.maxCoreFields))).some((i) => i.path === 'core') === over);
     gate(`G423-BLD — boundary maxTargetDescriptorFields ${k}`, (LIM.enforceTargetDescriptorLimits(fields(n(L.maxTargetDescriptorFields))).length > 0) === over);
     gate(`G423-BLD — boundary maxStringLength ${k}`, LIM.enforceSourceResourceLimits({ s: big(n(L.maxStringLength)) }).some((i) => i.path === 'source.string') === over);
@@ -325,7 +333,9 @@ gate('G423-BLD — UTF-8 byte counting (not .length)', LIM.utf8ByteLength({ a: '
   gate('G423-BLD — target valid descriptor accepted', TD.validateTargetDescriptor(d).length === 0);
   for (const f of CFG.TARGET_DESCRIPTOR_REQUIRED_FIELDS) { const td = { ...d.targetDescriptor }; delete td[f]; gate(`G423-BLD — target required ${f} missing rejected`, TD.validateTargetDescriptor({ ...d, targetDescriptor: td }).length > 0); }
   for (const f of CFG.TARGET_DESCRIPTOR_SECURITY_FIELDS) gate(`G423-BLD — target security ${f}=true rejected`, TD.validateTargetDescriptor({ ...d, targetDescriptor: { ...d.targetDescriptor, [f]: true } }).some((i) => i.issueCode === 'BUILDER_SOURCE_SECURITY_FLAG_FORBIDDEN'));
-  for (const f of Object.keys(CFG.TARGET_DESCRIPTOR_INVARIANTS)) gate(`G423-BLD — target invariant ${f}=false rejected`, TD.validateTargetDescriptor({ ...d, targetDescriptor: { ...d.targetDescriptor, [f]: false } }).length > 0);
+  // Invariants are derived from the REAL upstream (1 string + 4 true + 7 false), so the violation is the NEGATION
+  // of each declared value — writing `false` over an already-false invariant would be a no-op, not a tamper.
+  for (const f of Object.keys(CFG.TARGET_DESCRIPTOR_INVARIANTS)) { const dec = CFG.TARGET_DESCRIPTOR_INVARIANTS[f]; const bad = typeof dec === 'boolean' ? !dec : 'wrong-invariant-value'; gate(`G423-BLD — target invariant ${f} violated rejected`, TD.validateTargetDescriptor({ ...d, targetDescriptor: { ...d.targetDescriptor, [f]: bad } }).length > 0); }
   for (const f of CFG.TARGET_DESCRIPTOR_VERSION_FIELDS) gate(`G423-BLD — target version ${f} malformed rejected`, TD.validateTargetDescriptor({ ...d, targetDescriptor: { ...d.targetDescriptor, [f]: 'zz' } }).some((i) => i.issueCode === 'BUILDER_SOURCE_VERSION_MISMATCH'));
   for (const f of CFG.TARGET_DESCRIPTOR_DIGEST_FIELDS) gate(`G423-BLD — target digest ${f} malformed rejected`, TD.validateTargetDescriptor({ ...d, targetDescriptor: { ...d.targetDescriptor, [f]: 'zz' } }).some((i) => i.issueCode === 'BUILDER_DIGEST_REQUIRED'));
   gate('G423-BLD — target invented field rejected', TD.validateTargetDescriptor({ ...d, targetDescriptor: { ...d.targetDescriptor, __x: 1 } }).some((i) => i.issueCode === 'BUILDER_SOURCE_INVENTED_FIELD'));
@@ -391,6 +401,129 @@ gate('G423-BLD — compat envelope field ORDER exact', JSON.stringify([...CFG.EN
 gate('G423-BLD — compat source field ORDER exact', JSON.stringify([...CFG.SOURCE_FIELDS]) === JSON.stringify([...BC.REAL_SOURCE_BRIDGE_DECISION_FIELDS]));
 gate('G423-BLD — compat issue codes SET exact', JSON.stringify([...CFG.ISSUE_CODES].sort()) === JSON.stringify([...BC.BUILDER_ISSUE_CODES].sort()));
 gate('G423-BLD — readiness gated by compatibility', B.createBuilderReadiness().compatibilityOk === true && B.createBuilderReadiness().readyForEnterpriseBuilderAudit === true);
+
+// ===========================================================================
+// ROUND 2 — independent gate proofs for the nine reported blockers.
+// ===========================================================================
+{
+  const NC = NCFG.normalizeBuilderConfig();
+  const run = (dec) => EXEC.executeBuilderValidationPipeline(dec, NC.config);
+  const d0 = buildRealDecision('gr2');
+
+  // R2-TSSOT — target lists/values are the REAL upstream, not local copies.
+  const SSOT = [
+    ['fields', CFG.TARGET_DESCRIPTOR_FIELDS, RC.REAL_BRIDGE_TARGET_DESCRIPTOR_FIELDS],
+    ['required', CFG.TARGET_DESCRIPTOR_REQUIRED_FIELDS, RC.REQUIRED_BRIDGE_TARGET_DESCRIPTOR_FIELDS],
+    ['security', CFG.TARGET_DESCRIPTOR_SECURITY_FIELDS, RC.SECURITY_BRIDGE_TARGET_DESCRIPTOR_FIELDS],
+    ['version', CFG.TARGET_DESCRIPTOR_VERSION_FIELDS, RC.VERSION_BRIDGE_TARGET_DESCRIPTOR_FIELDS],
+    ['digest', CFG.TARGET_DESCRIPTOR_DIGEST_FIELDS, RC.DIGEST_BRIDGE_TARGET_DESCRIPTOR_FIELDS],
+  ];
+  for (const [name, local, up] of SSOT) {
+    gate(`G423-BLD — R2 target ${name} list EXACTLY upstream`, JSON.stringify([...local]) === JSON.stringify([...up]));
+    for (const f of up) gate(`G423-BLD — R2 target ${name} contains upstream ${f}`, local.includes(f));
+    for (const f of local) gate(`G423-BLD — R2 target ${name} has no extra field ${f}`, up.includes(f));
+  }
+  gate('G423-BLD — R2 target invariants map EXACTLY upstream', JSON.stringify(Object.entries({ ...CFG.TARGET_DESCRIPTOR_INVARIANTS }).sort()) === JSON.stringify(Object.entries({ ...RC.REAL_TARGET_DESCRIPTOR_INVARIANTS }).sort()));
+  for (const k of Object.keys(RC.REAL_TARGET_DESCRIPTOR_INVARIANTS)) gate(`G423-BLD — R2 target invariant ${k} derived`, CFG.TARGET_DESCRIPTOR_INVARIANTS[k] === RC.REAL_TARGET_DESCRIPTOR_INVARIANTS[k]);
+  gate('G423-BLD — R2 targetKind from upstream', CFG.TARGET_DESCRIPTOR_TARGET_KIND === RC.SOURCE_TARGET_SANDBOX_KIND);
+  gate('G423-BLD — R2 target contract version from upstream', CFG.SOURCE_TARGET_CONTRACT_VERSION === RC.SOURCE_TARGET_CONTRACT_VERSION);
+  gate('G423-BLD — R2 authoring runtime version from upstream', CFG.AUTHORING_RUNTIME_VERSION_REF === RC.SOURCE_AUTHORING_RUNTIME_VERSION);
+  gate('G423-BLD — R2 preview sandbox version from upstream', CFG.PREVIEW_SANDBOX_CONTRACT_VERSION_REF === RC.SOURCE_PREVIEW_SANDBOX_CONTRACT_VERSION);
+  gate('G423-BLD — R2 source handoff kind from upstream', CFG.SOURCE_HANDOFF_KIND_REF === bridge.SOURCE_HANDOFF_KIND);
+  gate('G423-BLD — R2 source handoff version from upstream', CFG.SOURCE_HANDOFF_VERSION_REF === bridge.SOURCE_HANDOFF_VERSION);
+  gate('G423-BLD — R2 descriptor kind exception documented + proven live', CFG.TARGET_DESCRIPTOR_KIND_LOCAL_REFERENCE_EXCEPTION.derivedFromUpstreamConstant === false && d0.targetDescriptor.kind === CFG.TARGET_DESCRIPTOR_KIND);
+  gate('G423-BLD — R2 no local target array literal in config', !/TARGET_DESCRIPTOR_(FIELDS|REQUIRED_FIELDS|SECURITY_FIELDS|VERSION_FIELDS|DIGEST_FIELDS)\s*=\s*deepFreeze\(\[\s*'/.test(fs.readFileSync(path.join(DIR, 'builderConfig.js'), 'utf8')));
+
+  // R2-VTUPLE — every version field compared EXACTLY.
+  const EXPECT = {
+    targetContractVersion: CFG.SOURCE_TARGET_CONTRACT_VERSION,
+    sourceRuntimeVersion: CFG.AUTHORING_RUNTIME_VERSION_REF,
+    sourceHandoffVersion: CFG.SOURCE_HANDOFF_VERSION_REF,
+    sourceTargetSandboxVersion: CFG.PREVIEW_SANDBOX_CONTRACT_VERSION_REF,
+  };
+  for (const f of CFG.TARGET_DESCRIPTOR_VERSION_FIELDS) {
+    gate(`G423-BLD — R2 version ${f} real value equals upstream`, d0.targetDescriptor[f] === EXPECT[f]);
+    gate(`G423-BLD — R2 version ${f} semver-valid but WRONG rejected`, TD.validateTargetDescriptor({ ...d0, targetDescriptor: { ...d0.targetDescriptor, [f]: 'fake-runtime@9.9.9' } }).some((i) => i.issueCode === 'BUILDER_SOURCE_VERSION_MISMATCH' && i.path === `targetDescriptor.${f}`));
+    gate(`G423-BLD — R2 version ${f} wrong rejected end-to-end`, FACTORY.createBridgeDecisionCoreEnvelopeBuilder().build({ ...d0, targetDescriptor: { ...d0.targetDescriptor, [f]: 'other@1.0.0' } }).coreEnvelope === null);
+  }
+  gate('G423-BLD — R2 sourceHandoffKind compared exactly', TD.validateTargetDescriptor({ ...d0, targetDescriptor: { ...d0.targetDescriptor, sourceHandoffKind: 'other-kind' } }).some((i) => i.issueCode === 'BUILDER_SOURCE_KIND_MISMATCH'));
+
+  // R2-EXEC — all 23 stages actually executed, in canonical order.
+  const okRun = run(d0);
+  gate('G423-BLD — R2 pipeline executes 23 stages', okRun.ok === true && okRun.executedStages.length === 23);
+  gate('G423-BLD — R2 executed order is canonical', JSON.stringify([...okRun.executedStages]) === JSON.stringify([...CFG.PIPELINE_STAGES]));
+  gate('G423-BLD — R2 successful run stops nowhere', okRun.stoppedAtStage === null);
+  CFG.PIPELINE_STAGES.forEach((st, i) => gate(`G423-BLD — R2 stage ${String(i + 1).padStart(2, '0')} ${st} executed at canonical position`, okRun.executedStages[i] === st));
+  for (const st of CFG.PIPELINE_STAGES.slice(16)) gate(`G423-BLD — R2 boundary stage ${st} really runs`, okRun.executedStages.includes(st));
+  gate('G423-BLD — R2 executedStages frozen + names only', Object.isFrozen(okRun.executedStages) && okRun.executedStages.every((st) => CFG.PIPELINE_STAGES.includes(st)));
+  gate('G423-BLD — R2 executor is INTERNAL (not on the public index)', typeof B.executeBuilderValidationPipeline === 'undefined');
+  gate('G423-BLD — R2 factory delegates to the executor', /executeBuilderValidationPipeline/.test(fs.readFileSync(path.join(DIR, 'createBridgeDecisionCoreEnvelopeBuilder.js'), 'utf8')));
+
+  // R2-ATOMIC — first blocker stops the walk, stage-atomically.
+  const ATOMIC = [
+    ['non_object_source', () => 42, 'source_structure_normalization'],
+    ['invented_field', (d) => ({ ...d, __invented: 1 }), 'source_decision_shape_validation'],
+    ['not_ready_status', (d) => ({ ...d, status: 'nope' }), 'source_decision_eligibility_validation'],
+    ['wrong_target_version', (d) => ({ ...d, targetDescriptor: { ...d.targetDescriptor, targetContractVersion: 'x@1.0.0' } }), 'source_target_descriptor_validation'],
+  ];
+  for (const [label, mutate, expected] of ATOMIC) {
+    const r = run(mutate(d0));
+    const idx = CFG.PIPELINE_STAGES.indexOf(r.stoppedAtStage);
+    gate(`G423-BLD — R2 atomic ${label} stops at ${expected}`, r.ok === false && r.stoppedAtStage === expected);
+    gate(`G423-BLD — R2 atomic ${label} emits no envelope/core`, r.envelope === null && r.core === null);
+    gate(`G423-BLD — R2 atomic ${label} runs no later stage`, r.executedStages.length === idx + 1);
+    gate(`G423-BLD — R2 atomic ${label} all issues belong to the stopping stage`, r.issues.every((i) => i.stage === r.stoppedAtStage));
+  }
+
+  // R2-STAGE — closed issue stage allowlist.
+  gate('G423-BLD — R2 stage allowlist = 23 canonical + 2 boundaries', JSON.stringify([...ISS.ISSUE_STAGE_ALLOWLIST]) === JSON.stringify([...CFG.PIPELINE_STAGES, 'config_normalization', 'public_boundary']));
+  for (const st of ISS.ISSUE_STAGE_ALLOWLIST) gate(`G423-BLD — R2 stage allowed preserved ${st}`, ISS.makeIssue('BUILDER_CONFIG_INVALID', st).stage === st);
+  for (const bad of ['made_up_stage', 'resource_limit_enforcement', 'target_limit_enforcement', 'core_limit_enforcement', 'envelope_limit_enforcement', 'depth_limit_enforcement', 'issue_limit_enforcement', 'extension_validation', 'a', 'zzz']) {
+    gate(`G423-BLD — R2 stage arbitrary token rejected ${bad}`, ISS.isAllowedIssueStage(bad) === false && ISS.makeIssue('BUILDER_CONFIG_INVALID', bad).stage === 'unknown');
+  }
+  gate('G423-BLD — R2 no permissive stage regex remains', !/\[a-z_\]\{1,64\}/.test(fs.readFileSync(path.join(DIR, 'normalizeIssues.js'), 'utf8')));
+  gate('G423-BLD — R2 no `code` alias in normalizeIssues', !/issueCode \?\? /.test(fs.readFileSync(path.join(DIR, 'normalizeIssues.js'), 'utf8')));
+  gate('G423-BLD — R2 no invented stage name anywhere in the subtree', !/_limit_enforcement|extension_validation/.test(code()));
+
+  // R2-ARRAY — descriptor-only array read path.
+  {
+    let trapped = 0;
+    const hostile = new Proxy(['a', 'b'], { get(t, k, r) { if (k === 'length' || /^\d+$/.test(String(k))) trapped += 1; return Reflect.get(t, k, r); } });
+    const cloned = CLONE.safeCloneAndNormalize({ list: hostile });
+    gate('G423-BLD — R2 hostile array getters never invoked', trapped === 0);
+    gate('G423-BLD — R2 hostile array cloned by value', JSON.stringify(cloned.list) === JSON.stringify(['a', 'b']) && cloned.list !== hostile);
+  }
+  {
+    const arr = ['a']; arr.extra = 1;
+    let threw = false; try { CLONE.safeCloneAndNormalize({ arr }); } catch { threw = true; }
+    gate('G423-BLD — R2 array with extra own property rejected', threw);
+  }
+  gate('G423-BLD — R2 no raw v.length / v[i] read in the array branch', !/for \(let i = 0; i < v\.length/.test(fs.readFileSync(path.join(DIR, 'safeCloneAndNormalize.js'), 'utf8')));
+
+  // R2-COMPAT — the verifier DETECTS divergence.
+  gate('G423-BLD — R2 untampered snapshot yields zero blockers', COMPAT.evaluateBuilderCompatibilitySnapshot(COMPAT.BUILDER_COMPATIBILITY_SNAPSHOT).length === 0);
+  gate('G423-BLD — R2 verifier declares no subset comparisons', B.verifyBuilderCompatibility().subsetComparisonsPerformed === false);
+  gate('G423-BLD — R2 no subset helper remains in the verifier', !/subsetOf/.test(fs.readFileSync(path.join(DIR, 'verifyBuilderCompatibility.js'), 'utf8')));
+  for (const key of Object.keys(COMPAT.BUILDER_COMPATIBILITY_SNAPSHOT)) {
+    const v = COMPAT.BUILDER_COMPATIBILITY_SNAPSHOT[key];
+    const bad = Array.isArray(v) ? v.slice(0, Math.max(0, v.length - 1)) : (v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).slice(1)) : 'tampered-value');
+    gate(`G423-BLD — R2 compat tamper detected: ${key}`, COMPAT.evaluateBuilderCompatibilitySnapshot({ ...COMPAT.BUILDER_COMPATIBILITY_SNAPSHOT, [key]: bad }).length > 0);
+  }
+  for (const key of ['targetRequiredFields', 'targetSecurityFields', 'targetVersionFields', 'targetDigestFields']) {
+    gate(`G423-BLD — R2 compat strict SUBSET of ${key} is a blocker`, COMPAT.evaluateBuilderCompatibilitySnapshot({ ...COMPAT.BUILDER_COMPATIBILITY_SNAPSHOT, [key]: COMPAT.BUILDER_COMPATIBILITY_SNAPSHOT[key].slice(1) }).length > 0);
+    gate(`G423-BLD — R2 compat strict SUPERSET of ${key} is a blocker`, COMPAT.evaluateBuilderCompatibilitySnapshot({ ...COMPAT.BUILDER_COMPATIBILITY_SNAPSHOT, [key]: [...COMPAT.BUILDER_COMPATIBILITY_SNAPSHOT[key], 'kind'] }).length > 0);
+  }
+
+  // R2-READY — fail-closed readiness string.
+  const rdSrc = fs.readFileSync(path.join(DIR, 'builderReadiness.js'), 'utf8');
+  gate('G423-BLD — R2 readiness strings distinct', RDY.READINESS_READY !== RDY.READINESS_NEEDS_FIX);
+  gate('G423-BLD — R2 readiness derived from the verifier', /readiness: ready \? READINESS_READY : READINESS_NEEDS_FIX/.test(rdSrc));
+  gate('G423-BLD — R2 readiness never a hardcoded literal', !/readiness: '/.test(rdSrc));
+  gate('G423-BLD — R2 audit-ready wording only when compatibility passes', B.createBuilderReadiness().readiness === (B.createBuilderReadiness().compatibilityOk ? RDY.READINESS_READY : RDY.READINESS_NEEDS_FIX));
+  for (const flag of ['pipelineImplemented', 'all23StagesImplemented', 'all23StagesExecuted', 'boundaryStages17To23Executed', 'firstBlockerStageAtomic', 'issueStageAllowlistClosed', 'exactTargetDescriptorComparison', 'exactVersionTupleComparison']) {
+    gate(`G423-BLD — R2 readiness declares ${flag}`, B.createBuilderReadiness()[flag] === true);
+  }
+}
 
 const failed = results.filter((r) => !r.ok);
 console.log(`\n--- G423-STUDIO-BRIDGE-DECISION-CORE-ENVELOPE-BUILDER summary ---`);

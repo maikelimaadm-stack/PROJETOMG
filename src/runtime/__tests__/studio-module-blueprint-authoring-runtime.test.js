@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+// Central scope governance guard (pure, registry-driven) — consumed by the branch-relative scope check below.
+import { isKnownLaterStudioHeadlessArtifact } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 
 import {
   AUTHORING_RUNTIME_NAME,
@@ -791,7 +793,16 @@ test('645. no backend/prisma in diff', () => { const f = changed(); if (f === nu
 test('646. no .jsx/.tsx/.css in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => /\.(jsx|tsx|css)$/.test(x))); });
 test('647. no productionUiGuard/governanceGuard in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.includes('scripts/gates/lib/productionUiGuard.mjs') && !f.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs')); });
 test('648. no upstream foundation/plan subtree in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => /^src\/studio\/blueprint-engine\/module-blueprint-authoring-(foundation-contract|implementation-plan)\//.test(x))); });
-test('649. no prior gate/test altered', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => (/^scripts\/gates\/g423-.*\.mjs$/.test(x) && x !== 'scripts/gates/g423-studio-module-blueprint-authoring-runtime.mjs') || (/^src\/runtime\/__tests__\/.*\.test\.js$/.test(x) && x !== 'src/runtime/__tests__/studio-module-blueprint-authoring-runtime.test.js'))); });
+// Branch-relative scope check: it runs on later Studio headless slices before merge, so it consumes the CENTRAL
+// governance guard. Only EXPLICITLY registered later Studio headless artifacts are tolerated (no wildcard);
+// unknown_scope and forbidden_scope (App/UI/backend/Prisma/modules) still fail hard.
+test('649. no prior gate/test altered', () => {
+  const f = changed(); if (f === null) return;
+  const offenders = f.filter((x) => (/^scripts\/gates\/g423-.*\.mjs$/.test(x) && x !== 'scripts/gates/g423-studio-module-blueprint-authoring-runtime.mjs')
+    || (/^src\/runtime\/__tests__\/.*\.test\.js$/.test(x) && x !== 'src/runtime/__tests__/studio-module-blueprint-authoring-runtime.test.js'))
+    .filter((x) => !isKnownLaterStudioHeadlessArtifact(x));
+  assert.deepEqual(offenders, []);
+});
 test('650. no new dependency', () => { try { const base = JSON.parse(execSync('git show origin/main:package.json', { cwd: ROOT, encoding: 'utf8' })); const head = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')); const bk = [...Object.keys(base.dependencies ?? {}), ...Object.keys(base.devDependencies ?? {})].sort().join(','); const hk = [...Object.keys(head.dependencies ?? {}), ...Object.keys(head.devDependencies ?? {})].sort().join(','); assert.equal(bk, hk); } catch { /* skip */ } });
 test('651. net-new scope subtree only', () => { const f = changed(); if (f === null) return; if (!f.some((x) => /^src\/studio\/blueprint-engine\/module-blueprint-authoring-runtime\//.test(x))) return; assert.deepEqual(f.filter((x) => !authorized(x)), []); });
 test('652. upstream plan present', () => assert.ok(exists('src/studio/blueprint-engine/module-blueprint-authoring-implementation-plan/index.js')));

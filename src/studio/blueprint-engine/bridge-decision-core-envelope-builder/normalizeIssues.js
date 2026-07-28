@@ -1,6 +1,19 @@
 import { ISSUE_CODES, ISSUE_SEVERITIES, ISSUE_SHAPE_FIELDS, RESOURCE_LIMITS, PIPELINE_STAGES } from './builderConfig.js';
 import { deepFreeze } from './deepFreeze.js';
 
+/**
+ * CLOSED stage allowlist: the 23 canonical pipeline stages plus the only two non-pipeline boundaries the builder
+ * legitimately reports from — `config_normalization` (before the pipeline starts) and `public_boundary` (the public
+ * API edge). There is NO pattern fallback: an arbitrary lowercase token such as `made_up_stage` is NOT accepted and
+ * collapses deterministically to `unknown`.
+ */
+export const ISSUE_STAGE_ALLOWLIST = deepFreeze([...PIPELINE_STAGES, 'config_normalization', 'public_boundary']);
+
+/** True iff `stage` is one of the 25 allowed issue stages. */
+export function isAllowedIssueStage(stage) {
+  return typeof stage === 'string' && ISSUE_STAGE_ALLOWLIST.includes(stage);
+}
+
 /** Safe, deterministic, relative path token. Never an absolute path, raw value or secret. */
 function sanitizePath(p) {
   if (typeof p !== 'string' || p.length === 0) return '';
@@ -21,7 +34,7 @@ function deterministicMessage(issueCode) {
 export function makeIssue(issueCode, stage, severity = 'blocker', path = '') {
   const safeCode = ISSUE_CODES.includes(issueCode) ? issueCode : 'BUILDER_CONFIG_INVALID';
   const safeSeverity = ISSUE_SEVERITIES.includes(severity) ? severity : 'blocker';
-  const safeStage = (typeof stage === 'string' && (PIPELINE_STAGES.includes(stage) || /^[a-z_]{1,64}$/.test(stage))) ? stage : 'unknown';
+  const safeStage = isAllowedIssueStage(stage) ? stage : 'unknown';
   const blocking = safeSeverity === 'blocker' || safeSeverity === 'error';
   return {
     issueCode: safeCode,
@@ -55,7 +68,9 @@ export function normalizeIssues(issues) {
   const out = [];
   for (const it of list) {
     if (!it || typeof it !== 'object') continue;
-    const iss = makeIssue(it.issueCode ?? it.code, it.stage, it.severity, it.path);
+    // EXACT contract field only — there is no `code` alias. An entry without a valid `issueCode` collapses
+    // fail-closed to BUILDER_CONFIG_INVALID inside makeIssue rather than being silently reinterpreted.
+    const iss = makeIssue(it.issueCode, it.stage, it.severity, it.path);
     const key = `${iss.issueCode}::${iss.stage}::${iss.path}`;
     if (seen.has(key)) continue;
     seen.add(key);
@@ -73,7 +88,7 @@ export function normalizeIssues(issues) {
 export function normalizeIssuesWithOverflow(issues) {
   const normalized = normalizeIssues(issues);
   if (normalized.length > RESOURCE_LIMITS.maxIssues) {
-    return deepFreeze([makeIssue('BUILDER_LIMIT_EXCEEDED', 'issue_limit_enforcement', 'blocker', 'issues')]);
+    return deepFreeze([makeIssue('BUILDER_LIMIT_EXCEEDED', 'public_boundary', 'blocker', 'issues')]);
   }
   return normalized;
 }

@@ -16,6 +16,18 @@ import {
   ISSUE_MODEL_CONTRACT, SOURCE_CORE_ENVELOPE_CONTRACT_VERSION, SOURCE_ENVELOPE_V1_CONTRACT_VERSION,
   SOURCE_BRIDGE_RUNTIME_VERSION, SOURCE_PREVIEW_SANDBOX_CONTRACT_VERSION,
 } from '../bridge-decision-core-envelope-builder-contract/index.js';
+import {
+  REAL_BRIDGE_TARGET_DESCRIPTOR_FIELDS, REQUIRED_BRIDGE_TARGET_DESCRIPTOR_FIELDS,
+  SECURITY_BRIDGE_TARGET_DESCRIPTOR_FIELDS, VERSION_BRIDGE_TARGET_DESCRIPTOR_FIELDS,
+  DIGEST_BRIDGE_TARGET_DESCRIPTOR_FIELDS, REAL_TARGET_DESCRIPTOR_INVARIANTS, SOURCE_TARGET_SANDBOX_KIND,
+  SOURCE_TARGET_CONTRACT_VERSION as UPSTREAM_SOURCE_TARGET_CONTRACT_VERSION,
+  SOURCE_AUTHORING_RUNTIME_VERSION as UPSTREAM_AUTHORING_RUNTIME_VERSION,
+  SOURCE_PREVIEW_SANDBOX_CONTRACT_VERSION as UPSTREAM_PREVIEW_SANDBOX_CONTRACT_VERSION,
+} from '../bridge-to-preview-sandbox-runtime-contract/index.js';
+import {
+  SOURCE_HANDOFF_KIND as UPSTREAM_SOURCE_HANDOFF_KIND,
+  SOURCE_HANDOFF_VERSION as UPSTREAM_SOURCE_HANDOFF_VERSION,
+} from '../authoring-runtime-to-preview-bridge/index.js';
 import { deepFreeze } from './deepFreeze.js';
 
 export const BUILDER_NAME = 'studio-bridge-decision-core-envelope-builder';
@@ -51,16 +63,47 @@ export const SOURCE_BRIDGE_VERSION = SOURCE_BRIDGE_RUNTIME_VERSION;
 // ---- Issue model (exact shape from the contract; no local divergence). ----
 export const ISSUE_SHAPE_FIELDS = deepFreeze([...ISSUE_MODEL_CONTRACT.issueShapeFields]);
 
-// ---- Target descriptor (real 23 fields + derived subsets, all from the real upstream field list). ----
-export const TARGET_DESCRIPTOR_FIELDS = deepFreeze([...OUTPUT_TARGET_DESCRIPTOR_FIELDS]); // 23
-export const TARGET_DESCRIPTOR_REQUIRED_FIELDS = deepFreeze(['kind', 'targetKind', 'targetContractVersion', 'sourceHandoffKind', 'candidateDraftId', 'candidateDraftDigest', 'sourceDigest']);
-export const TARGET_DESCRIPTOR_SECURITY_FIELDS = deepFreeze(['previewMounted', 'routeCreated', 'menuCreated', 'productExposed', 'realDataAttached', 'moduleGenerated', 'persistenceAllowed']);
-export const TARGET_DESCRIPTOR_VERSION_FIELDS = deepFreeze(['targetContractVersion', 'sourceRuntimeVersion', 'sourceHandoffVersion', 'sourceTargetSandboxVersion']);
-export const TARGET_DESCRIPTOR_DIGEST_FIELDS = deepFreeze(['candidateDraftDigest', 'sourceDigest']);
-export const TARGET_DESCRIPTOR_INVARIANTS = deepFreeze({ synthetic: true, metadataOnly: true, immutable: true, validated: true });
+// ---- Target descriptor SSOT: EVERY list/value derived READ-ONLY from the real upstreams (no local arrays). ----
+export const TARGET_DESCRIPTOR_FIELDS = deepFreeze([...REAL_BRIDGE_TARGET_DESCRIPTOR_FIELDS]);           // 23
+export const TARGET_DESCRIPTOR_REQUIRED_FIELDS = deepFreeze([...REQUIRED_BRIDGE_TARGET_DESCRIPTOR_FIELDS]); // 16
+export const TARGET_DESCRIPTOR_SECURITY_FIELDS = deepFreeze([...SECURITY_BRIDGE_TARGET_DESCRIPTOR_FIELDS]); // 7
+export const TARGET_DESCRIPTOR_VERSION_FIELDS = deepFreeze([...VERSION_BRIDGE_TARGET_DESCRIPTOR_FIELDS]);   // 4
+export const TARGET_DESCRIPTOR_DIGEST_FIELDS = deepFreeze([...DIGEST_BRIDGE_TARGET_DESCRIPTOR_FIELDS]);     // 2
+export const TARGET_DESCRIPTOR_INVARIANTS = deepFreeze({ ...REAL_TARGET_DESCRIPTOR_INVARIANTS });
+/**
+ * The string-typed subset of the 16 required fields, DERIVED (never hand-listed): required minus every field whose
+ * upstream invariant is a boolean, minus the two non-string required fields the upstream shape defines
+ * (`candidateDraftRevision` is a non-negative integer, `syntheticPayload` is a plain object). Only this subset is
+ * checked for "present and non-empty string"; the rest are checked for presence plus their own typed rule.
+ */
+const NON_STRING_REQUIRED_FIELDS = deepFreeze([
+  ...Object.keys(REAL_TARGET_DESCRIPTOR_INVARIANTS).filter((k) => typeof REAL_TARGET_DESCRIPTOR_INVARIANTS[k] === 'boolean'),
+  'candidateDraftRevision', 'syntheticPayload',
+]);
+export const TARGET_DESCRIPTOR_REQUIRED_STRING_FIELDS = deepFreeze(
+  REQUIRED_BRIDGE_TARGET_DESCRIPTOR_FIELDS.filter((f) => !NON_STRING_REQUIRED_FIELDS.includes(f)),
+); // 10
+export const TARGET_DESCRIPTOR_TARGET_KIND = SOURCE_TARGET_SANDBOX_KIND;              // upstream
+export const SOURCE_TARGET_CONTRACT_VERSION = UPSTREAM_SOURCE_TARGET_CONTRACT_VERSION; // upstream
+export const PREVIEW_SANDBOX_CONTRACT_VERSION_REF = UPSTREAM_PREVIEW_SANDBOX_CONTRACT_VERSION; // upstream
+export const AUTHORING_RUNTIME_VERSION_REF = UPSTREAM_AUTHORING_RUNTIME_VERSION;       // upstream
+export const SOURCE_HANDOFF_KIND_REF = UPSTREAM_SOURCE_HANDOFF_KIND;                   // upstream
+export const SOURCE_HANDOFF_VERSION_REF = UPSTREAM_SOURCE_HANDOFF_VERSION;             // upstream
+/**
+ * TARGET_DESCRIPTOR_KIND_LOCAL_REFERENCE_EXCEPTION
+ * The descriptor's own `kind` ('bridge-target-preview-sandbox-descriptor') has NO upstream constant export (the
+ * runtime contract exports FUTURE_SANDBOX_DESCRIPTOR_KIND / SANDBOX_DESCRIPTOR_CONTRACT.kind, which are different
+ * values). It is therefore a documented LOCAL REFERENCE, not a derivation — and the verifier, test and gate all
+ * prove it equals the kind emitted by a REAL bridge decision.
+ */
 export const TARGET_DESCRIPTOR_KIND = 'bridge-target-preview-sandbox-descriptor';
-export const TARGET_DESCRIPTOR_TARGET_KIND = 'module_preview_sandbox_candidate';
-export const SOURCE_TARGET_CONTRACT_VERSION = SOURCE_PREVIEW_SANDBOX_CONTRACT_VERSION;
+export const TARGET_DESCRIPTOR_KIND_LOCAL_REFERENCE_EXCEPTION = deepFreeze({
+  field: 'targetDescriptor.kind',
+  value: TARGET_DESCRIPTOR_KIND,
+  derivedFromUpstreamConstant: false,
+  reason: 'no upstream constant exports this descriptor kind',
+  provenAgainstRealBridgeDecision: true,
+});
 export const SOURCE_SECURITY_DECISION_FIELDS = deepFreeze([...SOURCE_SECURITY_FIELDS]);
 
 /**

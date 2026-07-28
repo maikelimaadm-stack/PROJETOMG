@@ -22,6 +22,8 @@ import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+// Central scope governance guard (pure, registry-driven) consumed by the branch-relative scope checks below.
+import { isKnownLaterStudioHeadlessArtifact } from './lib/studioScopeGovernanceGuard.mjs';
 
 const ROOT = process.cwd();
 const DIR = path.join(ROOT, 'src/studio/blueprint-engine/module-preview-sandbox');
@@ -58,7 +60,10 @@ const INHERITED_FROM_PLANNER_PR = [
   /^docs\/evidence\/post-foundation-c-studio-blueprint-module-reference-planner\//,
   /^src\/runtime\/__tests__\/[a-z0-9-]+\.test\.js$/,
 ];
-const authorized = (f) => AUTHORIZED.some((re) => re.test(f)) || INHERITED_FROM_PLANNER_PR.some((re) => re.test(f));
+const authorized = (f) => AUTHORIZED.some((re) => re.test(f)) || INHERITED_FROM_PLANNER_PR.some((re) => re.test(f))
+  // Branch-relative: this check runs on later Studio headless slices before merge. Only EXPLICITLY registered later
+  // artifacts are tolerated (no wildcard); unknown_scope and forbidden_scope still fail hard.
+  || isKnownLaterStudioHeadlessArtifact(f);
 
 const FILES = [
   'createStudioModulePreviewSandboxContract.js', 'createModulePreviewSandboxSession.js',
@@ -241,9 +246,10 @@ gate('G423-MPS — authorized scope only (preview-sandbox + inherited planner PR
 let noOldEdit = false; let noOldEditDetail = '';
 try {
   const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
-  // net-new set for THIS slice = changed minus inherited planner PR files.
-  const netNew = files.filter((f) => !INHERITED_FROM_PLANNER_PR.some((re) => re.test(f)));
-  const touchedGuard = netNew.includes('scripts/gates/lib/productionUiGuard.mjs');
+  // net-new set for THIS slice = changed minus inherited planner PR files minus EXPLICITLY registered later
+  // Studio headless artifacts. The guard check below reads the UNFILTERED list, so tolerance can never release it.
+  const netNew = files.filter((f) => !INHERITED_FROM_PLANNER_PR.some((re) => re.test(f)) && !isKnownLaterStudioHeadlessArtifact(f));
+  const touchedGuard = files.includes('scripts/gates/lib/productionUiGuard.mjs');
   const touchedOldGate = netNew.some((f) => /^scripts\/gates\/g423-.*\.mjs$/.test(f) && f !== 'scripts/gates/g423-studio-module-preview-sandbox-contract.mjs');
   noOldEdit = !touchedGuard && !touchedOldGate;
   noOldEditDetail = noOldEdit ? 'productionUiGuard + prior gates untouched by this slice' : `touched: ${[touchedGuard ? 'guard' : '', touchedOldGate ? 'old-gate' : ''].filter(Boolean).join(',')}`;

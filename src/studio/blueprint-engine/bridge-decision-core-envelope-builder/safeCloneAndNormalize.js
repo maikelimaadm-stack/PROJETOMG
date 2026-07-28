@@ -51,12 +51,26 @@ export function safeCloneAndNormalize(value, opts = {}) {
       }
       if (Array.isArray(v)) {
         seen.add(v);
+        // DESCRIPTOR-ONLY read path: `v.length` and `v[i]` are never evaluated, so a hostile Proxy-over-array `get`
+        // trap is never invoked by the normalizer. Length and every element come from own data descriptors.
+        const lenDesc = Object.getOwnPropertyDescriptor(v, 'length');
+        if (!lenDesc) throw new BuilderNormalizationError('BUILDER_SOURCE_UNSUPPORTED_VALUE');
+        if (typeof lenDesc.get === 'function' || typeof lenDesc.set === 'function') throw new BuilderNormalizationError('BUILDER_SOURCE_ACCESSOR_FORBIDDEN');
+        const len = lenDesc.value;
+        if (!Number.isSafeInteger(len) || len < 0) throw new BuilderNormalizationError('BUILDER_SOURCE_UNSUPPORTED_VALUE');
+        if (len > RESOURCE_LIMITS.maxSourceDecisionFields) throw new BuilderNormalizationError('BUILDER_LIMIT_EXCEEDED');
         const out = [];
-        for (let i = 0; i < v.length; i += 1) {
-          if (!Object.prototype.hasOwnProperty.call(v, i)) throw new BuilderNormalizationError('BUILDER_SOURCE_SPARSE_ARRAY');
-          const desc = Object.getOwnPropertyDescriptor(v, i);
-          if (desc && (typeof desc.get === 'function' || typeof desc.set === 'function')) throw new BuilderNormalizationError('BUILDER_SOURCE_ACCESSOR_FORBIDDEN');
-          out.push(clone(v[i], depth + 1));
+        for (let i = 0; i < len; i += 1) {
+          const desc = Object.getOwnPropertyDescriptor(v, String(i));
+          if (!desc) throw new BuilderNormalizationError('BUILDER_SOURCE_SPARSE_ARRAY');
+          if (typeof desc.get === 'function' || typeof desc.set === 'function') throw new BuilderNormalizationError('BUILDER_SOURCE_ACCESSOR_FORBIDDEN');
+          out.push(clone(desc.value, depth + 1));
+        }
+        // No own key beyond the indices and `length` — an array carrying extra properties is not a plain list.
+        for (const key of Object.keys(v)) {
+          if (PROTOTYPE_POLLUTION_KEYS.includes(key)) throw new BuilderNormalizationError('BUILDER_SOURCE_PROTOTYPE_POLLUTION_KEY');
+          const asIndex = Number(key);
+          if (!Number.isInteger(asIndex) || asIndex < 0 || asIndex >= len) throw new BuilderNormalizationError('BUILDER_SOURCE_UNSUPPORTED_VALUE');
         }
         seen.delete(v);
         return out;

@@ -1,7 +1,7 @@
 import { SOURCE_FIELDS } from './builderConfig.js';
 import { makeIssue } from './normalizeIssues.js';
 import { hasPrototypePollutionKey } from './prototypePollutionGuard.js';
-const STAGE = 'extension_validation';
+const STAGE = 'source_decision_shape_validation';
 /**
  * Rejects source-level extensions and pollution: any top-level key outside the real 33-field shape is an invented
  * extension; prototype-pollution keys at any depth are rejected. Core/envelope/version/digest overrides are impossible
