@@ -19,6 +19,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { isKnownLaterStudioHeadlessArtifact } from './lib/studioScopeGovernanceGuard.mjs';
+import { resolveActiveStudioSlice } from './lib/studioScopeGovernanceGuard.mjs';
 
 const ROOT = process.cwd();
 const DIR = path.join(ROOT, 'src/studio/blueprint-engine/bridge-decision-core-envelope-builder-contract');
@@ -360,7 +361,11 @@ gate('G423-BB — every evidence doc declaring the historical id also declares N
 const files = (() => { try { return execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean); } catch { return null; } })();
 if (files) {
   gate('G423-BB — all changed files authorized', files.every((f) => authorized(f)), files.filter((f) => !authorized(f)).join(', ') || 'clean');
-  gate('G423-BB — central guards not altered', !files.includes('scripts/gates/lib/productionUiGuard.mjs') && !files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs'));
+  // productionUiGuard is FORBIDDEN and no slice cross-authorizes it, so it may never appear. The central
+  // governance guard may appear ONLY when the slice active on this branch shares it — i.e. a governance slice.
+  gate('G423-BB — central guards not altered', !files.includes('scripts/gates/lib/productionUiGuard.mjs')
+    && (!files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs')
+      || (resolveActiveStudioSlice(files).ok && resolveActiveStudioSlice(files).sliceId.startsWith('studio-scope-governance-'))));
   gate('G423-BB — no upstream subtrees in diff', !files.some((f) => /^src\/studio\/blueprint-engine\/(authoring-runtime-to-preview-bridge|bridge-decision-envelope-identity-contract|bridge-decision-core-envelope-contract|bridge-to-preview-sandbox-runtime-contract|bridge-to-preview-sandbox-runtime-implementation-plan|bridge-to-preview-sandbox-runtime-implementation-plan-alignment-amendment|module-blueprint-authoring-runtime|module-preview-sandbox)\//.test(f)));
   gate('G423-BB — no App/pages/components/modules in diff', !files.some((f) => /^src\/(pages|components|modules|ModeloBase1|ModeloBase2)\//.test(f) || f === 'src/App.jsx'));
 }

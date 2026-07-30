@@ -16,6 +16,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { isKnownLaterStudioHeadlessArtifact } from './lib/studioScopeGovernanceGuard.mjs';
+import { resolveActiveStudioSlice } from './lib/studioScopeGovernanceGuard.mjs';
 
 const ROOT = process.cwd();
 const DIR = path.join(ROOT, 'src/studio/blueprint-engine/bridge-to-preview-sandbox-runtime-implementation-plan');
@@ -260,7 +261,11 @@ gate('G423-BP — no import of App/backend/prisma/modules', !importsOf().some((i
 const files = (() => { try { return execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean); } catch { return null; } })();
 if (files) {
   gate('G423-BP — all changed files authorized', files.every((f) => authorized(f)), files.filter((f) => !authorized(f)).join(', ') || 'clean');
-  gate('G423-BP — central guards not altered', !files.includes('scripts/gates/lib/productionUiGuard.mjs') && !files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs'));
+  // productionUiGuard is FORBIDDEN and no slice cross-authorizes it, so it may never appear. The central
+  // governance guard may appear ONLY when the slice active on this branch shares it — i.e. a governance slice.
+  gate('G423-BP — central guards not altered', !files.includes('scripts/gates/lib/productionUiGuard.mjs')
+    && (!files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs')
+      || (resolveActiveStudioSlice(files).ok && resolveActiveStudioSlice(files).sliceId.startsWith('studio-scope-governance-'))));
   gate('G423-BP — no upstream subtrees in diff', !files.some((f) => /^src\/studio\/blueprint-engine\/(authoring-runtime-to-preview-bridge|authoring-runtime-to-preview-bridge-contract|authoring-runtime-to-preview-bridge-implementation-plan|bridge-to-preview-sandbox-runtime-contract|bridge-decision-envelope-identity-contract|module-blueprint-authoring-runtime|module-preview-sandbox)\//.test(f)));
   gate('G423-BP — no App/pages/components/modules in diff', !files.some((f) => /^src\/(App\.jsx|pages|components|modules|ModeloBase1|ModeloBase2)\//.test(f) || f === 'src/App.jsx'));
 }

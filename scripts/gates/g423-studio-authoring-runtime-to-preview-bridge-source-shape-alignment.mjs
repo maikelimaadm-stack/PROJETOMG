@@ -14,6 +14,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { isKnownLaterStudioHeadlessArtifact, filterForbiddenScopePaths } from './lib/studioScopeGovernanceGuard.mjs';
+import { resolveActiveStudioSlice } from './lib/studioScopeGovernanceGuard.mjs';
 
 const ROOT = process.cwd();
 const CONTRACT_DIR = path.join(ROOT, 'src/studio/blueprint-engine/authoring-runtime-to-preview-bridge-contract');
@@ -205,7 +206,17 @@ gate('G423-AL — docs: serializer/preimage + resource coherence present', /stab
 // Scope safety.
 gate('G423-AL — runtime subtree untouched (read-only)', (() => { try { const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean); return !files.some((f) => /^src\/studio\/blueprint-engine\/module-blueprint-authoring-runtime\//.test(f)); } catch { return true; } })());
 gate('G423-AL — preview sandbox untouched (read-only)', (() => { try { const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean); return !files.some((f) => /^src\/studio\/blueprint-engine\/module-preview-sandbox\//.test(f)); } catch { return true; } })());
-gate('G423-AL — App.jsx / guards untouched', (() => { try { const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean); return !files.includes('src/App.jsx') && !files.includes('scripts/gates/lib/productionUiGuard.mjs') && !files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs'); } catch { return true; } })());
+// App.jsx and productionUiGuard may never appear. The central governance guard may appear only on a
+// governance slice's own branch.
+gate('G423-AL — App.jsx / guards untouched', (() => {
+  try {
+    const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
+    if (files.includes('src/App.jsx') || files.includes('scripts/gates/lib/productionUiGuard.mjs')) return false;
+    if (!files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs')) return true;
+    const active = resolveActiveStudioSlice(files);
+    return active.ok && active.sliceId.startsWith('studio-scope-governance-');
+  } catch { return true; }
+})());
 gate('G423-AL — modules/backend/Prisma untouched', (() => { try { const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean); return !files.some((f) => /^src\/modules\/|^backend\/|schema\.prisma$|^migrations\//.test(f)); } catch { return true; } })());
 gate('G423-AL — no .jsx/.tsx/.css in diff', (() => { try { const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean); return !files.some((f) => /\.(jsx|tsx|css)$/.test(f)); } catch { return true; } })());
 

@@ -6,7 +6,7 @@ import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 // Branch-relative scope checks may run on later Studio headless slices before merge.
 // Known later Studio headless artifacts are tolerated here, but forbidden scopes still fail.
-import { isKnownLaterStudioHeadlessArtifact } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
+import { isKnownLaterStudioHeadlessArtifact, filterForbiddenScopePaths } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 
 import {
   STUDIO_BLUEPRINT_ENGINE_NAME,
@@ -377,9 +377,9 @@ test('S4. PAGEMP not changed', () => { const f = foreign(); if (f === null) retu
 test('S5. ModeloBase1/2 not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/^src\/ModeloBase[12]\//.test(x))); });
 test('S6. backend not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/^backend\/|^src\/apis\//.test(x))); });
 test('S7. Prisma/schema not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/prisma|schema\.prisma/i.test(x))); });
-test('S8. migration not created', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/migration/i.test(x))); });
+test('S8. migration not created', () => { const f = foreign(); if (f === null) return; assert.deepEqual(filterForbiddenScopePaths(f).filter((x) => /migration|\.sql$|prisma/i.test(x)), []); assert.ok(f.every((x) => !/^migrations\//.test(x) && !/\.sql$/i.test(x))); });
 test('S9. App.jsx not changed', () => { const f = foreign(); if (f === null) return; assert.ok(!f.includes('src/App.jsx')); });
-test('S10. menu/nav not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/menu|nav/i.test(x))); });
+test('S10. menu/nav not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/^src\/.*(menu|nav)/i.test(x)), 'no menu/nav SOURCE changed'); assert.deepEqual(filterForbiddenScopePaths(f), []); });
 test('S11. src/pages/src/components not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/^src\/(pages|components)\//.test(x))); });
 test('S12. runtime prod (non-tests) not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/^src\/runtime\/(?!__tests__\/)/.test(x))); });
 test('S13. CSS not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/\.css$/.test(x))); });

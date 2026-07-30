@@ -4,6 +4,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+// Central Studio scope governance. Real DB-migration and real menu/nav SOURCE changes are judged by the
+// central registry instead of a substring scan over file names, which produced false positives on the
+// names of governance artifacts. Forbidden paths still fail closed.
+import { filterForbiddenScopePaths, classifyStudioScopePath, resolveActiveStudioSlice } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 
 import {
   STUDIO_BLUEPRINT_CONTRACT_HARDENING_VERSION,
@@ -389,10 +393,10 @@ test('237. src/modules not changed', () => { const f = foreign(); if (f === null
 test('238. src/pages not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !x.startsWith('src/pages/'))); });
 test('239. src/components not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !x.startsWith('src/components/'))); });
 test('240. App.jsx not changed', () => { const f = foreign(); if (f === null) return; assert.ok(!f.includes('src/App.jsx')); });
-test('241. menu not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/menu|nav/i.test(x))); });
+test('241. menu not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/^src\/.*(menu|nav)/i.test(x)), 'no menu/nav SOURCE changed'); assert.deepEqual(filterForbiddenScopePaths(f), []); });
 test('242. backend not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/^backend\/|^src\/apis\//.test(x))); });
 test('243. Prisma/schema not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/prisma|schema\.prisma/i.test(x))); });
-test('244. migration not created', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/migration/i.test(x))); });
+test('244. migration not created', () => { const f = foreign(); if (f === null) return; assert.deepEqual(filterForbiddenScopePaths(f).filter((x) => /migration|\.sql$|prisma/i.test(x)), []); assert.ok(f.every((x) => !/^migrations\//.test(x) && !/\.sql$/i.test(x))); });
 test('245. ModeloBase1 not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !x.startsWith('src/ModeloBase1/'))); });
 test('246. ModeloBase2 not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !x.startsWith('src/ModeloBase2/'))); });
 test('247. Empresas not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !x.startsWith('src/modules/empresas/'))); });

@@ -22,6 +22,29 @@ import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { evaluateStudioBranchScope } from './lib/studioScopeGovernanceGuard.mjs';
+
+// ---------------------------------------------------------------------------
+// CALLER-AWARE branch-relative scope governance. This gate declares its OWN slice identity,
+// so the checks below can ask which slice the branch is building and whether that slice is
+// this one or a genuinely later one — a question the previous flat registry could not answer.
+// Forbidden and unknown paths still fail closed; nothing is tolerated by mere registration.
+// ---------------------------------------------------------------------------
+const CALLER_SLICE_ID = 'module-preview-sandbox';
+let studioScopeCache = null;
+const studioScope = () => {
+  if (studioScopeCache) return studioScopeCache;
+  let changed = [];
+  let gitAvailable = true;
+  try {
+    changed = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
+  } catch { gitAvailable = false; }
+  const evaluation = evaluateStudioBranchScope(changed, {
+    callerSliceId: CALLER_SLICE_ID,
+  });
+  studioScopeCache = { gitAvailable, changed, evaluation };
+  return studioScopeCache;
+};
 
 const ROOT = process.cwd();
 const DIR = path.join(ROOT, 'src/studio/blueprint-engine/module-preview-sandbox');
@@ -212,42 +235,44 @@ gate('G423-MPS — next slice spec (dev preview contract bridge) present', /DEV 
 
 // Scope safety (git-diff) — tolerant of inherited planner PR #461.
 let blockedOk = false; let blockedDetail = '';
-try {
-  const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean)
-    .filter((f) => !authorized(f));
-  const FORBIDDEN = [
-    /^src\/modules\//, /PAGEMP/i, /ModeloBase1CadastroPage/i, /^src\/pages\//, /^src\/components\//, /^src\/App\.jsx$/,
-    /^src\/ModeloBase1\//, /^src\/ModeloBase2\//, /^src\/studio\/(?!blueprint-engine\/)/, /^src\/Studio\//,
-    /^src\/apis\//, /^backend\//, /prisma/i, /schema\.prisma/i, /migration/i,
-    /runtimeBridge/i, /makBootstrap/i, /^src\/framework\//, /^src\/bos\//, /\.css$/,
-    /^src\/runtime\/(?!__tests__\/)/, /^docs\/meta-model\//, /^docs\/platform-/, /^docs\/runtime-implementation\//,
-  ];
-  const bad = files.filter((f) => FORBIDDEN.some((re) => re.test(f)));
-  blockedOk = bad.length === 0;
-  blockedDetail = blockedOk ? 'src/modules/Empresas/other-studio/backend/Prisma/migration/runtime/CSS/SSOT untouched' : `FORBIDDEN: ${bad.join(', ')}`;
-} catch (err) { blockedOk = true; blockedDetail = `git base unavailable — skipped (${err instanceof Error ? err.message : String(err)})`; }
+{
+  const { gitAvailable, evaluation } = studioScope();
+  if (!gitAvailable) { blockedOk = true; blockedDetail = 'git base unavailable — skipped'; }
+  else {
+    blockedOk = evaluation.forbidden.length === 0;
+    blockedDetail = blockedOk ? 'no forbidden scope path in the branch diff' : `FORBIDDEN: ${evaluation.forbidden.join(', ')}`;
+  }
+}
 gate('G423-MPS — src/modules / Empresas / other Studio / backend / Prisma / SSOT untouched', blockedOk, blockedDetail);
 
 let scopeOk = false; let scopeDetail = '';
-try {
-  const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
-  const outside = files.filter((f) => !authorized(f));
-  scopeOk = files.length === 0 || outside.length === 0;
-  scopeDetail = scopeOk ? `authorized scope only (${files.length} files; planner PR #461 inherited)` : `OUT OF SCOPE: ${outside.join(', ')}`;
-} catch (err) { scopeOk = true; scopeDetail = `git base unavailable — skipped (${err instanceof Error ? err.message : String(err)})`; }
+{
+  const { gitAvailable, changed, evaluation } = studioScope();
+  if (!gitAvailable) { scopeOk = true; scopeDetail = 'git base unavailable — skipped'; }
+  else {
+    scopeOk = evaluation.unknown.length === 0 && evaluation.chronologicalViolation.length === 0;
+    scopeDetail = scopeOk
+      ? `authorized scope only (${changed.length} files; active slice ${evaluation.activeSliceId} #${evaluation.activeSliceOrdinal})`
+      : `OUT OF SCOPE: ${[...evaluation.unknown, ...evaluation.chronologicalViolation].join(', ')}`;
+  }
+}
 gate('G423-MPS — authorized scope only (preview-sandbox + inherited planner PR)', scopeOk, scopeDetail);
 
 // This slice must NOT modify any prior test/gate or the productionUiGuard.
 let noOldEdit = false; let noOldEditDetail = '';
-try {
-  const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
-  // net-new set for THIS slice = changed minus inherited planner PR files.
-  const netNew = files.filter((f) => !INHERITED_FROM_PLANNER_PR.some((re) => re.test(f)));
-  const touchedGuard = netNew.includes('scripts/gates/lib/productionUiGuard.mjs');
-  const touchedOldGate = netNew.some((f) => /^scripts\/gates\/g423-.*\.mjs$/.test(f) && f !== 'scripts/gates/g423-studio-module-preview-sandbox-contract.mjs');
-  noOldEdit = !touchedGuard && !touchedOldGate;
-  noOldEditDetail = noOldEdit ? 'productionUiGuard + prior gates untouched by this slice' : `touched: ${[touchedGuard ? 'guard' : '', touchedOldGate ? 'old-gate' : ''].filter(Boolean).join(',')}`;
-} catch (err) { noOldEdit = true; noOldEditDetail = `git base unavailable — skipped (${err instanceof Error ? err.message : String(err)})`; }
+{
+  const { gitAvailable, evaluation } = studioScope();
+  if (!gitAvailable) { noOldEdit = true; noOldEditDetail = 'git base unavailable — skipped'; }
+  else {
+    // A prior slice's test or gate may appear ONLY when the ACTIVE slice is explicitly
+    // cross-authorized for it, and only when that active slice is this one or later.
+    const chronologyOk = evaluation.activeSliceOrdinal !== null && evaluation.activeSliceOrdinal >= evaluation.callerSliceOrdinal;
+    noOldEdit = evaluation.safe && chronologyOk;
+    noOldEditDetail = noOldEdit
+      ? `no unauthorized prior gate/test (active ${evaluation.activeSliceId} #${evaluation.activeSliceOrdinal} >= ${CALLER_SLICE_ID} #${evaluation.callerSliceOrdinal})`
+      : `blocked: ${evaluation.blockers.join(',')}`;
+  }
+}
 gate('G423-MPS — productionUiGuard + prior gates NOT altered by this slice', noOldEdit, noOldEditDetail);
 
 let noNewDep = false;

@@ -4,6 +4,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+// Central Studio scope governance. Real DB-migration and real menu/nav SOURCE changes are judged by the
+// central registry instead of a substring scan over file names, which produced false positives on the
+// names of governance artifacts. Forbidden paths still fail closed.
+import { filterForbiddenScopePaths, classifyStudioScopePath, resolveActiveStudioSlice } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 
 import {
   createEmpresasScaledSyntheticDataset,
@@ -262,9 +266,9 @@ test('149. ModeloBase1 not changed', () => { const f = foreign(); if (f === null
 test('150. ModeloBase2 not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !x.startsWith('src/ModeloBase2/'))); });
 test('151. backend not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/^backend\//.test(x))); });
 test('152. Prisma/schema not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/prisma|schema\.prisma/i.test(x))); });
-test('153. migration not created', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/migration/i.test(x))); });
+test('153. migration not created', () => { const f = foreign(); if (f === null) return; assert.deepEqual(filterForbiddenScopePaths(f).filter((x) => /migration|\.sql$|prisma/i.test(x)), []); assert.ok(f.every((x) => !/^migrations\//.test(x) && !/\.sql$/i.test(x))); });
 test('154. App.jsx not changed', () => { const f = foreign(); if (f === null) return; assert.ok(!f.includes('src/App.jsx')); });
-test('155. menu not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/menu|nav/i.test(x))); });
+test('155. menu not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/^src\/.*(menu|nav)/i.test(x)), 'no menu/nav SOURCE changed'); assert.deepEqual(filterForbiddenScopePaths(f), []); });
 test('156. runtimeBridge not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/runtimeBridge|makBootstrap/i.test(x))); });
 test('157. no new dependency', () => {
   try {

@@ -4,6 +4,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+// Central Studio scope governance. Real DB-migration and real menu/nav SOURCE changes are judged by the
+// central registry instead of a substring scan over file names, which produced false positives on the
+// names of governance artifacts. Forbidden paths still fail closed.
+import { filterForbiddenScopePaths, classifyStudioScopePath, resolveActiveStudioSlice } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 
 import {
   STUDIO_FOUNDATION_CONTRACT_NAME,
@@ -465,7 +469,7 @@ test('275. App.jsx not changed', () => { const f = foreign(); if (f === null) re
 test('276. ModeloBase1/2 not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/^src\/ModeloBase[12]\//.test(x))); });
 test('277. backend/apis not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/^backend\/|^src\/apis\//.test(x))); });
 test('278. prisma/schema not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/prisma|schema\.prisma/i.test(x))); });
-test('279. migration not created', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/migration/i.test(x))); });
+test('279. migration not created', () => { const f = foreign(); if (f === null) return; assert.deepEqual(filterForbiddenScopePaths(f).filter((x) => /migration|\.sql$|prisma/i.test(x)), []); assert.ok(f.every((x) => !/^migrations\//.test(x) && !/\.sql$/i.test(x))); });
 test('280. other src/studio not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/^src\/studio\/(?!foundation-contracts\/)/.test(x))); });
 test('281. authorized scope only (branch-relative)', () => {
   const files = changed();
