@@ -10,7 +10,8 @@ Dois fatos mandatórios desta fatia colidem com heurísticas de substring em OUT
 
 1. o nome obrigatório da fatia (§3, §11, §14) contém a palavra **`migration`**, e 13 testes/gates escaneiam o diff com `/migration/i`;
 2. três dos 22 gates obrigatórios (§8) têm **`route-menu`** no nome, e 12 testes/gates escaneiam o diff com `/menu|nav/i`;
-3. esta fatia é a dona do `studioScopeGovernanceGuard.mjs`, e 13 testes/gates afirmam que esse arquivo NUNCA aparece no diff.
+3. esta fatia é a dona do `studioScopeGovernanceGuard.mjs`, e 13 testes/gates afirmam que esse arquivo NUNCA aparece no diff;
+4. os cinco testes `empresas-*` que ela precisa corrigir têm `empresas` no nome, e um teste escaneia o diff com `/empresas/i`.
 
 Nenhuma dessas asserções falha por conteúdo. Todas falham por casarem o NOME de um artefato de governança. Sem corrigi-las, o `npm run test:runtime` não poderia ter 0 fail (§16).
 
@@ -31,6 +32,7 @@ Nenhuma dessas asserções falha por conteúdo. Todas falham por casarem o NOME 
 | `migration not created` | `!/migration/i.test(path)` | nenhum caminho classificado proibido por migração/prisma/`.sql`, e nenhum `^migrations/` ou `*.sql` |
 | `menu not changed` | `!/menu\|nav/i.test(path)` | nenhum caminho FONTE `^src/**` com `menu`/`nav`, mais zero proibidos |
 | `guards not in diff` | `!diff.includes(guard)` | `productionUiGuard` nunca; guard central apenas quando a fatia ativa é de governança |
+| `no Empresas in diff` | `/empresas/i.test(path)` | nenhum caminho FONTE Empresas — testes, gates e evidências de governança não são fonte Empresas |
 
 Semântica preservada e, no caso de migração, **reforçada** (`.sql` e diretórios `migrations/` aninhados passaram a ser bloqueados; antes só o prefixo `^migrations/` e o substring). Nenhuma checagem funcional, contrato, runtime ou digest foi tocada.
 

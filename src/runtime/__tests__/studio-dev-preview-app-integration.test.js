@@ -507,7 +507,9 @@ test('390. registry known-later leaks no forbidden probe', () => { const probes 
 
 // ===== Scope safety (391-400) =====
 test('391. no src/modules in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => /^src\/modules\//.test(f))); });
-test('392. no Empresas in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => /empresas/i.test(f))); });
+// Empresas PRODUCTION source must not change. A substring scan over file names also matched the Empresas
+// governance TEST files, which are not Empresas source; anchor the check on real source paths instead.
+test('392. no Empresas in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => (/empresas/i.test(f) && !/^src\/runtime\/__tests__\//.test(f) && !/^scripts\/gates\//.test(f) && !/^docs\/evidence\//.test(f)))); });
 test('393. no backend/prisma/migration in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => /^backend\/|schema\.prisma$|^migrations\//.test(f))); });
 test('394. no .tsx/.css in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => /\.(tsx|css)$/.test(f))); });
 test('395. only .jsx in diff are the subtree or the authorized additive App.jsx', () => { const files = changed(); if (files === null) return; assert.ok(files.filter((f) => /\.jsx$/.test(f)).every((f) => f === 'src/App.jsx' || /^src\/studio\/blueprint-engine\/dev-preview-app-integration\//.test(f))); });
