@@ -29,6 +29,7 @@ const CORRECTION = MAIN_DIFF_CORRECTION_SLICE_ID;
 const MIGRATION = CHRONOLOGICAL_MIGRATION_SLICE_ID;
 const BUILDER = 'bridge-decision-core-envelope-builder';
 const APP_INTEGRATION = 'dev-preview-app-integration';
+const CONSUMERS = 'studio-scope-governance-historical-branch-consumers';
 
 const TEST_REL = 'src/runtime/__tests__/studio-scope-governance-main-diff-correction.test.js';
 const GATE_REL = 'scripts/gates/g423-studio-scope-governance-main-diff-correction.mjs';
@@ -119,7 +120,7 @@ const DB_MIGRATION_PATHS = [
 // ===========================================================================
 // R — registry after the correction
 // ===========================================================================
-test('R001 the catalog has forty-three slices', () => assert.equal(STUDIO_SLICE_CATALOG.length, 43));
+test('R001 the catalog holds at least forty-three slices', () => assert.ok(STUDIO_SLICE_CATALOG.length >= 43, String(STUDIO_SLICE_CATALOG.length)));
 test('R002 slice ids stay unique', () => {
   const ids = STUDIO_SLICE_CATALOG.map((s) => s.sliceId);
   assert.equal(new Set(ids).size, ids.length);
@@ -129,17 +130,16 @@ test('R003 ordinals are unique, positive integers', () => {
   assert.equal(new Set(o).size, o.length);
   assert.ok(o.every((x) => Number.isInteger(x) && x > 0));
 });
-test('R004 ordinals are contiguous 1..43', () => {
+test('R004 ordinals are contiguous from one', () => {
   const o = [...STUDIO_SLICE_CATALOG.map((s) => s.sliceOrdinal)].sort((a, b) => a - b);
-  assert.deepEqual(o, Array.from({ length: 43 }, (_, i) => i + 1));
+  assert.deepEqual(o, Array.from({ length: STUDIO_SLICE_CATALOG.length }, (_, i) => i + 1));
 });
-test('R005 the correction slice is ordinal 43 and active', () => {
-  const s = getStudioSliceById(CORRECTION);
-  assert.equal(s.sliceOrdinal, 43);
-  assert.equal(s.status, 'active_slice');
+test('R005 the correction slice is ordinal 43', () => {
+  assert.equal(getStudioSliceById(CORRECTION).sliceOrdinal, 43);
 });
-test('R006 the correction slice is the last one', () => {
-  assert.equal(Math.max(...STUDIO_SLICE_CATALOG.map((s) => s.sliceOrdinal)), getStudioSliceById(CORRECTION).sliceOrdinal);
+test('R006 no slice before the correction is still the active one', () => {
+  const active = STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice');
+  for (const a of active) assert.ok(a.sliceOrdinal >= getStudioSliceById(CORRECTION).sliceOrdinal, a.sliceId);
 });
 test('R007 the previous governance slice is now merged', () => assert.equal(getStudioSliceById(MIGRATION).status, 'merged'));
 test('R008 the correction is chronologically after the migration', () => {
@@ -149,7 +149,7 @@ test('R009 the correction is chronologically after the Builder', () => {
   assert.ok(getStudioSliceById(CORRECTION).sliceOrdinal > getStudioSliceById(BUILDER).sliceOrdinal);
 });
 test('R010 exactly one slice carries status active_slice', () => {
-  assert.deepEqual(STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice').map((s) => s.sliceId), [CORRECTION]);
+  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice').length, 1);
 });
 test('R011 the correction primary set is exactly three anchored patterns', () => {
   const s = getStudioSliceById(CORRECTION);
@@ -179,6 +179,11 @@ test('R014 the correction shared set is exactly registry, guard and the two mani
 });
 test('R015 the correction declares no explicitly authorized forbidden path', () => {
   assert.deepEqual(getStudioSliceById(CORRECTION).explicitlyAuthorizedForbiddenPatterns, []);
+});
+test('R016b later slices never own this slice artifacts', () => {
+  for (const rel of [TEST_REL, GATE_REL]) {
+    assert.deepEqual(findOwningStudioSlices(rel).map((x) => x.sliceId), [CORRECTION], rel);
+  }
 });
 test('R016 every entry still declares the same nine keys', () => {
   for (const s of STUDIO_SLICE_CATALOG) {
@@ -707,7 +712,8 @@ for (const [p, caller] of NINE_TESTS) {
   test(`S001 migrated test uses the boundary API and its own caller id: ${path.basename(p)}`, () => {
     const src = readSrc(p);
     assert.ok(src.includes(`const CALLER_SLICE_ID = '${caller}';`), p);
-    assert.ok(src.includes('evaluateStudioBranchDiffScope('), p);
+    // Superseded by slice 44: the branch-relative section asks about its OWN applicability.
+    assert.ok(src.includes('evaluateStudioBranchConsumerScope('), p);
   });
   test(`S002 migrated test no longer calls the core directly: ${path.basename(p)}`, () => {
     assert.equal(/[^f]evaluateStudioBranchScope\(/.test(readSrc(p)), false, p);
@@ -716,7 +722,7 @@ for (const [p, caller] of NINE_TESTS) {
 for (const p of TWENTY_TWO_GATES) {
   test(`S003 migrated gate uses the boundary API: ${path.basename(p)}`, () => {
     const src = readSrc(p);
-    assert.ok(src.includes('evaluateStudioBranchDiffScope('), p);
+    assert.ok(src.includes('evaluateStudioBranchConsumerScope('), p);
     assert.ok(/const CALLER_SLICE_ID = '/.test(src), p);
   });
   test(`S004 migrated gate no longer calls the core directly: ${path.basename(p)}`, () => {
@@ -944,7 +950,10 @@ test('T005 this branch is not proven by an empty diff', () => {
   const f = changedOnThisBranch(); if (f === null) return;
   if (f.length === 0) return; // running on `main` after merge — the empty-diff contract covers it
   assert.ok(f.length > 20, String(f.length));
-  assert.equal(resolveActiveStudioSlice(f).sliceId, CORRECTION);
+  // A LATER slice may legitimately be the one being built; this slice is then a consumer.
+  const active = resolveActiveStudioSlice(f);
+  assert.equal(active.ok, true, JSON.stringify(active));
+  assert.equal(active.candidates.length, 1);
 });
 
 // ===========================================================================
@@ -955,6 +964,7 @@ const MARKER = {
   41: 'docs/evidence/post-foundation-c-studio-bridge-decision-core-envelope-builder/X.md',
   42: 'docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/SLICE-CATALOG.md',
   43: `${EV_REL}READINESS.md`,
+  44: 'docs/evidence/post-foundation-c-studio-scope-governance-historical-branch-consumers/READINESS.md',
 };
 
 test('X001 zero markers fail closed', () => {
@@ -969,7 +979,7 @@ test('X002 exactly one marker resolves that slice', () => {
   assert.equal(r.sliceId, CORRECTION);
   assert.deepEqual(r.candidates, [CORRECTION]);
 });
-for (const [a, b] of [[42, 43], [41, 43], [24, 43], [24, 41], [41, 42]]) {
+for (const [a, b] of [[42, 43], [41, 43], [24, 43], [24, 41], [41, 42], [43, 44]]) {
   test(`X003 two markers are always ambiguous: ${a} + ${b}`, () => {
     const r = resolveActiveStudioSlice([MARKER[a], MARKER[b]]);
     assert.equal(r.ok, false, JSON.stringify(r));

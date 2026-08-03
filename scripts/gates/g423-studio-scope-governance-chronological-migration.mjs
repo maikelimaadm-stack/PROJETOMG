@@ -32,6 +32,7 @@ const REG = await import(pathToFileURL(path.join(ROOT, REGISTRY_REL)).href);
 const G = await import(pathToFileURL(path.join(ROOT, GUARD_REL)).href);
 
 const CORRECTION = 'studio-scope-governance-main-diff-correction';
+const CONSUMERS = 'studio-scope-governance-historical-branch-consumers';
 const MIGRATION = REG.CHRONOLOGICAL_MIGRATION_SLICE_ID;
 const BUILDER = 'bridge-decision-core-envelope-builder';
 const CATALOG = REG.STUDIO_SLICE_CATALOG;
@@ -230,7 +231,7 @@ for (const p of EXTENSION_ARTIFACTS) {
 }
 gate('G423-SGCM — the declared extension is documented', readEv('REQUIRED-SCOPE-EXTENSION.md').length > 400
   && EXTENSION_ARTIFACTS.every((p) => readEv('REQUIRED-SCOPE-EXTENSION.md').includes(path.basename(p).replace(/\.(test\.js|mjs)$/, ''))));
-gate('G423-SGCM — cross authorization is never inherited', CATALOG.filter((s) => s.sliceId !== MIGRATION && s.sliceId !== CORRECTION).every((s) => !s.crossSliceAuthorizedPatterns.some((re) => re.test('scripts/gates/g423-studio-dev-preview-route-menu.mjs'))));
+gate('G423-SGCM — cross authorization is never inherited', CATALOG.filter((s) => s.sliceId !== MIGRATION && s.sliceId !== CORRECTION && s.sliceId !== CONSUMERS).every((s) => !s.crossSliceAuthorizedPatterns.some((re) => re.test('scripts/gates/g423-studio-dev-preview-route-menu.mjs'))));
 
 // ---- Forbidden / unknown ----
 for (const p of FORBIDDEN_FIXTURES) {
@@ -278,11 +279,11 @@ for (const [, caller] of TWENTY_TWO_GATES) {
 // ---- Migrated artifacts ----
 for (const [p, caller] of NINE_TESTS) {
   const src = readSrc(p);
-  gate(`G423-SGCM — migrated test declares caller + caller-aware API: ${path.basename(p)}`, src.includes(`const CALLER_SLICE_ID = '${caller}';`) && src.includes('evaluateStudioBranchDiffScope('));
+  gate(`G423-SGCM — migrated test declares caller + caller-aware API: ${path.basename(p)}`, src.includes(`const CALLER_SLICE_ID = '${caller}';`) && src.includes('evaluateStudioBranchConsumerScope('));
 }
 for (const [p, caller] of TWENTY_TWO_GATES) {
   const src = readSrc(p);
-  gate(`G423-SGCM — migrated gate declares caller + caller-aware API: ${path.basename(p)}`, src.includes(`const CALLER_SLICE_ID = '${caller}';`) && src.includes('evaluateStudioBranchDiffScope('));
+  gate(`G423-SGCM — migrated gate declares caller + caller-aware API: ${path.basename(p)}`, src.includes(`const CALLER_SLICE_ID = '${caller}';`) && src.includes('evaluateStudioBranchConsumerScope('));
 }
 gate('G423-SGCM — exactly nine tests and twenty-two gates migrated', NINE_TESTS.length === 9 && TWENTY_TWO_GATES.length === 22);
 
@@ -291,7 +292,8 @@ gate('G423-SGCM — twenty-one pre-Studio gates declared not migrated', REG.LEGA
 for (const g of REG.LEGACY_PRE_STUDIO_SCOPE_GATES_NOT_MIGRATED) {
   gate(`G423-SGCM — pre-Studio gate untouched + outside the catalog: ${path.basename(g)}`,
     G.findOwningStudioSlices(g).length === 0 && !readSrc(g).includes('evaluateStudioBranchScope(')
-    && !readSrc(g).includes('evaluateStudioBranchDiffScope('));
+    && !readSrc(g).includes('evaluateStudioBranchDiffScope(')
+    && !readSrc(g).includes('evaluateStudioBranchConsumerScope('));
 }
 gate('G423-SGCM — legacy decision documented, not silently passed',
   /LEGACY_PRE_STUDIO_SCOPE_GATES_NOT_MIGRATED/.test(readEv('LEGACY-PRE-STUDIO-GATE-DECISION.md'))
@@ -479,7 +481,7 @@ for (const p of SIMILAR_UNREGISTERED) {
 for (const [p] of [...NINE_TESTS, ...TWENTY_TWO_GATES]) {
   gate(`G423-SGCM — exact migration path authorized only for the migration: ${path.basename(p)}`,
     G.isPathAuthorizedForStudioSlice(p, MIGRATION)
-    && CATALOG.filter((s) => s.sliceId !== MIGRATION && s.sliceId !== CORRECTION
+    && CATALOG.filter((s) => s.sliceId !== MIGRATION && s.sliceId !== CORRECTION && s.sliceId !== CONSUMERS
       && s.sliceId !== 'studio-scope-governance-maintenance'
       && !(s.sliceId === BUILDER && BUILDER_CROSS.includes(p))
       && !G.findOwningStudioSlices(p).some((o) => o.sliceId === s.sliceId))

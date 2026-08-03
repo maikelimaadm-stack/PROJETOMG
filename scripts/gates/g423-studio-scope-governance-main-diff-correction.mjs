@@ -128,16 +128,17 @@ const DB_MIGRATION_PATHS = [
 console.log('--- G423-STUDIO-SCOPE-GOVERNANCE-MAIN-DIFF-CORRECTION ---\n');
 
 // ---- Registry ----
-gate('G423-MDC — catalog has 43 slices', STUDIO_SLICE_CATALOG.length === 43, String(STUDIO_SLICE_CATALOG.length));
-gate('G423-MDC — slice ids unique', new Set(STUDIO_SLICE_CATALOG.map((s) => s.sliceId)).size === 43);
+gate('G423-MDC — catalog holds at least 43 slices', STUDIO_SLICE_CATALOG.length >= 43, String(STUDIO_SLICE_CATALOG.length));
+gate('G423-MDC — slice ids unique', new Set(STUDIO_SLICE_CATALOG.map((s) => s.sliceId)).size === STUDIO_SLICE_CATALOG.length);
 gate('G423-MDC — ordinals unique and positive',
-  new Set(STUDIO_SLICE_CATALOG.map((s) => s.sliceOrdinal)).size === 43
+  new Set(STUDIO_SLICE_CATALOG.map((s) => s.sliceOrdinal)).size === STUDIO_SLICE_CATALOG.length
   && STUDIO_SLICE_CATALOG.every((s) => Number.isInteger(s.sliceOrdinal) && s.sliceOrdinal > 0));
-gate('G423-MDC — ordinals contiguous 1..43',
+gate('G423-MDC — ordinals contiguous from one',
   STUDIO_SLICE_CATALOG.map((s) => s.sliceOrdinal).sort((a, b) => a - b).every((o, i) => o === i + 1));
 gate('G423-MDC — correction slice registered at ordinal 43',
   slice(CORRECTION) !== null && slice(CORRECTION).sliceOrdinal === 43);
-gate('G423-MDC — correction slice is the active one', slice(CORRECTION).status === 'active_slice');
+gate('G423-MDC — no slice before the correction is still active',
+  STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice').every((s) => s.sliceOrdinal >= slice(CORRECTION).sliceOrdinal));
 gate('G423-MDC — exactly one active slice',
   STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice').length === 1);
 gate('G423-MDC — previous governance slice is now merged', slice(MIGRATION).status === 'merged');
@@ -378,14 +379,14 @@ gate('G423-MDC — correction evidence allowed by ownership, not by a loosened p
 for (const [p, caller] of NINE_TESTS) {
   const src = readSrc(p);
   gate(`G423-MDC — migrated test uses the boundary API: ${path.basename(p)}`,
-    src.includes(`const CALLER_SLICE_ID = '${caller}';`) && src.includes('evaluateStudioBranchDiffScope('));
+    src.includes(`const CALLER_SLICE_ID = '${caller}';`) && src.includes('evaluateStudioBranchConsumerScope('));
   gate(`G423-MDC — migrated test no longer calls the core directly: ${path.basename(p)}`,
     /[^f]evaluateStudioBranchScope\(/.test(src) === false);
 }
 for (const p of TWENTY_TWO_GATES) {
   const src = readSrc(p);
   gate(`G423-MDC — migrated gate uses the boundary API: ${path.basename(p)}`,
-    src.includes('evaluateStudioBranchDiffScope(') && /const CALLER_SLICE_ID = '/.test(src));
+    src.includes('evaluateStudioBranchConsumerScope(') && /const CALLER_SLICE_ID = '/.test(src));
   gate(`G423-MDC — migrated gate no longer calls the core directly: ${path.basename(p)}`,
     /[^f]evaluateStudioBranchScope\(/.test(src) === false);
 }
@@ -502,6 +503,7 @@ const MARKER = {
   41: 'docs/evidence/post-foundation-c-studio-bridge-decision-core-envelope-builder/X.md',
   42: 'docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/SLICE-CATALOG.md',
   43: `${EV_REL}READINESS.md`,
+  44: 'docs/evidence/post-foundation-c-studio-scope-governance-historical-branch-consumers/READINESS.md',
 };
 gate('G423-MDC — zero markers fail closed', (() => {
   const r = G.resolveActiveStudioSlice(['package.json', 'package-lock.json', REGISTRY_REL, GUARD_REL]);
@@ -511,7 +513,7 @@ gate('G423-MDC — exactly one marker resolves that slice', (() => {
   const r = G.resolveActiveStudioSlice([MARKER[43], REGISTRY_REL, TEST_REL, GATE_REL]);
   return r.ok === true && r.sliceId === CORRECTION && r.candidates.length === 1;
 })());
-for (const [a, b] of [[42, 43], [41, 43], [24, 43], [24, 41], [41, 42]]) {
+for (const [a, b] of [[42, 43], [41, 43], [24, 43], [24, 41], [41, 42], [43, 44]]) {
   gate(`G423-MDC — two markers are always ambiguous: ${a} + ${b}`, (() => {
     const r = G.resolveActiveStudioSlice([MARKER[a], MARKER[b]]);
     return r.ok === false && r.reason === 'ambiguous_active_slice' && r.candidates.length === 2 && r.sliceId === null;

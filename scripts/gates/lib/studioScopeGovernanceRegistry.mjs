@@ -1210,8 +1210,10 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^scripts\/gates\/g423-studio-authoring-runtime-to-preview-bridge-contract\.mjs$/,
       /^scripts\/gates\/g423-studio-authoring-runtime-to-preview-bridge-implementation-plan\.mjs$/,
       /^scripts\/gates\/g423-studio-authoring-runtime-to-preview-bridge\.mjs$/,
-      // The three governance slices' own test and gate (ordinals 9, 42 and 43).
-      /^src\/runtime\/__tests__\/studio-scope-governance-maintenance\.test\.js$/,
+      // The governance consumers that judge a branch diff (ordinals 9, 42 and 43).
+      // studio-scope-governance-maintenance.test.js is deliberately absent: it only
+      // exercises the guard API directly and never judges a branch diff, so it is not
+      // a consumer and needs no cross-slice authorization from this slice.
       /^scripts\/gates\/g423-studio-scope-governance-maintenance\.mjs$/,
       /^src\/runtime\/__tests__\/studio-scope-governance-chronological-migration\.test\.js$/,
       /^scripts\/gates\/g423-studio-scope-governance-chronological-migration\.mjs$/,

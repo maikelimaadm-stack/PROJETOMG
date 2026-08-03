@@ -33,6 +33,7 @@ const readEv = (f) => (fs.existsSync(path.join(EV, f)) ? fs.readFileSync(path.jo
 
 const MIGRATION = CHRONOLOGICAL_MIGRATION_SLICE_ID;
 const CORRECTION = 'studio-scope-governance-main-diff-correction';
+const CONSUMERS = 'studio-scope-governance-historical-branch-consumers';
 const BUILDER = 'bridge-decision-core-envelope-builder';
 
 /** The nine tests that used to block the official aggregate, with their caller slice ids. */
@@ -479,6 +480,7 @@ test('X006 a cross authorization is never inherited by another slice', () => {
   for (const s of STUDIO_SLICE_CATALOG) {
     if (s.sliceId === MIGRATION) continue;
     if (s.sliceId === CORRECTION) continue; // the later correction slice declares its own exact list
+    if (s.sliceId === CONSUMERS) continue; // the later consumers slice declares its own exact list
     assert.equal(s.crossSliceAuthorizedPatterns.some((re) => re.test(migrated)), false, s.sliceId);
   }
 });
@@ -610,7 +612,8 @@ for (const [p, callerSliceId] of NINE_TESTS) {
     assert.ok(src.includes(`const CALLER_SLICE_ID = '${callerSliceId}';`), p);
     // Superseded by the main-diff correction: the branch-relative consumers now use the
     // boundary API, which delegates to the chronological core for every non-empty diff.
-    assert.ok(src.includes('evaluateStudioBranchDiffScope('), p);
+    // Superseded by slice 44: the branch-relative section asks about its OWN applicability.
+    assert.ok(src.includes('evaluateStudioBranchConsumerScope('), p);
   });
   test(`M002 migrated test ${path.basename(p)} keeps no local temporal allowlist`, () => {
     const src = fs.readFileSync(path.join(ROOT, p), 'utf8');
@@ -621,7 +624,7 @@ for (const [p, callerSliceId] of TWENTY_TWO_GATES) {
   test(`M003 migrated gate ${path.basename(p)} declares its caller slice and uses the caller-aware API`, () => {
     const src = fs.readFileSync(path.join(ROOT, p), 'utf8');
     assert.ok(src.includes(`const CALLER_SLICE_ID = '${callerSliceId}';`), p);
-    assert.ok(src.includes('evaluateStudioBranchDiffScope('), p);
+    assert.ok(src.includes('evaluateStudioBranchConsumerScope('), p);
   });
 }
 test('M004 exactly nine tests and twenty-two gates are migrated', () => {
@@ -650,7 +653,8 @@ for (const g of LEGACY_PRE_STUDIO_SCOPE_GATES_NOT_MIGRATED) {
   test(`L002 pre-Studio gate is outside the Studio catalog: ${path.basename(g)}`, () => {
     assert.equal(findOwningStudioSlices(g).length, 0);
     const src = fs.readFileSync(path.join(ROOT, g), 'utf8');
-    assert.ok(!src.includes('evaluateStudioBranchScope(') && !src.includes('evaluateStudioBranchDiffScope('),
+    assert.ok(!src.includes('evaluateStudioBranchScope(') && !src.includes('evaluateStudioBranchDiffScope(')
+      && !src.includes('evaluateStudioBranchConsumerScope('),
       `${g} must NOT be migrated by this slice`);
   });
 }
@@ -911,6 +915,7 @@ for (const p of [...NINE_TESTS.map(([x]) => x), ...TWENTY_TWO_GATES.map(([x]) =>
     for (const s of STUDIO_SLICE_CATALOG) {
       if (s.sliceId === MIGRATION) continue;
       if (s.sliceId === CORRECTION) continue; // the later correction slice rewires the same artifacts
+      if (s.sliceId === CONSUMERS) continue; // the later consumers slice rewires the same artifacts
       if (s.sliceId === 'studio-scope-governance-maintenance') continue; // its own earlier, separately proven wiring
       if (s.sliceId === BUILDER && BUILDER_CROSS.includes(p)) continue;  // the Builder's own lifecycle pair
       const owns = findOwningStudioSlices(p).some((o) => o.sliceId === s.sliceId);
