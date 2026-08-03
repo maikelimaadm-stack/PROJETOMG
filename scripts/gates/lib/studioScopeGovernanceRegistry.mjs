@@ -1160,6 +1160,71 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    status: 'merged',
+  },
+  {
+    sliceId: 'studio-scope-governance-historical-branch-consumers',
+    sliceOrdinal: 44,
+    title: 'Studio Scope Governance Historical Branch Consumers',
+    primaryArtifactPatterns: [
+      /^src\/runtime\/__tests__\/studio-scope-governance-historical-branch-consumers\.test\.js$/,
+      /^scripts\/gates\/g423-studio-scope-governance-historical-branch-consumers\.mjs$/,
+      /^docs\/evidence\/post-foundation-c-studio-scope-governance-historical-branch-consumers\//,
+    ],
+    branchMarkerPatterns: [
+      /^docs\/evidence\/post-foundation-c-studio-scope-governance-historical-branch-consumers\//,
+    ],
+    // One exact regex per branch-relative CONSUMER this slice rewires. No directory wildcard, no
+    // historical evidence path, no Builder path, no production path.
+    crossSliceAuthorizedPatterns: [
+      // The nine aggregate tests whose "this branch" section judges the current diff.
+      /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge-contract\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge-implementation-plan\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-app-integration-contract\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-app-integration-implementation-plan\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-app-integration\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-module-blueprint-authoring-foundation-contract\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-module-blueprint-authoring-implementation-plan\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-module-blueprint-authoring-runtime\.test\.js$/,
+      // The twenty-two Studio gates with the same branch-relative section.
+      /^scripts\/gates\/g423-studio-foundation-audit\.mjs$/,
+      /^scripts\/gates\/g423-studio-module-preview-sandbox-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-contract-bridge\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-visual-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-runtime-shell-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-isolated-runtime-implementation-plan\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-isolated-runtime\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-runtime-ui-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-runtime-ui-implementation-plan\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-runtime-ui\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-route-menu-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-route-menu-implementation-plan\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-route-menu\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-app-integration-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-app-integration-implementation-plan\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-app-integration\.mjs$/,
+      /^scripts\/gates\/g423-studio-module-blueprint-authoring-foundation-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-module-blueprint-authoring-implementation-plan\.mjs$/,
+      /^scripts\/gates\/g423-studio-module-blueprint-authoring-runtime\.mjs$/,
+      /^scripts\/gates\/g423-studio-authoring-runtime-to-preview-bridge-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-authoring-runtime-to-preview-bridge-implementation-plan\.mjs$/,
+      /^scripts\/gates\/g423-studio-authoring-runtime-to-preview-bridge\.mjs$/,
+      // The three governance slices' own test and gate (ordinals 9, 42 and 43).
+      /^src\/runtime\/__tests__\/studio-scope-governance-maintenance\.test\.js$/,
+      /^scripts\/gates\/g423-studio-scope-governance-maintenance\.mjs$/,
+      /^src\/runtime\/__tests__\/studio-scope-governance-chronological-migration\.test\.js$/,
+      /^scripts\/gates\/g423-studio-scope-governance-chronological-migration\.mjs$/,
+      /^src\/runtime\/__tests__\/studio-scope-governance-main-diff-correction\.test\.js$/,
+      /^scripts\/gates\/g423-studio-scope-governance-main-diff-correction\.mjs$/,
+    ],
+    sharedGovernancePatterns: [
+      /^scripts\/gates\/lib\/studioScopeGovernanceRegistry\.mjs$/,
+      /^scripts\/gates\/lib\/studioScopeGovernanceGuard\.mjs$/,
+      /^package\.json$/,
+      /^package-lock\.json$/,
+    ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'active_slice',
   },
 
@@ -1167,6 +1232,13 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
 
 /** The slice that fixes the post-merge empty-diff boundary. Chronologically after the migration. */
 export const MAIN_DIFF_CORRECTION_SLICE_ID = 'studio-scope-governance-main-diff-correction';
+
+/**
+ * The slice that separates BRANCH CERTIFICATION from CONSUMER APPLICABILITY, so a branch-relative
+ * check belonging to a LATER slice can run inside an EARLIER slice's still-open branch without
+ * either weakening the core or falsely certifying the branch.
+ */
+export const HISTORICAL_BRANCH_CONSUMERS_SLICE_ID = 'studio-scope-governance-historical-branch-consumers';
 
 /** Ordinals of the slices whose branch-relative scope checks this migration rewires. */
 export const CHRONOLOGICAL_MIGRATION_SLICE_ID = 'studio-scope-governance-chronological-migration';
