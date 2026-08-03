@@ -44,3 +44,33 @@ preview mount · rota/menu de produto · os 21 gates pré-Studio. Nenhuma depend
 
 **POST_MERGE_REVALIDATION_REQUIRED.** Ver `POST-MERGE-REVALIDATION-PLAN.md`. Esta branch não
 certifica a `main`, e `READINESS.md` declara `mainVerifiedGreen:false`.
+
+## Resultado
+
+| alvo | branch |
+|---|---|
+| `test:runtime:studio-scope-governance-main-diff-correction` | **424 / 424** (mínimo 180) |
+| `gate:g423-studio-scope-governance-main-diff-correction` | **409 / 409** (mínimo 120) |
+| `npm run test:runtime` | **20859 / 20859 — 0 fail** |
+| `gate:g423` | 7 / 7 |
+| sweep `gate:g423*` | 95 verdes / 12 vermelhos, todos pré-Studio |
+
+Matriz completa em `BRANCH-REGRESSION-MATRIX.md`.
+
+## Uma correção adicional, declarada
+
+Adicionar o addendum de supersessão aos dois documentos da fatia 42 colocou o diretório de
+evidências dela no diff desta branch. Como esse diretório é o `branchMarkerPattern` da fatia 42,
+duas fatias passaram a ser eleitas como ativas e `resolveActiveStudioSlice` — corretamente —
+retornou `ambiguous_active_slice`.
+
+A resolução NÃO foi afrouxar a ambiguidade. Foi tornar explícita, no próprio modelo, a diferença
+entre **construir** uma fatia e **emendar** uma fatia anterior:
+
+> quando TODOS os caminhos-marcador que elegem uma candidata S são explicitamente
+> cross-autorizados por OUTRA candidata T, S está sendo emendada, não construída, e portanto não
+> é candidata ativa.
+
+A autorização é exata, por caminho, declarada no catálogo e nunca herdável — logo a regra não pode
+alargar nada. Ambiguidade genuína (duas fatias construídas ao mesmo tempo, sem cross authorization
+entre elas) continua bloqueando, e isso é provado diretamente.

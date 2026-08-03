@@ -47,3 +47,48 @@ centralizada.
 
 Ver CERTIFICATION-REPORT.md para os números finais de `gate:g423`, `npm run test:runtime`,
 `lint`, `build`, `dist` e do sweep.
+
+## Números finais medidos nesta branch
+
+| comando | exit | resultado |
+|---|---|---|
+| `test:runtime:studio-scope-governance-main-diff-correction` | 0 | **424 / 424** |
+| `gate:g423-studio-scope-governance-main-diff-correction` | 0 | **409 / 409** |
+| `test:runtime:studio-scope-governance-chronological-migration` | 0 | **796 / 796** |
+| `gate:g423-studio-scope-governance-chronological-migration` | 0 | **713 / 713** |
+| `test:runtime:studio-scope-governance-maintenance` | 0 | 74 / 74 |
+| `gate:g423-studio-scope-governance-maintenance` | 0 | 34 / 34 |
+| nove testes migrados | 0 | 627 · 665 · 827 · 412 · 433 · 482 · 557 · 518 · 684 — 0 fail |
+| dezessete testes históricos | 0 | 192 · 160 · 104 · 159 · 170 · 48 · 43 · 446 · 300 · 248 · 266 · 250 · 227 · 652 · 683 · 283 · 229 — 0 fail |
+| vinte e dois gates Studio | 0 | 22 / 22 |
+| doze gates históricos | 0 | 12 / 12 |
+| **`gate:g423`** (oficial) | 0 | **7 / 7** |
+| **`npm run test:runtime`** | 0 | **20859 / 20859 — 0 fail** |
+| `npm run lint` | 0 | limpo |
+| `npm run build` | 0 | ok |
+| `dist` grep | — | **0 hits** |
+| sweep `gate:g423*` | — | 108 gates, **95 verdes**, 12 vermelhos |
+
+Os 12 vermelhos do sweep são **exclusivamente** pré-Studio, todos presentes em
+`LEGACY_PRE_STUDIO_SCOPE_GATES_NOT_MIGRATED`, e **nenhum gate Studio está vermelho**:
+
+```
+g423-modelobase2-prototype-adapter
+g423-generic-model-multi-type-hardening
+g423-modelobase2-operational-runtime-foundation
+g423-modelobase2-fuel-headless-candidate
+g423-modelobase2-fuel-beta-ui-sandbox
+g423-modelobase2-fuel-dev-preview-route
+g423-modelobase2-fuel-module-shell-readiness
+g423-empresas-production-baseline-audit
+g423-empresas-controlled-production-test-plan
+g423-empresas-local-read-only-contract-pilot
+g423-empresas-local-read-parity-hardening
+g423-empresas-studio-compatibility-slice-1
+```
+
+Nenhum deles integra o `test:runtime` oficial nem o `gate:g423` oficial, nenhum foi alterado por
+esta fatia, e nenhum representa falha funcional. Continuam **não migrados, não declarados PASS e
+não mascarados**.
+
+Zero gate com `blocked: no_active_slice_resolved`. Zero gate com `unit tests PASS — 0 scenarios`.
