@@ -14,7 +14,7 @@
 import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { evaluateStudioBranchScope } from './lib/studioScopeGovernanceGuard.mjs';
+import { evaluateStudioBranchDiffScope } from './lib/studioScopeGovernanceGuard.mjs';
 
 // ---------------------------------------------------------------------------
 // CALLER-AWARE branch-relative scope governance. This gate declares its OWN slice identity,
@@ -31,7 +31,9 @@ const studioScope = () => {
   try {
     changed = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
   } catch { gitAvailable = false; }
-  const evaluation = evaluateStudioBranchScope(changed, {
+  // An empty branch diff (this gate also runs on `main`) is NOT a violation: it carries nothing
+  // to judge. A non-empty diff is delegated to the chronological core, unchanged.
+  const evaluation = evaluateStudioBranchDiffScope(changed, {
     callerSliceId: CALLER_SLICE_ID,
   });
   studioScopeCache = { gitAvailable, changed, evaluation };

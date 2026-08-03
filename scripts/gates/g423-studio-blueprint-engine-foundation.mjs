@@ -19,7 +19,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 // Branch-relative scope checks may run on later Studio headless slices before merge.
 // Known later Studio headless artifacts are tolerated here, but forbidden scopes still fail.
-import { isKnownLaterStudioHeadlessArtifact, classifyStudioScopePath, filterForbiddenScopePaths } from './lib/studioScopeGovernanceGuard.mjs';
+import { filterForbiddenScopePaths, createResolvedActiveStudioSlicePathAuthorizer } from './lib/studioScopeGovernanceGuard.mjs';
 
 const ROOT = process.cwd();
 const DIR = path.join(ROOT, 'src/studio/blueprint-engine');
@@ -241,9 +241,13 @@ try {
   // Judge the diff with the CENTRAL registry as well: the local blanket /migration/i and /menu/i patterns
   // matched any path whose NAME merely contained the word, which false-positives on governance artifacts.
   // A path is bad only when BOTH the local list and the central classifier consider it out of bounds.
-  const bad = files.filter((f) => FORBIDDEN.some((re) => re.test(f))
-    && !isKnownLaterStudioHeadlessArtifact(f) && classifyStudioScopePath(f) !== 'forbidden_scope'
-    ? true : filterForbiddenScopePaths([f]).length > 0);
+  // Historical blanket kept EXACTLY as written. The only exemption is the single central
+  // authorizer: exactly one resolved ACTIVE slice, and only the paths that slice is authorized
+  // for. A path the active slice does not own stays bad, and a centrally forbidden path is
+  // always bad even when the local blanket does not name it.
+  const activeAuthorizer = createResolvedActiveStudioSlicePathAuthorizer(files);
+  const bad = files.filter((f) => (FORBIDDEN.some((re) => re.test(f)) && !activeAuthorizer.isAuthorized(f))
+    || filterForbiddenScopePaths([f]).length > 0);
   blockedOk = bad.length === 0;
   blockedDetail = blockedOk ? 'Empresas/PAGEMP/MB1/MB2/other-studio/backend/Prisma/migration/runtime/CSS/SSOT untouched' : `FORBIDDEN: ${bad.join(', ')}`;
 } catch (err) { blockedOk = true; blockedDetail = `git base unavailable — skipped (${err instanceof Error ? err.message : String(err)})`; }
@@ -252,9 +256,10 @@ gate('G423-SBE — Empresas / production / other Studio / backend / Prisma / SSO
 let scopeOk = false; let scopeDetail = '';
 try {
   const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
+  const activeScopeAuthorizer = createResolvedActiveStudioSlicePathAuthorizer(files);
   const outside = files
     .filter((f) => !AUTHORIZED.some((re) => re.test(f)))
-    .filter((f) => !isKnownLaterStudioHeadlessArtifact(f));
+    .filter((f) => !activeScopeAuthorizer.isAuthorized(f));
   scopeOk = files.length === 0 || outside.length === 0;
   scopeDetail = scopeOk ? `authorized scope only (${files.length} files)` : `OUT OF SCOPE: ${outside.join(', ')}`;
 } catch (err) { scopeOk = true; scopeDetail = `git base unavailable — skipped (${err instanceof Error ? err.message : String(err)})`; }

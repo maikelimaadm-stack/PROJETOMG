@@ -31,6 +31,7 @@ const readSrc = (p) => fs.readFileSync(path.join(ROOT, p), 'utf8');
 const REG = await import(pathToFileURL(path.join(ROOT, REGISTRY_REL)).href);
 const G = await import(pathToFileURL(path.join(ROOT, GUARD_REL)).href);
 
+const CORRECTION = 'studio-scope-governance-main-diff-correction';
 const MIGRATION = REG.CHRONOLOGICAL_MIGRATION_SLICE_ID;
 const BUILDER = 'bridge-decision-core-envelope-builder';
 const CATALOG = REG.STUDIO_SLICE_CATALOG;
@@ -229,7 +230,7 @@ for (const p of EXTENSION_ARTIFACTS) {
 }
 gate('G423-SGCM — the declared extension is documented', readEv('REQUIRED-SCOPE-EXTENSION.md').length > 400
   && EXTENSION_ARTIFACTS.every((p) => readEv('REQUIRED-SCOPE-EXTENSION.md').includes(path.basename(p).replace(/\.(test\.js|mjs)$/, ''))));
-gate('G423-SGCM — cross authorization is never inherited', CATALOG.filter((s) => s.sliceId !== MIGRATION).every((s) => !s.crossSliceAuthorizedPatterns.some((re) => re.test('scripts/gates/g423-studio-dev-preview-route-menu.mjs'))));
+gate('G423-SGCM — cross authorization is never inherited', CATALOG.filter((s) => s.sliceId !== MIGRATION && s.sliceId !== CORRECTION).every((s) => !s.crossSliceAuthorizedPatterns.some((re) => re.test('scripts/gates/g423-studio-dev-preview-route-menu.mjs'))));
 
 // ---- Forbidden / unknown ----
 for (const p of FORBIDDEN_FIXTURES) {
@@ -277,11 +278,11 @@ for (const [, caller] of TWENTY_TWO_GATES) {
 // ---- Migrated artifacts ----
 for (const [p, caller] of NINE_TESTS) {
   const src = readSrc(p);
-  gate(`G423-SGCM — migrated test declares caller + caller-aware API: ${path.basename(p)}`, src.includes(`const CALLER_SLICE_ID = '${caller}';`) && src.includes('evaluateStudioBranchScope('));
+  gate(`G423-SGCM — migrated test declares caller + caller-aware API: ${path.basename(p)}`, src.includes(`const CALLER_SLICE_ID = '${caller}';`) && src.includes('evaluateStudioBranchDiffScope('));
 }
 for (const [p, caller] of TWENTY_TWO_GATES) {
   const src = readSrc(p);
-  gate(`G423-SGCM — migrated gate declares caller + caller-aware API: ${path.basename(p)}`, src.includes(`const CALLER_SLICE_ID = '${caller}';`) && src.includes('evaluateStudioBranchScope('));
+  gate(`G423-SGCM — migrated gate declares caller + caller-aware API: ${path.basename(p)}`, src.includes(`const CALLER_SLICE_ID = '${caller}';`) && src.includes('evaluateStudioBranchDiffScope('));
 }
 gate('G423-SGCM — exactly nine tests and twenty-two gates migrated', NINE_TESTS.length === 9 && TWENTY_TWO_GATES.length === 22);
 
@@ -289,7 +290,8 @@ gate('G423-SGCM — exactly nine tests and twenty-two gates migrated', NINE_TEST
 gate('G423-SGCM — twenty-one pre-Studio gates declared not migrated', REG.LEGACY_PRE_STUDIO_SCOPE_GATES_NOT_MIGRATED.length === 21);
 for (const g of REG.LEGACY_PRE_STUDIO_SCOPE_GATES_NOT_MIGRATED) {
   gate(`G423-SGCM — pre-Studio gate untouched + outside the catalog: ${path.basename(g)}`,
-    G.findOwningStudioSlices(g).length === 0 && !readSrc(g).includes('evaluateStudioBranchScope('));
+    G.findOwningStudioSlices(g).length === 0 && !readSrc(g).includes('evaluateStudioBranchScope(')
+    && !readSrc(g).includes('evaluateStudioBranchDiffScope('));
 }
 gate('G423-SGCM — legacy decision documented, not silently passed',
   /LEGACY_PRE_STUDIO_SCOPE_GATES_NOT_MIGRATED/.test(readEv('LEGACY-PRE-STUDIO-GATE-DECISION.md'))
@@ -341,19 +343,45 @@ gate('G423-SGCM — no Studio blueprint-engine source in this slice scope', (() 
     && !all.some((re) => re.test('src/studio/blueprint-engine/bridge-decision-core-envelope-builder/index.js'));
 })());
 
+
+// ---- Strict active resolution (post-audit) ----
+const MIG_MARKER = 'docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/SLICE-CATALOG.md';
+const CORR_MARKER = 'docs/evidence/post-foundation-c-studio-scope-governance-main-diff-correction/READINESS.md';
+gate('G423-SGCM — this slice own marker alone resolves this slice',
+  G.resolveActiveStudioSlice([MIG_MARKER]).sliceId === MIGRATION);
+gate('G423-SGCM — this slice marker plus a later marker is ambiguous', (() => {
+  const r = G.resolveActiveStudioSlice([MIG_MARKER, CORR_MARKER]);
+  return r.ok === false && r.reason === 'ambiguous_active_slice' && r.candidates.length === 2 && r.sliceId === null;
+})());
+gate('G423-SGCM — a cross authorization does not suppress this slice as a candidate', (() => {
+  const ownTest = 'src/runtime/__tests__/studio-scope-governance-chronological-migration.test.js';
+  const r = G.resolveActiveStudioSlice([MIG_MARKER, CORR_MARKER, ownTest]);
+  return G.isPathAuthorizedForStudioSlice(ownTest, CORRECTION) === true && r.ok === false && r.candidates.length === 2;
+})());
+gate('G423-SGCM — this slice certified evidence is not cross-authorized by the later slice',
+  ['CERTIFICATION-REPORT.md', 'READINESS.md'].every((d) =>
+    G.isPathAuthorizedForStudioSlice(`docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/${d}`, CORRECTION) === false));
+
 // ---- This branch, evaluated by its own rules ----
 let branchOk = false; let branchDetail = '';
 let branchPaths = null;
 try { branchPaths = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean); } catch { branchPaths = null; }
 if (branchPaths === null) { branchOk = true; branchDetail = 'git base unavailable — skipped'; } else {
-  const r = G.evaluateStudioBranchScope(branchPaths, { callerSliceId: MIGRATION });
-  branchOk = r.safe && r.activeSliceId === MIGRATION;
-  branchDetail = branchOk ? `active ${r.activeSliceId} #${r.activeSliceOrdinal}, ${r.total} paths` : `blocked: ${r.blockers.join(',')} ${[...r.unknown, ...r.chronologicalViolation, ...r.forbidden].join(', ')}`;
+  // Superseded by the main-diff correction: an empty diff (on `main`) is not applicable, and a
+  // LATER governance slice may legitimately be the active one on the branch.
+  const r = G.evaluateStudioBranchDiffScope(branchPaths, { callerSliceId: MIGRATION });
+  const chronologyOk = !r.applicable
+    || (r.activeSliceOrdinal !== null && r.activeSliceOrdinal >= r.callerSliceOrdinal);
+  branchOk = r.safe && chronologyOk;
+  branchDetail = !r.applicable
+    ? `branch diff not applicable: ${r.reason}`
+    : branchOk ? `active ${r.activeSliceId} #${r.activeSliceOrdinal}, ${r.total} paths`
+      : `blocked: ${r.blockers.join(',')} ${[...r.unknown, ...r.chronologicalViolation, ...r.forbidden].join(', ')}`;
 }
 gate('G423-SGCM — this branch is safe under its own rules', branchOk, branchDetail);
 if (branchPaths !== null) {
   for (const [, caller] of NINE_TESTS) {
-    gate(`G423-SGCM — this branch is safe for caller ${caller}`, G.evaluateStudioBranchScope(branchPaths, { callerSliceId: caller }).safe);
+    gate(`G423-SGCM — this branch is safe for caller ${caller}`, G.evaluateStudioBranchDiffScope(branchPaths, { callerSliceId: caller }).safe);
   }
   gate('G423-SGCM — this branch touches no production code', branchPaths.every((p) => G.classifyStudioScopePath(p) !== 'forbidden_scope'));
   gate('G423-SGCM — this branch touches no Studio blueprint-engine source', branchPaths.every((p) => !p.startsWith('src/studio/blueprint-engine/')));
@@ -449,7 +477,8 @@ for (const p of SIMILAR_UNREGISTERED) {
 for (const [p] of [...NINE_TESTS, ...TWENTY_TWO_GATES]) {
   gate(`G423-SGCM — exact migration path authorized only for the migration: ${path.basename(p)}`,
     G.isPathAuthorizedForStudioSlice(p, MIGRATION)
-    && CATALOG.filter((s) => s.sliceId !== MIGRATION && s.sliceId !== 'studio-scope-governance-maintenance'
+    && CATALOG.filter((s) => s.sliceId !== MIGRATION && s.sliceId !== CORRECTION
+      && s.sliceId !== 'studio-scope-governance-maintenance'
       && !(s.sliceId === BUILDER && BUILDER_CROSS.includes(p))
       && !G.findOwningStudioSlices(p).some((o) => o.sliceId === s.sliceId))
       .every((s) => !G.isPathAuthorizedForStudioSlice(p, s.sliceId)));
@@ -462,7 +491,8 @@ for (const [rel, re] of [
   ['src/runtime/__tests__/studio-dev-preview-app-integration.test.js', /!\/empresas\/i\.test\(x\)/],
 ]) {
   const src = readSrc(rel);
-  gate(`G423-SGCM — original regex preserved in ${path.basename(rel)}: ${re}`, re.test(src) && /migrationExempt\(/.test(src) && /isPathAuthorizedForStudioSlice/.test(src));
+  gate(`G423-SGCM — original regex preserved in ${path.basename(rel)}: ${re}`, re.test(src) && !/migrationExempt\(/.test(src)
+  && /createResolvedActiveStudioSlicePathAuthorizer\(/.test(src));
 }
 gate('G423-SGCM — the exemption is inert when the active slice is not the migration', (() => {
   const p = 'src/runtime/__tests__/studio-module-blueprint-authoring-runtime.test.js';

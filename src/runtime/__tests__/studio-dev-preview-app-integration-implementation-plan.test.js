@@ -6,7 +6,8 @@ import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 // Caller-aware Studio scope governance. This test declares its OWN slice identity, so the branch-relative
 // scope check below can ask whether the slice active on this branch is the same as it or genuinely later.
-import { evaluateStudioBranchScope } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
+import { evaluateStudioBranchDiffScope, createResolvedActiveStudioSlicePathAuthorizer }
+  from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 
 import {
   APP_INTEGRATION_IMPLEMENTATION_PLAN_NAME,
@@ -565,12 +566,15 @@ test('420. no .jsx/.tsx/.css in diff', () => { const files = changed(); if (file
 test('421. no productionUiGuard/governanceGuard in diff', () => {
   const files = changed(); if (files === null) return;
   assert.ok(!files.includes('scripts/gates/lib/productionUiGuard.mjs'), 'productionUiGuard is never in scope');
-  const scope = evaluateStudioBranchScope(files, { callerSliceId: CALLER_SLICE_ID });
+  const scope = evaluateStudioBranchDiffScope(files, { callerSliceId: CALLER_SLICE_ID });
   assert.deepEqual(scope.forbidden, []);
   if (files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs')) {
     assert.ok(scope.allowed.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs'),
       'the governance guard may only appear when the active slice shares it');
-    assert.ok(scope.activeSliceId.startsWith('studio-scope-governance-'), scope.activeSliceId);
+    // Exact active-slice authorization: no sliceId prefix, no chronology-free catalog lookup.
+    const authorizer = createResolvedActiveStudioSlicePathAuthorizer(files);
+    assert.ok(authorizer.ok && authorizer.isAuthorized('scripts/gates/lib/studioScopeGovernanceGuard.mjs'),
+      `active ${authorizer.activeSliceId} does not own the governance guard`);
   }
 });
 // Branch-relative scope check, CALLER-AWARE. It no longer asks "is this path registered somewhere?" — a flat
@@ -580,12 +584,20 @@ test('421. no productionUiGuard/governanceGuard in diff', () => {
 const CALLER_SLICE_ID = 'dev-preview-app-integration-implementation-plan';
 test('422. no prior gate/test altered', () => {
   const files = changed(); if (files === null) return;
-  const scope = evaluateStudioBranchScope(files, { callerSliceId: CALLER_SLICE_ID });
+  const scope = evaluateStudioBranchDiffScope(files, { callerSliceId: CALLER_SLICE_ID });
   assert.equal(scope.callerSliceId, CALLER_SLICE_ID);
   assert.deepEqual(scope.forbidden, []);
   assert.deepEqual(scope.unknown, []);
   assert.deepEqual(scope.chronologicalViolation, []);
-  assert.ok(scope.activeSliceOrdinal >= scope.callerSliceOrdinal, `active ${scope.activeSliceId} precedes ${CALLER_SLICE_ID}`);
+  // An empty branch diff carries nothing to judge (this check also runs on `main`). A real diff
+  // must still resolve exactly one active slice at or after this caller.
+  if (scope.applicable) {
+    assert.ok(scope.activeSliceOrdinal >= scope.callerSliceOrdinal, `active ${scope.activeSliceId} precedes ${CALLER_SLICE_ID}`);
+  } else {
+    assert.equal(scope.notApplicable, true);
+    assert.equal(scope.reason, 'empty_branch_diff');
+    assert.equal(scope.activeSliceId, null);
+  }
   assert.equal(scope.safe, true, JSON.stringify(scope.blockers));
 });
 test('423. no new dependency', () => { try { const base = JSON.parse(execSync('git show origin/main:package.json', { cwd: ROOT, encoding: 'utf8' })); const head = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')); const bk = [...Object.keys(base.dependencies ?? {}), ...Object.keys(base.devDependencies ?? {})].sort().join(','); const hk = [...Object.keys(head.dependencies ?? {}), ...Object.keys(head.devDependencies ?? {})].sort().join(','); assert.equal(bk, hk); } catch { /* skip */ } });

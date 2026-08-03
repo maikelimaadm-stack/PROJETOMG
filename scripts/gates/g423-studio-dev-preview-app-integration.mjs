@@ -21,10 +21,8 @@ import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { isKnownLaterStudioHeadlessArtifact, classifyStudioScopePath, filterForbiddenScopePaths } from './lib/studioScopeGovernanceGuard.mjs';
 import { STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN } from './lib/studioScopeGovernanceRegistry.mjs';
-import { evaluateStudioBranchScope } from './lib/studioScopeGovernanceGuard.mjs';
-import { resolveActiveStudioSlice } from './lib/studioScopeGovernanceGuard.mjs';
+import { classifyStudioScopePath, createResolvedActiveStudioSlicePathAuthorizer, evaluateStudioBranchDiffScope, filterForbiddenScopePaths, isKnownLaterStudioHeadlessArtifact } from './lib/studioScopeGovernanceGuard.mjs';
 
 // ---------------------------------------------------------------------------
 // CALLER-AWARE branch-relative scope governance. This gate declares its OWN slice identity,
@@ -42,12 +40,24 @@ const studioScope = () => {
     changed = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
   } catch { gitAvailable = false; }
   // The forbidden authorization comes from THIS slice's own catalog entry, never from an option passed here.
-  const evaluation = evaluateStudioBranchScope(changed, { callerSliceId: CALLER_SLICE_ID });
+  // An empty branch diff (this gate also runs on `main`) is NOT a violation: it carries nothing
+  // to judge. A non-empty diff is delegated to the chronological core, unchanged.
+  const evaluation = evaluateStudioBranchDiffScope(changed, { callerSliceId: CALLER_SLICE_ID });
   studioScopeCache = { gitAvailable, changed, evaluation };
   return studioScopeCache;
 };
 
 const ROOT = process.cwd();
+// The chronology-free catalog lookup is replaced by the single central authorizer: a path is
+// tolerated only when exactly one ACTIVE slice resolves from the branch diff AND that exact
+// slice is authorized for that exact path. `activeDiffAuthorizer` is computed once, from the
+// complete diff, and authorizes nothing when the diff is empty, unresolved or ambiguous.
+const activeDiffAuthorizer = (() => {
+  try {
+    return createResolvedActiveStudioSlicePathAuthorizer(
+      execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean));
+  } catch { return createResolvedActiveStudioSlicePathAuthorizer([]); }
+})();
 const DIR = path.join(ROOT, 'src/studio/blueprint-engine/dev-preview-app-integration');
 const RM_DIR = path.join(ROOT, 'src/studio/blueprint-engine/dev-preview-route-menu');
 const AIC_DIR = path.join(ROOT, 'src/studio/blueprint-engine/dev-preview-app-integration-contract');
@@ -91,8 +101,8 @@ const AUTHORIZED = [
   /^docs\/evidence\/post-foundation-c-studio-dev-preview-app-integration\//,
 ];
 const authorized = (f) => AUTHORIZED.some((re) => re.test(f))
-  || isKnownLaterStudioHeadlessArtifact(f)
-  || classifyStudioScopePath(f, { explicitlyAuthorizedForbidden: STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN }) === 'own_slice_allowed';
+  || activeDiffAuthorizer.isAuthorized(f)
+  || STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN.some((re) => re.test(f));
 
 const FILES = [
   'appIntegrationConfig.js', 'errors.js', 'createStudioDevPreviewAppIntegration.js', 'createAppIntegrationSession.js',
@@ -355,7 +365,7 @@ gate('G423-AI — studioScopeGovernanceGuard NOT altered', (() => {
     const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
     if (!files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs')) return true;
     const active = resolveActiveStudioSlice(files);
-    return active.ok && active.sliceId.startsWith('studio-scope-governance-');
+    return createResolvedActiveStudioSlicePathAuthorizer(files).isAuthorized('scripts/gates/lib/studioScopeGovernanceGuard.mjs');
   } catch { return true; }
 })());
 
@@ -417,9 +427,12 @@ let noOldEdit = false; let noOldEditDetail = '';
   else {
     // A prior slice's test or gate may appear ONLY when the ACTIVE slice is explicitly
     // cross-authorized for it, and only when that active slice is this one or later.
-    const chronologyOk = evaluation.activeSliceOrdinal !== null && evaluation.activeSliceOrdinal >= evaluation.callerSliceOrdinal;
+    const chronologyOk = !evaluation.applicable
+      || (evaluation.activeSliceOrdinal !== null && evaluation.activeSliceOrdinal >= evaluation.callerSliceOrdinal);
     noOldEdit = evaluation.safe && chronologyOk;
-    noOldEditDetail = noOldEdit
+    noOldEditDetail = !evaluation.applicable
+      ? `branch diff not applicable: ${evaluation.reason}`
+      : noOldEdit
       ? `no unauthorized prior gate/test (active ${evaluation.activeSliceId} #${evaluation.activeSliceOrdinal} >= ${CALLER_SLICE_ID} #${evaluation.callerSliceOrdinal})`
       : `blocked: ${evaluation.blockers.join(',')}`;
   }

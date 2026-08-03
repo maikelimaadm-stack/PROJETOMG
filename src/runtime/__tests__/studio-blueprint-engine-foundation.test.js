@@ -7,20 +7,14 @@ import { fileURLToPath } from 'node:url';
 // Studio scope governance. The ORIGINAL rule below is preserved for every path; the ONLY exemption is the
 // exact set of artifacts the chronological-migration slice is authorized to touch, and only while that
 // slice is the one active on the branch. A merely similar, uncatalogued path still fails.
-import { resolveActiveStudioSlice, isPathAuthorizedForStudioSlice } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 // Branch-relative scope checks may run on later Studio headless slices before merge.
 // Known later Studio headless artifacts are tolerated here, but forbidden scopes still fail.
-import { isKnownLaterStudioHeadlessArtifact, filterForbiddenScopePaths } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 
-/** Paths exempt from the historical substring rules: EXACTLY what the chronological-migration slice is authorized
- * to touch, and only when that slice is the active one. Never a category (any test, any gate, any evidence). */
-const MIGRATION_SLICE_ID = 'studio-scope-governance-chronological-migration';
-const migrationExempt = (changedPaths) => {
-  const active = resolveActiveStudioSlice(changedPaths);
-  if (!active.ok || active.sliceId !== MIGRATION_SLICE_ID) return () => false;
-  return (p) => isPathAuthorizedForStudioSlice(p, MIGRATION_SLICE_ID);
-};
+// Historical substring rules keep their ORIGINAL regex. The only exemption comes from the single
+// central authorizer: exactly one resolved ACTIVE slice, and only the paths that exact slice is
+// authorized for. No sliceId prefix, no hardcoded slice, no chronology-free catalog lookup.
 
+import { createResolvedActiveStudioSlicePathAuthorizer, filterForbiddenScopePaths, isKnownLaterStudioHeadlessArtifact } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 import {
   STUDIO_BLUEPRINT_ENGINE_NAME,
   STUDIO_BLUEPRINT_ENGINE_VERSION,
@@ -390,9 +384,9 @@ test('S4. PAGEMP not changed', () => { const f = foreign(); if (f === null) retu
 test('S5. ModeloBase1/2 not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/^src\/ModeloBase[12]\//.test(x))); });
 test('S6. backend not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/^backend\/|^src\/apis\//.test(x))); });
 test('S7. Prisma/schema not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/prisma|schema\.prisma/i.test(x))); });
-test('S8. migration not created', () => { const f = foreign(); if (f === null) return; const exempt = migrationExempt(f); assert.ok(f.filter((x) => !exempt(x)).every((x) => !/migration/i.test(x))); });
+test('S8. migration not created', () => { const f = foreign(); if (f === null) return; const exempt = createResolvedActiveStudioSlicePathAuthorizer(f); assert.ok(f.filter((x) => !exempt.isAuthorized(x)).every((x) => !/migration/i.test(x))); });
 test('S9. App.jsx not changed', () => { const f = foreign(); if (f === null) return; assert.ok(!f.includes('src/App.jsx')); });
-test('S10. menu/nav not changed', () => { const f = foreign(); if (f === null) return; const exempt = migrationExempt(f); assert.ok(f.filter((x) => !exempt(x)).every((x) => !/menu|nav/i.test(x))); });
+test('S10. menu/nav not changed', () => { const f = foreign(); if (f === null) return; const exempt = createResolvedActiveStudioSlicePathAuthorizer(f); assert.ok(f.filter((x) => !exempt.isAuthorized(x)).every((x) => !/menu|nav/i.test(x))); });
 test('S11. src/pages/src/components not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/^src\/(pages|components)\//.test(x))); });
 test('S12. runtime prod (non-tests) not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/^src\/runtime\/(?!__tests__\/)/.test(x))); });
 test('S13. CSS not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/\.css$/.test(x))); });
