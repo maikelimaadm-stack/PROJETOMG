@@ -65,7 +65,7 @@ import { createStudioDevPreviewRuntimeUiContract } from '../../studio/blueprint-
 import { createStudioDevPreviewRuntimeUi } from '../../studio/blueprint-engine/dev-preview-runtime-ui/index.js';
 import { createStudioDevPreviewRouteMenuContract } from '../../studio/blueprint-engine/dev-preview-route-menu-contract/index.js';
 import { createStudioDevPreviewRouteMenu } from '../../studio/blueprint-engine/dev-preview-route-menu/index.js';
-import { classifyStudioScopePath, createResolvedActiveStudioSlicePathAuthorizer, evaluateStudioBranchDiffScope, isKnownLaterStudioHeadlessArtifact } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
+import { classifyStudioScopePath, createResolvedActiveStudioSlicePathAuthorizer, evaluateStudioBranchConsumerScope, isKnownLaterStudioHeadlessArtifact } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 
 // Historical substring rules keep their ORIGINAL regex. The only exemption comes from the single
 // central authorizer: exactly one resolved ACTIVE slice, and only the paths that exact slice is
@@ -525,7 +525,7 @@ test('395. only .jsx in diff are the subtree or the authorized additive App.jsx'
 test('396. governance guard file not in diff', () => {
   const files = changed(); if (files === null) return;
   assert.ok(!files.includes('scripts/gates/lib/productionUiGuard.mjs'), 'productionUiGuard is never in scope');
-  const scope = evaluateStudioBranchDiffScope(files, { callerSliceId: CALLER_SLICE_ID });
+  const scope = evaluateStudioBranchConsumerScope(files, { callerSliceId: CALLER_SLICE_ID });
   assert.deepEqual(scope.forbidden, []);
   if (files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs')) {
     assert.ok(scope.allowed.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs'),
@@ -543,15 +543,24 @@ test('396. governance guard file not in diff', () => {
 const CALLER_SLICE_ID = 'dev-preview-app-integration';
 test('397. no prior gate/test altered', () => {
   const files = changed(); if (files === null) return;
-  const scope = evaluateStudioBranchDiffScope(files, { callerSliceId: CALLER_SLICE_ID });
-  assert.equal(scope.callerSliceId, CALLER_SLICE_ID);
+  const scope = evaluateStudioBranchConsumerScope(files, { callerSliceId: CALLER_SLICE_ID });
+  assert.equal(scope.consumerSliceId, CALLER_SLICE_ID);
   assert.deepEqual(scope.forbidden, []);
   assert.deepEqual(scope.unknown, []);
   assert.deepEqual(scope.chronologicalViolation, []);
-  // An empty branch diff carries nothing to judge (this check also runs on `main`). A real diff
-  // must still resolve exactly one active slice at or after this caller.
-  if (scope.applicable) {
-    assert.ok(scope.activeSliceOrdinal >= scope.callerSliceOrdinal, `active ${scope.activeSliceId} precedes ${CALLER_SLICE_ID}`);
+  // Three legitimate outcomes, and nothing else:
+  //  - applicable: this branch is at or after this slice, so this check IS the certifier;
+  //  - empty diff: nothing to judge (running on `main`);
+  //  - the branch builds an EARLIER slice: this check is a passenger, and the branch was
+  //    re-certified against its own active slice before being declared sound.
+  if (scope.consumerApplicable) {
+    assert.equal(scope.applicable, true);
+    assert.ok(scope.activeSliceOrdinal >= scope.consumerSliceOrdinal, `active ${scope.activeSliceId} precedes ${CALLER_SLICE_ID}`);
+  } else if (scope.reason === 'consumer_slice_after_active_slice') {
+    assert.equal(scope.notApplicable, true);
+    assert.equal(scope.certifiedAgainstActiveSlice, true);
+    assert.equal(scope.evaluatedAsSliceId, scope.activeSliceId);
+    assert.ok(scope.activeSliceOrdinal < scope.consumerSliceOrdinal);
   } else {
     assert.equal(scope.notApplicable, true);
     assert.equal(scope.reason, 'empty_branch_diff');

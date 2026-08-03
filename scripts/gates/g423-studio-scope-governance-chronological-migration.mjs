@@ -369,19 +369,21 @@ try { branchPaths = execSync('git diff --name-only origin/main...HEAD', { cwd: R
 if (branchPaths === null) { branchOk = true; branchDetail = 'git base unavailable — skipped'; } else {
   // Superseded by the main-diff correction: an empty diff (on `main`) is not applicable, and a
   // LATER governance slice may legitimately be the active one on the branch.
-  const r = G.evaluateStudioBranchDiffScope(branchPaths, { callerSliceId: MIGRATION });
-  const chronologyOk = !r.applicable
-    || (r.activeSliceOrdinal !== null && r.activeSliceOrdinal >= r.callerSliceOrdinal);
+  const r = G.evaluateStudioBranchConsumerScope(branchPaths, { callerSliceId: MIGRATION });
+  const chronologyOk = r.consumerApplicable
+    ? (r.activeSliceOrdinal !== null && r.activeSliceOrdinal >= r.consumerSliceOrdinal)
+    : (r.reason === 'empty_branch_diff'
+      || (r.reason === 'consumer_slice_after_active_slice' && r.certifiedAgainstActiveSlice === true));
   branchOk = r.safe && chronologyOk;
-  branchDetail = !r.applicable
-    ? `branch diff not applicable: ${r.reason}`
+  branchDetail = !r.consumerApplicable
+    ? `consumer not applicable: ${r.reason} (evaluated as ${r.evaluatedAsSliceId})`
     : branchOk ? `active ${r.activeSliceId} #${r.activeSliceOrdinal}, ${r.total} paths`
       : `blocked: ${r.blockers.join(',')} ${[...r.unknown, ...r.chronologicalViolation, ...r.forbidden].join(', ')}`;
 }
 gate('G423-SGCM — this branch is safe under its own rules', branchOk, branchDetail);
 if (branchPaths !== null) {
   for (const [, caller] of NINE_TESTS) {
-    gate(`G423-SGCM — this branch is safe for caller ${caller}`, G.evaluateStudioBranchDiffScope(branchPaths, { callerSliceId: caller }).safe);
+    gate(`G423-SGCM — this branch is sound for caller ${caller}`, G.evaluateStudioBranchConsumerScope(branchPaths, { callerSliceId: caller }).safe);
   }
   gate('G423-SGCM — this branch touches no production code', branchPaths.every((p) => G.classifyStudioScopePath(p) !== 'forbidden_scope'));
   gate('G423-SGCM — this branch touches no Studio blueprint-engine source', branchPaths.every((p) => !p.startsWith('src/studio/blueprint-engine/')));

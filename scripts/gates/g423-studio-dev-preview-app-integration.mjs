@@ -22,7 +22,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN } from './lib/studioScopeGovernanceRegistry.mjs';
-import { classifyStudioScopePath, createResolvedActiveStudioSlicePathAuthorizer, evaluateStudioBranchDiffScope, filterForbiddenScopePaths, isKnownLaterStudioHeadlessArtifact } from './lib/studioScopeGovernanceGuard.mjs';
+import { classifyStudioScopePath, createResolvedActiveStudioSlicePathAuthorizer, evaluateStudioBranchConsumerScope, filterForbiddenScopePaths, isKnownLaterStudioHeadlessArtifact } from './lib/studioScopeGovernanceGuard.mjs';
 
 // ---------------------------------------------------------------------------
 // CALLER-AWARE branch-relative scope governance. This gate declares its OWN slice identity,
@@ -42,7 +42,7 @@ const studioScope = () => {
   // The forbidden authorization comes from THIS slice's own catalog entry, never from an option passed here.
   // An empty branch diff (this gate also runs on `main`) is NOT a violation: it carries nothing
   // to judge. A non-empty diff is delegated to the chronological core, unchanged.
-  const evaluation = evaluateStudioBranchDiffScope(changed, { callerSliceId: CALLER_SLICE_ID });
+  const evaluation = evaluateStudioBranchConsumerScope(changed, { callerSliceId: CALLER_SLICE_ID });
   studioScopeCache = { gitAvailable, changed, evaluation };
   return studioScopeCache;
 };
@@ -427,11 +427,16 @@ let noOldEdit = false; let noOldEditDetail = '';
   else {
     // A prior slice's test or gate may appear ONLY when the ACTIVE slice is explicitly
     // cross-authorized for it, and only when that active slice is this one or later.
-    const chronologyOk = !evaluation.applicable
-      || (evaluation.activeSliceOrdinal !== null && evaluation.activeSliceOrdinal >= evaluation.callerSliceOrdinal);
+    // Three legitimate outcomes: this gate certifies the branch, the diff is empty, or the
+    // branch builds an EARLIER slice and was re-certified against that slice before being
+    // declared sound. Any other reason fails.
+    const chronologyOk = evaluation.consumerApplicable
+      ? (evaluation.activeSliceOrdinal !== null && evaluation.activeSliceOrdinal >= evaluation.consumerSliceOrdinal)
+      : (evaluation.reason === 'empty_branch_diff'
+        || (evaluation.reason === 'consumer_slice_after_active_slice' && evaluation.certifiedAgainstActiveSlice === true));
     noOldEdit = evaluation.safe && chronologyOk;
-    noOldEditDetail = !evaluation.applicable
-      ? `branch diff not applicable: ${evaluation.reason}`
+    noOldEditDetail = !evaluation.consumerApplicable
+      ? `consumer not applicable: ${evaluation.reason} (evaluated as ${evaluation.evaluatedAsSliceId})`
       : noOldEdit
       ? `no unauthorized prior gate/test (active ${evaluation.activeSliceId} #${evaluation.activeSliceOrdinal} >= ${CALLER_SLICE_ID} #${evaluation.callerSliceOrdinal})`
       : `blocked: ${evaluation.blockers.join(',')}`;

@@ -13,7 +13,8 @@ import {
 import {
   getStudioSliceById, getStudioSliceByOrdinal, findOwningStudioSlices, findMarkingStudioSlices,
   resolveActiveStudioSlice, classifyStudioScopePath, evaluateStudioBranchScope,
-  evaluateStudioBranchDiffScope, createResolvedActiveStudioSlicePathAuthorizer,
+  evaluateStudioBranchDiffScope, evaluateStudioBranchConsumerScope,
+  createResolvedActiveStudioSlicePathAuthorizer,
   isKnownLaterStudioHeadlessArtifact, filterForbiddenScopePaths, filterUnknownScopePaths,
   createStudioScopeGovernanceReport, assertNoForbiddenScopePaths,
   getAuthorizedPatternsForStudioSlice, isPathAuthorizedForStudioSlice,
@@ -700,26 +701,32 @@ const changedOnThisBranch = () => {
 };
 // This slice is a caller like any other. A LATER governance slice may legitimately be the active
 // one on the branch, and on `main` there is no diff at all — neither case is a violation.
-test('T001 this branch resolves no earlier slice than this one', () => {
+test('T001 this branch resolves exactly one slice, or none at all', () => {
   const f = changedOnThisBranch(); if (f === null) return;
   const r = resolveActiveStudioSlice(f);
   if (f.length === 0) { assert.equal(r.ok, false); assert.equal(r.reason, 'no_active_slice_resolved'); return; }
   assert.equal(r.ok, true, JSON.stringify(r));
-  assert.ok(r.sliceOrdinal >= getStudioSliceById(MIGRATION).sliceOrdinal, r.sliceId);
+  assert.equal(r.candidates.length, 1);
 });
-test('T002 this branch is safe for the migration slice itself', () => {
+// This slice is a CONSUMER here, not the certifier. On a branch building an EARLIER slice it is a
+// passenger, and the boundary re-certifies the branch against that slice before calling it sound.
+test('T002 this branch is sound from the migration slice point of view', () => {
   const f = changedOnThisBranch(); if (f === null) return;
-  const r = evaluateStudioBranchDiffScope(f, { callerSliceId: MIGRATION });
+  const r = evaluateStudioBranchConsumerScope(f, { callerSliceId: MIGRATION });
   assert.deepEqual(r.forbidden, []);
   assert.deepEqual(r.unknown, []);
   assert.deepEqual(r.chronologicalViolation, []);
-  if (!r.applicable) { assert.equal(r.notApplicable, true); assert.equal(r.reason, 'empty_branch_diff'); }
+  if (!r.consumerApplicable) {
+    assert.equal(r.notApplicable, true);
+    assert.ok(r.reason === 'empty_branch_diff'
+      || (r.reason === 'consumer_slice_after_active_slice' && r.certifiedAgainstActiveSlice === true), r.reason);
+  }
   assert.equal(r.safe, true, JSON.stringify(r.blockers));
 });
 for (const [, callerSliceId] of NINE_TESTS) {
-  test(`T003 this branch is safe for caller ${callerSliceId}`, () => {
+  test(`T003 this branch is sound for caller ${callerSliceId}`, () => {
     const f = changedOnThisBranch(); if (f === null) return;
-    assert.equal(evaluateStudioBranchDiffScope(f, { callerSliceId }).safe, true);
+    assert.equal(evaluateStudioBranchConsumerScope(f, { callerSliceId }).safe, true);
   });
 }
 // The three semantics coexist and are proven side by side.

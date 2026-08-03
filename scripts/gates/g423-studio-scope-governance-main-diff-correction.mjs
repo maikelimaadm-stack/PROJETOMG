@@ -570,12 +570,16 @@ try { branchPaths = execSync('git diff --name-only origin/main...HEAD', { cwd: R
 if (branchPaths === null) {
   gate('G423-MDC — this branch is safe under its own rules', true, 'git base unavailable — skipped');
 } else {
-  const r = G.evaluateStudioBranchDiffScope(branchPaths, { callerSliceId: CALLER_SLICE_ID });
-  gate('G423-MDC — this branch is safe under its own rules', r.safe,
-    r.applicable ? `active ${r.activeSliceId} #${r.activeSliceOrdinal}, ${r.total} paths` : `not applicable: ${r.reason}`);
+  const r = G.evaluateStudioBranchConsumerScope(branchPaths, { callerSliceId: CALLER_SLICE_ID });
+  const soundOk = r.safe && (r.consumerApplicable
+    || r.reason === 'empty_branch_diff'
+    || (r.reason === 'consumer_slice_after_active_slice' && r.certifiedAgainstActiveSlice === true));
+  gate('G423-MDC — this branch is sound under its own rules', soundOk,
+    r.consumerApplicable ? `active ${r.activeSliceId} #${r.activeSliceOrdinal}, ${r.total} paths`
+      : `consumer not applicable: ${r.reason} (evaluated as ${r.evaluatedAsSliceId})`);
   for (const [, caller] of NINE_TESTS) {
-    gate(`G423-MDC — this branch is safe for caller ${caller}`,
-      G.evaluateStudioBranchDiffScope(branchPaths, { callerSliceId: caller }).safe);
+    gate(`G423-MDC — this branch is sound for caller ${caller}`,
+      G.evaluateStudioBranchConsumerScope(branchPaths, { callerSliceId: caller }).safe);
   }
   gate('G423-MDC — this branch touches no forbidden path',
     branchPaths.every((p) => G.classifyStudioScopePath(p) !== 'forbidden_scope'));

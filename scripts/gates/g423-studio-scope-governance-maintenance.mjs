@@ -105,6 +105,9 @@ gate('G423-SGM — helper/registry import no production code, no fetch/Prisma/ch
   } catch { return false; }
 })());
 
+// This gate's OWN slice identity, used by the consumer-aware branch judgement below.
+const CALLER_SLICE_ID = 'studio-scope-governance-maintenance';
+
 // This PR did not modify forbidden paths (git-diff, self-guarding).
 let noForbiddenChange = false; let ncDetail = '';
 try {
@@ -122,13 +125,20 @@ try {
     /^scripts\/gates\/g423-[a-z0-9-]+\.mjs$/,
   ];
   const forbidden = g.filterForbiddenScopePaths(files);
-  // Branch-relative self-guard checks may run on later Studio headless slices before merge.
-  // Known later Studio headless artifacts are tolerated here, but forbidden and unknown scopes still fail.
   const outsideOwn = files
     .filter((f) => !OWN.some((re) => re.test(f)))
     .filter((f) => !g.isKnownLaterStudioHeadlessArtifact(f));
-  noForbiddenChange = forbidden.length === 0 && outsideOwn.length === 0;
-  ncDetail = noForbiddenChange ? `authorized-only (${files.length} files)` : `forbidden=${forbidden.join(',')}; outsideOwn=${outsideOwn.join(',')}`;
+  // Branch-relative judgement, CONSUMER-AWARE. This gate belongs to slice 9; on a branch building
+  // a later slice it is the certifier, and on a branch building an EARLIER slice it is a passenger
+  // whose branch was re-certified against that slice first. Forbidden and unknown always fail.
+  const consumer = g.evaluateStudioBranchConsumerScope(files, { callerSliceId: CALLER_SLICE_ID });
+  const consumerOk = consumer.safe && (consumer.consumerApplicable
+    || consumer.reason === 'empty_branch_diff'
+    || (consumer.reason === 'consumer_slice_after_active_slice' && consumer.certifiedAgainstActiveSlice === true));
+  noForbiddenChange = forbidden.length === 0 && outsideOwn.length === 0 && consumerOk;
+  ncDetail = noForbiddenChange
+    ? `authorized-only (${files.length} files; ${consumer.consumerApplicable ? `active ${consumer.activeSliceId}` : `not applicable: ${consumer.reason}`})`
+    : `forbidden=${forbidden.join(',')}; outsideOwn=${outsideOwn.join(',')}; consumer=${consumer.reason ?? ''} ${consumer.blockers.join(',')}`;
 } catch (err) { noForbiddenChange = true; ncDetail = `git base unavailable — skipped (${err instanceof Error ? err.message : String(err)})`; }
 gate('G423-SGM — this PR changed no forbidden path (git-diff self-guard)', noForbiddenChange, ncDetail);
 

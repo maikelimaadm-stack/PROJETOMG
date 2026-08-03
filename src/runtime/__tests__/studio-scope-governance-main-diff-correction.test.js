@@ -15,6 +15,7 @@ import {
 import {
   getStudioSliceById, findOwningStudioSlices, resolveActiveStudioSlice,
   classifyStudioScopePath, evaluateStudioBranchScope, evaluateStudioBranchDiffScope,
+  evaluateStudioBranchConsumerScope,
   createResolvedActiveStudioSlicePathAuthorizer, isPathAuthorizedForStudioSlice,
 } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 
@@ -910,18 +911,25 @@ const changedOnThisBranch = () => {
     return execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
   } catch { return null; }
 };
-test('T001 this branch is safe for the correction slice itself', () => {
+// This slice is a CONSUMER here, not the certifier. On a branch building an EARLIER slice it is a
+// passenger, and the boundary re-certifies the branch against that slice before calling it sound.
+test('T001 this branch is sound from the correction slice point of view', () => {
   const f = changedOnThisBranch(); if (f === null) return;
-  const r = evaluateStudioBranchDiffScope(f, { callerSliceId: CORRECTION });
+  const r = evaluateStudioBranchConsumerScope(f, { callerSliceId: CORRECTION });
   assert.deepEqual(r.forbidden, []);
   assert.deepEqual(r.unknown, []);
   assert.deepEqual(r.chronologicalViolation, []);
+  if (!r.consumerApplicable) {
+    assert.equal(r.notApplicable, true);
+    assert.ok(r.reason === 'empty_branch_diff'
+      || (r.reason === 'consumer_slice_after_active_slice' && r.certifiedAgainstActiveSlice === true), r.reason);
+  }
   assert.equal(r.safe, true, JSON.stringify(r.blockers));
 });
 for (const [, caller] of NINE_TESTS) {
-  test(`T002 this branch is safe for caller ${caller}`, () => {
+  test(`T002 this branch is sound for caller ${caller}`, () => {
     const f = changedOnThisBranch(); if (f === null) return;
-    assert.equal(evaluateStudioBranchDiffScope(f, { callerSliceId: caller }).safe, true);
+    assert.equal(evaluateStudioBranchConsumerScope(f, { callerSliceId: caller }).safe, true);
   });
 }
 test('T003 this branch touches no forbidden path', () => {
