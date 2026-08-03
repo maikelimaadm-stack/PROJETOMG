@@ -26,6 +26,14 @@
  *  - `crossSliceAuthorizedPatterns` is an EXACT list of foreign artifacts a slice is
  *    allowed to touch. It is never inherited by another slice and never releases a
  *    forbidden path.
+ *  - `historicalBranchConsumerCompatibility` is the EXPLICIT, catalog-bound authorization
+ *    for a slice's branch to carry consumers that were written AFTER it. It is `false` for
+ *    every slice by default and `true` only for the single historical branch that is still
+ *    open and must be able to take the main. It is never inferred from `sliceOrdinal`, from
+ *    `status`, from a branch name, from a PR number or from any environment signal, and it
+ *    never substitutes the self-certification of the branch against its owning slice.
+ *    Setting it to `true` on a merged slice would reopen that slice for later consumers,
+ *    which is exactly what it exists to prevent.
  *  - This file is pure data + regexes. It imports no production code, performs no I/O,
  *    runs no command, and touches no network/backend/Prisma.
  *
@@ -85,6 +93,8 @@ export const FORBIDDEN_SCOPE_PATTERNS = Object.freeze([
  * @property {RegExp[]} branchMarkerPatterns narrow subset that identifies the active slice
  * @property {RegExp[]} crossSliceAuthorizedPatterns exact foreign artifacts it may touch
  * @property {RegExp[]} sharedGovernancePatterns shared infrastructure it may touch
+ * @property {boolean} historicalBranchConsumerCompatibility whether a LATER consumer may
+ *   declare itself inapplicable to a branch this slice owns (see the design rule below)
  * @property {string} status
  * @type {StudioSlice[]}
  */
@@ -107,6 +117,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -127,6 +138,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -147,6 +159,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -167,6 +180,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -187,6 +201,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -207,6 +222,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -229,6 +245,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -251,6 +268,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -283,6 +301,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -301,6 +320,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -323,6 +343,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -345,6 +366,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -367,6 +389,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -389,6 +412,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -411,6 +435,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -433,6 +458,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -455,6 +481,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -477,6 +504,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -499,6 +527,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -521,6 +550,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -543,6 +573,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -565,6 +596,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -587,6 +619,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -615,6 +648,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^src\/App\.jsx$/,
       /^scripts\/gates\/lib\/productionUiGuard\.mjs$/,
     ],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -637,6 +671,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -659,6 +694,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -681,6 +717,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -703,6 +740,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -725,6 +763,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -745,6 +784,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -767,6 +807,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -787,6 +828,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -809,6 +851,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -831,6 +874,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -853,6 +897,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -875,6 +920,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -897,6 +943,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -919,6 +966,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -933,6 +981,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged_without_dedicated_artifacts',
   },
   {
@@ -955,6 +1004,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -981,6 +1031,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: true,
     status: 'open_pull_request_495',
   },
   {
@@ -1068,6 +1119,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'merged',
   },
   {
@@ -1160,6 +1212,75 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
+    status: 'merged',
+  },
+  {
+    sliceId: 'studio-scope-governance-historical-branch-consumers',
+    sliceOrdinal: 44,
+    title: 'Studio Scope Governance Historical Branch Consumers',
+    primaryArtifactPatterns: [
+      /^src\/runtime\/__tests__\/studio-scope-governance-historical-branch-consumers\.test\.js$/,
+      /^scripts\/gates\/g423-studio-scope-governance-historical-branch-consumers\.mjs$/,
+      /^docs\/evidence\/post-foundation-c-studio-scope-governance-historical-branch-consumers\//,
+    ],
+    branchMarkerPatterns: [
+      /^docs\/evidence\/post-foundation-c-studio-scope-governance-historical-branch-consumers\//,
+    ],
+    // One exact regex per branch-relative CONSUMER this slice rewires. No directory wildcard, no
+    // historical evidence path, no Builder path, no production path.
+    crossSliceAuthorizedPatterns: [
+      // The nine aggregate tests whose "this branch" section judges the current diff.
+      /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge-contract\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge-implementation-plan\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-app-integration-contract\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-app-integration-implementation-plan\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-app-integration\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-module-blueprint-authoring-foundation-contract\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-module-blueprint-authoring-implementation-plan\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-module-blueprint-authoring-runtime\.test\.js$/,
+      // The twenty-two Studio gates with the same branch-relative section.
+      /^scripts\/gates\/g423-studio-foundation-audit\.mjs$/,
+      /^scripts\/gates\/g423-studio-module-preview-sandbox-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-contract-bridge\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-visual-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-runtime-shell-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-isolated-runtime-implementation-plan\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-isolated-runtime\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-runtime-ui-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-runtime-ui-implementation-plan\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-runtime-ui\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-route-menu-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-route-menu-implementation-plan\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-route-menu\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-app-integration-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-app-integration-implementation-plan\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-app-integration\.mjs$/,
+      /^scripts\/gates\/g423-studio-module-blueprint-authoring-foundation-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-module-blueprint-authoring-implementation-plan\.mjs$/,
+      /^scripts\/gates\/g423-studio-module-blueprint-authoring-runtime\.mjs$/,
+      /^scripts\/gates\/g423-studio-authoring-runtime-to-preview-bridge-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-authoring-runtime-to-preview-bridge-implementation-plan\.mjs$/,
+      /^scripts\/gates\/g423-studio-authoring-runtime-to-preview-bridge\.mjs$/,
+      // The governance consumers that judge a branch diff (ordinals 9, 42 and 43).
+      // studio-scope-governance-maintenance.test.js is deliberately absent: it only
+      // exercises the guard API directly and never judges a branch diff, so it is not
+      // a consumer and needs no cross-slice authorization from this slice.
+      /^scripts\/gates\/g423-studio-scope-governance-maintenance\.mjs$/,
+      /^src\/runtime\/__tests__\/studio-scope-governance-chronological-migration\.test\.js$/,
+      /^scripts\/gates\/g423-studio-scope-governance-chronological-migration\.mjs$/,
+      /^src\/runtime\/__tests__\/studio-scope-governance-main-diff-correction\.test\.js$/,
+      /^scripts\/gates\/g423-studio-scope-governance-main-diff-correction\.mjs$/,
+    ],
+    sharedGovernancePatterns: [
+      /^scripts\/gates\/lib\/studioScopeGovernanceRegistry\.mjs$/,
+      /^scripts\/gates\/lib\/studioScopeGovernanceGuard\.mjs$/,
+      /^package\.json$/,
+      /^package-lock\.json$/,
+    ],
+    explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
     status: 'active_slice',
   },
 
@@ -1167,6 +1288,13 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
 
 /** The slice that fixes the post-merge empty-diff boundary. Chronologically after the migration. */
 export const MAIN_DIFF_CORRECTION_SLICE_ID = 'studio-scope-governance-main-diff-correction';
+
+/**
+ * The slice that separates BRANCH CERTIFICATION from CONSUMER APPLICABILITY, so a branch-relative
+ * check belonging to a LATER slice can run inside an EARLIER slice's still-open branch without
+ * either weakening the core or falsely certifying the branch.
+ */
+export const HISTORICAL_BRANCH_CONSUMERS_SLICE_ID = 'studio-scope-governance-historical-branch-consumers';
 
 /** Ordinals of the slices whose branch-relative scope checks this migration rewires. */
 export const CHRONOLOGICAL_MIGRATION_SLICE_ID = 'studio-scope-governance-chronological-migration';

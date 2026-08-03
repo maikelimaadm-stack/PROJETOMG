@@ -395,6 +395,195 @@ export function evaluateStudioBranchDiffScope(changedPaths, options = {}) {
 }
 
 // ---------------------------------------------------------------------------
+// Consumer applicability — the boundary a branch-relative CHECK uses about itself
+// ---------------------------------------------------------------------------
+
+/**
+ * Evaluates whether a branch-relative CHECK is even applicable to the branch it is running on,
+ * and, when it is not, whether the branch is nevertheless safe under its OWN active slice.
+ *
+ * This exists because branch certification and consumer applicability are two different questions,
+ * and the core answers only the first one:
+ *
+ *   `evaluateStudioBranchDiffScope(diff, { callerSliceId })` answers
+ *   "can this branch be certified FROM THIS SLICE'S point of view?" — and when the branch is
+ *   building an EARLIER slice, the honest answer is no: `active_slice_before_caller`. That is
+ *   correct and is NOT relaxed here.
+ *
+ *   `evaluateStudioBranchConsumerScope(diff, { callerSliceId })` answers
+ *   "am I, a later check, applicable to this branch — and if not, is the branch still sound?"
+ *
+ * The second question matters because a merged later slice ships tests and gates that run inside
+ * an older slice's still-open branch. Such a check is a passenger, not the certifier.
+ *
+ * Inapplicability is deliberately NARROW and requires BOTH of the following, in this order:
+ *
+ *   1. the branch's own active slice declares `historicalBranchConsumerCompatibility: true` in the
+ *      catalog. Being chronologically earlier is not enough — otherwise every merged slice would
+ *      become reopenable by any later consumer. The authorization is catalog-bound, explicit, not
+ *      inherited, and never inferred from `sliceOrdinal`, `status`, a branch name, a PR number or
+ *      any environment signal. When it is absent or false the core's `active_slice_before_caller`
+ *      refusal is returned verbatim and self-certification is not attempted;
+ *   2. the exact same changed-path set re-certifies cleanly against that active slice. Declaring a
+ *      consumer inapplicable must never certify anything by omission.
+ *
+ * A later consumer therefore can never mask a forbidden path, an unknown path, a foreign slice
+ * path, an unauthorized cross, an explicit-forbidden path the active slice does not declare, an
+ * unresolved active slice, an ambiguous one, or an earlier slice that was never authorized to
+ * carry later consumers — every one of those still fails.
+ *
+ * Pure: no command, no filesystem, no env, no network, no clock, no mutation.
+ *
+ * @param {string[]} changedPaths the branch diff, possibly empty
+ * @param {Object} options
+ * @param {string} options.callerSliceId the slice whose CHECK is running
+ * @returns {Object} deterministic, serializable, frozen report
+ */
+export function evaluateStudioBranchConsumerScope(changedPaths, options = {}) {
+  const o = options && typeof options === 'object' ? options : {};
+  const consumer = getStudioSliceById(o.callerSliceId);
+  const inputValid = Array.isArray(changedPaths) && changedPaths.every(isPath);
+
+  const base = {
+    kind: 'studio-branch-consumer-scope-evaluation',
+    consumerSliceId: consumer ? consumer.sliceId : null,
+    consumerSliceOrdinal: consumer ? consumer.sliceOrdinal : null,
+    activeSliceId: null,
+    activeSliceOrdinal: null,
+    evaluatedAsSliceId: null,
+    activeCandidates: [],
+    total: 0,
+    allowed: [],
+    forbidden: [],
+    unknown: [],
+    chronologicalViolation: [],
+    crossAuthorized: [],
+    explicitForbiddenAuthorized: [],
+    certifiedAgainstActiveSlice: false,
+    sideEffects: false,
+    backendAccessed: false,
+    prismaAccessed: false,
+    fetchUsed: false,
+    mutationAllowed: false,
+  };
+
+  // Invalid input fails closed and is never treated as "no changes".
+  if (!inputValid) {
+    const blockers = ['invalid_changed_paths'];
+    if (!consumer) blockers.push('unknown_caller_slice');
+    return Object.freeze({
+      ...base, consumerApplicable: false, applicable: false, notApplicable: false,
+      reason: 'invalid_changed_paths', blockers: [...new Set(blockers)].sort(), safe: false,
+    });
+  }
+
+  // An unknown consumer identity blocks, empty diff or not.
+  if (!consumer) {
+    return Object.freeze({
+      ...base, consumerApplicable: false, applicable: false, notApplicable: false,
+      reason: 'unknown_caller_slice', blockers: ['unknown_caller_slice'], safe: false,
+    });
+  }
+
+  // Nothing to judge.
+  if (changedPaths.length === 0) {
+    return Object.freeze({
+      ...base, consumerApplicable: false, applicable: false, notApplicable: true,
+      reason: 'empty_branch_diff', blockers: [], safe: true,
+    });
+  }
+
+  // The branch must still name exactly one slice. Unresolved and ambiguous both block.
+  const active = resolveActiveStudioSlice(changedPaths);
+  if (!active.ok) {
+    const inner = evaluateStudioBranchDiffScope(changedPaths, { callerSliceId: consumer.sliceId });
+    return Object.freeze({
+      ...base,
+      activeCandidates: [...active.candidates],
+      total: inner.total,
+      forbidden: [...inner.forbidden],
+      unknown: [...inner.unknown],
+      chronologicalViolation: [...inner.chronologicalViolation],
+      consumerApplicable: false, applicable: false, notApplicable: false,
+      reason: active.reason, blockers: [...inner.blockers], safe: false,
+    });
+  }
+
+  const activeSlice = getStudioSliceById(active.sliceId);
+
+  // The consumer is at or before the active slice: it IS the certifier, so delegate untouched.
+  if (activeSlice.sliceOrdinal >= consumer.sliceOrdinal) {
+    const inner = evaluateStudioBranchDiffScope(changedPaths, { callerSliceId: consumer.sliceId });
+    return Object.freeze({
+      ...base,
+      activeSliceId: inner.activeSliceId,
+      activeSliceOrdinal: inner.activeSliceOrdinal,
+      evaluatedAsSliceId: consumer.sliceId,
+      activeCandidates: [...inner.activeCandidates],
+      total: inner.total,
+      allowed: [...inner.allowed],
+      forbidden: [...inner.forbidden],
+      unknown: [...inner.unknown],
+      chronologicalViolation: [...inner.chronologicalViolation],
+      crossAuthorized: [...inner.crossAuthorized],
+      explicitForbiddenAuthorized: [...inner.explicitForbiddenAuthorized],
+      consumerApplicable: true, applicable: true, notApplicable: false,
+      reason: null, certifiedAgainstActiveSlice: false,
+      blockers: [...inner.blockers], safe: inner.safe,
+    });
+  }
+
+  // The branch is building an EARLIER slice. Being earlier is NOT, by itself, permission to carry
+  // later consumers: that would silently reopen every merged slice. The active slice must declare
+  // the authorization EXPLICITLY in the catalog. Absent or false, the chronological refusal of the
+  // core stands verbatim and self-certification is not even attempted.
+  if (activeSlice.historicalBranchConsumerCompatibility !== true) {
+    return Object.freeze({
+      ...base,
+      activeSliceId: activeSlice.sliceId,
+      activeSliceOrdinal: activeSlice.sliceOrdinal,
+      activeCandidates: [...active.candidates],
+      consumerApplicable: false, applicable: false, notApplicable: false,
+      reason: 'historical_branch_consumer_compatibility_not_authorized',
+      certifiedAgainstActiveSlice: false,
+      blockers: ['active_slice_before_caller'], safe: false,
+    });
+  }
+
+  // Authorized historical branch. This consumer is a passenger — but the branch is only declared
+  // sound after the SAME path set is certified against its own active slice.
+  const self = evaluateStudioBranchScope(changedPaths, { callerSliceId: activeSlice.sliceId });
+  const common = {
+    ...base,
+    activeSliceId: activeSlice.sliceId,
+    activeSliceOrdinal: activeSlice.sliceOrdinal,
+    evaluatedAsSliceId: activeSlice.sliceId,
+    activeCandidates: [...self.activeCandidates],
+    total: self.total,
+    forbidden: [...self.forbidden],
+    unknown: [...self.unknown],
+    chronologicalViolation: [...self.chronologicalViolation],
+    certifiedAgainstActiveSlice: true,
+    consumerApplicable: false,
+    applicable: false,
+  };
+  if (!self.safe) {
+    return Object.freeze({
+      ...common, notApplicable: false, reason: 'active_slice_scope_invalid',
+      blockers: [...self.blockers], safe: false,
+    });
+  }
+  return Object.freeze({
+    ...common,
+    allowed: [...self.allowed],
+    crossAuthorized: [...self.crossAuthorized],
+    explicitForbiddenAuthorized: [...self.explicitForbiddenAuthorized],
+    notApplicable: true, reason: 'consumer_slice_after_active_slice',
+    blockers: [], safe: true,
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Resolved-active-slice path authorizer — the ONLY historical-exemption source
 // ---------------------------------------------------------------------------
 
