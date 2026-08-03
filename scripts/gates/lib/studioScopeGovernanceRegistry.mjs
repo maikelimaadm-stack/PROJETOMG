@@ -1068,10 +1068,108 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
+    status: 'merged',
+  },
+  {
+    sliceId: 'studio-scope-governance-main-diff-correction',
+    sliceOrdinal: 43,
+    title: 'Studio Scope Governance Main-Diff Correction',
+    primaryArtifactPatterns: [
+      /^src\/runtime\/__tests__\/studio-scope-governance-main-diff-correction\.test\.js$/,
+      /^scripts\/gates\/g423-studio-scope-governance-main-diff-correction\.mjs$/,
+      /^docs\/evidence\/post-foundation-c-studio-scope-governance-main-diff-correction\//,
+    ],
+    branchMarkerPatterns: [
+      /^docs\/evidence\/post-foundation-c-studio-scope-governance-main-diff-correction\//,
+    ],
+    // One exact regex per historical file this correction really rewires. No directory wildcard,
+    // no `^src/runtime/__tests__/`, no `^scripts/gates/`, no duplicate. The union below is exactly
+    // the intended diff of this slice.
+    crossSliceAuthorizedPatterns: [
+      // The nine aggregate tests whose branch-relative scenario is fail-closed on an empty diff.
+      /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge-contract\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge-implementation-plan\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-app-integration-contract\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-app-integration-implementation-plan\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-app-integration\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-module-blueprint-authoring-foundation-contract\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-module-blueprint-authoring-implementation-plan\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-module-blueprint-authoring-runtime\.test\.js$/,
+      // The previous governance slice's own test and gate (section "THIS BRANCH").
+      /^src\/runtime\/__tests__\/studio-scope-governance-chronological-migration\.test\.js$/,
+      /^scripts\/gates\/g423-studio-scope-governance-chronological-migration\.mjs$/,
+      // The twenty-two Studio gates that consume the branch-relative evaluation.
+      /^scripts\/gates\/g423-studio-foundation-audit\.mjs$/,
+      /^scripts\/gates\/g423-studio-module-preview-sandbox-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-contract-bridge\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-visual-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-runtime-shell-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-isolated-runtime-implementation-plan\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-isolated-runtime\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-runtime-ui-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-runtime-ui-implementation-plan\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-runtime-ui\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-route-menu-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-route-menu-implementation-plan\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-route-menu\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-app-integration-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-app-integration-implementation-plan\.mjs$/,
+      /^scripts\/gates\/g423-studio-dev-preview-app-integration\.mjs$/,
+      /^scripts\/gates\/g423-studio-module-blueprint-authoring-foundation-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-module-blueprint-authoring-implementation-plan\.mjs$/,
+      /^scripts\/gates\/g423-studio-module-blueprint-authoring-runtime\.mjs$/,
+      /^scripts\/gates\/g423-studio-authoring-runtime-to-preview-bridge-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-authoring-runtime-to-preview-bridge-implementation-plan\.mjs$/,
+      /^scripts\/gates\/g423-studio-authoring-runtime-to-preview-bridge\.mjs$/,
+      // The seventeen historical tests whose local `migrationExempt` helper is centralized here.
+      /^src\/runtime\/__tests__\/empresas-certified-blueprint-mirror-alignment-audit\.test\.js$/,
+      /^src\/runtime\/__tests__\/empresas-local-read-contract-certification\.test\.js$/,
+      /^src\/runtime\/__tests__\/empresas-local-read-only-contract-pilot\.test\.js$/,
+      /^src\/runtime\/__tests__\/empresas-local-read-parity-hardening\.test\.js$/,
+      /^src\/runtime\/__tests__\/empresas-studio-compatibility-slice-1\.test\.js$/,
+      /^src\/runtime\/__tests__\/post-foundation-c-empresas-controlled-production-test-plan\.test\.js$/,
+      /^src\/runtime\/__tests__\/post-foundation-c-studio-foundation-audit\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge-hardening\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge-source-shape-alignment\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-blueprint-contract-certification\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-blueprint-contract-hardening\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-blueprint-engine-foundation\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-blueprint-module-reference-planner\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-bridge-decision-envelope-identity-contract\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-bridge-to-preview-sandbox-runtime-contract\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-foundation-contracts\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-module-preview-sandbox-contract\.test\.js$/,
+      // The twelve historical gates whose exemption is chronology-free or prefix-bound today.
+      /^scripts\/gates\/g423-studio-blueprint-engine-foundation\.mjs$/,
+      /^scripts\/gates\/g423-studio-blueprint-module-reference-planner\.mjs$/,
+      /^scripts\/gates\/g423-studio-authoring-runtime-to-preview-bridge-source-shape-alignment\.mjs$/,
+      /^scripts\/gates\/g423-studio-authoring-runtime-to-preview-bridge-hardening\.mjs$/,
+      /^scripts\/gates\/g423-studio-bridge-to-preview-sandbox-runtime-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-bridge-decision-envelope-identity-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-bridge-to-preview-sandbox-runtime-implementation-plan\.mjs$/,
+      /^scripts\/gates\/g423-studio-bridge-decision-core-envelope-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-bridge-to-preview-sandbox-runtime-implementation-plan-alignment-amendment\.mjs$/,
+      /^scripts\/gates\/g423-studio-bridge-decision-core-envelope-builder-contract\.mjs$/,
+      /^scripts\/gates\/g423-studio-bridge-decision-core-envelope-builder-implementation-plan\.mjs$/,
+      // The two superseded evidence documents of the previous governance slice (addendum only).
+      /^docs\/evidence\/post-foundation-c-studio-scope-governance-chronological-migration\/CERTIFICATION-REPORT\.md$/,
+      /^docs\/evidence\/post-foundation-c-studio-scope-governance-chronological-migration\/READINESS\.md$/,
+    ],
+    sharedGovernancePatterns: [
+      /^scripts\/gates\/lib\/studioScopeGovernanceRegistry\.mjs$/,
+      /^scripts\/gates\/lib\/studioScopeGovernanceGuard\.mjs$/,
+      /^package\.json$/,
+      /^package-lock\.json$/,
+    ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'active_slice',
   },
 
 ].map(Object.freeze));
+
+/** The slice that fixes the post-merge empty-diff boundary. Chronologically after the migration. */
+export const MAIN_DIFF_CORRECTION_SLICE_ID = 'studio-scope-governance-main-diff-correction';
 
 /** Ordinals of the slices whose branch-relative scope checks this migration rewires. */
 export const CHRONOLOGICAL_MIGRATION_SLICE_ID = 'studio-scope-governance-chronological-migration';
