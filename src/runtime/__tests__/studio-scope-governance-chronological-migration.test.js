@@ -15,6 +15,8 @@ import {
   resolveActiveStudioSlice, classifyStudioScopePath, evaluateStudioBranchScope,
   isKnownLaterStudioHeadlessArtifact, filterForbiddenScopePaths, filterUnknownScopePaths,
   createStudioScopeGovernanceReport, assertNoForbiddenScopePaths,
+  getAuthorizedPatternsForStudioSlice, isPathAuthorizedForStudioSlice,
+  getExplicitlyAuthorizedForbiddenPatternsForStudioSlice,
 } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -114,8 +116,8 @@ test('C005 ordinals form a contiguous 1..N sequence', () => {
 for (const s of STUDIO_SLICE_CATALOG) {
   test(`C010 slice ${s.sliceId} has the exact entry shape`, () => {
     assert.deepEqual(Object.keys(s).sort(), [
-      'branchMarkerPatterns', 'crossSliceAuthorizedPatterns', 'primaryArtifactPatterns',
-      'sharedGovernancePatterns', 'sliceId', 'sliceOrdinal', 'status', 'title',
+      'branchMarkerPatterns', 'crossSliceAuthorizedPatterns', 'explicitlyAuthorizedForbiddenPatterns',
+      'primaryArtifactPatterns', 'sharedGovernancePatterns', 'sliceId', 'sliceOrdinal', 'status', 'title',
     ]);
     assert.equal(typeof s.title, 'string');
     assert.ok(s.title.length > 0);
@@ -123,7 +125,7 @@ for (const s of STUDIO_SLICE_CATALOG) {
     assert.equal(Object.isFrozen(s), true);
   });
   test(`C011 slice ${s.sliceId} declares only anchored patterns`, () => {
-    for (const group of ['primaryArtifactPatterns', 'branchMarkerPatterns', 'crossSliceAuthorizedPatterns', 'sharedGovernancePatterns']) {
+    for (const group of ['primaryArtifactPatterns', 'branchMarkerPatterns', 'crossSliceAuthorizedPatterns', 'sharedGovernancePatterns', 'explicitlyAuthorizedForbiddenPatterns']) {
       for (const re of s[group]) {
         assert.ok(re instanceof RegExp, `${s.sliceId}.${group}`);
         assert.ok(re.source.startsWith('^'), `${s.sliceId}.${group} ${re.source}`);
@@ -131,7 +133,8 @@ for (const s of STUDIO_SLICE_CATALOG) {
     }
   });
   test(`C012 slice ${s.sliceId} declares no broad wildcard`, () => {
-    const all = [...s.primaryArtifactPatterns, ...s.branchMarkerPatterns, ...s.crossSliceAuthorizedPatterns, ...s.sharedGovernancePatterns];
+    const all = [...s.primaryArtifactPatterns, ...s.branchMarkerPatterns, ...s.crossSliceAuthorizedPatterns,
+      ...s.sharedGovernancePatterns, ...s.explicitlyAuthorizedForbiddenPatterns];
     for (const re of all) assert.ok(!FORBIDDEN_BROAD_ALLOW_SOURCES.includes(re.toString()), `${s.sliceId} ${re}`);
     for (const re of all) assert.ok(re.source.length > 8, `${s.sliceId} suspiciously short: ${re.source}`);
   });
@@ -380,8 +383,9 @@ test('H016 the evaluation report carries the full deterministic shape', () => {
   const r = evaluateStudioBranchScope(fixture.paths, { callerSliceId: BUILDER });
   assert.deepEqual(Object.keys(r).sort(), [
     'activeCandidates', 'activeSliceId', 'activeSliceOrdinal', 'allowed', 'backendAccessed', 'blockers',
-    'callerSliceId', 'callerSliceOrdinal', 'chronologicalViolation', 'crossAuthorized', 'fetchUsed', 'forbidden',
-    'kind', 'mutationAllowed', 'prismaAccessed', 'safe', 'sideEffects', 'total', 'unknown',
+    'callerSliceId', 'callerSliceOrdinal', 'chronologicalViolation', 'crossAuthorized',
+    'explicitForbiddenAuthorized', 'fetchUsed', 'forbidden', 'kind', 'mutationAllowed', 'prismaAccessed',
+    'safe', 'sideEffects', 'total', 'unknown',
   ]);
   assert.equal(r.kind, 'studio-branch-scope-evaluation');
   assert.equal(r.sideEffects, false);
@@ -502,17 +506,16 @@ for (const p of FORBIDDEN_FIXTURES) {
 }
 test('S004 the ONLY explicit forbidden authorization is the app-integration slice pair', () => {
   assert.equal(STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN.length, 2);
-  const r = evaluateStudioBranchScope(['src/App.jsx',
-    'src/studio/blueprint-engine/dev-preview-app-integration/index.js',
-    'docs/evidence/post-foundation-c-studio-dev-preview-app-integration/CERTIFICATION-REPORT.md'],
-  { callerSliceId: 'dev-preview-app-integration', explicitlyAuthorizedForbiddenPatterns: STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN });
-  assert.deepEqual(r.forbidden, []);
+  const withAuth = STUDIO_SLICE_CATALOG.filter((s) => s.explicitlyAuthorizedForbiddenPatterns.length > 0);
+  assert.deepEqual(withAuth.map((s) => s.sliceId), ['dev-preview-app-integration']);
+  assert.equal(withAuth[0].explicitlyAuthorizedForbiddenPatterns.length, 2);
 });
-test('S005 without the explicit option App.jsx stays forbidden for that same slice', () => {
-  const r = evaluateStudioBranchScope(['src/App.jsx',
-    'src/studio/blueprint-engine/dev-preview-app-integration/index.js'], { callerSliceId: 'dev-preview-app-integration' });
-  assert.deepEqual(r.forbidden, ['src/App.jsx']);
-  assert.equal(r.safe, false);
+test('S005 the derived export mirrors the catalog entry exactly', () => {
+  const entry = getStudioSliceById('dev-preview-app-integration');
+  assert.deepEqual(STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN.map(String),
+    entry.explicitlyAuthorizedForbiddenPatterns.map(String));
+  assert.deepEqual(getExplicitlyAuthorizedForbiddenPatternsForStudioSlice('dev-preview-app-integration').map(String),
+    entry.explicitlyAuthorizedForbiddenPatterns.map(String));
 });
 for (const p of ['some/random/file.js', 'tools/x.mjs', 'src/whatever/unregistered.js', 'docs/notes.txt']) {
   test(`S006 unknown path fails closed: ${p}`, () => {
@@ -714,5 +717,223 @@ test('T004 this branch touches no production code and no Builder file', () => {
   for (const p of f) {
     assert.equal(classifyStudioScopePath(p) === 'forbidden_scope', false, p);
     assert.ok(!p.startsWith('src/studio/blueprint-engine/'), p);
+  }
+});
+
+// ===========================================================================
+// POST-AUDIT — explicit forbidden bound to the catalog
+// ===========================================================================
+const APP_INTEGRATION = 'dev-preview-app-integration';
+const APP_INTEGRATION_FIXTURE = [
+  'src/studio/blueprint-engine/dev-preview-app-integration/index.js',
+  'docs/evidence/post-foundation-c-studio-dev-preview-app-integration/CERTIFICATION-REPORT.md',
+  'src/App.jsx',
+  'scripts/gates/lib/productionUiGuard.mjs',
+];
+for (const s of STUDIO_SLICE_CATALOG) {
+  test(`F001 slice ${s.sliceId} declares explicitlyAuthorizedForbiddenPatterns`, () => {
+    assert.ok(Array.isArray(s.explicitlyAuthorizedForbiddenPatterns), s.sliceId);
+    assert.equal(Object.isFrozen(s), true);
+  });
+  test(`F002 slice ${s.sliceId} declares the expected number of explicit forbidden entries`, () => {
+    assert.equal(s.explicitlyAuthorizedForbiddenPatterns.length, s.sliceId === APP_INTEGRATION ? 2 : 0, s.sliceId);
+  });
+  for (const re of s.explicitlyAuthorizedForbiddenPatterns) {
+    test(`F003 ${s.sliceId} explicit forbidden pattern is anchored and truly forbidden: ${re}`, () => {
+      assert.ok(re.source.startsWith('^') && re.source.endsWith('$'), `${re}`);
+      const probe = re.source.replace(/^\^/, '').replace(/\$$/, '').replace(/\\\//g, '/').replace(/\\\./g, '.');
+      assert.ok(FORBIDDEN_SCOPE_PATTERNS.some((f) => f.test(probe)), `${probe} must really be forbidden`);
+      assert.equal(FORBIDDEN_BROAD_ALLOW_SOURCES.includes(re.toString()), false);
+    });
+  }
+}
+test('F010 only ONE slice in the whole catalog authorizes any forbidden path', () => {
+  assert.deepEqual(STUDIO_SLICE_CATALOG.filter((s) => s.explicitlyAuthorizedForbiddenPatterns.length > 0)
+    .map((s) => s.sliceId), [APP_INTEGRATION]);
+});
+test('F011 the App Integration fixture is ENTIRELY safe for its own slice', () => {
+  const r = evaluateStudioBranchScope(APP_INTEGRATION_FIXTURE, { callerSliceId: APP_INTEGRATION });
+  assert.equal(r.activeSliceId, APP_INTEGRATION);
+  assert.equal(r.safe, true, JSON.stringify(r.blockers));
+  assert.deepEqual(r.forbidden, []);
+  assert.deepEqual(r.unknown, []);
+  assert.deepEqual(r.chronologicalViolation, []);
+  assert.equal(r.allowed.length, 4);
+  assert.deepEqual(r.explicitForbiddenAuthorized,
+    ['scripts/gates/lib/productionUiGuard.mjs', 'src/App.jsx']);
+});
+for (const p of ['src/App.jsx', 'scripts/gates/lib/productionUiGuard.mjs']) {
+  test(`F012 authorized forbidden path lands in allowed, never in unknown: ${p}`, () => {
+    const r = evaluateStudioBranchScope(APP_INTEGRATION_FIXTURE, { callerSliceId: APP_INTEGRATION });
+    assert.ok(r.allowed.includes(p), p);
+    assert.equal(r.unknown.includes(p), false, p);
+    assert.equal(r.forbidden.includes(p), false, p);
+  });
+}
+for (const otherCaller of ['module-preview-sandbox', 'dev-preview-route-menu', 'dev-preview-app-integration-contract']) {
+  test(`F013 an EARLIER caller still sees the App Integration fixture as safe: ${otherCaller}`, () => {
+    const r = evaluateStudioBranchScope(APP_INTEGRATION_FIXTURE, { callerSliceId: otherCaller });
+    assert.ok(r.activeSliceOrdinal >= r.callerSliceOrdinal, otherCaller);
+    assert.deepEqual(r.forbidden, []);
+    assert.equal(r.safe, true, JSON.stringify(r.blockers));
+  });
+}
+for (const laterCaller of ['authoring-runtime-to-preview-bridge', BUILDER]) {
+  test(`F013b a LATER caller still refuses the older active slice: ${laterCaller}`, () => {
+    const r = evaluateStudioBranchScope(APP_INTEGRATION_FIXTURE, { callerSliceId: laterCaller });
+    // The forbidden pair is still authorized by the ACTIVE slice, but chronology blocks the branch.
+    assert.deepEqual(r.forbidden, []);
+    assert.ok(r.blockers.includes('active_slice_before_caller'));
+    assert.equal(r.safe, false);
+  });
+}
+test('F014 the Builder as active slice does NOT inherit the App.jsx authorization', () => {
+  const r = evaluateStudioBranchScope([...fixture.paths, 'src/App.jsx'], { callerSliceId: BUILDER });
+  assert.equal(r.activeSliceId, BUILDER);
+  assert.deepEqual(r.forbidden, ['src/App.jsx']);
+  assert.deepEqual(r.explicitForbiddenAuthorized, []);
+  assert.equal(r.safe, false);
+});
+test('F015 the Migration as active slice does NOT inherit the App.jsx authorization', () => {
+  const r = evaluateStudioBranchScope([
+    'scripts/gates/lib/studioScopeGovernanceRegistry.mjs',
+    'docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/CERTIFICATION-REPORT.md',
+    'src/App.jsx',
+  ], { callerSliceId: MIGRATION });
+  assert.equal(r.activeSliceId, MIGRATION);
+  assert.deepEqual(r.forbidden, ['src/App.jsx']);
+  assert.equal(r.safe, false);
+});
+test('F016 a caller CANNOT inject a wide forbidden regex', () => {
+  const injections = [{ explicitlyAuthorizedForbiddenPatterns: [/.*/] }, { explicitlyAuthorizedForbidden: [/.*/] },
+    { explicitlyAuthorizedForbiddenPatterns: [/^src\/App\.jsx$/] }, { ownSliceAuthorized: [/.*/] }];
+  for (const inject of injections) {
+    const r = evaluateStudioBranchScope([...fixture.paths, 'src/App.jsx'], { callerSliceId: BUILDER, ...inject });
+    assert.deepEqual(r.forbidden, ['src/App.jsx'], JSON.stringify(inject));
+    assert.equal(r.safe, false);
+  }
+});
+test('F017 evaluateStudioBranchScope reads no caller-supplied forbidden option at all', () => {
+  const src = fs.readFileSync(path.join(ROOT, GUARD_REL), 'utf8');
+  const body = src.slice(src.indexOf('export function evaluateStudioBranchScope'));
+  assert.ok(!/o\.explicitlyAuthorizedForbidden/.test(body), 'no caller-supplied forbidden option may be read');
+  assert.match(body, /activeSlice\.explicitlyAuthorizedForbiddenPatterns/);
+});
+for (const third of ['src/pages/Home.jsx', 'backend/server.js', 'src/modules/x/index.js', 'migrations/001.sql']) {
+  test(`F018 a THIRD forbidden path is not authorized for App Integration: ${third}`, () => {
+    const r = evaluateStudioBranchScope([...APP_INTEGRATION_FIXTURE, third], { callerSliceId: APP_INTEGRATION });
+    assert.deepEqual(r.forbidden, [third]);
+    assert.equal(r.safe, false);
+  });
+}
+test('F019 an unresolved active slice authorizes no forbidden path at all', () => {
+  const r = evaluateStudioBranchScope(['src/App.jsx', 'README.md'], { callerSliceId: APP_INTEGRATION });
+  assert.deepEqual(r.forbidden, ['src/App.jsx']);
+  assert.deepEqual(r.explicitForbiddenAuthorized, []);
+  assert.equal(r.safe, false);
+});
+test('F020 the helpers read the catalog and nothing else', () => {
+  assert.deepEqual(getExplicitlyAuthorizedForbiddenPatternsForStudioSlice('nope'), []);
+  assert.deepEqual(getAuthorizedPatternsForStudioSlice('nope'), []);
+  assert.equal(isPathAuthorizedForStudioSlice('src/App.jsx', 'nope'), false);
+  assert.equal(isPathAuthorizedForStudioSlice(null, MIGRATION), false);
+});
+
+// ===========================================================================
+// POST-AUDIT — historical substring semantics preserved
+// ===========================================================================
+/** Paths that merely LOOK like a migration/menu/empresas artifact but are catalogued nowhere. */
+const SIMILAR_UNREGISTERED = [
+  'docs/random-migration-plan.md',
+  'tools/custom-migration-helper.js',
+  'config/menu.json',
+  'tools/navigation-generator.js',
+  'scripts/gates/g423-unregistered-route-menu.mjs',
+  'src/runtime/__tests__/unlisted-empresas-change.test.js',
+  'scripts/gates/g423-unlisted-empresas-change.mjs',
+  'docs/evidence/unregistered-empresas-change/file.md',
+];
+for (const p of SIMILAR_UNREGISTERED) {
+  test(`Hx01 similar but uncatalogued path is authorized for NOBODY: ${p}`, () => {
+    for (const s of STUDIO_SLICE_CATALOG) {
+      assert.equal(isPathAuthorizedForStudioSlice(p, s.sliceId), false, `${s.sliceId} ${p}`);
+    }
+  });
+  test(`Hx02 similar but uncatalogued path blocks on a migration branch: ${p}`, () => {
+    const r = evaluateStudioBranchScope([REGISTRY_REL, GUARD_REL, TEST_REL, GATE_REL,
+      'docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/CERTIFICATION-REPORT.md', p],
+    { callerSliceId: MIGRATION });
+    assert.equal(r.activeSliceId, MIGRATION);
+    assert.ok(r.unknown.includes(p) || r.forbidden.includes(p), p);
+    assert.equal(r.safe, false, p);
+  });
+}
+for (const p of [...NINE_TESTS.map(([x]) => x), ...TWENTY_TWO_GATES.map(([x]) => x)]) {
+  test(`Hx03 an EXACT migration-authorized path is authorized ONLY for the migration: ${path.basename(p)}`, () => {
+    assert.equal(isPathAuthorizedForStudioSlice(p, MIGRATION), true, p);
+    for (const s of STUDIO_SLICE_CATALOG) {
+      if (s.sliceId === MIGRATION) continue;
+      if (s.sliceId === 'studio-scope-governance-maintenance') continue; // its own earlier, separately proven wiring
+      if (s.sliceId === BUILDER && BUILDER_CROSS.includes(p)) continue;  // the Builder's own lifecycle pair
+      const owns = findOwningStudioSlices(p).some((o) => o.sliceId === s.sliceId);
+      if (owns) continue; // a slice is always authorized for what it owns
+      assert.equal(isPathAuthorizedForStudioSlice(p, s.sliceId), false, `${s.sliceId} ${p}`);
+    }
+  });
+}
+test('Hx04 the historical checks keep their ORIGINAL regex, exempting only exact migration paths', () => {
+  const files = [
+    ['src/runtime/__tests__/empresas-certified-blueprint-mirror-alignment-audit.test.js', /!\/migration\/i\.test\(x\)/],
+    ['src/runtime/__tests__/empresas-certified-blueprint-mirror-alignment-audit.test.js', /!\/menu\|nav\/i\.test\(x\)/],
+    ['src/runtime/__tests__/studio-blueprint-engine-foundation.test.js', /!\/migration\/i\.test\(x\)/],
+    ['src/runtime/__tests__/studio-dev-preview-app-integration.test.js', /!\/empresas\/i\.test\(x\)/],
+  ];
+  for (const [rel, re] of files) {
+    const src = fs.readFileSync(path.join(ROOT, rel), 'utf8');
+    assert.match(src, re, rel);
+    assert.match(src, /migrationExempt\(/, rel);
+    assert.match(src, /isPathAuthorizedForStudioSlice/, rel);
+  }
+});
+test('Hx05 no historical check was relaxed to a whole category', () => {
+  for (const rel of [...EXTENSION_TESTS, 'src/runtime/__tests__/studio-dev-preview-app-integration.test.js']) {
+    const src = fs.readFileSync(path.join(ROOT, rel), 'utf8');
+    // No blanket "any test / any gate / any evidence / anything outside src" escape hatch.
+    assert.ok(!/!\/\^src\\\/runtime\\\/__tests__\\\/\/\.test\(f\)/.test(src), rel);
+    assert.ok(!/\/\^src\\\/\.\*\(menu\|nav\)\/i/.test(src), rel);
+  }
+});
+test('Hx06 the exemption is inert when the active slice is not the migration', () => {
+  // A Builder-shaped branch carrying a migration-authorized path: the exemption must not apply.
+  const r = evaluateStudioBranchScope([...fixture.paths,
+    'src/runtime/__tests__/studio-module-blueprint-authoring-runtime.test.js'], { callerSliceId: BUILDER });
+  assert.equal(r.activeSliceId, BUILDER);
+  assert.ok(r.chronologicalViolation.includes('src/runtime/__tests__/studio-module-blueprint-authoring-runtime.test.js'));
+  assert.equal(r.safe, false);
+});
+
+// ===========================================================================
+// POST-AUDIT — DB migration patterns really block
+// ===========================================================================
+for (const p of ['migrations/001.sql', 'nested/migrations/001.sql', 'prisma/migrations/20240101_init/migration.sql',
+  'backend/prisma/migrations/x/migration.sql', 'db/migrations/002.sql', 'anything.sql', 'src/db/migrate.sql',
+  'scripts/migrateUsers.js', 'scripts/migrate-all.mjs', 'tools/migrate.ts', 'prisma/schema.prisma']) {
+  test(`Hx10 real DB migration artifact is forbidden: ${p}`, () => {
+    assert.equal(classifyStudioScopePath(p), 'forbidden_scope', p);
+  });
+}
+test('Hx11 the catalogued governance migration name is allowed by OWNERSHIP, not by a loosened pattern', () => {
+  const own = 'docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/CERTIFICATION-REPORT.md';
+  assert.equal(classifyStudioScopePath(own), 'known_later_studio_headless_artifact');
+  assert.deepEqual(findOwningStudioSlices(own).map((s) => s.sliceId), [MIGRATION]);
+});
+test('Hx12 a random uncatalogued migration filename is unknown and unsafe', () => {
+  for (const p of ['docs/random-migration-plan.md', 'tools/custom-migration-helper.js']) {
+    assert.equal(classifyStudioScopePath(p), 'unknown_scope', p);
+    const r = evaluateStudioBranchScope([REGISTRY_REL, GUARD_REL, TEST_REL, GATE_REL,
+      'docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/CERTIFICATION-REPORT.md', p],
+    { callerSliceId: MIGRATION });
+    assert.equal(r.safe, false, p);
+    assert.ok(r.unknown.includes(p), p);
   }
 });

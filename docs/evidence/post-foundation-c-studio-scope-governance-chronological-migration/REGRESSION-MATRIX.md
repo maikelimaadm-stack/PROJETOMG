@@ -22,3 +22,19 @@ Todos os 137 padrões do antigo `KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS` estão p
 ## Não-regressão funcional
 
 Nos 9 testes e nos 22 gates migrados, apenas o check branch-relative de escopo mudou. Nenhum contrato, runtime, digest, invariante ou prova funcional foi tocado, e a quantidade de `gate(...)` de cada gate foi preservada.
+
+## Correção pós-auditoria
+
+| eixo | antes da correção | depois |
+|---|---|---|
+| origem da autorização forbidden | opção passada pelo caller | campo do catálogo da fatia ATIVA |
+| injeção de regex ampla pelo caller | possível | impossível (opção removida da API) |
+| `src/App.jsx` autorizado | saía de `forbidden`, caía em `unknown` | entra em `allowed` + `explicitForbiddenAuthorized` |
+| fixture App Integration | provava só `forbidden=[]` | prova `safe=true`, 4/4 `allowed`, `unknown=[]` |
+| herança da autorização | não provada | provada impossível (Builder e Migration ativos) |
+| campo no catálogo | ausente | presente nas 42 entradas |
+| checks históricos `/migration/i` | afrouxados globalmente | regra original + isenção exata da migration ativa |
+| checks históricos `/menu\|nav/i` | afrouxados globalmente | idem |
+| check histórico `/empresas/i` | afrouxado globalmente | idem |
+| caminho apenas semelhante e não catalogado | passaria | bloqueia (8 fixtures provadas) |
+| mesmo path exato com outra fatia ativa | não verificado | bloqueia (`chronologicalViolation`) |

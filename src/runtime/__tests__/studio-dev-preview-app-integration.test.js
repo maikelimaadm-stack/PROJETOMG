@@ -4,6 +4,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+// Studio scope governance. The ORIGINAL rule below is preserved for every path; the ONLY exemption is the
+// exact set of artifacts the chronological-migration slice is authorized to touch, and only while that
+// slice is the one active on the branch. A merely similar, uncatalogued path still fails.
+import { resolveActiveStudioSlice, isPathAuthorizedForStudioSlice } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 // Caller-aware Studio scope governance. This test declares its OWN slice identity, so the branch-relative
 // scope check below can ask whether the slice active on this branch is the same as it or genuinely later.
 import { evaluateStudioBranchScope } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
@@ -64,6 +68,15 @@ import { createStudioDevPreviewRuntimeUiContract } from '../../studio/blueprint-
 import { createStudioDevPreviewRuntimeUi } from '../../studio/blueprint-engine/dev-preview-runtime-ui/index.js';
 import { createStudioDevPreviewRouteMenuContract } from '../../studio/blueprint-engine/dev-preview-route-menu-contract/index.js';
 import { createStudioDevPreviewRouteMenu } from '../../studio/blueprint-engine/dev-preview-route-menu/index.js';
+
+/** Paths exempt from the historical substring rules: EXACTLY what the chronological-migration slice is authorized
+ * to touch, and only when that slice is the active one. Never a category (any test, any gate, any evidence). */
+const MIGRATION_SLICE_ID = 'studio-scope-governance-chronological-migration';
+const migrationExempt = (changedPaths) => {
+  const active = resolveActiveStudioSlice(changedPaths);
+  if (!active.ok || active.sliceId !== MIGRATION_SLICE_ID) return () => false;
+  return (p) => isPathAuthorizedForStudioSlice(p, MIGRATION_SLICE_ID);
+};
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '../../..');
@@ -509,7 +522,7 @@ test('390. registry known-later leaks no forbidden probe', () => { const probes 
 test('391. no src/modules in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => /^src\/modules\//.test(f))); });
 // Empresas PRODUCTION source must not change. A substring scan over file names also matched the Empresas
 // governance TEST files, which are not Empresas source; anchor the check on real source paths instead.
-test('392. no Empresas in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => (/empresas/i.test(f) && !/^src\/runtime\/__tests__\//.test(f) && !/^scripts\/gates\//.test(f) && !/^docs\/evidence\//.test(f)))); });
+test('392. no Empresas in diff', () => { const files = changed(); if (files === null) return; const exempt = migrationExempt(files); assert.ok(files.filter((x) => !exempt(x)).every((x) => !/empresas/i.test(x))); });
 test('393. no backend/prisma/migration in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => /^backend\/|schema\.prisma$|^migrations\//.test(f))); });
 test('394. no .tsx/.css in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => /\.(tsx|css)$/.test(f))); });
 test('395. only .jsx in diff are the subtree or the authorized additive App.jsx', () => { const files = changed(); if (files === null) return; assert.ok(files.filter((f) => /\.jsx$/.test(f)).every((f) => f === 'src/App.jsx' || /^src\/studio\/blueprint-engine\/dev-preview-app-integration\//.test(f))); });

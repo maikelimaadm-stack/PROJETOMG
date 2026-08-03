@@ -41,10 +41,8 @@ const studioScope = () => {
   try {
     changed = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
   } catch { gitAvailable = false; }
-  const evaluation = evaluateStudioBranchScope(changed, {
-    callerSliceId: CALLER_SLICE_ID,
-    explicitlyAuthorizedForbiddenPatterns: STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN,
-  });
+  // The forbidden authorization comes from THIS slice's own catalog entry, never from an option passed here.
+  const evaluation = evaluateStudioBranchScope(changed, { callerSliceId: CALLER_SLICE_ID });
   studioScopeCache = { gitAvailable, changed, evaluation };
   return studioScopeCache;
 };

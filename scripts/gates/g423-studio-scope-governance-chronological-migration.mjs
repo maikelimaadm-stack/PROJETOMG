@@ -241,9 +241,12 @@ for (const p of FORBIDDEN_FIXTURES) {
 gate('G423-SGCM — the only explicit forbidden authorization is the app-integration pair',
   REG.STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN.length === 2
   && G.evaluateStudioBranchScope(['src/App.jsx', 'src/studio/blueprint-engine/dev-preview-app-integration/index.js', 'docs/evidence/post-foundation-c-studio-dev-preview-app-integration/CERTIFICATION-REPORT.md'],
-    { callerSliceId: 'dev-preview-app-integration', explicitlyAuthorizedForbiddenPatterns: REG.STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN }).forbidden.length === 0);
-gate('G423-SGCM — without the option App.jsx stays forbidden for the same slice',
-  G.evaluateStudioBranchScope(['src/App.jsx', 'src/studio/blueprint-engine/dev-preview-app-integration/index.js'], { callerSliceId: 'dev-preview-app-integration' }).forbidden.length === 1);
+    { callerSliceId: 'dev-preview-app-integration' }).forbidden.length === 0);
+// The authorization is now CATALOG-BOUND, so it applies whenever the App Integration slice is the active one —
+// there is no option to withhold. What must still hold: no OTHER active slice ever inherits it (proved below).
+gate('G423-SGCM — App.jsx is authorized only while App Integration is the ACTIVE slice',
+  G.evaluateStudioBranchScope(['src/App.jsx', 'src/studio/blueprint-engine/dev-preview-app-integration/index.js'], { callerSliceId: 'dev-preview-app-integration' }).forbidden.length === 0
+  && G.evaluateStudioBranchScope(['src/App.jsx', 'src/studio/blueprint-engine/module-preview-sandbox/index.js'], { callerSliceId: 'module-preview-sandbox' }).forbidden.length === 1);
 for (const p of ['some/random/file.js', 'tools/x.mjs', 'src/whatever/unregistered.js', 'docs/notes.txt']) {
   const r = G.evaluateStudioBranchScope([...fixture.paths, p], { callerSliceId: BUILDER });
   gate(`G423-SGCM — unknown fails closed: ${p}`, !r.safe && (r.unknown.includes(p) || r.chronologicalViolation.includes(p)));
@@ -367,6 +370,118 @@ if (branchPaths !== null) {
   walk(dist);
   gate('G423-SGCM — governance never reaches the bundle', hits === 0, `${hits} hits`);
 }
+
+// ---- POST-AUDIT: explicit forbidden bound to the catalog ----
+const APP_INTEGRATION = 'dev-preview-app-integration';
+const APP_INTEGRATION_FIXTURE = [
+  'src/studio/blueprint-engine/dev-preview-app-integration/index.js',
+  'docs/evidence/post-foundation-c-studio-dev-preview-app-integration/CERTIFICATION-REPORT.md',
+  'src/App.jsx',
+  'scripts/gates/lib/productionUiGuard.mjs',
+];
+for (const s of CATALOG) {
+  gate(`G423-SGCM — ${s.sliceId} declares explicitlyAuthorizedForbiddenPatterns`, Array.isArray(s.explicitlyAuthorizedForbiddenPatterns));
+  gate(`G423-SGCM — ${s.sliceId} explicit forbidden count is exact`, s.explicitlyAuthorizedForbiddenPatterns.length === (s.sliceId === APP_INTEGRATION ? 2 : 0));
+  for (const re of s.explicitlyAuthorizedForbiddenPatterns) {
+    const probe = re.source.replace(/^\^/, '').replace(/\$$/, '').replace(/\\\//g, '/').replace(/\\\./g, '.');
+    gate(`G423-SGCM — ${s.sliceId} explicit forbidden anchored + truly forbidden: ${probe}`,
+      re.source.startsWith('^') && re.source.endsWith('$')
+      && REG.FORBIDDEN_SCOPE_PATTERNS.some((f) => f.test(probe))
+      && !REG.FORBIDDEN_BROAD_ALLOW_SOURCES.includes(re.toString()));
+  }
+}
+gate('G423-SGCM — exactly ONE slice authorizes any forbidden path',
+  JSON.stringify(CATALOG.filter((s) => s.explicitlyAuthorizedForbiddenPatterns.length > 0).map((s) => s.sliceId)) === JSON.stringify([APP_INTEGRATION]));
+gate('G423-SGCM — the derived export mirrors the catalog entry exactly',
+  JSON.stringify(REG.STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN.map(String))
+  === JSON.stringify(G.getStudioSliceById(APP_INTEGRATION).explicitlyAuthorizedForbiddenPatterns.map(String)));
+{
+  const r = G.evaluateStudioBranchScope(APP_INTEGRATION_FIXTURE, { callerSliceId: APP_INTEGRATION });
+  gate('G423-SGCM — App Integration fixture is ENTIRELY safe', r.safe === true && r.activeSliceId === APP_INTEGRATION, r.blockers.join(','));
+  gate('G423-SGCM — App Integration fixture: forbidden/unknown/chronological all empty', r.forbidden.length === 0 && r.unknown.length === 0 && r.chronologicalViolation.length === 0);
+  gate('G423-SGCM — App Integration fixture: 4/4 allowed', r.allowed.length === 4);
+  gate('G423-SGCM — App Integration fixture: explicitForbiddenAuthorized is exactly the pair',
+    JSON.stringify(r.explicitForbiddenAuthorized) === JSON.stringify(['scripts/gates/lib/productionUiGuard.mjs', 'src/App.jsx']));
+  for (const p of ['src/App.jsx', 'scripts/gates/lib/productionUiGuard.mjs']) {
+    gate(`G423-SGCM — authorized forbidden lands in allowed, never unknown: ${p}`, r.allowed.includes(p) && !r.unknown.includes(p) && !r.forbidden.includes(p));
+  }
+}
+{
+  const r = G.evaluateStudioBranchScope([...fixture.paths, 'src/App.jsx'], { callerSliceId: BUILDER });
+  gate('G423-SGCM — the Builder does NOT inherit the App.jsx authorization', !r.safe && r.forbidden.includes('src/App.jsx') && r.explicitForbiddenAuthorized.length === 0);
+}
+{
+  const r = G.evaluateStudioBranchScope([REGISTRY_REL, `docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/CERTIFICATION-REPORT.md`, 'src/App.jsx'], { callerSliceId: MIGRATION });
+  gate('G423-SGCM — the Migration does NOT inherit the App.jsx authorization', !r.safe && r.forbidden.includes('src/App.jsx'));
+}
+for (const inject of [{ explicitlyAuthorizedForbiddenPatterns: [/.*/] }, { explicitlyAuthorizedForbidden: [/.*/] }, { ownSliceAuthorized: [/.*/] }]) {
+  const r = G.evaluateStudioBranchScope([...fixture.paths, 'src/App.jsx'], { callerSliceId: BUILDER, ...inject });
+  gate(`G423-SGCM — a caller cannot inject a forbidden regex: ${Object.keys(inject)[0]}`, !r.safe && r.forbidden.includes('src/App.jsx'));
+}
+{
+  const body = readSrc(GUARD_REL).slice(readSrc(GUARD_REL).indexOf('export function evaluateStudioBranchScope'));
+  gate('G423-SGCM — evaluate reads NO caller-supplied forbidden option', !/o\.explicitlyAuthorizedForbidden/.test(body) && /activeSlice\.explicitlyAuthorizedForbiddenPatterns/.test(body));
+}
+for (const third of ['src/pages/Home.jsx', 'backend/server.js', 'src/modules/x/index.js', 'migrations/001.sql']) {
+  const r = G.evaluateStudioBranchScope([...APP_INTEGRATION_FIXTURE, third], { callerSliceId: APP_INTEGRATION });
+  gate(`G423-SGCM — a THIRD forbidden path is refused for App Integration: ${third}`, !r.safe && r.forbidden.includes(third));
+}
+gate('G423-SGCM — an unresolved active slice authorizes no forbidden path',
+  (() => { const r = G.evaluateStudioBranchScope(['src/App.jsx', 'README.md'], { callerSliceId: APP_INTEGRATION }); return !r.safe && r.forbidden.includes('src/App.jsx') && r.explicitForbiddenAuthorized.length === 0; })());
+gate('G423-SGCM — catalog helpers fail closed on an unknown slice',
+  G.getExplicitlyAuthorizedForbiddenPatternsForStudioSlice('nope').length === 0
+  && G.getAuthorizedPatternsForStudioSlice('nope').length === 0
+  && G.isPathAuthorizedForStudioSlice('src/App.jsx', 'nope') === false);
+
+// ---- POST-AUDIT: historical substring semantics preserved ----
+const SIMILAR_UNREGISTERED = [
+  'docs/random-migration-plan.md', 'tools/custom-migration-helper.js', 'config/menu.json',
+  'tools/navigation-generator.js', 'scripts/gates/g423-unregistered-route-menu.mjs',
+  'src/runtime/__tests__/unlisted-empresas-change.test.js', 'scripts/gates/g423-unlisted-empresas-change.mjs',
+  'docs/evidence/unregistered-empresas-change/file.md',
+];
+for (const p of SIMILAR_UNREGISTERED) {
+  gate(`G423-SGCM — similar uncatalogued path authorized for nobody: ${p}`, CATALOG.every((s) => !G.isPathAuthorizedForStudioSlice(p, s.sliceId)));
+  const r = G.evaluateStudioBranchScope([REGISTRY_REL, GUARD_REL, TEST_REL, GATE_REL,
+    `docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/CERTIFICATION-REPORT.md`, p], { callerSliceId: MIGRATION });
+  gate(`G423-SGCM — similar uncatalogued path blocks on a migration branch: ${p}`, !r.safe && (r.unknown.includes(p) || r.forbidden.includes(p)));
+}
+for (const [p] of [...NINE_TESTS, ...TWENTY_TWO_GATES]) {
+  gate(`G423-SGCM — exact migration path authorized only for the migration: ${path.basename(p)}`,
+    G.isPathAuthorizedForStudioSlice(p, MIGRATION)
+    && CATALOG.filter((s) => s.sliceId !== MIGRATION && s.sliceId !== 'studio-scope-governance-maintenance'
+      && !(s.sliceId === BUILDER && BUILDER_CROSS.includes(p))
+      && !G.findOwningStudioSlices(p).some((o) => o.sliceId === s.sliceId))
+      .every((s) => !G.isPathAuthorizedForStudioSlice(p, s.sliceId)));
+}
+for (const [rel, re] of [
+  ['src/runtime/__tests__/empresas-certified-blueprint-mirror-alignment-audit.test.js', /!\/migration\/i\.test\(x\)/],
+  ['src/runtime/__tests__/empresas-certified-blueprint-mirror-alignment-audit.test.js', /!\/menu\|nav\/i\.test\(x\)/],
+  ['src/runtime/__tests__/studio-blueprint-engine-foundation.test.js', /!\/migration\/i\.test\(x\)/],
+  ['src/runtime/__tests__/studio-module-preview-sandbox-contract.test.js', /!\/menu\|nav\/i\.test\(x\)/],
+  ['src/runtime/__tests__/studio-dev-preview-app-integration.test.js', /!\/empresas\/i\.test\(x\)/],
+]) {
+  const src = readSrc(rel);
+  gate(`G423-SGCM — original regex preserved in ${path.basename(rel)}: ${re}`, re.test(src) && /migrationExempt\(/.test(src) && /isPathAuthorizedForStudioSlice/.test(src));
+}
+gate('G423-SGCM — the exemption is inert when the active slice is not the migration', (() => {
+  const p = 'src/runtime/__tests__/studio-module-blueprint-authoring-runtime.test.js';
+  const r = G.evaluateStudioBranchScope([...fixture.paths, p], { callerSliceId: BUILDER });
+  return r.activeSliceId === BUILDER && r.chronologicalViolation.includes(p) && !r.safe;
+})());
+
+// ---- POST-AUDIT: DB migration patterns really block ----
+for (const p of ['migrations/001.sql', 'nested/migrations/001.sql', 'prisma/migrations/20240101_init/migration.sql',
+  'backend/prisma/migrations/x/migration.sql', 'db/migrations/002.sql', 'anything.sql', 'src/db/migrate.sql',
+  'scripts/migrateUsers.js', 'scripts/migrate-all.mjs', 'tools/migrate.ts', 'prisma/schema.prisma']) {
+  gate(`G423-SGCM — real DB migration artifact forbidden: ${p}`, G.classifyStudioScopePath(p) === 'forbidden_scope');
+}
+gate('G423-SGCM — the governance migration name is allowed by OWNERSHIP', (() => {
+  const own = 'docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/CERTIFICATION-REPORT.md';
+  return G.classifyStudioScopePath(own) === 'known_later_studio_headless_artifact'
+    && G.findOwningStudioSlices(own).map((s) => s.sliceId).join() === MIGRATION;
+})());
+gate('G423-SGCM — a random uncatalogued migration filename is unknown', ['docs/random-migration-plan.md', 'tools/custom-migration-helper.js'].every((p) => G.classifyStudioScopePath(p) === 'unknown_scope'));
 
 const failed = results.filter((r) => !r.ok);
 console.log(`\n--- G423-STUDIO-SCOPE-GOVERNANCE-CHRONOLOGICAL-MIGRATION summary ---`);

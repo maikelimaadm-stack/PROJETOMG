@@ -23,9 +23,16 @@ src/runtime/loadRuntimeBundle.js
 scripts/gates/lib/productionUiGuard.mjs
 ```
 
-## Única exceção sancionada
+## Única exceção sancionada — CATALOG-BOUND
 
-`STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN` — exatamente dois caminhos, válida apenas quando a própria fatia `dev-preview-app-integration` passa `explicitlyAuthorizedForbiddenPatterns`. Sem essa opção, os mesmos dois caminhos continuam proibidos para a MESMA fatia — provado.
+A exceção vive no catálogo, no campo `explicitlyAuthorizedForbiddenPatterns` da entrada `dev-preview-app-integration`: exatamente dois caminhos (`^src/App\.jsx$` e `^scripts/gates/lib/productionUiGuard\.mjs$`). Todas as outras 41 entradas declaram `[]`.
+
+Não existe mais opção de caller. `evaluateStudioBranchScope` lê a autorização SOMENTE de `activeSlice.explicitlyAuthorizedForbiddenPatterns`, portanto:
+
+- um chamador não consegue injetar regex ampla (provado com `/.*/ ` em três formas);
+- nenhuma outra fatia herda a autorização (provado com Builder ativo e com Migration ativa);
+- quando a fatia ativa não resolve, NADA é autorizado — nem proibido;
+- um caminho proibido autorizado pela fatia ativa entra em `allowed` e em `explicitForbiddenAuthorized`, nunca em `unknown`.
 
 ## Desconhecido falha fechado
 

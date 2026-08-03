@@ -25,7 +25,11 @@ Nenhuma dessas asserções falha por conteúdo. Todas falham por casarem o NOME 
 
 `g423-studio-blueprint-engine-foundation` · `g423-studio-blueprint-module-reference-planner` · `g423-studio-authoring-runtime-to-preview-bridge-source-shape-alignment` · `g423-studio-authoring-runtime-to-preview-bridge-hardening` · `g423-studio-bridge-to-preview-sandbox-runtime-contract` · `g423-studio-bridge-decision-envelope-identity-contract` · `g423-studio-bridge-to-preview-sandbox-runtime-implementation-plan` · `g423-studio-bridge-decision-core-envelope-contract` · `g423-studio-bridge-to-preview-sandbox-runtime-implementation-plan-alignment-amendment` · `g423-studio-bridge-decision-core-envelope-builder-contract` · `g423-studio-bridge-decision-core-envelope-builder-implementation-plan` · `g423-studio-dev-preview-app-integration` (uma checagem EXTRA além das já migradas)
 
-## Natureza exata da mudança
+## Correção pós-auditoria (rodada atual)
+
+A primeira versão desta extensão AFROUXOU as regras globalmente. Isso foi revertido: a regra ORIGINAL de cada check foi restaurada, e a única exceção passou a ser a lista EXATA de caminhos que a fatia de migration está autorizada a tocar, aplicada somente quando essa fatia é a ATIVA. Ver `HISTORICAL-SUBSTRING-SEMANTICS-PRESERVATION.md`.
+
+## Natureza da mudança — versão anterior (revertida)
 
 | asserção | antes | depois |
 |---|---|---|
@@ -34,7 +38,11 @@ Nenhuma dessas asserções falha por conteúdo. Todas falham por casarem o NOME 
 | `guards not in diff` | `!diff.includes(guard)` | `productionUiGuard` nunca; guard central apenas quando a fatia ativa é de governança |
 | `no Empresas in diff` | `/empresas/i.test(path)` | nenhum caminho FONTE Empresas — testes, gates e evidências de governança não são fonte Empresas |
 
-Semântica preservada e, no caso de migração, **reforçada** (`.sql` e diretórios `migrations/` aninhados passaram a ser bloqueados; antes só o prefixo `^migrations/` e o substring). Nenhuma checagem funcional, contrato, runtime ou digest foi tocada.
+Essa tabela descreve a versão REVERTIDA. Na versão atual, cada check mantém a regra original e apenas isenta os caminhos exatos da migration, com a fatia migration ativa.
+
+No guard central, a substituição de `/migration/i` por padrões de DB reais permanece — ela é ESTRITAMENTE mais forte (`.sql`, `migrations/` aninhado, `prisma/migrations`, `migrate*.{js,mjs,cjs,ts,sql}`) e o nome catalogado da fatia de governança é permitido por OWNERSHIP, não por afrouxamento. Um nome de migração aleatório e não catalogado continua `unknown_scope` e `safe=false`.
+
+Nenhuma checagem funcional, contrato, runtime ou digest foi tocada.
 
 ## O que continua fora
 
