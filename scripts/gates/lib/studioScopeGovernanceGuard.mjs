@@ -121,12 +121,28 @@ export function getExplicitlyAuthorizedForbiddenPatternsForStudioSlice(sliceId) 
  */
 export function resolveActiveStudioSlice(changedPaths) {
   const paths = asArray(changedPaths).filter(isPath);
-  const seen = new Map();
+  const seen = new Map();       // sliceId -> slice
+  const electedBy = new Map();  // sliceId -> the marker paths that elected it
   for (const p of paths) {
     for (const s of findMarkingStudioSlices(p)) {
-      if (!seen.has(s.sliceId)) seen.set(s.sliceId, s);
+      if (!seen.has(s.sliceId)) { seen.set(s.sliceId, s); electedBy.set(s.sliceId, []); }
+      electedBy.get(s.sliceId).push(p);
     }
   }
+  // A later slice may legitimately AMEND an earlier slice's own artifact — that is exactly what an
+  // exact `crossSliceAuthorizedPatterns` entry declares. When every marker path that elected
+  // candidate S is explicitly cross-authorized by ANOTHER candidate T, S is being amended, not
+  // built, so S is not an active candidate. The authorization is exact, per path, declared in the
+  // catalog and never inheritable, so this can never widen anything: a candidate whose OWN subtree
+  // or evidence appears for any other reason stays a candidate, and genuine ambiguity still blocks.
+  const amended = new Set();
+  for (const [sliceId, markerPaths] of electedBy) {
+    const amendedBy = [...seen.values()].filter((t) => t.sliceId !== sliceId
+      && markerPaths.every((p) => matchesAny(p, asArray(t.crossSliceAuthorizedPatterns))));
+    if (amendedBy.length > 0) amended.add(sliceId);
+  }
+  if (amended.size > 0 && amended.size < seen.size) for (const id of amended) seen.delete(id);
+
   const candidates = [...seen.keys()].sort();
   if (candidates.length === 0) {
     return { ok: false, sliceId: null, sliceOrdinal: null, candidates, reason: 'no_active_slice_resolved' };
