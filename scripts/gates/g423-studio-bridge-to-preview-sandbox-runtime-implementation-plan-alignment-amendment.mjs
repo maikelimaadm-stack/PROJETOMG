@@ -12,8 +12,7 @@ import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { isKnownLaterStudioHeadlessArtifact } from './lib/studioScopeGovernanceGuard.mjs';
-import { resolveActiveStudioSlice } from './lib/studioScopeGovernanceGuard.mjs';
+import { createResolvedActiveStudioSlicePathAuthorizer } from './lib/studioScopeGovernanceGuard.mjs';
 
 const ROOT = process.cwd();
 const DIR = path.join(ROOT, 'src/studio/blueprint-engine/bridge-to-preview-sandbox-runtime-implementation-plan-alignment-amendment');
@@ -40,7 +39,17 @@ const AUTHORIZED = [
   /^package\.json$/, /^package-lock\.json$/,
   /^docs\/evidence\/post-foundation-c-studio-bridge-to-preview-sandbox-runtime-implementation-plan-alignment-amendment\//,
 ];
-const authorized = (f) => AUTHORIZED.some((re) => re.test(f)) || isKnownLaterStudioHeadlessArtifact(f);
+// The chronology-free catalog lookup is replaced by the single central authorizer: a path is
+// tolerated only when exactly one ACTIVE slice resolves from the branch diff AND that exact
+// slice is authorized for that exact path. `activeDiffAuthorizer` is computed once, from the
+// complete diff, and authorizes nothing when the diff is empty, unresolved or ambiguous.
+const activeDiffAuthorizer = (() => {
+  try {
+    return createResolvedActiveStudioSlicePathAuthorizer(
+      execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean));
+  } catch { return createResolvedActiveStudioSlicePathAuthorizer([]); }
+})();
+const authorized = (f) => AUTHORIZED.some((re) => re.test(f)) || activeDiffAuthorizer.isAuthorized(f);
 
 const A = await import(pathToFileURL(path.join(DIR, 'index.js')).href);
 const PLAN = await import(pathToFileURL(path.join(PLAN_DIR, 'index.js')).href);
@@ -249,7 +258,7 @@ if (files) {
   // governance guard may appear ONLY when the slice active on this branch shares it — i.e. a governance slice.
   gate('G423-PA — central guards not altered', !files.includes('scripts/gates/lib/productionUiGuard.mjs')
     && (!files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs')
-      || (resolveActiveStudioSlice(files).ok && resolveActiveStudioSlice(files).sliceId.startsWith('studio-scope-governance-'))));
+      || createResolvedActiveStudioSlicePathAuthorizer(files).isAuthorized('scripts/gates/lib/studioScopeGovernanceGuard.mjs')));
   gate('G423-PA — source plan subtree unchanged', !files.some((f) => f.startsWith('src/studio/blueprint-engine/bridge-to-preview-sandbox-runtime-implementation-plan/')));
   gate('G423-PA — core contract subtree unchanged', !files.some((f) => f.startsWith('src/studio/blueprint-engine/bridge-decision-core-envelope-contract/')));
   gate('G423-PA — no App/pages/components/modules in diff', !files.some((f) => /^src\/(pages|components|modules|ModeloBase1|ModeloBase2)\//.test(f) || f === 'src/App.jsx'));

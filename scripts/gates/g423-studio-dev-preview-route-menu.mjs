@@ -22,8 +22,7 @@ import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { isKnownLaterStudioHeadlessArtifact, filterForbiddenScopePaths } from './lib/studioScopeGovernanceGuard.mjs';
-import { evaluateStudioBranchScope } from './lib/studioScopeGovernanceGuard.mjs';
+import { evaluateStudioBranchDiffScope, filterForbiddenScopePaths, isKnownLaterStudioHeadlessArtifact } from './lib/studioScopeGovernanceGuard.mjs';
 
 // ---------------------------------------------------------------------------
 // CALLER-AWARE branch-relative scope governance. This gate declares its OWN slice identity,
@@ -40,7 +39,9 @@ const studioScope = () => {
   try {
     changed = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
   } catch { gitAvailable = false; }
-  const evaluation = evaluateStudioBranchScope(changed, {
+  // An empty branch diff (this gate also runs on `main`) is NOT a violation: it carries nothing
+  // to judge. A non-empty diff is delegated to the chronological core, unchanged.
+  const evaluation = evaluateStudioBranchDiffScope(changed, {
     callerSliceId: CALLER_SLICE_ID,
   });
   studioScopeCache = { gitAvailable, changed, evaluation };
@@ -408,9 +409,12 @@ let noOldEdit = false; let noOldEditDetail = '';
   else {
     // A prior slice's test or gate may appear ONLY when the ACTIVE slice is explicitly
     // cross-authorized for it, and only when that active slice is this one or later.
-    const chronologyOk = evaluation.activeSliceOrdinal !== null && evaluation.activeSliceOrdinal >= evaluation.callerSliceOrdinal;
+    const chronologyOk = !evaluation.applicable
+      || (evaluation.activeSliceOrdinal !== null && evaluation.activeSliceOrdinal >= evaluation.callerSliceOrdinal);
     noOldEdit = evaluation.safe && chronologyOk;
-    noOldEditDetail = noOldEdit
+    noOldEditDetail = !evaluation.applicable
+      ? `branch diff not applicable: ${evaluation.reason}`
+      : noOldEdit
       ? `no unauthorized prior gate/test (active ${evaluation.activeSliceId} #${evaluation.activeSliceOrdinal} >= ${CALLER_SLICE_ID} #${evaluation.callerSliceOrdinal})`
       : `blocked: ${evaluation.blockers.join(',')}`;
   }

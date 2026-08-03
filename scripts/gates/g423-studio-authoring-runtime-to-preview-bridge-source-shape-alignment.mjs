@@ -13,10 +13,19 @@ import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { isKnownLaterStudioHeadlessArtifact, filterForbiddenScopePaths } from './lib/studioScopeGovernanceGuard.mjs';
-import { resolveActiveStudioSlice } from './lib/studioScopeGovernanceGuard.mjs';
+import { createResolvedActiveStudioSlicePathAuthorizer, filterForbiddenScopePaths } from './lib/studioScopeGovernanceGuard.mjs';
 
 const ROOT = process.cwd();
+// The chronology-free catalog lookup is replaced by the single central authorizer: a path is
+// tolerated only when exactly one ACTIVE slice resolves from the branch diff AND that exact
+// slice is authorized for that exact path. `activeDiffAuthorizer` is computed once, from the
+// complete diff, and authorizes nothing when the diff is empty, unresolved or ambiguous.
+const activeDiffAuthorizer = (() => {
+  try {
+    return createResolvedActiveStudioSlicePathAuthorizer(
+      execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean));
+  } catch { return createResolvedActiveStudioSlicePathAuthorizer([]); }
+})();
 const CONTRACT_DIR = path.join(ROOT, 'src/studio/blueprint-engine/authoring-runtime-to-preview-bridge-contract');
 const PLAN_DIR = path.join(ROOT, 'src/studio/blueprint-engine/authoring-runtime-to-preview-bridge-implementation-plan');
 const RUNTIME_DIR = path.join(ROOT, 'src/studio/blueprint-engine/module-blueprint-authoring-runtime');
@@ -214,7 +223,7 @@ gate('G423-AL — App.jsx / guards untouched', (() => {
     if (files.includes('src/App.jsx') || files.includes('scripts/gates/lib/productionUiGuard.mjs')) return false;
     if (!files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs')) return true;
     const active = resolveActiveStudioSlice(files);
-    return active.ok && active.sliceId.startsWith('studio-scope-governance-');
+    return createResolvedActiveStudioSlicePathAuthorizer(files).isAuthorized('scripts/gates/lib/studioScopeGovernanceGuard.mjs');
   } catch { return true; }
 })());
 gate('G423-AL — modules/backend/Prisma untouched', (() => { try { const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean); return !files.some((f) => /^src\/modules\/|^backend\/|schema\.prisma$|^migrations\//.test(f)); } catch { return true; } })());
@@ -222,7 +231,7 @@ gate('G423-AL — no .jsx/.tsx/.css in diff', (() => { try { const files = execS
 
 let blockedOk = false; let blockedDetail = '';
 try {
-  const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean).filter((f) => !isKnownLaterStudioHeadlessArtifact(f));
+  const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean).filter((f) => !activeDiffAuthorizer.isAuthorized(f));
   const bad = filterForbiddenScopePaths(files);
   blockedOk = bad.length === 0;
   blockedDetail = blockedOk ? 'no forbidden scope paths' : `FORBIDDEN: ${bad.join(', ')}`;
@@ -241,7 +250,7 @@ try {
     /^docs\/evidence\/post-foundation-c-studio-authoring-runtime-to-preview-bridge-(contract|implementation-plan|source-shape-alignment)\//,
     /^package\.json$/, /^package-lock\.json$/,
   ];
-  const outside = files.filter((f) => !AUTH.some((re) => re.test(f)) && !isKnownLaterStudioHeadlessArtifact(f));
+  const outside = files.filter((f) => !AUTH.some((re) => re.test(f)) && !activeDiffAuthorizer.isAuthorized(f));
   scopeOk = files.length === 0 || outside.length === 0;
   scopeDetail = scopeOk ? `authorized scope only (${files.length} files)` : `OUT OF SCOPE: ${outside.join(', ')}`;
 } catch (err) { scopeOk = true; scopeDetail = 'git base unavailable — skipped'; }

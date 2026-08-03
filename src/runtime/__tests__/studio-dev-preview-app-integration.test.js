@@ -7,10 +7,8 @@ import { fileURLToPath } from 'node:url';
 // Studio scope governance. The ORIGINAL rule below is preserved for every path; the ONLY exemption is the
 // exact set of artifacts the chronological-migration slice is authorized to touch, and only while that
 // slice is the one active on the branch. A merely similar, uncatalogued path still fails.
-import { resolveActiveStudioSlice, isPathAuthorizedForStudioSlice } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 // Caller-aware Studio scope governance. This test declares its OWN slice identity, so the branch-relative
 // scope check below can ask whether the slice active on this branch is the same as it or genuinely later.
-import { evaluateStudioBranchScope } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 
 import {
   APP_INTEGRATION_NAME,
@@ -57,7 +55,6 @@ import {
   createStudioDevPreviewAppIntegration,
 } from '../../studio/blueprint-engine/dev-preview-app-integration/index.js';
 import { STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN } from '../../../scripts/gates/lib/studioScopeGovernanceRegistry.mjs';
-import { classifyStudioScopePath, isKnownLaterStudioHeadlessArtifact } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 import { createStudioModulePreviewSandboxContract } from '../../studio/blueprint-engine/module-preview-sandbox/index.js';
 import { createStudioDevPreviewContractBridge } from '../../studio/blueprint-engine/dev-preview-contract-bridge/index.js';
 import { createStudioDevPreviewVisualContract } from '../../studio/blueprint-engine/dev-preview-visual-contract/index.js';
@@ -68,15 +65,11 @@ import { createStudioDevPreviewRuntimeUiContract } from '../../studio/blueprint-
 import { createStudioDevPreviewRuntimeUi } from '../../studio/blueprint-engine/dev-preview-runtime-ui/index.js';
 import { createStudioDevPreviewRouteMenuContract } from '../../studio/blueprint-engine/dev-preview-route-menu-contract/index.js';
 import { createStudioDevPreviewRouteMenu } from '../../studio/blueprint-engine/dev-preview-route-menu/index.js';
+import { classifyStudioScopePath, createResolvedActiveStudioSlicePathAuthorizer, evaluateStudioBranchDiffScope, isKnownLaterStudioHeadlessArtifact } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 
-/** Paths exempt from the historical substring rules: EXACTLY what the chronological-migration slice is authorized
- * to touch, and only when that slice is the active one. Never a category (any test, any gate, any evidence). */
-const MIGRATION_SLICE_ID = 'studio-scope-governance-chronological-migration';
-const migrationExempt = (changedPaths) => {
-  const active = resolveActiveStudioSlice(changedPaths);
-  if (!active.ok || active.sliceId !== MIGRATION_SLICE_ID) return () => false;
-  return (p) => isPathAuthorizedForStudioSlice(p, MIGRATION_SLICE_ID);
-};
+// Historical substring rules keep their ORIGINAL regex. The only exemption comes from the single
+// central authorizer: exactly one resolved ACTIVE slice, and only the paths that exact slice is
+// authorized for. No sliceId prefix, no hardcoded slice, no chronology-free catalog lookup.
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '../../..');
@@ -522,7 +515,7 @@ test('390. registry known-later leaks no forbidden probe', () => { const probes 
 test('391. no src/modules in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => /^src\/modules\//.test(f))); });
 // Empresas PRODUCTION source must not change. A substring scan over file names also matched the Empresas
 // governance TEST files, which are not Empresas source; anchor the check on real source paths instead.
-test('392. no Empresas in diff', () => { const files = changed(); if (files === null) return; const exempt = migrationExempt(files); assert.ok(files.filter((x) => !exempt(x)).every((x) => !/empresas/i.test(x))); });
+test('392. no Empresas in diff', () => { const files = changed(); if (files === null) return; const exempt = createResolvedActiveStudioSlicePathAuthorizer(files); assert.ok(files.filter((x) => !exempt.isAuthorized(x)).every((x) => !/empresas/i.test(x))); });
 test('393. no backend/prisma/migration in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => /^backend\/|schema\.prisma$|^migrations\//.test(f))); });
 test('394. no .tsx/.css in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => /\.(tsx|css)$/.test(f))); });
 test('395. only .jsx in diff are the subtree or the authorized additive App.jsx', () => { const files = changed(); if (files === null) return; assert.ok(files.filter((f) => /\.jsx$/.test(f)).every((f) => f === 'src/App.jsx' || /^src\/studio\/blueprint-engine\/dev-preview-app-integration\//.test(f))); });
@@ -532,12 +525,15 @@ test('395. only .jsx in diff are the subtree or the authorized additive App.jsx'
 test('396. governance guard file not in diff', () => {
   const files = changed(); if (files === null) return;
   assert.ok(!files.includes('scripts/gates/lib/productionUiGuard.mjs'), 'productionUiGuard is never in scope');
-  const scope = evaluateStudioBranchScope(files, { callerSliceId: CALLER_SLICE_ID });
+  const scope = evaluateStudioBranchDiffScope(files, { callerSliceId: CALLER_SLICE_ID });
   assert.deepEqual(scope.forbidden, []);
   if (files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs')) {
     assert.ok(scope.allowed.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs'),
       'the governance guard may only appear when the active slice shares it');
-    assert.ok(scope.activeSliceId.startsWith('studio-scope-governance-'), scope.activeSliceId);
+    // Exact active-slice authorization: no sliceId prefix, no chronology-free catalog lookup.
+    const authorizer = createResolvedActiveStudioSlicePathAuthorizer(files);
+    assert.ok(authorizer.ok && authorizer.isAuthorized('scripts/gates/lib/studioScopeGovernanceGuard.mjs'),
+      `active ${authorizer.activeSliceId} does not own the governance guard`);
   }
 });
 // Branch-relative scope check, CALLER-AWARE. It no longer asks "is this path registered somewhere?" — a flat
@@ -547,12 +543,20 @@ test('396. governance guard file not in diff', () => {
 const CALLER_SLICE_ID = 'dev-preview-app-integration';
 test('397. no prior gate/test altered', () => {
   const files = changed(); if (files === null) return;
-  const scope = evaluateStudioBranchScope(files, { callerSliceId: CALLER_SLICE_ID });
+  const scope = evaluateStudioBranchDiffScope(files, { callerSliceId: CALLER_SLICE_ID });
   assert.equal(scope.callerSliceId, CALLER_SLICE_ID);
   assert.deepEqual(scope.forbidden, []);
   assert.deepEqual(scope.unknown, []);
   assert.deepEqual(scope.chronologicalViolation, []);
-  assert.ok(scope.activeSliceOrdinal >= scope.callerSliceOrdinal, `active ${scope.activeSliceId} precedes ${CALLER_SLICE_ID}`);
+  // An empty branch diff carries nothing to judge (this check also runs on `main`). A real diff
+  // must still resolve exactly one active slice at or after this caller.
+  if (scope.applicable) {
+    assert.ok(scope.activeSliceOrdinal >= scope.callerSliceOrdinal, `active ${scope.activeSliceId} precedes ${CALLER_SLICE_ID}`);
+  } else {
+    assert.equal(scope.notApplicable, true);
+    assert.equal(scope.reason, 'empty_branch_diff');
+    assert.equal(scope.activeSliceId, null);
+  }
   assert.equal(scope.safe, true, JSON.stringify(scope.blockers));
 });
 test('398. no new dependency', () => { try { const base = JSON.parse(execSync('git show origin/main:package.json', { cwd: ROOT, encoding: 'utf8' })); const head = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')); const bk = [...Object.keys(base.dependencies ?? {}), ...Object.keys(base.devDependencies ?? {})].sort().join(','); const hk = [...Object.keys(head.dependencies ?? {}), ...Object.keys(head.devDependencies ?? {})].sort().join(','); assert.equal(bk, hk); } catch { /* skip */ } });

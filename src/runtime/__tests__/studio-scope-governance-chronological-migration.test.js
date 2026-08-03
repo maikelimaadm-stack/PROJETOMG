@@ -13,6 +13,7 @@ import {
 import {
   getStudioSliceById, getStudioSliceByOrdinal, findOwningStudioSlices, findMarkingStudioSlices,
   resolveActiveStudioSlice, classifyStudioScopePath, evaluateStudioBranchScope,
+  evaluateStudioBranchDiffScope, createResolvedActiveStudioSlicePathAuthorizer,
   isKnownLaterStudioHeadlessArtifact, filterForbiddenScopePaths, filterUnknownScopePaths,
   createStudioScopeGovernanceReport, assertNoForbiddenScopePaths,
   getAuthorizedPatternsForStudioSlice, isPathAuthorizedForStudioSlice,
@@ -30,6 +31,7 @@ const exists = (rel) => fs.existsSync(path.join(ROOT, rel));
 const readEv = (f) => (fs.existsSync(path.join(EV, f)) ? fs.readFileSync(path.join(EV, f), 'utf8') : '');
 
 const MIGRATION = CHRONOLOGICAL_MIGRATION_SLICE_ID;
+const CORRECTION = 'studio-scope-governance-main-diff-correction';
 const BUILDER = 'bridge-decision-core-envelope-builder';
 
 /** The nine tests that used to block the official aggregate, with their caller slice ids. */
@@ -475,6 +477,7 @@ test('X006 a cross authorization is never inherited by another slice', () => {
   const migrated = 'scripts/gates/g423-studio-dev-preview-route-menu.mjs';
   for (const s of STUDIO_SLICE_CATALOG) {
     if (s.sliceId === MIGRATION) continue;
+    if (s.sliceId === CORRECTION) continue; // the later correction slice declares its own exact list
     assert.equal(s.crossSliceAuthorizedPatterns.some((re) => re.test(migrated)), false, s.sliceId);
   }
 });
@@ -604,7 +607,9 @@ for (const [p, callerSliceId] of NINE_TESTS) {
   test(`M001 migrated test ${path.basename(p)} declares its caller slice and uses the caller-aware API`, () => {
     const src = fs.readFileSync(path.join(ROOT, p), 'utf8');
     assert.ok(src.includes(`const CALLER_SLICE_ID = '${callerSliceId}';`), p);
-    assert.ok(src.includes('evaluateStudioBranchScope('), p);
+    // Superseded by the main-diff correction: the branch-relative consumers now use the
+    // boundary API, which delegates to the chronological core for every non-empty diff.
+    assert.ok(src.includes('evaluateStudioBranchDiffScope('), p);
   });
   test(`M002 migrated test ${path.basename(p)} keeps no local temporal allowlist`, () => {
     const src = fs.readFileSync(path.join(ROOT, p), 'utf8');
@@ -615,7 +620,7 @@ for (const [p, callerSliceId] of TWENTY_TWO_GATES) {
   test(`M003 migrated gate ${path.basename(p)} declares its caller slice and uses the caller-aware API`, () => {
     const src = fs.readFileSync(path.join(ROOT, p), 'utf8');
     assert.ok(src.includes(`const CALLER_SLICE_ID = '${callerSliceId}';`), p);
-    assert.ok(src.includes('evaluateStudioBranchScope('), p);
+    assert.ok(src.includes('evaluateStudioBranchDiffScope('), p);
   });
 }
 test('M004 exactly nine tests and twenty-two gates are migrated', () => {
@@ -644,7 +649,8 @@ for (const g of LEGACY_PRE_STUDIO_SCOPE_GATES_NOT_MIGRATED) {
   test(`L002 pre-Studio gate is outside the Studio catalog: ${path.basename(g)}`, () => {
     assert.equal(findOwningStudioSlices(g).length, 0);
     const src = fs.readFileSync(path.join(ROOT, g), 'utf8');
-    assert.ok(!src.includes('evaluateStudioBranchScope('), `${g} must NOT be migrated by this slice`);
+    assert.ok(!src.includes('evaluateStudioBranchScope(') && !src.includes('evaluateStudioBranchDiffScope('),
+      `${g} must NOT be migrated by this slice`);
   });
 }
 test('L003 the decision is documented, not silently passed', () => {
@@ -692,26 +698,50 @@ const changedOnThisBranch = () => {
   try { return execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean); }
   catch { return null; }
 };
-test('T001 this branch resolves the migration as the active slice', () => {
+// This slice is a caller like any other. A LATER governance slice may legitimately be the active
+// one on the branch, and on `main` there is no diff at all — neither case is a violation.
+test('T001 this branch resolves no earlier slice than this one', () => {
   const f = changedOnThisBranch(); if (f === null) return;
   const r = resolveActiveStudioSlice(f);
+  if (f.length === 0) { assert.equal(r.ok, false); assert.equal(r.reason, 'no_active_slice_resolved'); return; }
   assert.equal(r.ok, true, JSON.stringify(r));
-  assert.equal(r.sliceId, MIGRATION);
+  assert.ok(r.sliceOrdinal >= getStudioSliceById(MIGRATION).sliceOrdinal, r.sliceId);
 });
 test('T002 this branch is safe for the migration slice itself', () => {
   const f = changedOnThisBranch(); if (f === null) return;
-  const r = evaluateStudioBranchScope(f, { callerSliceId: MIGRATION });
+  const r = evaluateStudioBranchDiffScope(f, { callerSliceId: MIGRATION });
   assert.deepEqual(r.forbidden, []);
   assert.deepEqual(r.unknown, []);
   assert.deepEqual(r.chronologicalViolation, []);
+  if (!r.applicable) { assert.equal(r.notApplicable, true); assert.equal(r.reason, 'empty_branch_diff'); }
   assert.equal(r.safe, true, JSON.stringify(r.blockers));
 });
 for (const [, callerSliceId] of NINE_TESTS) {
   test(`T003 this branch is safe for caller ${callerSliceId}`, () => {
     const f = changedOnThisBranch(); if (f === null) return;
-    assert.equal(evaluateStudioBranchScope(f, { callerSliceId }).safe, true);
+    assert.equal(evaluateStudioBranchDiffScope(f, { callerSliceId }).safe, true);
   });
 }
+// The three semantics coexist and are proven side by side.
+test('T005 resolveActiveStudioSlice([]) stays fail-closed', () => {
+  const r = resolveActiveStudioSlice([]);
+  assert.equal(r.ok, false);
+  assert.equal(r.reason, 'no_active_slice_resolved');
+});
+test('T006 evaluateStudioBranchScope([]) stays fail-closed', () => {
+  const r = evaluateStudioBranchScope([], { callerSliceId: MIGRATION });
+  assert.equal(r.safe, false);
+  assert.ok(r.blockers.includes('no_active_slice_resolved'));
+});
+test('T007 evaluateStudioBranchDiffScope([]) is notApplicable and safe', () => {
+  const r = evaluateStudioBranchDiffScope([], { callerSliceId: MIGRATION });
+  assert.equal(r.applicable, false);
+  assert.equal(r.notApplicable, true);
+  assert.equal(r.reason, 'empty_branch_diff');
+  assert.equal(r.safe, true);
+  assert.deepEqual(r.allowed, []);
+  assert.equal(r.activeSliceId, null);
+});
 test('T004 this branch touches no production code and no Builder file', () => {
   const f = changedOnThisBranch(); if (f === null) return;
   for (const p of f) {
@@ -873,6 +903,7 @@ for (const p of [...NINE_TESTS.map(([x]) => x), ...TWENTY_TWO_GATES.map(([x]) =>
     assert.equal(isPathAuthorizedForStudioSlice(p, MIGRATION), true, p);
     for (const s of STUDIO_SLICE_CATALOG) {
       if (s.sliceId === MIGRATION) continue;
+      if (s.sliceId === CORRECTION) continue; // the later correction slice rewires the same artifacts
       if (s.sliceId === 'studio-scope-governance-maintenance') continue; // its own earlier, separately proven wiring
       if (s.sliceId === BUILDER && BUILDER_CROSS.includes(p)) continue;  // the Builder's own lifecycle pair
       const owns = findOwningStudioSlices(p).some((o) => o.sliceId === s.sliceId);
@@ -891,8 +922,10 @@ test('Hx04 the historical checks keep their ORIGINAL regex, exempting only exact
   for (const [rel, re] of files) {
     const src = fs.readFileSync(path.join(ROOT, rel), 'utf8');
     assert.match(src, re, rel);
-    assert.match(src, /migrationExempt\(/, rel);
-    assert.match(src, /isPathAuthorizedForStudioSlice/, rel);
+    // Superseded by the main-diff correction: the local `migrationExempt` helper was replaced by
+    // the single central authorizer, which resolves the ACTIVE slice from the complete diff.
+    assert.ok(!/migrationExempt\(/.test(src), rel);
+    assert.match(src, /createResolvedActiveStudioSlicePathAuthorizer\(/, rel);
   }
 });
 test('Hx05 no historical check was relaxed to a whole category', () => {
