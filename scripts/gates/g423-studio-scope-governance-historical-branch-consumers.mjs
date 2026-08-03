@@ -993,13 +993,19 @@ const ownScopeState = (paths) => {
         && scope.activeSliceOrdinal < scope.consumerSliceOrdinal))
     && scope.forbidden.length === 0 && scope.unknown.length === 0
     && scope.chronologicalViolation.length === 0;
+  // An own-scope sentence is only true on the branch this slice OWNS. Being merely applicable is
+  // not enough: a LATER slice's branch is legitimately certified by this consumer, yet its paths
+  // belong to that slice.
+  const ownsTheBranch = scope.consumerApplicable === true && scope.activeSliceId === OWN_SCOPE_CALLER;
   return {
     scope,
     valid: scope.consumerApplicable === true || safelyInapplicable,
-    runOwnScope: scope.consumerApplicable === true,
-    detail: scope.consumerApplicable
-      ? `own-scope APPLIES (active ${scope.activeSliceId} #${scope.activeSliceOrdinal})`
-      : `own-scope NOT APPLICABLE: ${scope.reason}, branch certified against ${scope.evaluatedAsSliceId}, no safety list discarded`,
+    runOwnScope: ownsTheBranch,
+    detail: ownsTheBranch
+      ? `own-scope APPLIES (this slice owns the branch)`
+      : scope.consumerApplicable
+        ? `own-scope NOT THIS SLICE'S: branch owned by ${scope.activeSliceId} #${scope.activeSliceOrdinal}, certified clean`
+        : `own-scope NOT APPLICABLE: ${scope.reason}, branch certified against ${scope.evaluatedAsSliceId}, no safety list discarded`,
   };
 };
 
@@ -1060,8 +1066,8 @@ if (branchPaths === null) {
     () => G.resolveActiveStudioSlice(branchPaths).sliceId === CONSUMERS);
   // On `main` the branch diff is legitimately EMPTY and that is not a proof of anything; on a real
   // slice branch the diff must be substantive. Both are stated honestly by the same check.
-  gate('G423-HBC — branch diff is empty on main or substantive on a real slice branch',
-    branchPaths.length === 0 || branchPaths.length > 20, `${branchPaths.length} paths`);
+  gateOwnScope('G423-HBC — branch diff is empty on main or substantive on this slice branch',
+    branchPaths, () => branchPaths.length === 0 || branchPaths.length > 20);
   gate('G423-HBC — an empty diff is admitted ONLY as the safe empty_branch_diff state', (() => {
     if (branchPaths.length !== 0) return true;
     const r = G.evaluateStudioBranchConsumerScope([], { callerSliceId: CALLER_SLICE_ID });

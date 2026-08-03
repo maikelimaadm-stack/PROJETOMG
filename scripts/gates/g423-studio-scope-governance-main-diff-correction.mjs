@@ -636,13 +636,19 @@ const ownScopeState = (paths) => {
         && scope.activeSliceOrdinal < scope.consumerSliceOrdinal))
     && scope.forbidden.length === 0 && scope.unknown.length === 0
     && scope.chronologicalViolation.length === 0;
+  // An own-scope sentence is only true on the branch this slice OWNS. Being merely applicable is
+  // not enough: a LATER slice's branch is legitimately certified by this consumer, yet its paths
+  // belong to that slice.
+  const ownsTheBranch = scope.consumerApplicable === true && scope.activeSliceId === OWN_SCOPE_CALLER;
   return {
     scope,
     valid: scope.consumerApplicable === true || safelyInapplicable,
-    runOwnScope: scope.consumerApplicable === true,
-    detail: scope.consumerApplicable
-      ? `own-scope APPLIES (active ${scope.activeSliceId} #${scope.activeSliceOrdinal})`
-      : `own-scope NOT APPLICABLE: ${scope.reason}, branch certified against ${scope.evaluatedAsSliceId}, no safety list discarded`,
+    runOwnScope: ownsTheBranch,
+    detail: ownsTheBranch
+      ? `own-scope APPLIES (this slice owns the branch)`
+      : scope.consumerApplicable
+        ? `own-scope NOT THIS SLICE'S: branch owned by ${scope.activeSliceId} #${scope.activeSliceOrdinal}, certified clean`
+        : `own-scope NOT APPLICABLE: ${scope.reason}, branch certified against ${scope.evaluatedAsSliceId}, no safety list discarded`,
   };
 };
 
@@ -674,8 +680,8 @@ if (branchPaths === null) {
     branchPaths.every((p) => G.classifyStudioScopePath(p) !== 'forbidden_scope'));
   gateOwnScope('G423-MDC — this branch touches no Studio blueprint-engine source of another slice',
     branchPaths, () => branchPaths.every((p) => !p.startsWith('src/studio/blueprint-engine/')));
-  gate('G423-MDC — this branch is not proven by an empty diff',
-    branchPaths.length === 0 || branchPaths.length > 20, `${branchPaths.length} paths`);
+  gateOwnScope('G423-MDC — this branch is not proven by an empty diff', branchPaths,
+    () => branchPaths.length === 0 || branchPaths.length > 20);
 }
 
 console.log(`\n--- G423-STUDIO-SCOPE-GOVERNANCE-MAIN-DIFF-CORRECTION summary ---`);

@@ -437,13 +437,19 @@ const ownScopeState = (paths) => {
         && scope.activeSliceOrdinal < scope.consumerSliceOrdinal))
     && scope.forbidden.length === 0 && scope.unknown.length === 0
     && scope.chronologicalViolation.length === 0;
+  // An own-scope sentence is only true on the branch this slice OWNS. Being merely applicable is
+  // not enough: a LATER slice's branch is legitimately certified by this consumer, yet its paths
+  // belong to that slice.
+  const ownsTheBranch = scope.consumerApplicable === true && scope.activeSliceId === OWN_SCOPE_CALLER;
   return {
     scope,
     valid: scope.consumerApplicable === true || safelyInapplicable,
-    runOwnScope: scope.consumerApplicable === true,
-    detail: scope.consumerApplicable
-      ? `own-scope APPLIES (active ${scope.activeSliceId} #${scope.activeSliceOrdinal})`
-      : `own-scope NOT APPLICABLE: ${scope.reason}, branch certified against ${scope.evaluatedAsSliceId}, no safety list discarded`,
+    runOwnScope: ownsTheBranch,
+    detail: ownsTheBranch
+      ? `own-scope APPLIES (this slice owns the branch)`
+      : scope.consumerApplicable
+        ? `own-scope NOT THIS SLICE'S: branch owned by ${scope.activeSliceId} #${scope.activeSliceOrdinal}, certified clean`
+        : `own-scope NOT APPLICABLE: ${scope.reason}, branch certified against ${scope.evaluatedAsSliceId}, no safety list discarded`,
   };
 };
 

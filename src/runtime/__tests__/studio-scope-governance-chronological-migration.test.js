@@ -759,7 +759,11 @@ const ownScopeApplicability = (paths) => {
       || (scope.reason === 'consumer_slice_after_active_slice'
         && scope.certifiedAgainstActiveSlice === true
         && scope.evaluatedAsSliceId === scope.activeSliceId));
-  return { scope, runOwnScope: scope.consumerApplicable === true, safelyInapplicable };
+  // An own-scope sentence — "this branch touches no X other than mine" — is only true on the
+  // branch this slice OWNS. Being merely applicable is not enough: a LATER slice's branch is
+  // legitimately certified by this consumer, yet its paths are that slice's, not this one's.
+  const ownsTheBranch = scope.consumerApplicable === true && scope.activeSliceId === OWN_SCOPE_CALLER;
+  return { scope, runOwnScope: ownsTheBranch, safelyInapplicable: safelyInapplicable || scope.consumerApplicable === true };
 };
 
 /**
@@ -772,8 +776,17 @@ const ownScopeApplies = (paths) => {
   assert.ok(a.runOwnScope || a.safelyInapplicable,
     `own-scope assertion needs a valid consumer state: reason=${a.scope.reason} safe=${a.scope.safe} notApplicable=${a.scope.notApplicable}`);
   if (a.runOwnScope) return true;
-  assert.equal(a.scope.notApplicable, true);
   assert.equal(a.scope.safe, true);
+  if (a.scope.consumerApplicable === true) {
+    // Applicable, but the branch belongs to a LATER slice: this consumer certifies it and the
+    // certification above already passed. The own-scope sentence is simply not this slice's.
+    assert.ok(a.scope.activeSliceOrdinal > a.scope.consumerSliceOrdinal, JSON.stringify(a.scope));
+    assert.deepEqual(a.scope.forbidden, []);
+    assert.deepEqual(a.scope.unknown, []);
+    assert.deepEqual(a.scope.chronologicalViolation, []);
+    return false;
+  }
+  assert.equal(a.scope.notApplicable, true);
   if (a.scope.reason === 'consumer_slice_after_active_slice') {
     assert.equal(a.scope.certifiedAgainstActiveSlice, true);
     assert.equal(a.scope.evaluatedAsSliceId, a.scope.activeSliceId);

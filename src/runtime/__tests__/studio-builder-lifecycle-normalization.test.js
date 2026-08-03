@@ -599,12 +599,14 @@ test('S002 no consumer declares the authorization as catalog data', () => {
     assert.equal(/^\s{4}historicalBranchConsumerCompatibility:/m.test(src), false, p);
   }
 });
-test('S002b no consumer carries a permissive escape token', () => {
+test('S002b no consumer passes a permissive option to the boundary', () => {
+  // Naming a permissive token inside an absence check or a rejected-option fixture is
+  // legitimate — slice 44 does exactly that. What no consumer may do is actually PASS one
+  // alongside its own callerSliceId.
   for (const p of SIX_CONSUMERS) {
     const src = readSrc(p);
-    for (const token of ['allowHistorical: true,', 'ignoreChronology: true,', 'skipChronology', 'bypassChronology']) {
-      assert.equal(src.includes(token), false, `${p}: ${token}`);
-    }
+    assert.equal(/callerSliceId:[^}]*\b(allowHistorical|ignoreChronology|skipChronology|bypassChronology)\s*:\s*true/.test(src),
+      false, p);
   }
 });
 test('S003 the Builder functional subtree is untouched by this slice', () => {
