@@ -300,6 +300,150 @@ export function evaluateStudioBranchScope(changedPaths, options = {}) {
 }
 
 // ---------------------------------------------------------------------------
+// Branch-diff boundary — the ONLY place that knows what an empty diff means
+// ---------------------------------------------------------------------------
+
+/**
+ * Evaluates a BRANCH DIFF from the point of view of ONE calling slice.
+ *
+ * This is the boundary API for branch-relative scope checks. It exists because the core
+ * evaluation and the branch boundary answer two different questions:
+ *
+ *   `evaluateStudioBranchScope([])` answers "is this changed-path SET safe?" — an empty set
+ *   resolves no active slice, so it is and must stay fail-closed. That semantics is NOT
+ *   relaxed here and is proven by dedicated scenarios.
+ *
+ *   `evaluateStudioBranchDiffScope([])` answers "does this BRANCH DIFF violate my scope?" —
+ *   an empty diff means there is nothing to judge (the check is running on `main`, where
+ *   `git diff --name-only origin/main...HEAD` legitimately returns nothing). That is
+ *   `notApplicable`, not a violation.
+ *
+ * An empty diff never authorizes anything: `allowed` stays empty and no path is admitted.
+ * An unknown caller still blocks, even with an empty diff — `notApplicable` may never mask
+ * an invalid caller identity.
+ *
+ * Invalid input (not an array, or any non-string / empty-string item) is NOT coerced into an
+ * empty diff: it fails closed with `invalid_changed_paths`.
+ *
+ * Pure: runs no command, touches no filesystem, no env, no network, no clock, mutates nothing.
+ *
+ * @param {string[]} changedPaths the branch diff, possibly empty
+ * @param {Object} options
+ * @param {string} options.callerSliceId the slice performing the check
+ * @returns {Object} deterministic, serializable report
+ */
+export function evaluateStudioBranchDiffScope(changedPaths, options = {}) {
+  const o = options && typeof options === 'object' ? options : {};
+  const caller = getStudioSliceById(o.callerSliceId);
+
+  const inputValid = Array.isArray(changedPaths) && changedPaths.every(isPath);
+
+  const base = {
+    kind: 'studio-branch-diff-scope-evaluation',
+    callerSliceId: caller ? caller.sliceId : null,
+    callerSliceOrdinal: caller ? caller.sliceOrdinal : null,
+    activeSliceId: null,
+    activeSliceOrdinal: null,
+    activeCandidates: [],
+    total: 0,
+    allowed: [],
+    forbidden: [],
+    unknown: [],
+    chronologicalViolation: [],
+    crossAuthorized: [],
+    explicitForbiddenAuthorized: [],
+    sideEffects: false,
+    backendAccessed: false,
+    prismaAccessed: false,
+    fetchUsed: false,
+    mutationAllowed: false,
+  };
+
+  // Invalid input fails closed and is never treated as "no changes".
+  if (!inputValid) {
+    const blockers = ['invalid_changed_paths'];
+    if (!caller) blockers.push('unknown_caller_slice');
+    return Object.freeze({
+      ...base, applicable: false, notApplicable: false, reason: 'invalid_changed_paths',
+      blockers: [...new Set(blockers)].sort(), safe: false,
+    });
+  }
+
+  // Empty diff: nothing to judge. An unknown caller still blocks.
+  if (changedPaths.length === 0) {
+    if (!caller) {
+      return Object.freeze({
+        ...base, applicable: false, notApplicable: false, reason: 'unknown_caller_slice',
+        blockers: ['unknown_caller_slice'], safe: false,
+      });
+    }
+    return Object.freeze({
+      ...base, applicable: false, notApplicable: true, reason: 'empty_branch_diff',
+      blockers: [], safe: true,
+    });
+  }
+
+  // Non-empty diff: the chronological core decides, unchanged.
+  const inner = evaluateStudioBranchScope(changedPaths, { callerSliceId: o.callerSliceId });
+  return Object.freeze({
+    ...inner,
+    kind: 'studio-branch-diff-scope-evaluation',
+    applicable: true,
+    notApplicable: false,
+    reason: null,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Resolved-active-slice path authorizer — the ONLY historical-exemption source
+// ---------------------------------------------------------------------------
+
+/**
+ * Builds the single authorizer that historical substring checks use to drop false positives.
+ *
+ * It takes the COMPLETE changed-path set, resolves exactly one active slice from the catalog's
+ * narrow branch markers, and authorizes a path only when that exact active slice is authorized
+ * for that exact path. There is no slice-id prefix, no injectable "expected slice" that could
+ * widen it, no chronology-free catalog lookup, and no hardcoded slice.
+ *
+ * It authorizes NOTHING when the diff is empty, when the active slice is unresolved, or when it
+ * is ambiguous — a historical check whose regex does not fire is unaffected either way, and one
+ * whose regex does fire keeps failing exactly as it did before the Studio catalog existed.
+ *
+ * This API never certifies a branch. Certification belongs to `evaluateStudioBranchDiffScope`.
+ *
+ * Pure: no command, no filesystem, no env, no network, no clock, no mutation.
+ *
+ * @param {string[]} changedPaths the COMPLETE changed-path set
+ * @returns {{kind:string, ok:boolean, activeSliceId:string|null, activeSliceOrdinal:number|null,
+ *            reason:string|null, isAuthorized:(path:string)=>boolean}}
+ */
+export function createResolvedActiveStudioSlicePathAuthorizer(changedPaths) {
+  const inputValid = Array.isArray(changedPaths) && changedPaths.every(isPath);
+  const deny = (reason) => Object.freeze({
+    kind: 'resolved-active-studio-slice-path-authorizer',
+    ok: false, activeSliceId: null, activeSliceOrdinal: null, reason,
+    isAuthorized: () => false,
+  });
+
+  if (!inputValid) return deny('invalid_changed_paths');
+  if (changedPaths.length === 0) return deny('empty_branch_diff');
+
+  const active = resolveActiveStudioSlice(changedPaths);
+  if (!active.ok) return deny(active.reason);
+
+  const activeSliceId = active.sliceId;
+  return Object.freeze({
+    kind: 'resolved-active-studio-slice-path-authorizer',
+    ok: true,
+    activeSliceId,
+    activeSliceOrdinal: active.sliceOrdinal,
+    reason: null,
+    isAuthorized: (path) => isPathAuthorizedForStudioSlice(path, activeSliceId),
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Legacy, chronology-free helpers (kept so unmigrated consumers keep working)
 // ---------------------------------------------------------------------------
 
