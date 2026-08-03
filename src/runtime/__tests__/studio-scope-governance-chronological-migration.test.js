@@ -250,8 +250,31 @@ for (const p of BUILDER_CROSS) {
     assert.notDeepEqual(findOwningStudioSlices(p).map((s) => s.sliceId), [BUILDER]);
   });
 }
-test('B004 the Builder cross list is EXACTLY the two lifecycle paths', () => {
-  assert.equal(getStudioSliceById(BUILDER).crossSliceAuthorizedPatterns.length, 2);
+test('B004 the Builder cross list is EXACTLY 2 lifecycle + 6 governance integration paths', () => {
+  const b = getStudioSliceById(BUILDER);
+  assert.equal(b.crossSliceAuthorizedPatterns.length, 8);
+  assert.equal(new Set(b.crossSliceAuthorizedPatterns.map((r) => r.source)).size, 8);
+  for (const p of [
+    'src/runtime/__tests__/studio-bridge-decision-core-envelope-builder-implementation-plan.test.js',
+    'scripts/gates/g423-studio-bridge-decision-core-envelope-builder-implementation-plan.mjs',
+    'src/runtime/__tests__/studio-scope-governance-chronological-migration.test.js',
+    'scripts/gates/g423-studio-scope-governance-chronological-migration.mjs',
+    'src/runtime/__tests__/studio-scope-governance-main-diff-correction.test.js',
+    'scripts/gates/g423-studio-scope-governance-main-diff-correction.mjs',
+    'src/runtime/__tests__/studio-scope-governance-historical-branch-consumers.test.js',
+    'scripts/gates/g423-studio-scope-governance-historical-branch-consumers.mjs',
+  ]) assert.ok(b.crossSliceAuthorizedPatterns.some((r) => r.test(p)), p);
+  for (const r of b.crossSliceAuthorizedPatterns) {
+    assert.ok(r.source.startsWith('^') && r.source.endsWith('$'), r.source);
+  }
+});
+test('B004b the Builder cross list refuses adjacent and unlisted governance artifacts', () => {
+  for (const p of ['src/runtime/__tests__/studio-scope-governance-maintenance.test.js',
+    'scripts/gates/g423-studio-scope-governance-maintenance.mjs',
+    'scripts/gates/lib/studioScopeGovernanceGuard.mjs',
+    'docs/evidence/post-foundation-c-studio-scope-governance-main-diff-correction/READINESS.md']) {
+    assert.equal(isPathAuthorizedForStudioSlice(p, BUILDER), false, p);
+  }
 });
 for (const foreign of [
   'src/runtime/__tests__/studio-authoring-runtime-to-preview-bridge.test.js',
@@ -704,6 +727,65 @@ const changedOnThisBranch = () => {
   try { return execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean); }
   catch { return null; }
 };
+const OWN_SCOPE_CALLER = MIGRATION;
+
+// ---------------------------------------------------------------------------
+// OWN-SCOPE APPLICABILITY
+//
+// A branch-relative SELF-SCOPE assertion of this slice — "this branch touches no X" — is only a
+// true statement when this slice is the one the branch is certifying. Exactly two states are
+// accepted, and nothing else:
+//
+//   A. `consumerApplicable === true` — this slice IS the certifier. Its own-scope assertions run
+//      in full, unchanged.
+//   B. safely inapplicable — the diff is empty, or it belongs to an EARLIER slice that the catalog
+//      explicitly authorizes to carry later consumers AND that re-certified cleanly against
+//      itself. The own-scope sentence then describes a branch this slice does not own, so
+//      asserting it would assert something false about someone else's work.
+//
+// EVERY other state fails: unknown caller, invalid input, unresolved or ambiguous active slice,
+// `historical_branch_consumer_compatibility_not_authorized`, `active_slice_scope_invalid`, or
+// `safe === false`. A bare `if (scope.notApplicable) return;` is deliberately NOT used.
+//
+// Universal checks — forbidden, unknown, chronological violation, safety, active resolution,
+// core non-regression — never depend on this and run in every state.
+// ---------------------------------------------------------------------------
+const ownScopeApplicability = (paths) => {
+  const scope = evaluateStudioBranchConsumerScope(paths, { callerSliceId: OWN_SCOPE_CALLER });
+  const safelyInapplicable = scope.safe === true && scope.notApplicable === true
+    && (scope.reason === 'empty_branch_diff'
+      || (scope.reason === 'consumer_slice_after_active_slice'
+        && scope.certifiedAgainstActiveSlice === true
+        && scope.evaluatedAsSliceId === scope.activeSliceId));
+  return { scope, runOwnScope: scope.consumerApplicable === true, safelyInapplicable };
+};
+
+/**
+ * Returns true when the caller must run its own-scope assertions. When it returns false the
+ * inapplicability is RECORDED, never silently swallowed: the branch is proven to have been
+ * certified against its own active slice, and no safety list is allowed to be non-empty.
+ */
+const ownScopeApplies = (paths) => {
+  const a = ownScopeApplicability(paths);
+  assert.ok(a.runOwnScope || a.safelyInapplicable,
+    `own-scope assertion needs a valid consumer state: reason=${a.scope.reason} safe=${a.scope.safe} notApplicable=${a.scope.notApplicable}`);
+  if (a.runOwnScope) return true;
+  assert.equal(a.scope.notApplicable, true);
+  assert.equal(a.scope.safe, true);
+  if (a.scope.reason === 'consumer_slice_after_active_slice') {
+    assert.equal(a.scope.certifiedAgainstActiveSlice, true);
+    assert.equal(a.scope.evaluatedAsSliceId, a.scope.activeSliceId);
+    assert.ok(a.scope.activeSliceOrdinal < a.scope.consumerSliceOrdinal);
+  } else {
+    assert.equal(a.scope.reason, 'empty_branch_diff');
+    assert.equal(a.scope.activeSliceId, null);
+  }
+  assert.deepEqual(a.scope.forbidden, []);
+  assert.deepEqual(a.scope.unknown, []);
+  assert.deepEqual(a.scope.chronologicalViolation, []);
+  return false;
+};
+
 // This slice is a caller like any other. A LATER governance slice may legitimately be the active
 // one on the branch, and on `main` there is no diff at all — neither case is a violation.
 test('T001 this branch resolves exactly one slice, or none at all', () => {
@@ -754,12 +836,18 @@ test('T007 evaluateStudioBranchDiffScope([]) is notApplicable and safe', () => {
   assert.deepEqual(r.allowed, []);
   assert.equal(r.activeSliceId, null);
 });
-test('T004 this branch touches no production code and no Builder file', () => {
+test('T004 this branch touches no production code', () => {
   const f = changedOnThisBranch(); if (f === null) return;
-  for (const p of f) {
-    assert.equal(classifyStudioScopePath(p) === 'forbidden_scope', false, p);
-    assert.ok(!p.startsWith('src/studio/blueprint-engine/'), p);
-  }
+  // UNIVERSAL: forbidden scope is never tolerable, in any consumer state.
+  for (const p of f) assert.equal(classifyStudioScopePath(p) === 'forbidden_scope', false, p);
+});
+test('T004b this branch touches no Studio blueprint-engine source of another slice', () => {
+  const f = changedOnThisBranch(); if (f === null) return;
+  // OWN-SCOPE: only meaningful while this slice is the certifier. On an authorized historical
+  // branch the subtree belongs to that branch's own slice and this sentence is not this slice's
+  // to make — see the ownScopeApplies contract above.
+  if (!ownScopeApplies(f)) return;
+  for (const p of f) assert.ok(!p.startsWith('src/studio/blueprint-engine/'), p);
 });
 
 // ===========================================================================

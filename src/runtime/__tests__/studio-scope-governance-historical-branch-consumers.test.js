@@ -76,6 +76,19 @@ const MERGED43_FIXTURE = [
   'scripts/gates/lib/studioScopeGovernanceGuard.mjs',
 ];
 
+const BUILDER_GOVERNANCE_INTEGRATION_CROSS = [
+  'src/runtime/__tests__/studio-scope-governance-chronological-migration.test.js',
+  'scripts/gates/g423-studio-scope-governance-chronological-migration.mjs',
+  'src/runtime/__tests__/studio-scope-governance-main-diff-correction.test.js',
+  'scripts/gates/g423-studio-scope-governance-main-diff-correction.mjs',
+  'src/runtime/__tests__/studio-scope-governance-historical-branch-consumers.test.js',
+  'scripts/gates/g423-studio-scope-governance-historical-branch-consumers.mjs',
+];
+const BUILDER_LIFECYCLE_CROSS = [
+  'src/runtime/__tests__/studio-bridge-decision-core-envelope-builder-implementation-plan.test.js',
+  'scripts/gates/g423-studio-bridge-decision-core-envelope-builder-implementation-plan.mjs',
+];
+
 const NINE_TESTS = [
   ['src/runtime/__tests__/studio-authoring-runtime-to-preview-bridge-contract.test.js', 'authoring-runtime-to-preview-bridge-contract'],
   ['src/runtime/__tests__/studio-authoring-runtime-to-preview-bridge-implementation-plan.test.js', 'authoring-runtime-to-preview-bridge-implementation-plan'],
@@ -126,6 +139,65 @@ const changedOnThisBranch = () => {
     return execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
   } catch { return null; }
 };
+const OWN_SCOPE_CALLER = CONSUMERS;
+
+// ---------------------------------------------------------------------------
+// OWN-SCOPE APPLICABILITY
+//
+// A branch-relative SELF-SCOPE assertion of this slice — "this branch touches no X" — is only a
+// true statement when this slice is the one the branch is certifying. Exactly two states are
+// accepted, and nothing else:
+//
+//   A. `consumerApplicable === true` — this slice IS the certifier. Its own-scope assertions run
+//      in full, unchanged.
+//   B. safely inapplicable — the diff is empty, or it belongs to an EARLIER slice that the catalog
+//      explicitly authorizes to carry later consumers AND that re-certified cleanly against
+//      itself. The own-scope sentence then describes a branch this slice does not own, so
+//      asserting it would assert something false about someone else's work.
+//
+// EVERY other state fails: unknown caller, invalid input, unresolved or ambiguous active slice,
+// `historical_branch_consumer_compatibility_not_authorized`, `active_slice_scope_invalid`, or
+// `safe === false`. A bare `if (scope.notApplicable) return;` is deliberately NOT used.
+//
+// Universal checks — forbidden, unknown, chronological violation, safety, active resolution,
+// core non-regression — never depend on this and run in every state.
+// ---------------------------------------------------------------------------
+const ownScopeApplicability = (paths) => {
+  const scope = evaluateStudioBranchConsumerScope(paths, { callerSliceId: OWN_SCOPE_CALLER });
+  const safelyInapplicable = scope.safe === true && scope.notApplicable === true
+    && (scope.reason === 'empty_branch_diff'
+      || (scope.reason === 'consumer_slice_after_active_slice'
+        && scope.certifiedAgainstActiveSlice === true
+        && scope.evaluatedAsSliceId === scope.activeSliceId));
+  return { scope, runOwnScope: scope.consumerApplicable === true, safelyInapplicable };
+};
+
+/**
+ * Returns true when the caller must run its own-scope assertions. When it returns false the
+ * inapplicability is RECORDED, never silently swallowed: the branch is proven to have been
+ * certified against its own active slice, and no safety list is allowed to be non-empty.
+ */
+const ownScopeApplies = (paths) => {
+  const a = ownScopeApplicability(paths);
+  assert.ok(a.runOwnScope || a.safelyInapplicable,
+    `own-scope assertion needs a valid consumer state: reason=${a.scope.reason} safe=${a.scope.safe} notApplicable=${a.scope.notApplicable}`);
+  if (a.runOwnScope) return true;
+  assert.equal(a.scope.notApplicable, true);
+  assert.equal(a.scope.safe, true);
+  if (a.scope.reason === 'consumer_slice_after_active_slice') {
+    assert.equal(a.scope.certifiedAgainstActiveSlice, true);
+    assert.equal(a.scope.evaluatedAsSliceId, a.scope.activeSliceId);
+    assert.ok(a.scope.activeSliceOrdinal < a.scope.consumerSliceOrdinal);
+  } else {
+    assert.equal(a.scope.reason, 'empty_branch_diff');
+    assert.equal(a.scope.activeSliceId, null);
+  }
+  assert.deepEqual(a.scope.forbidden, []);
+  assert.deepEqual(a.scope.unknown, []);
+  assert.deepEqual(a.scope.chronologicalViolation, []);
+  return false;
+};
+
 
 // ===========================================================================
 // R — registry after this slice
@@ -167,8 +239,67 @@ test('R010 the Builder keeps status open_pull_request_495', () => {
 test('R011 the Builder entry shape is untouched', () => {
   const b = getStudioSliceById(BUILDER);
   assert.equal(b.primaryArtifactPatterns.length, 4);
-  assert.equal(b.crossSliceAuthorizedPatterns.length, 2);
+  assert.equal(b.crossSliceAuthorizedPatterns.length, 8);
   assert.deepEqual(b.explicitlyAuthorizedForbiddenPatterns, []);
+});
+test('R011b the Builder cross list is exactly 2 lifecycle + 6 governance integration paths', () => {
+  const b = getStudioSliceById(BUILDER);
+  const expected = [...BUILDER_LIFECYCLE_CROSS, ...BUILDER_GOVERNANCE_INTEGRATION_CROSS];
+  assert.equal(expected.length, 8);
+  assert.equal(b.crossSliceAuthorizedPatterns.length, 8);
+  assert.equal(new Set(b.crossSliceAuthorizedPatterns.map((r) => r.source)).size, 8);
+  for (const path of expected) {
+    assert.ok(b.crossSliceAuthorizedPatterns.some((r) => r.test(path)), path);
+  }
+});
+test('R011c the Builder cross list stays exact: anchored, no wildcard, no evidence, no guard', () => {
+  for (const r of getStudioSliceById(BUILDER).crossSliceAuthorizedPatterns) {
+    assert.ok(r.source.startsWith('^'), r.source);
+    assert.ok(r.source.endsWith('$'), r.source);
+    assert.equal(/docs\\\/evidence/.test(r.source), false, r.source);
+    assert.equal(/studioScopeGovernanceGuard/.test(r.source), false, r.source);
+    assert.equal(/package/.test(r.source), false, r.source);
+    assert.equal(/^\^?\.[*+]/.test(r.source), false, r.source);
+  }
+});
+test('R011d the Builder cross list authorizes those eight and refuses everything adjacent', () => {
+  const b = BUILDER;
+  for (const p of [...BUILDER_LIFECYCLE_CROSS, ...BUILDER_GOVERNANCE_INTEGRATION_CROSS]) {
+    assert.equal(isPathAuthorizedForStudioSlice(p, b), true, p);
+  }
+  for (const p of [
+    // a seventh governance artifact that is NOT listed
+    'src/runtime/__tests__/studio-scope-governance-maintenance.test.js',
+    'scripts/gates/g423-studio-scope-governance-maintenance.mjs',
+    // neighbours with a different suffix
+    'src/runtime/__tests__/studio-scope-governance-historical-branch-consumers.test.mjs',
+    'scripts/gates/g423-studio-scope-governance-historical-branch-consumers.test.js',
+    'scripts/gates/g423-studio-scope-governance-main-diff-correction-extra.mjs',
+    // evidence of a governance slice
+    'docs/evidence/post-foundation-c-studio-scope-governance-historical-branch-consumers/READINESS.md',
+    'docs/evidence/post-foundation-c-studio-scope-governance-main-diff-correction/READINESS.md',
+    // the central guard is shared by governance slices, never cross-authorized here
+    'scripts/gates/lib/studioScopeGovernanceGuard.mjs',
+  ]) {
+    assert.equal(isPathAuthorizedForStudioSlice(p, b), false, p);
+  }
+});
+test('R011e the extension changes no classification and no election', () => {
+  for (const p of ['src/App.jsx', 'backend/server.js', 'src/modules/x.js']) {
+    assert.equal(classifyStudioScopePath(p), 'forbidden_scope', p);
+    assert.equal(isPathAuthorizedForStudioSlice(p, BUILDER), false, p);
+  }
+  assert.equal(classifyStudioScopePath('docs/nobody/x.md'), 'unknown_scope');
+  // A cross-authorized governance file never elects a slice.
+  for (const p of BUILDER_GOVERNANCE_INTEGRATION_CROSS) {
+    assert.equal(resolveActiveStudioSlice([p]).candidates.length, 0, p);
+  }
+  // Two markers stay ambiguous.
+  const amb = resolveActiveStudioSlice([MARKER[41], MARKER[44]]);
+  assert.equal(amb.ok, false);
+  assert.equal(amb.reason, 'ambiguous_active_slice');
+  // The compatibility flag is untouched by the extension.
+  assert.equal(getStudioSliceById(BUILDER).historicalBranchConsumerCompatibility, true);
 });
 test('R012 this slice primary is exactly three anchored patterns', () => {
   assert.deepEqual(getStudioSliceById(CONSUMERS).primaryArtifactPatterns.map((r) => r.source), [
@@ -341,7 +472,7 @@ test('R040 the Builder entry is otherwise untouched', () => {
   assert.equal(b.sliceOrdinal, 41);
   assert.equal(b.status, 'open_pull_request_495');
   assert.equal(b.primaryArtifactPatterns.length, 4);
-  assert.equal(b.crossSliceAuthorizedPatterns.length, 2);
+  assert.equal(b.crossSliceAuthorizedPatterns.length, 8);
   assert.deepEqual(b.explicitlyAuthorizedForbiddenPatterns, []);
   assert.equal(b.historicalBranchConsumerCompatibility, true);
 });
@@ -928,8 +1059,20 @@ test('P002 the Builder test, gate and evidence are outside this slice scope', ()
 });
 test('P003 this branch diff carries no Builder path', () => {
   const f = changedOnThisBranch(); if (f === null) return;
+  // OWN-SCOPE: this slice must not reach into PR #495. On the Builder's OWN branch the Builder
+  // paths are that branch's subject, not an intrusion by this slice — see ownScopeApplies.
+  if (!ownScopeApplies(f)) return;
   for (const p of f) {
     assert.equal(/bridge-decision-core-envelope-builder/.test(p) && !/registry|guard/i.test(p), false, p);
+  }
+});
+test('P003b this slice is never authorized for a Builder path, in any state', () => {
+  // UNIVERSAL: independent of the branch, the catalog must keep PR #495 out of this slice's reach.
+  for (const p of ['src/studio/blueprint-engine/bridge-decision-core-envelope-builder/index.js',
+    'src/runtime/__tests__/studio-bridge-decision-core-envelope-builder.test.js',
+    'scripts/gates/g423-studio-bridge-decision-core-envelope-builder.mjs',
+    'docs/evidence/post-foundation-c-studio-bridge-decision-core-envelope-builder/X.md']) {
+    assert.equal(isPathAuthorizedForStudioSlice(p, CONSUMERS), false, p);
   }
 });
 test('P004 the no-touch proof document is present', () => {
@@ -1037,9 +1180,22 @@ test('E021 readiness declares the authorization catalog-bound', () => {
 });
 test('E016 no historical evidence directory of an earlier slice is touched', () => {
   const f = changedOnThisBranch(); if (f === null) return;
+  // OWN-SCOPE: on an authorized historical branch the evidence directory in the diff belongs to
+  // that branch's own slice, which this slice neither wrote nor owns — see ownScopeApplies.
+  if (!ownScopeApplies(f)) return;
   for (const p of f) {
     if (!p.startsWith('docs/evidence/')) continue;
     assert.ok(p.startsWith(EV_REL), p);
+  }
+});
+test('E016b every evidence path on this branch belongs to the ACTIVE slice, in any state', () => {
+  // UNIVERSAL: whatever slice is active, no branch may carry a foreign slice's evidence.
+  const f = changedOnThisBranch(); if (f === null || f.length === 0) return;
+  const auth = createResolvedActiveStudioSlicePathAuthorizer(f);
+  assert.equal(auth.ok, true, JSON.stringify(auth));
+  for (const p of f) {
+    if (!p.startsWith('docs/evidence/')) continue;
+    assert.equal(auth.isAuthorized(p), true, p);
   }
 });
 
@@ -1070,8 +1226,10 @@ test('T004 this branch touches no forbidden path', () => {
   const f = changedOnThisBranch(); if (f === null) return;
   for (const p of f) assert.notEqual(classifyStudioScopePath(p), 'forbidden_scope', p);
 });
-test('T005 this branch touches no Studio blueprint-engine source', () => {
+test('T005 this branch touches no Studio blueprint-engine source of another slice', () => {
   const f = changedOnThisBranch(); if (f === null) return;
+  // OWN-SCOPE: see the ownScopeApplies contract above.
+  if (!ownScopeApplies(f)) return;
   for (const p of f) assert.equal(p.startsWith('src/studio/blueprint-engine/'), false, p);
 });
 test('T006 this branch resolves exactly one slice, or none at all', () => {
@@ -1089,6 +1247,21 @@ test('T007 the active path authorizer still admits only this slice artifacts', (
   for (const p of ['src/App.jsx', 'docs/nobody/x.md', 'src/modules/x.js']) {
     assert.equal(a.isAuthorized(p), false, p);
   }
+});
+test('T009 an empty diff is admitted ONLY as the safe empty_branch_diff state', () => {
+  const r = evaluateStudioBranchConsumerScope([], { callerSliceId: CONSUMERS });
+  assert.equal(r.reason, 'empty_branch_diff');
+  assert.equal(r.notApplicable, true);
+  assert.equal(r.safe, true);
+  assert.equal(r.activeSliceId, null);
+  assert.deepEqual(r.allowed, []);
+});
+test('T010 a real slice branch diff is substantive and never reads as empty', () => {
+  const f = changedOnThisBranch(); if (f === null || f.length === 0) return;
+  assert.ok(f.length > 20, String(f.length));
+  const r = evaluateStudioBranchConsumerScope(f, { callerSliceId: CONSUMERS });
+  assert.notEqual(r.reason, 'empty_branch_diff');
+  assert.notEqual(r.activeSliceId, null);
 });
 test('T008 this branch owns exactly the artifacts the catalog says it owns', () => {
   for (const rel of [TEST_REL, GATE_REL]) {

@@ -802,8 +802,26 @@ test('P004 the Builder entry is untouched: ordinal, status and exact pattern cou
   assert.equal(b.sliceOrdinal, 41);
   assert.equal(b.status, 'open_pull_request_495');
   assert.equal(b.primaryArtifactPatterns.length, 4);
-  assert.equal(b.crossSliceAuthorizedPatterns.length, 2);
+  assert.equal(b.crossSliceAuthorizedPatterns.length, 8);
   assert.deepEqual(b.explicitlyAuthorizedForbiddenPatterns, []);
+});
+test('P004b the Builder cross list is exactly 2 lifecycle + 6 governance integration paths', () => {
+  const b = getStudioSliceById(BUILDER);
+  assert.equal(new Set(b.crossSliceAuthorizedPatterns.map((r) => r.source)).size, 8);
+  for (const p of [
+    'src/runtime/__tests__/studio-bridge-decision-core-envelope-builder-implementation-plan.test.js',
+    'scripts/gates/g423-studio-bridge-decision-core-envelope-builder-implementation-plan.mjs',
+    'src/runtime/__tests__/studio-scope-governance-chronological-migration.test.js',
+    'scripts/gates/g423-studio-scope-governance-chronological-migration.mjs',
+    'src/runtime/__tests__/studio-scope-governance-main-diff-correction.test.js',
+    'scripts/gates/g423-studio-scope-governance-main-diff-correction.mjs',
+    'src/runtime/__tests__/studio-scope-governance-historical-branch-consumers.test.js',
+    'scripts/gates/g423-studio-scope-governance-historical-branch-consumers.mjs',
+  ]) assert.equal(isPathAuthorizedForStudioSlice(p, BUILDER), true, p);
+  for (const p of ['src/runtime/__tests__/studio-scope-governance-maintenance.test.js',
+    'scripts/gates/lib/studioScopeGovernanceGuard.mjs', 'src/App.jsx', 'backend/server.js']) {
+    assert.equal(isPathAuthorizedForStudioSlice(p, BUILDER), false, p);
+  }
 });
 test('P005 a Builder-shaped branch is still evaluated by the same rules', () => {
   const r = evaluateStudioBranchDiffScope([
@@ -918,6 +936,65 @@ const changedOnThisBranch = () => {
     return execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
   } catch { return null; }
 };
+const OWN_SCOPE_CALLER = CORRECTION;
+
+// ---------------------------------------------------------------------------
+// OWN-SCOPE APPLICABILITY
+//
+// A branch-relative SELF-SCOPE assertion of this slice — "this branch touches no X" — is only a
+// true statement when this slice is the one the branch is certifying. Exactly two states are
+// accepted, and nothing else:
+//
+//   A. `consumerApplicable === true` — this slice IS the certifier. Its own-scope assertions run
+//      in full, unchanged.
+//   B. safely inapplicable — the diff is empty, or it belongs to an EARLIER slice that the catalog
+//      explicitly authorizes to carry later consumers AND that re-certified cleanly against
+//      itself. The own-scope sentence then describes a branch this slice does not own, so
+//      asserting it would assert something false about someone else's work.
+//
+// EVERY other state fails: unknown caller, invalid input, unresolved or ambiguous active slice,
+// `historical_branch_consumer_compatibility_not_authorized`, `active_slice_scope_invalid`, or
+// `safe === false`. A bare `if (scope.notApplicable) return;` is deliberately NOT used.
+//
+// Universal checks — forbidden, unknown, chronological violation, safety, active resolution,
+// core non-regression — never depend on this and run in every state.
+// ---------------------------------------------------------------------------
+const ownScopeApplicability = (paths) => {
+  const scope = evaluateStudioBranchConsumerScope(paths, { callerSliceId: OWN_SCOPE_CALLER });
+  const safelyInapplicable = scope.safe === true && scope.notApplicable === true
+    && (scope.reason === 'empty_branch_diff'
+      || (scope.reason === 'consumer_slice_after_active_slice'
+        && scope.certifiedAgainstActiveSlice === true
+        && scope.evaluatedAsSliceId === scope.activeSliceId));
+  return { scope, runOwnScope: scope.consumerApplicable === true, safelyInapplicable };
+};
+
+/**
+ * Returns true when the caller must run its own-scope assertions. When it returns false the
+ * inapplicability is RECORDED, never silently swallowed: the branch is proven to have been
+ * certified against its own active slice, and no safety list is allowed to be non-empty.
+ */
+const ownScopeApplies = (paths) => {
+  const a = ownScopeApplicability(paths);
+  assert.ok(a.runOwnScope || a.safelyInapplicable,
+    `own-scope assertion needs a valid consumer state: reason=${a.scope.reason} safe=${a.scope.safe} notApplicable=${a.scope.notApplicable}`);
+  if (a.runOwnScope) return true;
+  assert.equal(a.scope.notApplicable, true);
+  assert.equal(a.scope.safe, true);
+  if (a.scope.reason === 'consumer_slice_after_active_slice') {
+    assert.equal(a.scope.certifiedAgainstActiveSlice, true);
+    assert.equal(a.scope.evaluatedAsSliceId, a.scope.activeSliceId);
+    assert.ok(a.scope.activeSliceOrdinal < a.scope.consumerSliceOrdinal);
+  } else {
+    assert.equal(a.scope.reason, 'empty_branch_diff');
+    assert.equal(a.scope.activeSliceId, null);
+  }
+  assert.deepEqual(a.scope.forbidden, []);
+  assert.deepEqual(a.scope.unknown, []);
+  assert.deepEqual(a.scope.chronologicalViolation, []);
+  return false;
+};
+
 // This slice is a CONSUMER here, not the certifier. On a branch building an EARLIER slice it is a
 // passenger, and the boundary re-certifies the branch against that slice before calling it sound.
 test('T001 this branch is sound from the correction slice point of view', () => {
@@ -943,8 +1020,10 @@ test('T003 this branch touches no forbidden path', () => {
   const f = changedOnThisBranch(); if (f === null) return;
   for (const p of f) assert.notEqual(classifyStudioScopePath(p), 'forbidden_scope', p);
 });
-test('T004 this branch touches no Studio blueprint-engine source', () => {
+test('T004 this branch touches no Studio blueprint-engine source of another slice', () => {
   const f = changedOnThisBranch(); if (f === null) return;
+  // OWN-SCOPE: see the ownScopeApplies contract above.
+  if (!ownScopeApplies(f)) return;
   for (const p of f) assert.equal(p.startsWith('src/studio/blueprint-engine/'), false, p);
 });
 test('T005 this branch is not proven by an empty diff', () => {

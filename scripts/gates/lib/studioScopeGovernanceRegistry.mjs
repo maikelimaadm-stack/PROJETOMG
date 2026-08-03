@@ -1022,8 +1022,23 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^docs\/evidence\/post-foundation-c-studio-bridge-decision-core-envelope-builder\//,
     ],
     crossSliceAuthorizedPatterns: [
+      // (1-2) LIFECYCLE: the plan slice's own test and gate, whose temporal "the builder does not
+      // exist yet" assertions this slice had to replace with permanent declarative proofs.
       /^src\/runtime\/__tests__\/studio-bridge-decision-core-envelope-builder-implementation-plan\.test\.js$/,
       /^scripts\/gates\/g423-studio-bridge-decision-core-envelope-builder-implementation-plan\.mjs$/,
+      // (3-8) GOVERNANCE INTEGRATION, added when main (slices 42, 43 and 44) was merged into this
+      // still-open branch. Those slices' checks ride here as consumers, and their branch-relative
+      // SELF-SCOPE assertions ("this branch touches no blueprint-engine / no Builder file / no
+      // earlier evidence directory") were false on THIS branch — they described a branch their own
+      // slice does not own. Correcting them to consult consumer applicability had to happen here,
+      // so this slice must be authorized for exactly those six files and nothing else. No evidence
+      // directory, no guard, no production path, no package path, no wildcard.
+      /^src\/runtime\/__tests__\/studio-scope-governance-chronological-migration\.test\.js$/,
+      /^scripts\/gates\/g423-studio-scope-governance-chronological-migration\.mjs$/,
+      /^src\/runtime\/__tests__\/studio-scope-governance-main-diff-correction\.test\.js$/,
+      /^scripts\/gates\/g423-studio-scope-governance-main-diff-correction\.mjs$/,
+      /^src\/runtime\/__tests__\/studio-scope-governance-historical-branch-consumers\.test\.js$/,
+      /^scripts\/gates\/g423-studio-scope-governance-historical-branch-consumers\.mjs$/,
     ],
     sharedGovernancePatterns: [
       /^scripts\/gates\/lib\/studioScopeGovernanceRegistry\.mjs$/,
