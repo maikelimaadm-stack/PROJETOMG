@@ -119,3 +119,52 @@ Nenhuma falha reportada anteriormente deixou de se reproduzir nesta medição.
 5. Rodar a bateria completa numa branch Studio real — nunca com diff vazio — para provar a correção.
 
 Enquanto isso não acontece, esta PR permanece **BLOQUEADA_PARA_MERGE**.
+
+
+---
+
+# ADENDO — Round 4/5: a dívida inventariada aqui foi resolvida
+
+Este inventário foi escrito quando a causa raiz — checks de escopo branch-relative sem identidade
+cronológica — ainda estava aberta. Ela foi resolvida, fora desta PR, pela sequência de fatias de
+governança 42, 43 e 44, todas mergeadas na `main`:
+
+```
+42  studio-scope-governance-chronological-migration   ordinais no registry, guard cronológico
+43  studio-scope-governance-main-diff-correction      fronteira de diff, autorizador central único
+44  studio-scope-governance-historical-branch-consumers
+                                                      aplicabilidade de consumidor + autorização
+                                                      de compatibilidade histórica no catálogo
+```
+
+A `main` foi então incorporada nesta branch por merge (`377ca48f`). Os números medidos ANTES,
+registrados acima, foram superados:
+
+| item | antes (este inventário) | agora, nesta branch |
+|---|---|---|
+| `npm run test:runtime` | 21472 / 21481 — **9 fail** | **23112 / 23112 — 0 fail** |
+| `npm run gate:g423` | 7/7 | 7/7 |
+| gates Studio vermelhos no sweep | 22 | **0** |
+| `ACTIVE_AGGREGATE_BLOCKER` | 9 | **0** |
+
+Restou, e foi corrigido nesta PR, um defeito **novo**, próprio da integração:
+
+```
+B-GOVERNANCE-SELF-SCOPE-ASSERTIONS-UNGUARDED-ON-FOREIGN-BRANCH
+```
+
+Detalhamento completo em
+[`ROUND-4-MAIN-INTEGRATION-AND-GOVERNANCE-CONSUMER-CORRECTION.md`](./ROUND-4-MAIN-INTEGRATION-AND-GOVERNANCE-CONSUMER-CORRECTION.md).
+
+## Estado desta PR
+
+O status **BLOQUEADA_PARA_MERGE** registrado na seção anterior era consequência dos 9 blockers
+agregados. Eles não existem mais. O estado atual é:
+
+```
+AWAITING_FINAL_INDEPENDENT_AUDIT
+```
+
+A PR permanece OPEN + DRAFT, sem merge e sem ready, aguardando auditoria independente. A limpeza
+pós-merge (`historicalBranchConsumerCompatibility` do Builder de volta a `false`, normalização de
+status do catálogo) continua obrigatória e não foi executada.
