@@ -78,6 +78,30 @@ function allowedPatternsFor(slice) {
   ];
 }
 
+/**
+ * The patterns a slice may legitimately touch, read from ITS OWN catalog entry. Pure. Returns an empty list for an
+ * unknown slice id, so an unknown caller can never widen anything.
+ */
+export function getAuthorizedPatternsForStudioSlice(sliceId) {
+  const slice = getStudioSliceById(sliceId);
+  return slice ? Object.freeze(allowedPatternsFor(slice)) : Object.freeze([]);
+}
+
+/** True iff `path` is one of the artifacts `sliceId` is authorized to touch. Pure. */
+export function isPathAuthorizedForStudioSlice(path, sliceId) {
+  if (!isPath(path)) return false;
+  return matchesAny(path, getAuthorizedPatternsForStudioSlice(sliceId));
+}
+
+/**
+ * The forbidden paths a slice explicitly authorizes, read from ITS OWN catalog entry. This is the ONLY source of
+ * such an authorization: it can never be supplied by a caller and can never be inherited by another slice.
+ */
+export function getExplicitlyAuthorizedForbiddenPatternsForStudioSlice(sliceId) {
+  const slice = getStudioSliceById(sliceId);
+  return slice ? Object.freeze([...asArray(slice.explicitlyAuthorizedForbiddenPatterns)]) : Object.freeze([]);
+}
+
 // ---------------------------------------------------------------------------
 // Active slice resolution
 // ---------------------------------------------------------------------------
@@ -167,30 +191,32 @@ export function classifyStudioScopePath(path, options = {}) {
 /**
  * Evaluates a whole changed-path set from the point of view of ONE calling slice.
  *
+ * The ONLY source of a forbidden-path authorization is the ACTIVE slice's own catalog entry
+ * (`explicitlyAuthorizedForbiddenPatterns`). There is deliberately NO caller-supplied option: a caller cannot
+ * inject a wide regex, cannot authorize a path for a slice that does not declare it, and cannot inherit another
+ * slice's authorization. A forbidden path the active slice DOES declare becomes `allowed` and is listed in
+ * `explicitForbiddenAuthorized` — it never falls through into `unknown`.
+ *
  * Rules, in order:
- *  1. a forbidden path always blocks;
- *  2. catalog membership never releases a forbidden path;
+ *  1. a forbidden path blocks unless the ACTIVE slice's catalog entry explicitly authorizes it;
+ *  2. an authorization belongs to the slice that declares it and is never inherited or supplied from outside;
  *  3. an unknown `callerSliceId` blocks;
- *  4. an unresolved or ambiguous active slice blocks;
+ *  4. an unresolved or ambiguous active slice blocks (and then NOTHING is authorized, forbidden included);
  *  5. active === caller admits the caller's own primary / cross / shared paths;
  *  6. active AFTER caller admits only the ACTIVE slice's primary / cross / shared paths;
  *  7. active BEFORE caller blocks (an older slice cannot be building on top of a newer one);
- *  8. a path owned by another catalogued slice that the active slice is not explicitly
- *     cross-authorized for blocks;
+ *  8. a path owned by another catalogued slice that the active slice is not explicitly cross-authorized for blocks;
  *  9. a path owned by nobody blocks (unknown fails closed);
  * 10. a cross authorization belongs to the slice that declares it and is never inherited.
  *
  * @param {string[]} changedPaths
  * @param {Object} options
  * @param {string} options.callerSliceId the slice performing the check
- * @param {RegExp[]} [options.explicitlyAuthorizedForbiddenPatterns]
  * @returns {Object} deterministic, serializable report
  */
 export function evaluateStudioBranchScope(changedPaths, options = {}) {
   const o = options && typeof options === 'object' ? options : {};
   const paths = [...new Set(asArray(changedPaths).filter(isPath))].sort();
-  const explicitForbidden = asArray(o.explicitlyAuthorizedForbiddenPatterns);
-  const classifyOptions = { explicitlyAuthorizedForbidden: explicitForbidden };
 
   const blockers = [];
   const forbidden = [];
@@ -198,23 +224,27 @@ export function evaluateStudioBranchScope(changedPaths, options = {}) {
   const unknown = [];
   const chronologicalViolation = [];
   const crossAuthorized = [];
-
-  // Rule 1/2 — forbidden first, always, regardless of anything below.
-  for (const p of paths) {
-    if (classifyStudioScopePath(p, classifyOptions) === 'forbidden_scope') forbidden.push(p);
-  }
-  if (forbidden.length > 0) blockers.push('forbidden_scope');
+  const explicitForbiddenAuthorized = [];
 
   // Rule 3 — the caller must be catalogued.
   const caller = getStudioSliceById(o.callerSliceId);
   if (!caller) blockers.push('unknown_caller_slice');
 
-  // Rule 4 — exactly one active slice, or refuse.
+  // Rule 4 — exactly one active slice, or refuse. Until it resolves, nothing is authorized.
   const active = resolveActiveStudioSlice(paths);
   if (!active.ok) blockers.push(active.reason);
 
+  // Rules 1/2 — the authorization comes from the ACTIVE slice's catalog entry and nowhere else.
+  const activeSlice = active.ok ? getStudioSliceById(active.sliceId) : null;
+  const activeExplicitForbidden = activeSlice ? asArray(activeSlice.explicitlyAuthorizedForbiddenPatterns) : [];
+  for (const p of paths) {
+    if (!matchesAny(p, FORBIDDEN_SCOPE_PATTERNS)) continue;
+    if (matchesAny(p, activeExplicitForbidden)) explicitForbiddenAuthorized.push(p);
+    else forbidden.push(p);
+  }
+  if (forbidden.length > 0) blockers.push('forbidden_scope');
+
   if (caller && active.ok) {
-    const activeSlice = getStudioSliceById(active.sliceId);
     // Rule 7 — an older active slice under a newer caller's check is a chronology violation.
     if (activeSlice.sliceOrdinal < caller.sliceOrdinal) blockers.push('active_slice_before_caller');
 
@@ -222,6 +252,8 @@ export function evaluateStudioBranchScope(changedPaths, options = {}) {
     const crossPatterns = asArray(activeSlice.crossSliceAuthorizedPatterns);
     for (const p of paths) {
       if (forbidden.includes(p)) continue;
+      // An explicitly authorized forbidden path IS allowed — it must never fall through into `unknown`.
+      if (explicitForbiddenAuthorized.includes(p)) { allowed.push(p); continue; }
       if (matchesAny(p, admitted)) {
         allowed.push(p);
         // Rule 10 — record what was admitted purely by the ACTIVE slice's cross list.
@@ -238,6 +270,7 @@ export function evaluateStudioBranchScope(changedPaths, options = {}) {
     // Caller or active unresolved: nothing can be admitted, so everything non-forbidden is
     // reported as unknown and the caller fails closed with a complete picture.
     for (const p of paths) if (!forbidden.includes(p)) unknown.push(p);
+    if (unknown.length > 0) blockers.push('unknown_scope');
   }
 
   const uniqueBlockers = [...new Set(blockers)].sort();
@@ -254,6 +287,7 @@ export function evaluateStudioBranchScope(changedPaths, options = {}) {
     unknown: [...unknown].sort(),
     chronologicalViolation: [...chronologicalViolation].sort(),
     crossAuthorized: [...crossAuthorized].sort(),
+    explicitForbiddenAuthorized: [...explicitForbiddenAuthorized].sort(),
     blockers: uniqueBlockers,
     safe: uniqueBlockers.length === 0,
     // This helper never performs a side effect.

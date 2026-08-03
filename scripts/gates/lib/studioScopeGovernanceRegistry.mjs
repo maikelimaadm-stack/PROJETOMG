@@ -106,6 +106,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -125,6 +126,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -144,6 +146,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -163,6 +166,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -182,6 +186,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -201,6 +206,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -222,6 +228,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -243,6 +250,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -274,6 +282,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -291,6 +300,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -312,6 +322,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -333,6 +344,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -354,6 +366,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -375,6 +388,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -396,6 +410,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -417,6 +432,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -438,6 +454,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -459,6 +476,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -480,6 +498,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -501,6 +520,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -522,6 +542,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -543,6 +564,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -564,6 +586,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -584,6 +607,13 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
     sharedGovernancePatterns: [
       /^package\.json$/,
       /^package-lock\.json$/,
+    ],
+    explicitlyAuthorizedForbiddenPatterns: [
+      // The ONLY forbidden paths any slice may ever touch: this slice receives the minimal additive
+      // dev-only route mount in App.jsx and the additive Studio dev-route marker in the production UI
+      // guard. Bound to THIS catalog entry, so no caller can supply it and no slice can inherit it.
+      /^src\/App\.jsx$/,
+      /^scripts\/gates\/lib\/productionUiGuard\.mjs$/,
     ],
     status: 'merged',
   },
@@ -606,6 +636,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -627,6 +658,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -648,6 +680,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -669,6 +702,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -690,6 +724,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -709,6 +744,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -730,6 +766,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -749,6 +786,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -770,6 +808,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -791,6 +830,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -812,6 +852,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -833,6 +874,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -854,6 +896,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -875,6 +918,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -888,6 +932,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged_without_dedicated_artifacts',
   },
   {
@@ -909,6 +954,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'merged',
   },
   {
@@ -934,6 +980,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'open_pull_request_495',
   },
   {
@@ -1020,6 +1067,7 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package\.json$/,
       /^package-lock\.json$/,
     ],
+    explicitlyAuthorizedForbiddenPatterns: [],
     status: 'active_slice',
   },
 
@@ -1089,15 +1137,13 @@ export const STUDIO_SCOPE_GUARD_CONSUMER_GATES = Object.freeze([
 ]);
 
 /**
- * Forbidden paths the Studio Dev Preview App Integration slice explicitly authorizes for
- * its OWN gate — passed as `explicitlyAuthorizedForbiddenPatterns`. This is the ONLY
- * sanctioned way a forbidden path is tolerated, and ONLY for that slice's own gate. It
- * never relaxes protection for any other path or any other slice.
+ * DERIVED from the catalog entry of `dev-preview-app-integration` — never a second, independent list. It exists
+ * only so older call sites can read the same two patterns; the authorization itself is applied by
+ * `evaluateStudioBranchScope` from the ACTIVE slice's own entry, never from a caller-supplied option.
  * @type {RegExp[]}
  */
 export const STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN = Object.freeze([
-  /^src\/App\.jsx$/,
-  /^scripts\/gates\/lib\/productionUiGuard\.mjs$/,
+  ...(STUDIO_SLICE_CATALOG.find((s) => s.sliceId === 'dev-preview-app-integration')?.explicitlyAuthorizedForbiddenPatterns ?? []),
 ]);
 
 /** Path shapes that are structurally test/gate/evidence/package (used for reporting). */
