@@ -22,7 +22,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN } from './lib/studioScopeGovernanceRegistry.mjs';
-import { createResolvedActiveStudioSlicePathAuthorizer, evaluateStudioBranchDiffScope, filterForbiddenScopePaths } from './lib/studioScopeGovernanceGuard.mjs';
+import { classifyStudioScopePath, createResolvedActiveStudioSlicePathAuthorizer, evaluateStudioBranchDiffScope, filterForbiddenScopePaths, isKnownLaterStudioHeadlessArtifact } from './lib/studioScopeGovernanceGuard.mjs';
 
 // ---------------------------------------------------------------------------
 // CALLER-AWARE branch-relative scope governance. This gate declares its OWN slice identity,

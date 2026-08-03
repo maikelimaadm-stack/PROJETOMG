@@ -1,0 +1,52 @@
+# Readiness — Studio Scope Governance Main-Diff Correction
+
+```
+sliceOrdinal:43
+sliceRegisteredFirst:true
+catalogContiguous1to43:true
+previousGovernanceSliceMarkedMerged:true
+
+coreResolveEmptyFailsClosed:true
+coreEvaluateEmptyFailsClosed:true
+coreSemanticsWeakened:false
+
+branchDiffBoundaryImplemented:true
+branchDiffEmptyIsNotApplicable:true
+branchDiffEmptyAuthorizesNothing:true
+branchDiffInvalidInputFailsClosed:true
+branchDiffUnknownCallerFailsClosed:true
+branchDiffDelegatesCoreOnNonEmpty:true
+
+activePathAuthorizerImplemented:true
+activePathAuthorizerPrefixBound:false
+activePathAuthorizerInjectable:false
+activePathAuthorizerChronologyFree:false
+activePathAuthorizerAuthorizesOnEmptyDiff:false
+
+nineTestsMigrated:true
+twentyTwoGatesMigrated:true
+seventeenHistoricalTestsCentralized:true
+twelveHistoricalGatesCentralized:true
+localMigrationExemptRemaining:false
+prefixBoundExemptionRemaining:false
+chronologyFreeExemptionRemaining:false
+
+eightLookalikesStillBlocked:true
+dbMigrationStillBlocked:true
+explicitForbiddenStillCatalogBound:true
+crossAuthorizationStillNotInherited:true
+
+builderTouched:false
+productionCodeTouched:false
+backendOrPrismaTouched:false
+newDependencyAdded:false
+pr495Touched:false
+
+branchVerifiedGreen:true
+mainVerifiedGreen:false
+postMergeRevalidationRequired:true
+```
+
+`mainVerifiedGreen` só pode virar `true` depois do merge manual desta PR e de uma execução real de
+`npm run test:runtime` e do sweep `gate:g423*` **na `main`**. Nenhuma prova nesta branch substitui
+essa execução — foi exatamente essa distinção que a fatia anterior errou.
