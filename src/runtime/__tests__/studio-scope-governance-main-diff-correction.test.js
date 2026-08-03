@@ -800,7 +800,9 @@ test('P003 the Builder evidence directory is outside this slice scope', () => {
 test('P004 the Builder entry is untouched: ordinal, status and exact pattern counts', () => {
   const b = getStudioSliceById(BUILDER);
   assert.equal(b.sliceOrdinal, 41);
-  assert.equal(b.status, 'open_pull_request_495');
+  // LIFECYCLE: PR #495 is merged.
+  assert.equal(b.status, 'merged');
+  assert.equal(b.historicalBranchConsumerCompatibility, false);
   assert.equal(b.primaryArtifactPatterns.length, 4);
   assert.equal(b.crossSliceAuthorizedPatterns.length, 8);
   assert.deepEqual(b.explicitlyAuthorizedForbiddenPatterns, []);

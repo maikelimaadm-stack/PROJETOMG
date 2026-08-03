@@ -432,7 +432,7 @@ gate('G423-MDC — Builder evidence outside this slice scope',
   G.isPathAuthorizedForStudioSlice('docs/evidence/post-foundation-c-studio-bridge-decision-core-envelope-builder/X.md', CORRECTION) === false);
 gate('G423-MDC — Builder entry untouched', (() => {
   const b = slice(BUILDER);
-  return b.sliceOrdinal === 41 && b.status === 'open_pull_request_495'
+  return b.sliceOrdinal === 41 && b.status === 'merged'
     && b.primaryArtifactPatterns.length === 4 && b.crossSliceAuthorizedPatterns.length === 8
     && b.explicitlyAuthorizedForbiddenPatterns.length === 0;
 })());
@@ -475,7 +475,7 @@ gate('G423-MDC — the cross extension changes no classification and no election
     'src/runtime/__tests__/studio-scope-governance-historical-branch-consumers.test.js',
     'scripts/gates/g423-studio-scope-governance-historical-branch-consumers.mjs',
   ].every((p) => G.resolveActiveStudioSlice([p]).candidates.length === 0)
-  && G.getStudioSliceById(BUILDER).historicalBranchConsumerCompatibility === true);
+  && G.getStudioSliceById(BUILDER).historicalBranchConsumerCompatibility === false);
 gate('G423-MDC — a Builder-shaped branch is still judged by the same rules', (() => {
   const r = G.evaluateStudioBranchDiffScope([
     'src/studio/blueprint-engine/bridge-decision-core-envelope-builder/index.js',

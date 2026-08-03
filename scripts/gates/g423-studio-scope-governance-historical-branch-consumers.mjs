@@ -167,16 +167,19 @@ console.log('--- G423-STUDIO-SCOPE-GOVERNANCE-HISTORICAL-BRANCH-CONSUMERS ---\n'
 // =====================================================================
 // Registry
 // =====================================================================
-gate('G423-HBC — catalog holds exactly 44 slices', STUDIO_SLICE_CATALOG.length === 44, String(STUDIO_SLICE_CATALOG.length));
+gate('G423-HBC — catalog keeps growing and is never truncated', STUDIO_SLICE_CATALOG.length >= 44, String(STUDIO_SLICE_CATALOG.length));
 gate('G423-HBC — slice ids unique', new Set(STUDIO_SLICE_CATALOG.map((s) => s.sliceId)).size === STUDIO_SLICE_CATALOG.length);
 gate('G423-HBC — ordinals unique and positive',
   new Set(STUDIO_SLICE_CATALOG.map((s) => s.sliceOrdinal)).size === STUDIO_SLICE_CATALOG.length
   && STUDIO_SLICE_CATALOG.every((s) => Number.isInteger(s.sliceOrdinal) && s.sliceOrdinal > 0));
-gate('G423-HBC — ordinals contiguous 1..44',
+gate('G423-HBC — ordinals contiguous from one',
   STUDIO_SLICE_CATALOG.map((s) => s.sliceOrdinal).sort((a, b) => a - b).every((o, i) => o === i + 1));
 gate('G423-HBC — this slice registered at ordinal 44', slice(CONSUMERS) !== null && slice(CONSUMERS).sliceOrdinal === 44);
-gate('G423-HBC — this slice is the only active one',
-  STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice').map((s) => s.sliceId).join(',') === CONSUMERS);
+gate('G423-HBC — this slice is merged and exactly one later slice is active', (() => {
+  const active = STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice');
+  return slice(CONSUMERS).status === 'merged'
+    && active.length === 1 && active[0].sliceOrdinal > slice(CONSUMERS).sliceOrdinal;
+})());
 gate('G423-HBC — the previous governance slice is merged', slice(CORRECTION).status === 'merged');
 gate('G423-HBC — this slice is after every other governance slice',
   [MAINTENANCE, MIGRATION, CORRECTION].every((id) => slice(CONSUMERS).sliceOrdinal > slice(id).sliceOrdinal));
@@ -254,13 +257,13 @@ gate('G423-HBC — every entry declares historicalBranchConsumerCompatibility',
   STUDIO_SLICE_CATALOG.every((s) => Object.prototype.hasOwnProperty.call(s, 'historicalBranchConsumerCompatibility')));
 gate('G423-HBC — the authorization is always a boolean',
   STUDIO_SLICE_CATALOG.every((s) => typeof s.historicalBranchConsumerCompatibility === 'boolean'));
-gate('G423-HBC — exactly one slice is authorized, forty-three are not',
-  STUDIO_SLICE_CATALOG.filter((s) => s.historicalBranchConsumerCompatibility).length === 1
-  && STUDIO_SLICE_CATALOG.filter((s) => !s.historicalBranchConsumerCompatibility).length === 43);
-gate('G423-HBC — the authorized slice is the Builder of PR #495', (() => {
+gate('G423-HBC — at most one slice is authorized, and today none is',
+  STUDIO_SLICE_CATALOG.filter((s) => s.historicalBranchConsumerCompatibility).length === 0
+  && STUDIO_SLICE_CATALOG.filter((s) => !s.historicalBranchConsumerCompatibility).length === STUDIO_SLICE_CATALOG.length);
+gate('G423-HBC — any authorized slice would have to be open, never merged', (() => {
+  // LIFECYCLE: PR #495 is merged, so the catalog is back to zero authorized slices.
   const a = STUDIO_SLICE_CATALOG.filter((s) => s.historicalBranchConsumerCompatibility);
-  return a.length === 1 && a[0].sliceId === BUILDER && a[0].sliceOrdinal === 41
-    && a[0].status === 'open_pull_request_495';
+  return a.length === 0 && a.every((s) => s.status !== 'merged');
 })());
 gate('G423-HBC — no merged slice is authorized',
   STUDIO_SLICE_CATALOG.filter((s) => s.status === 'merged').every((s) => s.historicalBranchConsumerCompatibility === false));
@@ -270,12 +273,14 @@ gate('G423-HBC — the governance slices and this one are not authorized',
 gate('G423-HBC — the authorization is not inferable from the ordinal',
   STUDIO_SLICE_CATALOG.filter((s) => s.sliceOrdinal < 44).every((s) => s.historicalBranchConsumerCompatibility) === false);
 gate('G423-HBC — the authorization is not inferable from the status',
-  STUDIO_SLICE_CATALOG.filter((s) => s.status !== 'merged' && s.historicalBranchConsumerCompatibility).length === 1);
+  STUDIO_SLICE_CATALOG.filter((s) => s.status !== 'merged').length >= 1
+  && STUDIO_SLICE_CATALOG.filter((s) => s.status !== 'merged' && s.historicalBranchConsumerCompatibility).length === 0);
 gate('G423-HBC — the authorization lives in the catalog, with no parallel list', (() => {
   const src = readSrc(REGISTRY_REL);
   const decls = (src.match(/historicalBranchConsumerCompatibility/g) || []).length;
-  // 44 entries + one typedef line + one design-rule mention.
-  return decls === 46 && /export const [A-Z_]*HISTORICAL_BRANCH_CONSUMER_COMPAT/.test(src) === false;
+  // one declaration per catalog entry, plus the typedef line and the design-rule mention.
+  return decls === STUDIO_SLICE_CATALOG.length + 2
+    && /export const [A-Z_]*HISTORICAL_BRANCH_CONSUMER_COMPAT/.test(src) === false;
 })(), `${(readSrc(REGISTRY_REL).match(/historicalBranchConsumerCompatibility/g) || []).length} mentions`);
 gate('G423-HBC — the guard reads the authorization only from the active slice', (() => {
   const src = readSrc(GUARD_REL);
@@ -347,16 +352,18 @@ gate('G423-HBC — the unauthorized state is a distinct named reason', (() => {
     && r.reason !== 'consumer_slice_after_active_slice' && r.reason !== 'active_slice_scope_invalid';
 })());
 gate('G423-HBC — an earlier ordinal alone never buys inapplicability', (() => {
-  const ok = G.evaluateStudioBranchConsumerScope(BUILDER41_FIXTURE, { callerSliceId: CONSUMERS });
-  const no = G.evaluateStudioBranchConsumerScope(MERGED24_FIXTURE, { callerSliceId: CONSUMERS });
-  return ok.activeSliceOrdinal < ok.consumerSliceOrdinal && no.activeSliceOrdinal < no.consumerSliceOrdinal
-    && ok.notApplicable === true && ok.safe === true && no.notApplicable === false && no.safe === false;
+  // With ZERO authorized slices, both the Builder and a merged slice are refused alike.
+  if (STUDIO_SLICE_CATALOG.filter((s) => s.historicalBranchConsumerCompatibility).length !== 0) return false;
+  return [BUILDER41_FIXTURE, MERGED24_FIXTURE].every((fx) => {
+    const r = G.evaluateStudioBranchConsumerScope(fx, { callerSliceId: CONSUMERS });
+    return r.activeSliceOrdinal < r.consumerSliceOrdinal && r.notApplicable === false && r.safe === false
+      && r.reason === 'historical_branch_consumer_compatibility_not_authorized';
+  });
 })());
-gate('G423-HBC — the authorization never rescues a bad path on the authorized branch',
-  ['src/App.jsx', 'backend/server.js', 'src/modules/x.js', 'docs/nobody/x.md'].every((bad) => {
-    const r = G.evaluateStudioBranchConsumerScope([...BUILDER41_FIXTURE, bad], { callerSliceId: CONSUMERS });
-    return r.safe === false && r.certifiedAgainstActiveSlice === true;
-  }));
+gate('G423-HBC — a bad path is refused on the Builder branch in every lifecycle state',
+  ['src/App.jsx', 'backend/server.js', 'src/modules/x.js', 'docs/nobody/x.md'].every((bad) =>
+    G.evaluateStudioBranchConsumerScope([...BUILDER41_FIXTURE, bad], { callerSliceId: CONSUMERS }).safe === false
+    && G.evaluateStudioBranchScope([...BUILDER41_FIXTURE, bad], { callerSliceId: BUILDER }).safe === false));
 
 // =====================================================================
 // Core non-regression — the certification semantics are unweakened
@@ -415,7 +422,8 @@ gate('G423-HBC — the four semantics differ exactly where they must',
   && G.evaluateStudioBranchDiffScope([], { callerSliceId: CONSUMERS }).safe === true
   && G.evaluateStudioBranchConsumerScope([], { callerSliceId: CONSUMERS }).safe === true
   && G.evaluateStudioBranchDiffScope(BUILDER41_FIXTURE, { callerSliceId: CONSUMERS }).safe === false
-  && G.evaluateStudioBranchConsumerScope(BUILDER41_FIXTURE, { callerSliceId: CONSUMERS }).safe === true);
+  // and, with the authorization withdrawn, the consumer boundary now refuses it too.
+  && G.evaluateStudioBranchConsumerScope(BUILDER41_FIXTURE, { callerSliceId: CONSUMERS }).safe === false);
 
 // =====================================================================
 // The consumer applicability boundary
@@ -479,36 +487,42 @@ gate('G423-HBC — active later than the consumer is applicable', (() => {
   return r.consumerApplicable === true && r.safe === true && r.activeSliceOrdinal > r.consumerSliceOrdinal;
 })());
 const passenger = G.evaluateStudioBranchConsumerScope(BUILDER41_FIXTURE, { callerSliceId: CORRECTION });
-gate('G423-HBC — a later consumer on an earlier branch is inapplicable, not failing',
-  passenger.consumerApplicable === false && passenger.applicable === false && passenger.notApplicable === true
-  && passenger.reason === 'consumer_slice_after_active_slice' && passenger.safe === true);
-gate('G423-HBC — the inapplicable case is certified against the active slice',
-  passenger.certifiedAgainstActiveSlice === true && passenger.evaluatedAsSliceId === BUILDER
+gate('G423-HBC — a later consumer on an UNAUTHORIZED earlier branch fails closed',
+  passenger.consumerApplicable === false && passenger.applicable === false && passenger.notApplicable === false
+  && passenger.reason === 'historical_branch_consumer_compatibility_not_authorized'
+  && passenger.blockers.includes('active_slice_before_caller') && passenger.safe === false);
+gate('G423-HBC — the unauthorized case never self-certifies',
+  passenger.certifiedAgainstActiveSlice === false && passenger.evaluatedAsSliceId === null
   && passenger.activeSliceId === BUILDER && passenger.activeSliceOrdinal === 41);
 gate('G423-HBC — the inapplicable case preserves the consumer identity',
   passenger.consumerSliceId === CORRECTION && passenger.consumerSliceOrdinal === 43
   && passenger.activeSliceOrdinal < passenger.consumerSliceOrdinal);
-gate('G423-HBC — the inapplicable case reports the active slice self-evaluation verbatim', (() => {
+gate('G423-HBC — the unauthorized case authorizes nothing, though the branch is sound for its owner', (() => {
   const self = G.evaluateStudioBranchScope(BUILDER41_FIXTURE, { callerSliceId: BUILDER });
-  return JSON.stringify(passenger.allowed) === JSON.stringify(self.allowed)
-    && JSON.stringify(passenger.crossAuthorized) === JSON.stringify(self.crossAuthorized)
-    && passenger.total === self.total;
+  return passenger.allowed.length === 0 && passenger.crossAuthorized.length === 0
+    && passenger.explicitForbiddenAuthorized.length === 0 && passenger.total === 0
+    && self.safe === true;
 })());
 for (const bad of ['src/App.jsx', 'backend/server.js', 'src/modules/x.js',
   'scripts/gates/lib/productionUiGuard.mjs', 'prisma/schema.prisma', 'src/pages/x.jsx']) {
   const r = G.evaluateStudioBranchConsumerScope([...BUILDER41_FIXTURE, bad], { callerSliceId: CORRECTION });
   gate(`G423-HBC — a later consumer never masks a forbidden path: ${bad}`,
-    r.safe === false && r.notApplicable === false && r.reason === 'active_slice_scope_invalid'
-    && r.certifiedAgainstActiveSlice === true && r.forbidden.includes(bad));
+    r.safe === false && r.notApplicable === false
+    && r.reason === 'historical_branch_consumer_compatibility_not_authorized'
+    && G.classifyStudioScopePath(bad) === 'forbidden_scope'
+    && G.evaluateStudioBranchScope([...BUILDER41_FIXTURE, bad], { callerSliceId: BUILDER }).forbidden.includes(bad));
 }
 gate('G423-HBC — a later consumer never masks an unknown path', (() => {
   const r = G.evaluateStudioBranchConsumerScope([...BUILDER41_FIXTURE, 'docs/nobody/x.md'], { callerSliceId: CORRECTION });
-  return r.safe === false && r.reason === 'active_slice_scope_invalid' && r.unknown.includes('docs/nobody/x.md');
+  return r.safe === false && G.classifyStudioScopePath('docs/nobody/x.md') === 'unknown_scope'
+    && G.evaluateStudioBranchScope([...BUILDER41_FIXTURE, 'docs/nobody/x.md'],
+      { callerSliceId: BUILDER }).unknown.includes('docs/nobody/x.md');
 })());
 gate('G423-HBC — a later consumer never masks a foreign catalogued path', (() => {
   const foreign = 'src/runtime/__tests__/studio-module-preview-sandbox-contract.test.js';
   const r = G.evaluateStudioBranchConsumerScope([...BUILDER41_FIXTURE, foreign], { callerSliceId: CORRECTION });
-  return r.safe === false && r.reason === 'active_slice_scope_invalid' && r.chronologicalViolation.includes(foreign);
+  return r.safe === false && G.evaluateStudioBranchScope([...BUILDER41_FIXTURE, foreign],
+    { callerSliceId: BUILDER }).chronologicalViolation.includes(foreign);
 })());
 gate('G423-HBC — a later consumer never masks a second marker', (() => {
   const r = G.evaluateStudioBranchConsumerScope([...BUILDER41_FIXTURE, MARKER[24]], { callerSliceId: CORRECTION });
@@ -554,11 +568,12 @@ gate('G423-HBC — caller 41 is applicable and safe', (() => {
   return r.consumerApplicable === true && r.safe === true && r.allowed.length === BUILDER41_FIXTURE.length;
 })());
 for (const caller of LATER_CALLERS) {
-  gate(`G423-HBC — later caller is inapplicable and safe: ${caller}`, (() => {
+  gate(`G423-HBC — later caller is fail-closed once the authorization is withdrawn: ${caller}`, (() => {
     const r = G.evaluateStudioBranchConsumerScope(BUILDER41_FIXTURE, { callerSliceId: caller });
-    return r.consumerApplicable === false && r.notApplicable === true
-      && r.reason === 'consumer_slice_after_active_slice' && r.certifiedAgainstActiveSlice === true
-      && r.evaluatedAsSliceId === BUILDER && r.safe === true;
+    return r.consumerApplicable === false && r.notApplicable === false
+      && r.reason === 'historical_branch_consumer_compatibility_not_authorized'
+      && r.certifiedAgainstActiveSlice === false && r.evaluatedAsSliceId === null
+      && r.blockers.includes('active_slice_before_caller') && r.safe === false;
   })());
 }
 gate('G423-HBC — the maintenance slice is EARLIER, so it stays the certifier',
@@ -653,7 +668,8 @@ for (const p of EIGHT_LOOKALIKES) {
 for (const p of DB_MIGRATION_PATHS) {
   gate(`G423-HBC — real DB migration artifact forbidden: ${p}`, G.classifyStudioScopePath(p) === 'forbidden_scope');
   gate(`G423-HBC — real DB migration artifact makes a passenger branch unsafe: ${p}`,
-    G.evaluateStudioBranchConsumerScope([...BUILDER41_FIXTURE, p], { callerSliceId: CONSUMERS }).forbidden.includes(p));
+    G.evaluateStudioBranchConsumerScope([...BUILDER41_FIXTURE, p], { callerSliceId: CONSUMERS }).safe === false
+    && G.evaluateStudioBranchScope([...BUILDER41_FIXTURE, p], { callerSliceId: BUILDER }).forbidden.includes(p));
 }
 gate('G423-HBC — this slice evidence is allowed by ownership, not by a loosened pattern',
   G.classifyStudioScopePath(`${EV_REL}READINESS.md`) === 'known_later_studio_headless_artifact'
@@ -771,7 +787,7 @@ gate('G423-HBC — Builder evidence outside this slice scope',
   G.isPathAuthorizedForStudioSlice('docs/evidence/post-foundation-c-studio-bridge-decision-core-envelope-builder/X.md', CONSUMERS) === false);
 gate('G423-HBC — the Builder catalog entry is untouched', (() => {
   const b = slice(BUILDER);
-  return b.sliceOrdinal === 41 && b.status === 'open_pull_request_495'
+  return b.sliceOrdinal === 41 && b.status === 'merged'
     && b.primaryArtifactPatterns.length === 4 && b.crossSliceAuthorizedPatterns.length === 8
     && b.explicitlyAuthorizedForbiddenPatterns.length === 0;
 })());
@@ -814,7 +830,7 @@ gate('G423-HBC — the cross extension changes no classification and no election
     'src/runtime/__tests__/studio-scope-governance-historical-branch-consumers.test.js',
     'scripts/gates/g423-studio-scope-governance-historical-branch-consumers.mjs',
   ].every((p) => G.resolveActiveStudioSlice([p]).candidates.length === 0)
-  && G.getStudioSliceById(BUILDER).historicalBranchConsumerCompatibility === true);
+  && G.getStudioSliceById(BUILDER).historicalBranchConsumerCompatibility === false);
 gate('G423-HBC — the no-touch proof document records the PR #495 head', readEv('PR495-NO-TOUCH-PROOF.md').includes('9634c364'));
 
 // =====================================================================

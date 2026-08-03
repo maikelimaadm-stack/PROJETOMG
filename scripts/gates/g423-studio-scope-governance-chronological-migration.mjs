@@ -148,7 +148,9 @@ gate('G423-SGCM — ordinal lookup round-trips', CATALOG.every((s) => G.getStudi
 }
 
 // ---- Builder future registration ----
-gate('G423-SGCM — Builder registered as future known slice (PR #495)', G.getStudioSliceById(BUILDER).status === 'open_pull_request_495');
+gate('G423-SGCM — Builder registered and now merged (PR #495 closed)',
+  G.getStudioSliceById(BUILDER).status === 'merged'
+  && G.getStudioSliceById(BUILDER).historicalBranchConsumerCompatibility === false);
 gate('G423-SGCM — Builder declares exactly four primary patterns', G.getStudioSliceById(BUILDER).primaryArtifactPatterns.length === 4);
 for (const p of BUILDER_PRIMARY) gate(`G423-SGCM — Builder owns ${path.basename(p)}`, G.findOwningStudioSlices(p).map((s) => s.sliceId).join() === BUILDER);
 gate('G423-SGCM — Builder cross list is EXACTLY 2 lifecycle + 6 governance integration paths', (() => {
@@ -190,7 +192,7 @@ gate('G423-SGCM — the cross extension changes no classification and no electio
     'src/runtime/__tests__/studio-scope-governance-historical-branch-consumers.test.js',
     'scripts/gates/g423-studio-scope-governance-historical-branch-consumers.mjs',
   ].every((p) => G.resolveActiveStudioSlice([p]).candidates.length === 0)
-  && G.getStudioSliceById(BUILDER).historicalBranchConsumerCompatibility === true);
+  && G.getStudioSliceById(BUILDER).historicalBranchConsumerCompatibility === false);
 
 for (const p of BUILDER_CROSS) gate(`G423-SGCM — Builder cross-authorized for ${path.basename(p)}`, G.getStudioSliceById(BUILDER).crossSliceAuthorizedPatterns.some((re) => re.test(p)));
 for (const f of ['src/runtime/__tests__/studio-authoring-runtime-to-preview-bridge.test.js',

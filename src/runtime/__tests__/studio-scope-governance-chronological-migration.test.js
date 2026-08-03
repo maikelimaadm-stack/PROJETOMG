@@ -235,7 +235,9 @@ const BUILDER_CROSS = [
 ];
 test('B001 the Builder is registered as a future known slice with an open pull request', () => {
   const b = getStudioSliceById(BUILDER);
-  assert.equal(b.status, 'open_pull_request_495');
+  // LIFECYCLE: PR #495 is merged; the entry moved to 'merged' and lost its authorization.
+  assert.equal(b.status, 'merged');
+  assert.equal(b.historicalBranchConsumerCompatibility, false);
   assert.equal(b.primaryArtifactPatterns.length, 4);
 });
 for (const p of BUILDER_PRIMARY) {
