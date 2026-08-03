@@ -343,6 +343,25 @@ gate('G423-SGCM — no Studio blueprint-engine source in this slice scope', (() 
     && !all.some((re) => re.test('src/studio/blueprint-engine/bridge-decision-core-envelope-builder/index.js'));
 })());
 
+
+// ---- Strict active resolution (post-audit) ----
+const MIG_MARKER = 'docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/SLICE-CATALOG.md';
+const CORR_MARKER = 'docs/evidence/post-foundation-c-studio-scope-governance-main-diff-correction/READINESS.md';
+gate('G423-SGCM — this slice own marker alone resolves this slice',
+  G.resolveActiveStudioSlice([MIG_MARKER]).sliceId === MIGRATION);
+gate('G423-SGCM — this slice marker plus a later marker is ambiguous', (() => {
+  const r = G.resolveActiveStudioSlice([MIG_MARKER, CORR_MARKER]);
+  return r.ok === false && r.reason === 'ambiguous_active_slice' && r.candidates.length === 2 && r.sliceId === null;
+})());
+gate('G423-SGCM — a cross authorization does not suppress this slice as a candidate', (() => {
+  const ownTest = 'src/runtime/__tests__/studio-scope-governance-chronological-migration.test.js';
+  const r = G.resolveActiveStudioSlice([MIG_MARKER, CORR_MARKER, ownTest]);
+  return G.isPathAuthorizedForStudioSlice(ownTest, CORRECTION) === true && r.ok === false && r.candidates.length === 2;
+})());
+gate('G423-SGCM — this slice certified evidence is not cross-authorized by the later slice',
+  ['CERTIFICATION-REPORT.md', 'READINESS.md'].every((d) =>
+    G.isPathAuthorizedForStudioSlice(`docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/${d}`, CORRECTION) === false));
+
 // ---- This branch, evaluated by its own rules ----
 let branchOk = false; let branchDetail = '';
 let branchPaths = null;

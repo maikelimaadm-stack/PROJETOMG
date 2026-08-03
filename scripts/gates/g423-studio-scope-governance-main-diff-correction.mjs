@@ -111,6 +111,15 @@ const EIGHT_LOOKALIKES = [
   'docs/evidence/unregistered-empresas-change/file.md',
 ];
 
+const MIGRATION_TEST_REL = 'src/runtime/__tests__/studio-scope-governance-chronological-migration.test.js';
+const MIGRATION_GATE_REL = 'scripts/gates/g423-studio-scope-governance-chronological-migration.mjs';
+
+/** The previous slice's certified documents. Immutable: never edited, never cross-authorized. */
+const HISTORICAL_EVIDENCE = [
+  'docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/CERTIFICATION-REPORT.md',
+  'docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/READINESS.md',
+];
+
 const DB_MIGRATION_PATHS = [
   'migrations/001.sql', 'nested/migrations/001.sql', 'prisma/migrations/20240101_init/migration.sql',
   'backend/prisma/migrations/x/migration.sql', 'anything.sql', 'scripts/migrateUsers.js',
@@ -163,6 +172,17 @@ gate('G423-MDC — correction cross list has no duplicate', (() => {
   const src = slice(CORRECTION).crossSliceAuthorizedPatterns.map((r) => r.source);
   return new Set(src).size === src.length;
 })(), `${slice(CORRECTION).crossSliceAuthorizedPatterns.length} patterns`);
+gate('G423-MDC — correction cross list is exactly 61 unique patterns',
+  slice(CORRECTION).crossSliceAuthorizedPatterns.length === 61,
+  String(slice(CORRECTION).crossSliceAuthorizedPatterns.length));
+gate('G423-MDC — correction cross list carries no evidence path at all',
+  slice(CORRECTION).crossSliceAuthorizedPatterns.every((r) => !/docs\\\/evidence/.test(r.source)));
+gate('G423-MDC — correction cross list is exactly the migrated artifact set', (() => {
+  const expected = [...new Set([...NINE_TESTS.map(([p]) => p), MIGRATION_TEST_REL, MIGRATION_GATE_REL,
+    ...TWENTY_TWO_GATES, ...SEVENTEEN_TESTS, ...TWELVE_GATES])];
+  const declared = slice(CORRECTION).crossSliceAuthorizedPatterns;
+  return expected.length === 61 && declared.length === 61 && expected.every((p) => declared.some((r) => r.test(p)));
+})());
 gate('G423-MDC — correction cross list carries no test/gate directory wildcard',
   slice(CORRECTION).crossSliceAuthorizedPatterns.every((r) =>
     r.source !== '^src\\/runtime\\/__tests__\\/' && r.source !== '^scripts\\/gates\\/'));
@@ -431,7 +451,8 @@ gate('G423-MDC — evidence directory exists', fs.existsSync(path.join(ROOT, EV_
 for (const doc of ['CERTIFICATION-REPORT.md', 'POST-MERGE-ROOT-CAUSE.md', 'EMPTY-DIFF-BOUNDARY-CONTRACT.md',
   'RESOLVED-ACTIVE-PATH-AUTHORIZER.md', 'NINE-TEST-MIGRATION.md', 'TWENTY-TWO-GATE-MIGRATION.md',
   'HISTORICAL-EXEMPTION-CENTRALIZATION.md', 'NEGATIVE-MATRIX.md', 'MAIN-BASELINE-BEFORE-CORRECTION.md',
-  'BRANCH-REGRESSION-MATRIX.md', 'PR495-NO-TOUCH-PROOF.md', 'READINESS.md', 'POST-MERGE-REVALIDATION-PLAN.md']) {
+  'BRANCH-REGRESSION-MATRIX.md', 'PR495-NO-TOUCH-PROOF.md', 'READINESS.md', 'POST-MERGE-REVALIDATION-PLAN.md',
+  'HISTORICAL-CERTIFICATION-SUPERSESSION.md']) {
   gate(`G423-MDC — evidence present and non-trivial: ${doc}`, readEv(doc).length > 200);
 }
 gate('G423-MDC — package.json wires the slice test',
@@ -440,17 +461,29 @@ gate('G423-MDC — package.json wires the slice gate',
   /"gate:g423-studio-scope-governance-main-diff-correction":/.test(readSrc('package.json')));
 gate('G423-MDC — the aggregate test:runtime includes this slice',
   readSrc('package.json').includes('studio-scope-governance-main-diff-correction.test.js'));
-gate('G423-MDC — superseded certification carries the banner',
-  readSrc('docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/CERTIFICATION-REPORT.md')
-    .includes('SUPERSEDED_BY_MAIN_DIFF_CORRECTION'));
-gate('G423-MDC — superseded readiness carries the banner',
-  readSrc('docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/READINESS.md')
-    .includes('SUPERSEDED_BY_MAIN_DIFF_CORRECTION'));
-gate('G423-MDC — the supersession names all three blockers', (() => {
-  const doc = readSrc('docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/CERTIFICATION-REPORT.md');
+// Historical evidence is IMMUTABLE: never rewritten, never cross-authorized, absent from the diff.
+for (const rel of HISTORICAL_EVIDENCE) {
+  gate(`G423-MDC — historical evidence byte-identical to main: ${path.basename(rel)}`, (() => {
+    try { return readSrc(rel) === execSync(`git show origin/main:${rel}`, { cwd: ROOT, encoding: 'utf8' }); }
+    catch { return true; }
+  })());
+  gate(`G423-MDC — historical evidence carries no retroactive banner: ${path.basename(rel)}`,
+    readSrc(rel).includes('SUPERSEDED_BY_MAIN_DIFF_CORRECTION') === false);
+  gate(`G423-MDC — historical evidence not cross-authorized by this slice: ${path.basename(rel)}`,
+    G.isPathAuthorizedForStudioSlice(rel, CORRECTION) === false);
+}
+gate('G423-MDC — the supersession document names all three blockers', (() => {
+  const doc = readEv('HISTORICAL-CERTIFICATION-SUPERSESSION.md');
   return ['B-POSTMERGE-EMPTY-DIFF-FAILS-CLOSED-ON-MAIN', 'B-TWO-EXTENSION-GATES-NOT-ACTIVE-BOUND',
     'B-TEN-EXTENSION-GATES-PREFIX-BOUND'].every((b) => doc.includes(b));
 })());
+gate('G423-MDC — the supersession document records the merged main baseline',
+  readEv('HISTORICAL-CERTIFICATION-SUPERSESSION.md').includes('01e1b701')
+  && readEv('HISTORICAL-CERTIFICATION-SUPERSESSION.md').includes('20405'));
+gate('G423-MDC — the supersession document states the immutability rule',
+  /IMUT[ÁA]VEL|imut[áa]vel/.test(readEv('HISTORICAL-CERTIFICATION-SUPERSESSION.md')));
+gate('G423-MDC — the supersession document requires post-merge revalidation',
+  readEv('HISTORICAL-CERTIFICATION-SUPERSESSION.md').includes('POST_MERGE_REVALIDATION_REQUIRED'));
 gate('G423-MDC — readiness still requires post-merge revalidation',
   /postMergeRevalidationRequired:\s*true/.test(readEv('READINESS.md')));
 gate('G423-MDC — readiness does not claim the main is green',
@@ -461,6 +494,75 @@ gate('G423-MDC — the negative matrix lists all eight lookalikes',
   EIGHT_LOOKALIKES.every((p) => readEv('NEGATIVE-MATRIX.md').includes(p)));
 gate('G423-MDC — the centralization document lists all 29 historical consumers',
   [...SEVENTEEN_TESTS, ...TWELVE_GATES].every((p) => readEv('HISTORICAL-EXEMPTION-CENTRALIZATION.md').includes(path.basename(p))));
+
+
+// ---- Strict active resolution: zero / one / many, and nothing else decides ----
+const MARKER = {
+  24: 'docs/evidence/post-foundation-c-studio-dev-preview-app-integration/X.md',
+  41: 'docs/evidence/post-foundation-c-studio-bridge-decision-core-envelope-builder/X.md',
+  42: 'docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/SLICE-CATALOG.md',
+  43: `${EV_REL}READINESS.md`,
+};
+gate('G423-MDC — zero markers fail closed', (() => {
+  const r = G.resolveActiveStudioSlice(['package.json', 'package-lock.json', REGISTRY_REL, GUARD_REL]);
+  return r.ok === false && r.reason === 'no_active_slice_resolved' && r.candidates.length === 0;
+})());
+gate('G423-MDC — exactly one marker resolves that slice', (() => {
+  const r = G.resolveActiveStudioSlice([MARKER[43], REGISTRY_REL, TEST_REL, GATE_REL]);
+  return r.ok === true && r.sliceId === CORRECTION && r.candidates.length === 1;
+})());
+for (const [a, b] of [[42, 43], [41, 43], [24, 43], [24, 41], [41, 42]]) {
+  gate(`G423-MDC — two markers are always ambiguous: ${a} + ${b}`, (() => {
+    const r = G.resolveActiveStudioSlice([MARKER[a], MARKER[b]]);
+    return r.ok === false && r.reason === 'ambiguous_active_slice' && r.candidates.length === 2 && r.sliceId === null;
+  })());
+  gate(`G423-MDC — two markers make the branch unsafe: ${a} + ${b}`, (() => {
+    const r = G.evaluateStudioBranchDiffScope([MARKER[a], MARKER[b]], { callerSliceId: CORRECTION });
+    return r.safe === false && r.blockers.includes('ambiguous_active_slice');
+  })());
+}
+gate('G423-MDC — three markers are ambiguous too', (() => {
+  const r = G.resolveActiveStudioSlice([MARKER[24], MARKER[41], MARKER[43]]);
+  return r.ok === false && r.reason === 'ambiguous_active_slice' && r.candidates.length === 3;
+})());
+gate('G423-MDC — a cross authorization does NOT remove a marker candidate', (() => {
+  const r = G.resolveActiveStudioSlice([MARKER[42], MARKER[43], MIGRATION_TEST_REL]);
+  return G.isPathAuthorizedForStudioSlice(MIGRATION_TEST_REL, CORRECTION) === true
+    && r.ok === false && r.candidates.length === 2
+    && r.candidates.includes(CORRECTION) && r.candidates.includes(MIGRATION);
+})());
+gate('G423-MDC — the highest ordinal does NOT win an ambiguity',
+  G.resolveActiveStudioSlice([MARKER[24], MARKER[43]]).sliceId === null);
+gate('G423-MDC — the active_slice status does NOT win an ambiguity',
+  G.resolveActiveStudioSlice([MARKER[42], MARKER[43]]).sliceId === null);
+gate('G423-MDC — shared governance paths never elect a slice',
+  [REGISTRY_REL, GUARD_REL, 'package.json', 'package-lock.json']
+    .every((p) => G.resolveActiveStudioSlice([p]).candidates.length === 0));
+gate('G423-MDC — a cross-authorized test or gate never elects a slice',
+  [MIGRATION_TEST_REL, MIGRATION_GATE_REL, ...NINE_TESTS.map(([x]) => x), ...TWENTY_TWO_GATES]
+    .every((p) => G.resolveActiveStudioSlice([p]).candidates.length === 0));
+gate('G423-MDC — an explicitly authorized forbidden path never elects a slice',
+  G.resolveActiveStudioSlice(['src/App.jsx']).candidates.length === 0
+  && G.resolveActiveStudioSlice(['scripts/gates/lib/productionUiGuard.mjs']).candidates.length === 0);
+gate('G423-MDC — candidates are reported verbatim, never suppressed', (() => {
+  const r = G.resolveActiveStudioSlice([MARKER[42], MARKER[43]]);
+  return [...r.candidates].sort().join(',') === [CORRECTION, MIGRATION].sort().join(',');
+})());
+gate('G423-MDC — resolveActiveStudioSlice reads no cross/shared/forbidden/ordinal/status', (() => {
+  const src = readSrc(GUARD_REL);
+  const body = src.slice(src.indexOf('export function resolveActiveStudioSlice('));
+  const fn = body.slice(0, body.indexOf('\n}\n') + 3);
+  return !/crossSliceAuthorizedPatterns/.test(fn) && !/sharedGovernancePatterns/.test(fn)
+    && !/explicitlyAuthorizedForbiddenPatterns/.test(fn) && !/status/.test(fn)
+    && !/sliceOrdinal >|sliceOrdinal </.test(fn);
+})());
+for (const token of ['electedBy', 'amendedBy', 'being amended', 'amended.size', 'markerPaths.every',
+  'amendsSliceIds', 'activeMarkerAmendmentPatterns', 'amendedCandidates', 'rawCandidates']) {
+  gate(`G423-MDC — the guard carries no amendment machinery: ${token}`,
+    readSrc(GUARD_REL).includes(token) === false);
+}
+gate('G423-MDC — the documented contract matches the implementation',
+  /zero markers and two-or-more distinct markers are BOTH refusals/.test(readSrc(GUARD_REL)));
 
 // ---- This branch, judged by its own rules ----
 let branchPaths = null;

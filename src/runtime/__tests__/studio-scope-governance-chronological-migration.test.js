@@ -970,3 +970,34 @@ test('Hx12 a random uncatalogued migration filename is unknown and unsafe', () =
     assert.ok(r.unknown.includes(p), p);
   }
 });
+
+// ===========================================================================
+// STRICT ACTIVE RESOLUTION — nothing but markers decides (post-audit)
+// ===========================================================================
+const MIG_MARKER = 'docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/SLICE-CATALOG.md';
+const CORR_MARKER = 'docs/evidence/post-foundation-c-studio-scope-governance-main-diff-correction/READINESS.md';
+test('S001 this slice own marker alone resolves this slice', () => {
+  const r = resolveActiveStudioSlice([MIG_MARKER]);
+  assert.equal(r.ok, true);
+  assert.equal(r.sliceId, MIGRATION);
+});
+test('S002 this slice marker plus a later slice marker is ambiguous, never resolved', () => {
+  const r = resolveActiveStudioSlice([MIG_MARKER, CORR_MARKER]);
+  assert.equal(r.ok, false);
+  assert.equal(r.reason, 'ambiguous_active_slice');
+  assert.equal(r.sliceId, null);
+  assert.deepEqual([...r.candidates].sort(), [CORRECTION, MIGRATION].sort());
+});
+test('S003 a cross authorization over this slice artifacts does not suppress this slice', () => {
+  const ownTest = 'src/runtime/__tests__/studio-scope-governance-chronological-migration.test.js';
+  assert.equal(isPathAuthorizedForStudioSlice(ownTest, CORRECTION), true);
+  const r = resolveActiveStudioSlice([MIG_MARKER, CORR_MARKER, ownTest]);
+  assert.equal(r.ok, false);
+  assert.equal(r.candidates.length, 2);
+});
+test('S004 this slice certified evidence is not cross-authorized by the later slice', () => {
+  for (const doc of ['CERTIFICATION-REPORT.md', 'READINESS.md']) {
+    const rel = `docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/${doc}`;
+    assert.equal(isPathAuthorizedForStudioSlice(rel, CORRECTION), false, rel);
+  }
+});
