@@ -1152,9 +1152,6 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^scripts\/gates\/g423-studio-bridge-to-preview-sandbox-runtime-implementation-plan-alignment-amendment\.mjs$/,
       /^scripts\/gates\/g423-studio-bridge-decision-core-envelope-builder-contract\.mjs$/,
       /^scripts\/gates\/g423-studio-bridge-decision-core-envelope-builder-implementation-plan\.mjs$/,
-      // The two superseded evidence documents of the previous governance slice (addendum only).
-      /^docs\/evidence\/post-foundation-c-studio-scope-governance-chronological-migration\/CERTIFICATION-REPORT\.md$/,
-      /^docs\/evidence\/post-foundation-c-studio-scope-governance-chronological-migration\/READINESS\.md$/,
     ],
     sharedGovernancePatterns: [
       /^scripts\/gates\/lib\/studioScopeGovernanceRegistry\.mjs$/,

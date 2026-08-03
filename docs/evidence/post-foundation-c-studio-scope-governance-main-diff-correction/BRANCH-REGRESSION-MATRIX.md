@@ -92,3 +92,15 @@ esta fatia, e nenhum representa falha funcional. Continuam **não migrados, não
 não mascarados**.
 
 Zero gate com `blocked: no_active_slice_resolved`. Zero gate com `unit tests PASS — 0 scenarios`.
+
+## Correção pós-auditoria
+
+Os números acima foram medidos novamente após:
+
+1. restaurar `CERTIFICATION-REPORT.md` e `READINESS.md` da fatia 42 exatamente de `origin/main`;
+2. remover integralmente a regra de "candidata emendada" de `resolveActiveStudioSlice`;
+3. remover os dois padrões de evidência da fatia 42 do `crossSliceAuthorizedPatterns` da fatia 43
+   (cross list: 63 → **61 padrões únicos**).
+
+A branch passou a resolver a fatia 43 por um **único marker real** — o próprio diretório de
+evidências dela — sem qualquer regra de amendment.

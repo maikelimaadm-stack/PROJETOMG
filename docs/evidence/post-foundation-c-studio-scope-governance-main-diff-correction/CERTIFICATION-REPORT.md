@@ -30,8 +30,8 @@ As três semânticas coexistem e são provadas lado a lado, na nova fatia e na f
 ## Escopo
 
 Registrado primeiro (`Register Studio scope governance main-diff correction`), com um regex exato
-por arquivo histórico realmente modificado: 27 testes, 34 gates e 2 documentos de evidência
-superseded — 63 padrões cruzados, zero duplicata, zero wildcard de diretório.
+por arquivo histórico realmente modificado: 26 testes e 35 gates — **61 padrões cruzados únicos**,
+zero duplicata, zero wildcard de diretório, **zero caminho de evidência da fatia 42**.
 
 ## Não tocado
 
@@ -57,20 +57,26 @@ certifica a `main`, e `READINESS.md` declara `mainVerifiedGreen:false`.
 
 Matriz completa em `BRANCH-REGRESSION-MATRIX.md`.
 
-## Uma correção adicional, declarada
+## Evidência histórica preservada imutável
 
-Adicionar o addendum de supersessão aos dois documentos da fatia 42 colocou o diretório de
-evidências dela no diff desta branch. Como esse diretório é o `branchMarkerPattern` da fatia 42,
-duas fatias passaram a ser eleitas como ativas e `resolveActiveStudioSlice` — corretamente —
-retornou `ambiguous_active_slice`.
+A fatia 42 **não foi editada**. Seus documentos permanecem byte-identical à `main`
+(`git diff --exit-code origin/main -- <ambos>` → exit 0) e ausentes do diff desta PR. A
+supersessão é declarada, append-only, em `HISTORICAL-CERTIFICATION-SUPERSESSION.md`, dentro da
+evidência desta fatia.
 
-A resolução NÃO foi afrouxar a ambiguidade. Foi tornar explícita, no próprio modelo, a diferença
-entre **construir** uma fatia e **emendar** uma fatia anterior:
+Uma rodada anterior desta fatia havia inserido um addendum de supersessão DENTRO dos documentos da
+fatia 42. Isso colocou o diretório de evidências dela — que é o `branchMarkerPattern` da 42 — no
+diff desta branch, elegendo duas fatias como candidatas ativas, e levou a uma regra implícita de
+"candidata emendada" dentro de `resolveActiveStudioSlice`.
 
-> quando TODOS os caminhos-marcador que elegem uma candidata S são explicitamente
-> cross-autorizados por OUTRA candidata T, S está sendo emendada, não construída, e portanto não
-> é candidata ativa.
+Essa regra foi **integralmente removida**. `resolveActiveStudioSlice` voltou ao contrato estrito:
 
-A autorização é exata, por caminho, declarada no catálogo e nunca herdável — logo a regra não pode
-alargar nada. Ambiguidade genuína (duas fatias construídas ao mesmo tempo, sem cross authorization
-entre elas) continua bloqueando, e isso é provado diretamente.
+```
+zero marker candidates   → no_active_slice_resolved
+exatamente um candidate  → fatia ativa resolvida
+dois ou mais candidates  → ambiguous_active_slice
+```
+
+`crossSliceAuthorizedPatterns`, `sharedGovernancePatterns`, explicit-forbidden, ordinal e status
+**não participam da eleição**. Nenhuma candidata é removida, nenhuma ambiguidade é desempatada.
+A causa foi eliminada em vez de a exceção ser sofisticada.

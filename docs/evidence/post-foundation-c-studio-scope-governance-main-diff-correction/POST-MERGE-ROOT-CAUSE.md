@@ -71,3 +71,23 @@ Prefixo casa três fatias — `studio-scope-governance-maintenance` (9),
 Esta fatia 43 introduz uma borda explícita (`evaluateStudioBranchDiffScope`) e uma única fonte de
 isenção exata (`createResolvedActiveStudioSlicePathAuthorizer`), e migra os 29+ consumidores para
 elas. O core continua fail-closed, sem exceção.
+
+## Nota de correção pós-auditoria
+
+A primeira versão desta fatia inseriu um addendum de supersessão DENTRO dos dois documentos
+certificados da fatia 42. Isso trouxe o diretório de evidências da fatia 42 — que é o
+`branchMarkerPattern` dela — para o diff desta branch, e obrigou a inventar uma regra implícita de
+"candidata emendada" dentro de `resolveActiveStudioSlice`.
+
+Ambos foram desfeitos:
+
+- os dois documentos da fatia 42 foram **restaurados exatamente de `origin/main`** e estão
+  ausentes do diff desta PR;
+- a regra de "candidata emendada" foi **removida integralmente**; a resolução de fatia ativa
+  voltou a zero / um / múltiplos estrito, e `crossSliceAuthorizedPatterns` não participa da
+  eleição;
+- a supersessão passou a ser declarada, append-only, em
+  `HISTORICAL-CERTIFICATION-SUPERSESSION.md`, dentro da evidência desta fatia.
+
+Regra que fica: **evidência histórica mergeada é imutável; a supersessão pertence à fatia
+corretiva posterior.**

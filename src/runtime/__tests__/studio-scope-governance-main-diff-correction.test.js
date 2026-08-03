@@ -90,6 +90,9 @@ const TWELVE_GATES = [
   'g423-studio-dev-preview-app-integration',
 ].map((g) => `scripts/gates/${g}.mjs`);
 
+const MIGRATION_TEST_REL = 'src/runtime/__tests__/studio-scope-governance-chronological-migration.test.js';
+const MIGRATION_GATE_REL = 'scripts/gates/g423-studio-scope-governance-chronological-migration.mjs';
+
 const EIGHT_LOOKALIKES = [
   'docs/random-migration-plan.md',
   'tools/custom-migration-helper.js',
@@ -99,6 +102,12 @@ const EIGHT_LOOKALIKES = [
   'src/runtime/__tests__/unlisted-empresas-change.test.js',
   'scripts/gates/g423-unlisted-empresas-change.mjs',
   'docs/evidence/unregistered-empresas-change/file.md',
+];
+
+/** The previous slice's certified documents. Immutable: never edited, never cross-authorized. */
+const HISTORICAL_EVIDENCE = [
+  'docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/CERTIFICATION-REPORT.md',
+  'docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/READINESS.md',
 ];
 
 const DB_MIGRATION_PATHS = [
@@ -209,6 +218,25 @@ test('R020 no catalogued pattern is a broad wildcard', () => {
 test('R021 the correction cross list has no duplicate', () => {
   const src = getStudioSliceById(CORRECTION).crossSliceAuthorizedPatterns.map((r) => r.source);
   assert.equal(new Set(src).size, src.length);
+});
+test('R021b the correction cross list is exactly sixty-one unique patterns', () => {
+  assert.equal(getStudioSliceById(CORRECTION).crossSliceAuthorizedPatterns.length, 61);
+});
+test('R021c the correction cross list contains no evidence path of the previous slice', () => {
+  for (const r of getStudioSliceById(CORRECTION).crossSliceAuthorizedPatterns) {
+    assert.equal(/docs\\\/evidence/.test(r.source), false, r.source);
+  }
+  for (const rel of HISTORICAL_EVIDENCE) {
+    assert.equal(getStudioSliceById(CORRECTION).crossSliceAuthorizedPatterns.some((r) => r.test(rel)), false, rel);
+  }
+});
+test('R021d the correction cross list is exactly the migrated artifact set', () => {
+  const declared = getStudioSliceById(CORRECTION).crossSliceAuthorizedPatterns;
+  const expected = [...new Set([...NINE_TESTS.map(([p]) => p), MIGRATION_TEST_REL, MIGRATION_GATE_REL,
+    ...TWENTY_TWO_GATES, ...SEVENTEEN_TESTS, ...TWELVE_GATES])];
+  assert.equal(expected.length, 61);
+  assert.equal(declared.length, expected.length);
+  for (const p of expected) assert.ok(declared.some((r) => r.test(p)), p);
 });
 test('R022 the correction cross list contains no directory wildcard for tests or gates', () => {
   for (const r of getStudioSliceById(CORRECTION).crossSliceAuthorizedPatterns) {
@@ -792,7 +820,8 @@ test('E001 this slice ships its own test, gate and evidence directory', () => {
 for (const doc of ['CERTIFICATION-REPORT.md', 'POST-MERGE-ROOT-CAUSE.md', 'EMPTY-DIFF-BOUNDARY-CONTRACT.md',
   'RESOLVED-ACTIVE-PATH-AUTHORIZER.md', 'NINE-TEST-MIGRATION.md', 'TWENTY-TWO-GATE-MIGRATION.md',
   'HISTORICAL-EXEMPTION-CENTRALIZATION.md', 'NEGATIVE-MATRIX.md', 'MAIN-BASELINE-BEFORE-CORRECTION.md',
-  'BRANCH-REGRESSION-MATRIX.md', 'PR495-NO-TOUCH-PROOF.md', 'READINESS.md', 'POST-MERGE-REVALIDATION-PLAN.md']) {
+  'BRANCH-REGRESSION-MATRIX.md', 'PR495-NO-TOUCH-PROOF.md', 'READINESS.md', 'POST-MERGE-REVALIDATION-PLAN.md',
+  'HISTORICAL-CERTIFICATION-SUPERSESSION.md']) {
   test(`E002 evidence present and non-trivial: ${doc}`, () => assert.ok(readEv(doc).length > 200, doc));
 }
 test('E003 package.json wires this slice test and gate', () => {
@@ -805,18 +834,39 @@ test('E004 no dependency was added by this slice', () => {
   const pkg = JSON.parse(readSrc('package.json'));
   assert.equal(Object.keys(pkg.dependencies ?? {}).includes('studio-scope-governance'), false);
 });
-test('E005 the superseded certification carries the supersession banner', () => {
-  const doc = readSrc('docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/CERTIFICATION-REPORT.md');
-  assert.match(doc, /SUPERSEDED_BY_MAIN_DIFF_CORRECTION/);
-});
-test('E006 the superseded readiness carries the supersession banner', () => {
-  const doc = readSrc('docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/READINESS.md');
-  assert.match(doc, /SUPERSEDED_BY_MAIN_DIFF_CORRECTION/);
-});
-test('E007 the supersession explains all three blockers', () => {
-  const doc = readSrc('docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/CERTIFICATION-REPORT.md');
+// Historical evidence is IMMUTABLE. The previous slice's certified documents are never rewritten
+// to declare their own supersession; the supersession is declared append-only by THIS slice.
+for (const rel of HISTORICAL_EVIDENCE) {
+  test(`E005 historical evidence is byte-identical to main: ${path.basename(rel)}`, () => {
+    const onMain = execSync(`git show origin/main:${rel}`, { cwd: ROOT, encoding: 'utf8' });
+    assert.equal(readSrc(rel), onMain, rel);
+  });
+  test(`E006 historical evidence carries NO retroactive supersession banner: ${path.basename(rel)}`, () => {
+    assert.equal(/SUPERSEDED_BY_MAIN_DIFF_CORRECTION/.test(readSrc(rel)), false, rel);
+  });
+  test(`E007 historical evidence is absent from this branch diff: ${path.basename(rel)}`, () => {
+    const f = changedOnThisBranch(); if (f === null) return;
+    assert.equal(f.includes(rel), false, rel);
+  });
+  test(`E008 historical evidence is not cross-authorized by this slice: ${path.basename(rel)}`, () => {
+    assert.equal(isPathAuthorizedForStudioSlice(rel, CORRECTION), false, rel);
+  });
+}
+test('E009 the supersession document explains all three blockers', () => {
+  const doc = readEv('HISTORICAL-CERTIFICATION-SUPERSESSION.md');
   for (const b of ['B-POSTMERGE-EMPTY-DIFF-FAILS-CLOSED-ON-MAIN', 'B-TWO-EXTENSION-GATES-NOT-ACTIVE-BOUND',
     'B-TEN-EXTENSION-GATES-PREFIX-BOUND']) assert.ok(doc.includes(b), b);
+});
+test('E010 the supersession document records the merged main baseline', () => {
+  const doc = readEv('HISTORICAL-CERTIFICATION-SUPERSESSION.md');
+  assert.match(doc, /01e1b701/);
+  assert.match(doc, /20405/);
+});
+test('E011 the supersession document states the immutability rule', () => {
+  assert.match(readEv('HISTORICAL-CERTIFICATION-SUPERSESSION.md'), /IMUT[ÁA]VEL|imut[áa]vel/);
+});
+test('E012 the supersession document requires post-merge revalidation', () => {
+  assert.match(readEv('HISTORICAL-CERTIFICATION-SUPERSESSION.md'), /POST_MERGE_REVALIDATION_REQUIRED/);
 });
 test('E008 the root-cause document names the real main baseline', () => {
   assert.match(readEv('POST-MERGE-ROOT-CAUSE.md'), /01e1b701/);
@@ -887,4 +937,111 @@ test('T005 this branch is not proven by an empty diff', () => {
   if (f.length === 0) return; // running on `main` after merge — the empty-diff contract covers it
   assert.ok(f.length > 20, String(f.length));
   assert.equal(resolveActiveStudioSlice(f).sliceId, CORRECTION);
+});
+
+// ===========================================================================
+// X — active resolution is STRICT: zero / one / many, and nothing else decides
+// ===========================================================================
+const MARKER = {
+  24: 'docs/evidence/post-foundation-c-studio-dev-preview-app-integration/X.md',
+  41: 'docs/evidence/post-foundation-c-studio-bridge-decision-core-envelope-builder/X.md',
+  42: 'docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/SLICE-CATALOG.md',
+  43: `${EV_REL}READINESS.md`,
+};
+
+test('X001 zero markers fail closed', () => {
+  const r = resolveActiveStudioSlice(['package.json', 'package-lock.json', REGISTRY_REL, GUARD_REL]);
+  assert.equal(r.ok, false);
+  assert.equal(r.reason, 'no_active_slice_resolved');
+  assert.deepEqual(r.candidates, []);
+});
+test('X002 exactly one marker resolves that slice', () => {
+  const r = resolveActiveStudioSlice([MARKER[43], REGISTRY_REL, GUARD_REL, TEST_REL, GATE_REL]);
+  assert.equal(r.ok, true);
+  assert.equal(r.sliceId, CORRECTION);
+  assert.deepEqual(r.candidates, [CORRECTION]);
+});
+for (const [a, b] of [[42, 43], [41, 43], [24, 43], [24, 41], [41, 42]]) {
+  test(`X003 two markers are always ambiguous: ${a} + ${b}`, () => {
+    const r = resolveActiveStudioSlice([MARKER[a], MARKER[b]]);
+    assert.equal(r.ok, false, JSON.stringify(r));
+    assert.equal(r.reason, 'ambiguous_active_slice');
+    assert.equal(r.candidates.length, 2);
+    assert.equal(r.sliceId, null);
+  });
+  test(`X004 two markers make the branch unsafe: ${a} + ${b}`, () => {
+    const r = evaluateStudioBranchDiffScope([MARKER[a], MARKER[b]], { callerSliceId: CORRECTION });
+    assert.equal(r.safe, false);
+    assert.ok(r.blockers.includes('ambiguous_active_slice'));
+  });
+}
+test('X005 three markers are ambiguous too', () => {
+  const r = resolveActiveStudioSlice([MARKER[24], MARKER[41], MARKER[43]]);
+  assert.equal(r.ok, false);
+  assert.equal(r.reason, 'ambiguous_active_slice');
+  assert.equal(r.candidates.length, 3);
+});
+test('X006 a cross authorization does NOT remove a marker candidate', () => {
+  // The correction cross-authorizes the previous slice's TEST file, which is not a marker.
+  // Even so, adding the previous slice's own MARKER keeps it a candidate and blocks.
+  assert.equal(isPathAuthorizedForStudioSlice(MIGRATION_TEST_REL, CORRECTION), true);
+  const r = resolveActiveStudioSlice([MARKER[42], MARKER[43], MIGRATION_TEST_REL]);
+  assert.equal(r.ok, false);
+  assert.deepEqual(r.candidates, [CORRECTION, MIGRATION].sort());
+});
+test('X007 a cross authorization does NOT resolve ambiguity even when it covers every marker', () => {
+  // Build a synthetic pair where one candidate's marker IS cross-authorized by the other.
+  const covered = getStudioSliceById(CORRECTION).crossSliceAuthorizedPatterns
+    .filter((re) => STUDIO_SLICE_CATALOG.some((s) => s.sliceId !== CORRECTION
+      && s.branchMarkerPatterns.some((m) => m.test(MARKER[42]) && re.test(MARKER[42]))));
+  assert.equal(covered.length, 0, 'no marker of another slice may be cross-authorized by this slice');
+});
+test('X008 the highest ordinal does NOT win an ambiguity', () => {
+  const r = resolveActiveStudioSlice([MARKER[24], MARKER[43]]);
+  assert.equal(r.ok, false);
+  assert.equal(r.sliceId, null);
+});
+test('X009 the active_slice status does NOT win an ambiguity', () => {
+  const r = resolveActiveStudioSlice([MARKER[42], MARKER[43]]);
+  assert.equal(r.ok, false);
+  assert.ok(r.candidates.includes(CORRECTION));
+  assert.ok(r.candidates.includes(MIGRATION));
+});
+test('X010 shared governance paths never elect a slice', () => {
+  for (const p of [REGISTRY_REL, GUARD_REL, 'package.json', 'package-lock.json']) {
+    assert.deepEqual(resolveActiveStudioSlice([p]).candidates, [], p);
+  }
+});
+test('X011 a cross-authorized test or gate never elects a slice', () => {
+  for (const p of [MIGRATION_TEST_REL, MIGRATION_GATE_REL, ...NINE_TESTS.map(([x]) => x), ...TWENTY_TWO_GATES]) {
+    assert.deepEqual(resolveActiveStudioSlice([p]).candidates, [], p);
+  }
+});
+test('X012 an explicitly authorized forbidden path never elects a slice', () => {
+  assert.deepEqual(resolveActiveStudioSlice(['src/App.jsx']).candidates, []);
+  assert.deepEqual(resolveActiveStudioSlice(['scripts/gates/lib/productionUiGuard.mjs']).candidates, []);
+});
+test('X013 candidates are reported verbatim, never suppressed', () => {
+  const r = resolveActiveStudioSlice([MARKER[42], MARKER[43]]);
+  assert.deepEqual([...r.candidates].sort(), [CORRECTION, MIGRATION].sort());
+});
+test('X014 resolveActiveStudioSlice never reads a cross authorization', () => {
+  const src = readSrc(GUARD_REL);
+  const body = src.slice(src.indexOf('export function resolveActiveStudioSlice('));
+  const fn = body.slice(0, body.indexOf('\n}\n') + 3);
+  assert.equal(/crossSliceAuthorizedPatterns/.test(fn), false, fn);
+  assert.equal(/sharedGovernancePatterns/.test(fn), false, fn);
+  assert.equal(/explicitlyAuthorizedForbiddenPatterns/.test(fn), false, fn);
+  assert.equal(/sliceOrdinal >|sliceOrdinal </.test(fn), false, fn);
+  assert.equal(/status/.test(fn), false, fn);
+});
+for (const token of ['electedBy', 'amendedBy', 'being amended', 'amended.size', 'markerPaths.every',
+  'amendsSliceIds', 'activeMarkerAmendmentPatterns', 'amendedCandidates', 'rawCandidates']) {
+  test(`X015 the guard carries no amendment machinery: ${token}`, () => {
+    assert.equal(readSrc(GUARD_REL).includes(token), false, token);
+  });
+}
+test('X016 the documented contract matches the implementation', () => {
+  const src = readSrc(GUARD_REL);
+  assert.match(src, /zero markers and two-or-more distinct markers are BOTH refusals/);
 });
