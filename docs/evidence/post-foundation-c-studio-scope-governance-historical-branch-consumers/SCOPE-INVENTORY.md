@@ -54,7 +54,7 @@ Exatos, ancorados, sem curinga de diretório, sem caminho de evidência, sem cam
 `src/runtime/__tests__/studio-scope-governance-maintenance.test.js` está fora de propósito:
 não julga branch, não foi tocado, não recebe autorização.
 
-## Diff da branch — 41 caminhos
+## Diff da branch — 54 caminhos
 
 | bloco | caminhos |
 |---|---|

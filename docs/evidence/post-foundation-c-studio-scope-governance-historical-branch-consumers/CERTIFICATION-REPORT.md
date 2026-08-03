@@ -54,7 +54,7 @@ inaplicabilidade. Contrato completo em `CONSUMER-APPLICABILITY-CONTRACT.md`.
   `TWENTY-TWO-GATE-CONSUMER-MIGRATION.md` e `GOVERNANCE-CONSUMER-MIGRATION.md`.
 - **Fatia própria**: teste + gate + 13 documentos de evidência + wiring em `package.json`.
 
-Inventário exato em `SCOPE-INVENTORY.md`. Diff da branch: 41 caminhos, um único marcador,
+Inventário exato em `SCOPE-INVENTORY.md`. Diff da branch: 54 caminhos, um único marcador,
 nenhum `forbidden`, nenhum `unknown`, nenhum `chronologicalViolation`.
 
 ## Resultados medidos
@@ -72,7 +72,7 @@ nenhum `forbidden`, nenhum `unknown`, nenhum `chronologicalViolation`.
 | 9 testes agregados migrados | 627 · 665 · 827 · 412 · 433 · 482 · 557 · 518 · 684 — **0 fail** |
 | 22 gates Studio migrados | todos exit 0 — 32 · 74 · 88 · 86 · 90 · 97 · 106 · 106 · 118 · 127 · 125 · 133 · 151 · 136 · 148 · 164 · 167 · 206 · 229 · 199 · 242 · 241 |
 
-O gate desta fatia julga a própria branch ao vivo (41 caminhos, nunca um diff vazio como prova)
+O gate desta fatia julga a própria branch ao vivo (54 caminhos, nunca um diff vazio como prova)
 e a declara sã para o próprio caller, para os nove callers agregados e para os três callers de
 governança.
 
@@ -102,8 +102,7 @@ de banco continuam proibidos.
 ## PR #495
 
 Não tocada. Sem checkout, sem merge, sem rebase, sem alteração de body, sem alteração de
-arquivo. Prova em `PR495-NO-TOUCH-PROOF.md` (head remoto `9634c364`, ausente de todos os 41
-caminhos do diff). O exercício foi feito por fixture determinística em memória, declarada como
+arquivo. Prova em `PR495-NO-TOUCH-PROOF.md` (head remoto `9634c364`, ausente de todos os 54 caminhos do diff). O exercício foi feito por fixture determinística em memória, declarada como
 tal em `PR495-HISTORICAL-BRANCH-FIXTURE.md`.
 
 ## Limites declarados

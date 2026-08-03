@@ -18,7 +18,7 @@ nenhum worktree sintético, nenhum `origin/main` movido.
 
 ## Prova pelo diff
 
-`git diff --name-only origin/main...HEAD` = 41 caminhos. Nenhum deles casa
+`git diff --name-only origin/main...HEAD` = 54 caminhos. Nenhum deles casa
 `bridge-decision-core-envelope-builder`. Verificado ao vivo pelo gate desta fatia
 (`this branch touches no Builder artifact`) e pelo teste (`P003`), não por inspeção manual.
 
