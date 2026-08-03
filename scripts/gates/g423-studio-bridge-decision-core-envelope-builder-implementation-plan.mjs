@@ -85,7 +85,13 @@ gate('G423-BIP — registry docs path', /\^docs\\\/evidence\\\/post-foundation-c
 gate('G423-BIP — upstream builder contract present', exists(BC_DIR));
 gate('G423-BIP — upstream core envelope v2 present', exists(CORE_DIR));
 gate('G423-BIP — upstream v1 identity present', exists(ENV_DIR));
-gate('G423-BIP — future builder subtree NOT created', !exists(FUTURE_DIR));
+// LIFECYCLE CORRECTION: the physical-absence assertion (!exists(FUTURE_DIR)) was temporal — valid only during the
+// plan-only slice and incompatible with the next authorized slice that implements the builder. Replaced by PERMANENT
+// declarative proofs that the PLAN itself created/implemented nothing. These hold before AND after the builder exists.
+gate('G423-BIP — plan declares future subtree NOT created by it', P.FUTURE_RUNTIME_SUBTREE.subtreeCreated === false && PLAN.futureRuntimeSubtreeCreated === false);
+gate('G423-BIP — plan implements no builder factory/build', PLAN.builderFactoryImplemented === false && PLAN.buildImplemented === false);
+gate('G423-BIP — plan implements no extraction/digest/envelope', PLAN.coreExtractionImplemented === false && PLAN.digestRecomputeImplemented === false && PLAN.envelopeConstructionImplemented === false);
+gate('G423-BIP — plan implements no consumer runtime', PLAN.consumerRuntimeImplemented === false);
 
 // ---- Provenance / config ----
 gate('G423-BIP — plan version', P.PLAN_VERSION === 'studio-bridge-decision-core-envelope-builder-implementation-plan@1.0.0');
@@ -116,7 +122,18 @@ for (const f of t.coreAllowlist) gate(`G423-BIP — allowlist field ${f} real & 
 // ---- Future runtime subtree / public API ----
 gate('G423-BIP — future subtree planned not created', P.FUTURE_RUNTIME_SUBTREE.subtreeCreated === false && P.FUTURE_RUNTIME_SUBTREE.onlyJs === true);
 gate('G423-BIP — future file map >= 28', P.FUTURE_RUNTIME_FILE_MAP.length >= 28);
-for (const f of P.FUTURE_RUNTIME_FILE_MAP) gate(`G423-BIP — future file ${f.file} absent on disk`, !exists(path.join(FUTURE_DIR, f.file)));
+// Per future file: PERMANENT metadata proofs (.js, valid responsibility, safe relative path, unique, belongs to the
+// planned subtree) — replacing the temporal physical-absence check.
+{
+  const names = P.FUTURE_RUNTIME_FILE_MAP.map((x) => x.file);
+  for (const f of P.FUTURE_RUNTIME_FILE_MAP) {
+    gate(`G423-BIP — future file ${f.file} metadata valid`, /\.js$/.test(f.file)
+      && typeof f.responsibility === 'string' && f.responsibility.length > 5
+      && !path.isAbsolute(f.file) && !f.file.includes('..') && !f.file.includes('/')
+      && names.filter((n) => n === f.file).length === 1
+      && P.FUTURE_RUNTIME_SUBTREE.plannedDir === 'src/studio/blueprint-engine/bridge-decision-core-envelope-builder');
+  }
+}
 gate('G423-BIP — future API factory name', P.FUTURE_PUBLIC_API_PLAN.factoryName === 'createBridgeDecisionCoreEnvelopeBuilder');
 gate('G423-BIP — future API build not implemented', P.FUTURE_PUBLIC_API_PLAN.buildImplemented === false);
 gate('G423-BIP — future builder decision owns identityVerified', P.FUTURE_PUBLIC_API_PLAN.builderDecisionFields.includes('identityVerified'));
@@ -254,7 +271,9 @@ if (files) {
       || createResolvedActiveStudioSlicePathAuthorizer(files).isAuthorized('scripts/gates/lib/studioScopeGovernanceGuard.mjs')));
   gate('G423-BIP — no upstream subtrees in diff', !files.some((f) => /^src\/studio\/blueprint-engine\/(bridge-decision-core-envelope-builder-contract|bridge-decision-core-envelope-contract|bridge-decision-envelope-identity-contract|bridge-to-preview-sandbox-runtime-contract|bridge-to-preview-sandbox-runtime-implementation-plan|bridge-to-preview-sandbox-runtime-implementation-plan-alignment-amendment|authoring-runtime-to-preview-bridge|module-blueprint-authoring-runtime|module-preview-sandbox)\//.test(f)));
   gate('G423-BIP — no App/pages/components/modules in diff', !files.some((f) => /^src\/(pages|components|modules|ModeloBase1|ModeloBase2)\//.test(f) || f === 'src/App.jsx'));
-  gate('G423-BIP — future builder subtree not in diff', !files.some((f) => /^src\/studio\/blueprint-engine\/bridge-decision-core-envelope-builder\//.test(f)));
+  // LIFECYCLE CORRECTION: forbidding the future builder subtree in the DIFF was temporal (plan-only slice). The
+  // permanent invariant is that the PLAN's own source subtree is unchanged by whatever slice is running.
+  gate('G423-BIP — plan source subtree unchanged', !files.some((f) => /^src\/studio\/blueprint-engine\/bridge-decision-core-envelope-builder-implementation-plan\//.test(f)));
 }
 
 // ---- No new dependency ----

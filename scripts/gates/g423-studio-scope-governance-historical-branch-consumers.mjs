@@ -616,9 +616,25 @@ for (const [label, bad] of [['null', null], ['string', 'x'], ['object', {}], ['b
 }
 gate('G423-HBC — authorizer refuses a malformed path argument',
   [null, undefined, 1, {}, [], ''].every((bad) => auth.isAuthorized(bad) === false));
-gate('G423-HBC — a Builder branch authorizer resolves the Builder and nothing later', (() => {
+// A Builder branch resolves the Builder, and the authorizer then admits EXACTLY what the Builder
+// entry declares — its own artifacts plus its eight cross-authorized paths, six of which are this
+// slice's and the two earlier governance slices' consumers, corrected during the main integration.
+// Everything else, including an unlisted governance artifact and the central guard, is refused.
+gate('G423-HBC — a Builder branch authorizer admits exactly the Builder catalog entry', (() => {
   const a = G.createResolvedActiveStudioSlicePathAuthorizer(BUILDER41_FIXTURE);
-  return a.ok === true && a.activeSliceId === BUILDER && a.isAuthorized(TEST_REL) === false && a.isAuthorized(GATE_REL) === false;
+  if (a.ok !== true || a.activeSliceId !== BUILDER) return false;
+  const admitted = [TEST_REL, GATE_REL,
+    'src/runtime/__tests__/studio-scope-governance-main-diff-correction.test.js',
+    'scripts/gates/g423-studio-scope-governance-main-diff-correction.mjs',
+    'src/runtime/__tests__/studio-scope-governance-chronological-migration.test.js',
+    'scripts/gates/g423-studio-scope-governance-chronological-migration.mjs'];
+  const refused = ['src/runtime/__tests__/studio-scope-governance-maintenance.test.js',
+    'scripts/gates/g423-studio-scope-governance-maintenance.mjs',
+    'scripts/gates/lib/studioScopeGovernanceGuard.mjs',
+    `${EV_REL}READINESS.md`,
+    'src/App.jsx', 'docs/nobody/x.md', 'src/modules/x.js'];
+  return admitted.every((p) => a.isAuthorized(p) === true)
+    && refused.every((p) => a.isAuthorized(p) === false);
 })());
 
 // =====================================================================
@@ -756,9 +772,49 @@ gate('G423-HBC — Builder evidence outside this slice scope',
 gate('G423-HBC — the Builder catalog entry is untouched', (() => {
   const b = slice(BUILDER);
   return b.sliceOrdinal === 41 && b.status === 'open_pull_request_495'
-    && b.primaryArtifactPatterns.length === 4 && b.crossSliceAuthorizedPatterns.length === 2
+    && b.primaryArtifactPatterns.length === 4 && b.crossSliceAuthorizedPatterns.length === 8
     && b.explicitlyAuthorizedForbiddenPatterns.length === 0;
 })());
+gate('G423-HBC — Builder cross list is EXACTLY 2 lifecycle + 6 governance integration paths', (() => {
+  const b = G.getStudioSliceById(BUILDER);
+  const expected = [
+    'src/runtime/__tests__/studio-bridge-decision-core-envelope-builder-implementation-plan.test.js',
+    'scripts/gates/g423-studio-bridge-decision-core-envelope-builder-implementation-plan.mjs',
+    'src/runtime/__tests__/studio-scope-governance-chronological-migration.test.js',
+    'scripts/gates/g423-studio-scope-governance-chronological-migration.mjs',
+    'src/runtime/__tests__/studio-scope-governance-main-diff-correction.test.js',
+    'scripts/gates/g423-studio-scope-governance-main-diff-correction.mjs',
+    'src/runtime/__tests__/studio-scope-governance-historical-branch-consumers.test.js',
+    'scripts/gates/g423-studio-scope-governance-historical-branch-consumers.mjs',
+  ];
+  return b.crossSliceAuthorizedPatterns.length === 8
+    && new Set(b.crossSliceAuthorizedPatterns.map((r) => r.source)).size === 8
+    && expected.length === 8
+    && expected.every((p) => G.isPathAuthorizedForStudioSlice(p, BUILDER) === true)
+    && b.crossSliceAuthorizedPatterns.every((r) => r.source.startsWith('^') && r.source.endsWith('$')
+      && !/docs\\\/evidence/.test(r.source) && !/studioScopeGovernanceGuard/.test(r.source)
+      && !/package/.test(r.source) && !/^\^?\.[*+]/.test(r.source));
+})());
+gate('G423-HBC — Builder cross list refuses every adjacent or unlisted artifact', [
+    'src/runtime/__tests__/studio-scope-governance-maintenance.test.js',
+    'scripts/gates/g423-studio-scope-governance-maintenance.mjs',
+    'scripts/gates/lib/studioScopeGovernanceGuard.mjs',
+    'docs/evidence/post-foundation-c-studio-scope-governance-historical-branch-consumers/READINESS.md',
+    'scripts/gates/g423-studio-scope-governance-historical-branch-consumers.test.js',
+    'src/App.jsx', 'backend/server.js', 'src/modules/x.js',
+].every((p) => G.isPathAuthorizedForStudioSlice(p, BUILDER) === false));
+gate('G423-HBC — the cross extension changes no classification and no election',
+  G.classifyStudioScopePath('src/App.jsx') === 'forbidden_scope'
+  && G.classifyStudioScopePath('docs/nobody/x.md') === 'unknown_scope'
+  && [
+    'src/runtime/__tests__/studio-scope-governance-chronological-migration.test.js',
+    'scripts/gates/g423-studio-scope-governance-chronological-migration.mjs',
+    'src/runtime/__tests__/studio-scope-governance-main-diff-correction.test.js',
+    'scripts/gates/g423-studio-scope-governance-main-diff-correction.mjs',
+    'src/runtime/__tests__/studio-scope-governance-historical-branch-consumers.test.js',
+    'scripts/gates/g423-studio-scope-governance-historical-branch-consumers.mjs',
+  ].every((p) => G.resolveActiveStudioSlice([p]).candidates.length === 0)
+  && G.getStudioSliceById(BUILDER).historicalBranchConsumerCompatibility === true);
 gate('G423-HBC — the no-touch proof document records the PR #495 head', readEv('PR495-NO-TOUCH-PROOF.md').includes('9634c364'));
 
 // =====================================================================
@@ -892,6 +948,53 @@ for (const rel of HISTORICAL_EVIDENCE) {
 // =====================================================================
 // This branch, judged by its own rules
 // =====================================================================
+const OWN_SCOPE_CALLER = CALLER_SLICE_ID;
+
+// ---------------------------------------------------------------------------
+// OWN-SCOPE APPLICABILITY
+//
+// A branch-relative SELF-SCOPE check of this slice — "this branch touches no X" — is only a true
+// statement while this slice is the one the branch is certifying. Exactly two states are accepted:
+//
+//   A. `consumerApplicable === true` — this slice IS the certifier; its own-scope checks run in full.
+//   B. safely inapplicable — the diff is empty, or it belongs to an EARLIER slice that the catalog
+//      explicitly authorizes to carry later consumers AND that re-certified cleanly against itself.
+//
+// EVERY other state fails: unknown caller, invalid input, unresolved or ambiguous active slice,
+// `historical_branch_consumer_compatibility_not_authorized`, `active_slice_scope_invalid`, or
+// `safe === false`. A bare `notApplicable` is deliberately NOT accepted as a pass.
+//
+// Universal checks — forbidden, unknown, chronological violation, safety, active resolution — never
+// depend on this and run in every state.
+// ---------------------------------------------------------------------------
+const ownScopeState = (paths) => {
+  const scope = G.evaluateStudioBranchConsumerScope(paths, { callerSliceId: OWN_SCOPE_CALLER });
+  const safelyInapplicable = scope.safe === true && scope.notApplicable === true
+    && (scope.reason === 'empty_branch_diff'
+      || (scope.reason === 'consumer_slice_after_active_slice'
+        && scope.certifiedAgainstActiveSlice === true
+        && scope.evaluatedAsSliceId === scope.activeSliceId
+        && scope.activeSliceOrdinal < scope.consumerSliceOrdinal))
+    && scope.forbidden.length === 0 && scope.unknown.length === 0
+    && scope.chronologicalViolation.length === 0;
+  return {
+    scope,
+    valid: scope.consumerApplicable === true || safelyInapplicable,
+    runOwnScope: scope.consumerApplicable === true,
+    detail: scope.consumerApplicable
+      ? `own-scope APPLIES (active ${scope.activeSliceId} #${scope.activeSliceOrdinal})`
+      : `own-scope NOT APPLICABLE: ${scope.reason}, branch certified against ${scope.evaluatedAsSliceId}, no safety list discarded`,
+  };
+};
+
+/** Registers the applicability state itself as a check, so state B is recorded, never silent. */
+const gateOwnScope = (name, paths, predicate) => {
+  const st = ownScopeState(paths);
+  if (!st.valid) { gate(name, false, `invalid consumer state: reason=${st.scope.reason} safe=${st.scope.safe}`); return; }
+  if (!st.runOwnScope) { gate(name, true, st.detail); return; }
+  gate(name, predicate(), st.detail);
+};
+
 let branchPaths = null;
 try { branchPaths = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean); } catch { branchPaths = null; }
 if (branchPaths === null) {
@@ -911,18 +1014,49 @@ if (branchPaths === null) {
   }
   gate('G423-HBC — this branch touches no forbidden path',
     branchPaths.every((p) => G.classifyStudioScopePath(p) !== 'forbidden_scope'));
-  gate('G423-HBC — this branch touches no Studio blueprint-engine source',
-    branchPaths.every((p) => !p.startsWith('src/studio/blueprint-engine/')));
-  gate('G423-HBC — this branch touches no Builder artifact',
-    branchPaths.every((p) => !/bridge-decision-core-envelope-builder/.test(p)));
-  gate('G423-HBC — this branch touches no earlier slice evidence directory',
-    branchPaths.filter((p) => p.startsWith('docs/evidence/')).every((p) => p.startsWith(EV_REL)));
+  gateOwnScope('G423-HBC — this branch touches no Studio blueprint-engine source of another slice',
+    branchPaths, () => branchPaths.every((p) => !p.startsWith('src/studio/blueprint-engine/')));
+  gateOwnScope('G423-HBC — this branch touches no Builder artifact', branchPaths,
+    () => branchPaths.every((p) => !/bridge-decision-core-envelope-builder/.test(p)));
+  gateOwnScope('G423-HBC — this branch touches no earlier slice evidence directory', branchPaths,
+    () => branchPaths.filter((p) => p.startsWith('docs/evidence/')).every((p) => p.startsWith(EV_REL)));
+  // UNIVERSAL replacements: independent of which slice is active, PR #495 stays out of this
+  // slice's reach and every evidence path on the branch belongs to the ACTIVE slice.
+  gate('G423-HBC — this slice is never authorized for a Builder artifact, in any state',
+    ['src/studio/blueprint-engine/bridge-decision-core-envelope-builder/index.js',
+      'src/runtime/__tests__/studio-bridge-decision-core-envelope-builder.test.js',
+      'scripts/gates/g423-studio-bridge-decision-core-envelope-builder.mjs',
+      'docs/evidence/post-foundation-c-studio-bridge-decision-core-envelope-builder/X.md']
+      .every((p) => G.isPathAuthorizedForStudioSlice(p, CONSUMERS) === false));
+  gate('G423-HBC — every evidence path on this branch belongs to the ACTIVE slice', (() => {
+    if (branchPaths.length === 0) return true;
+    const a = G.createResolvedActiveStudioSlicePathAuthorizer(branchPaths);
+    return a.ok === true
+      && branchPaths.filter((p) => p.startsWith('docs/evidence/')).every((p) => a.isAuthorized(p));
+  })());
+  // UNIVERSAL: the branch must always resolve exactly one active slice (or be empty).
   gate('G423-HBC — this branch resolves exactly one active slice', (() => {
     const a = G.resolveActiveStudioSlice(branchPaths);
-    return branchPaths.length === 0 || (a.ok === true && a.candidates.length === 1 && a.sliceId === CONSUMERS);
+    return branchPaths.length === 0 || (a.ok === true && a.candidates.length === 1);
   })());
-  gate('G423-HBC — this branch is not proven by an empty diff',
-    branchPaths.length > 20, `${branchPaths.length} paths`);
+  // OWN-SCOPE: that slice is THIS one only while this slice is the certifier.
+  gateOwnScope('G423-HBC — the resolved active slice is this one', branchPaths,
+    () => G.resolveActiveStudioSlice(branchPaths).sliceId === CONSUMERS);
+  // On `main` the branch diff is legitimately EMPTY and that is not a proof of anything; on a real
+  // slice branch the diff must be substantive. Both are stated honestly by the same check.
+  gate('G423-HBC — branch diff is empty on main or substantive on a real slice branch',
+    branchPaths.length === 0 || branchPaths.length > 20, `${branchPaths.length} paths`);
+  gate('G423-HBC — an empty diff is admitted ONLY as the safe empty_branch_diff state', (() => {
+    if (branchPaths.length !== 0) return true;
+    const r = G.evaluateStudioBranchConsumerScope([], { callerSliceId: CALLER_SLICE_ID });
+    return r.reason === 'empty_branch_diff' && r.notApplicable === true && r.safe === true
+      && r.activeSliceId === null && r.allowed.length === 0;
+  })());
+  gate('G423-HBC — a non-empty branch diff is never treated as empty', (() => {
+    if (branchPaths.length === 0) return true;
+    const r = G.evaluateStudioBranchConsumerScope(branchPaths, { callerSliceId: CALLER_SLICE_ID });
+    return r.reason !== 'empty_branch_diff' && r.activeSliceId !== null;
+  })());
 }
 
 console.log(`\n--- G423-STUDIO-SCOPE-GOVERNANCE-HISTORICAL-BRANCH-CONSUMERS summary ---`);
