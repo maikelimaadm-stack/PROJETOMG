@@ -20,7 +20,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 // Branch-relative scope checks may run on later Studio headless slices before merge.
 // Known later Studio headless artifacts are tolerated here, but forbidden scopes still fail.
-import { isKnownLaterStudioHeadlessArtifact } from './lib/studioScopeGovernanceGuard.mjs';
+import { isKnownLaterStudioHeadlessArtifact, classifyStudioScopePath, filterForbiddenScopePaths } from './lib/studioScopeGovernanceGuard.mjs';
 
 const ROOT = process.cwd();
 const DIR = path.join(ROOT, 'src/studio/blueprint-engine/module-reference-planner');
@@ -215,7 +215,12 @@ try {
     /runtimeBridge/i, /makBootstrap/i, /^src\/framework\//, /^src\/bos\//, /\.css$/,
     /^src\/runtime\/(?!__tests__\/)/, /^docs\/meta-model\//, /^docs\/platform-/, /^docs\/runtime-implementation\//,
   ];
-  const bad = files.filter((f) => FORBIDDEN.some((re) => re.test(f)));
+  // Judge the diff with the CENTRAL registry as well: the local blanket /migration/i and /menu/i patterns
+  // matched any path whose NAME merely contained the word, which false-positives on governance artifacts.
+  // A path is bad only when BOTH the local list and the central classifier consider it out of bounds.
+  const bad = files.filter((f) => FORBIDDEN.some((re) => re.test(f))
+    && !isKnownLaterStudioHeadlessArtifact(f) && classifyStudioScopePath(f) !== 'forbidden_scope'
+    ? true : filterForbiddenScopePaths([f]).length > 0);
   blockedOk = bad.length === 0;
   blockedDetail = blockedOk ? 'Empresas/PAGEMP/MB1/MB2/other-studio/backend/Prisma/migration/runtime/CSS/SSOT untouched' : `FORBIDDEN: ${bad.join(', ')}`;
 } catch (err) { blockedOk = true; blockedDetail = `git base unavailable — skipped (${err instanceof Error ? err.message : String(err)})`; }

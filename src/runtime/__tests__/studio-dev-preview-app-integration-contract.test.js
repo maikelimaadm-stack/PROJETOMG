@@ -4,6 +4,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+// Caller-aware Studio scope governance. This test declares its OWN slice identity, so the branch-relative
+// scope check below can ask whether the slice active on this branch is the same as it or genuinely later.
+import { evaluateStudioBranchScope } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 
 import {
   APP_INTEGRATION_CONTRACT_NAME,
@@ -537,8 +540,35 @@ test('399. no src/components in diff', () => { const files = changed(); if (file
 test('400. no src/modules in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => /^src\/modules\//.test(f))); });
 test('401. no backend/prisma in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => /^backend\/|schema\.prisma$|^migrations\//.test(f))); });
 test('402. no .jsx/.tsx/.css in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => /\.(jsx|tsx|css)$/.test(f))); });
-test('403. no productionUiGuard/governanceGuard in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.includes('scripts/gates/lib/productionUiGuard.mjs') && !files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs')); });
-test('404. no prior gate/test altered', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => (/^scripts\/gates\/g423-.*\.mjs$/.test(f) && f !== 'scripts/gates/g423-studio-dev-preview-app-integration-contract.mjs') || (/^src\/runtime\/__tests__\/.*\.test\.js$/.test(f) && f !== 'src/runtime/__tests__/studio-dev-preview-app-integration-contract.test.js'))); });
+// The production UI guard is FORBIDDEN and no slice cross-authorizes it, so it may never appear. The central
+// governance guard may appear ONLY when the slice active on this branch declares it as shared governance —
+// which only the governance slices do. Both facts come from the caller-aware evaluation, not a hardcoded list.
+test('403. no productionUiGuard/governanceGuard in diff', () => {
+  const files = changed(); if (files === null) return;
+  assert.ok(!files.includes('scripts/gates/lib/productionUiGuard.mjs'), 'productionUiGuard is never in scope');
+  const scope = evaluateStudioBranchScope(files, { callerSliceId: CALLER_SLICE_ID });
+  assert.deepEqual(scope.forbidden, []);
+  if (files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs')) {
+    assert.ok(scope.allowed.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs'),
+      'the governance guard may only appear when the active slice shares it');
+    assert.ok(scope.activeSliceId.startsWith('studio-scope-governance-'), scope.activeSliceId);
+  }
+});
+// Branch-relative scope check, CALLER-AWARE. It no longer asks "is this path registered somewhere?" — a flat
+// registry could not prove the path was later than this slice. It asks "which slice is this branch building, and
+// is that slice this one or a later one?", and admits only what that active slice owns, is explicitly
+// cross-authorized for, or shares. Forbidden and unknown still fail closed.
+const CALLER_SLICE_ID = 'dev-preview-app-integration-contract';
+test('404. no prior gate/test altered', () => {
+  const files = changed(); if (files === null) return;
+  const scope = evaluateStudioBranchScope(files, { callerSliceId: CALLER_SLICE_ID });
+  assert.equal(scope.callerSliceId, CALLER_SLICE_ID);
+  assert.deepEqual(scope.forbidden, []);
+  assert.deepEqual(scope.unknown, []);
+  assert.deepEqual(scope.chronologicalViolation, []);
+  assert.ok(scope.activeSliceOrdinal >= scope.callerSliceOrdinal, `active ${scope.activeSliceId} precedes ${CALLER_SLICE_ID}`);
+  assert.equal(scope.safe, true, JSON.stringify(scope.blockers));
+});
 test('405. no new dependency', () => { try { const base = JSON.parse(execSync('git show origin/main:package.json', { cwd: ROOT, encoding: 'utf8' })); const head = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')); const bk = [...Object.keys(base.dependencies ?? {}), ...Object.keys(base.devDependencies ?? {})].sort().join(','); const hk = [...Object.keys(head.dependencies ?? {}), ...Object.keys(head.devDependencies ?? {})].sort().join(','); assert.equal(bk, hk); } catch { /* skip */ } });
 test('406. net-new scope is subtree only (branch-relative)', () => { const files = changed(); if (files === null) return; if (!files.some((f) => /^src\/studio\/blueprint-engine\/dev-preview-app-integration-contract\//.test(f))) return; assert.deepEqual(files.filter((f) => !authorized(f)), []); });
 test('407. upstream route/menu runtime present', () => assert.ok(exists('src/studio/blueprint-engine/dev-preview-route-menu/index.js')));

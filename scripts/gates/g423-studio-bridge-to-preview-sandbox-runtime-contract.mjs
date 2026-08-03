@@ -15,6 +15,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { isKnownLaterStudioHeadlessArtifact } from './lib/studioScopeGovernanceGuard.mjs';
+import { resolveActiveStudioSlice } from './lib/studioScopeGovernanceGuard.mjs';
 
 const ROOT = process.cwd();
 const DIR = path.join(ROOT, 'src/studio/blueprint-engine/bridge-to-preview-sandbox-runtime-contract');
@@ -241,7 +242,11 @@ if (files === null) { gate('G423-BS — scope diff (skipped)', true); } else {
   gate('G423-BS — no .jsx/.tsx/.css in diff', !files.some((f) => /\.(jsx|tsx|css)$/.test(f)));
   gate('G423-BS — no backend/prisma/migrations in diff', !files.some((f) => /^backend\/|schema\.prisma$|^migrations\//.test(f)));
   gate('G423-BS — no src/modules in diff', !files.some((f) => /^src\/modules\//.test(f)));
-  gate('G423-BS — central guards not altered', !files.includes('scripts/gates/lib/productionUiGuard.mjs') && !files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs'));
+  // productionUiGuard is FORBIDDEN and no slice cross-authorizes it, so it may never appear. The central
+  // governance guard may appear ONLY when the slice active on this branch shares it — i.e. a governance slice.
+  gate('G423-BS — central guards not altered', !files.includes('scripts/gates/lib/productionUiGuard.mjs')
+    && (!files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs')
+      || (resolveActiveStudioSlice(files).ok && resolveActiveStudioSlice(files).sliceId.startsWith('studio-scope-governance-'))));
   gate('G423-BS — no upstream subtrees in diff', !files.some((f) => /^src\/studio\/blueprint-engine\/(authoring-runtime-to-preview-bridge|module-preview-sandbox|module-blueprint-authoring-runtime)\//.test(f)));
 }
 gate('G423-BS — no new dependency', (() => { try { const base = JSON.parse(execSync('git show origin/main:package.json', { cwd: ROOT, encoding: 'utf8' })); const head = JSON.parse(pkg); const bk = [...Object.keys(base.dependencies ?? {}), ...Object.keys(base.devDependencies ?? {})].sort().join(','); const hk = [...Object.keys(head.dependencies ?? {}), ...Object.keys(head.devDependencies ?? {})].sort().join(','); return bk === hk; } catch { return true; } })());

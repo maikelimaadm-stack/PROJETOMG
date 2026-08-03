@@ -1,15 +1,21 @@
 /**
  * Studio Scope Governance Guard — Post-Foundation C.
  *
- * Pure, deterministic classifier that earlier Studio slices' branch-relative scope checks
- * (and this slice's own gate) consume so they can tolerate EXPLICITLY known later Studio
- * headless artifacts while still failing hard for forbidden or unknown paths.
+ * Pure, deterministic, CALLER-AWARE classifier that the Studio slices' branch-relative
+ * scope checks consume. Every check asks the same question with its OWN identity:
+ *
+ *   "which slice is this branch building, and is that slice the same as me or after me?"
+ *
+ * The previous API could not answer it. `isKnownLaterStudioHeadlessArtifact(path)` received
+ * no caller identity, so a registered path was tolerated merely because it existed — not
+ * because it was later. `evaluateStudioBranchScope(changedPaths, { callerSliceId })` fixes
+ * that: it resolves exactly one ACTIVE slice from the changed set, refuses to proceed when
+ * that resolution is empty or ambiguous, and then admits only artifacts the active slice
+ * actually owns, is explicitly cross-authorized for, or shares.
  *
  * Import policy: this helper imports ONLY the registry (data). It runs no command, does no
- * network/backend/Prisma/fetch/mutation, and imports no production code.
- *
- * Branch-relative scope checks may run on later Studio headless slices before merge.
- * Known later Studio headless artifacts are tolerated here, but forbidden scopes still fail.
+ * network/backend/Prisma/fetch/mutation, reads no branch name, no clock and no environment,
+ * and imports no production code.
  *
  * @module scripts/gates/lib/studioScopeGovernanceGuard
  */
@@ -18,6 +24,7 @@ import {
   FORBIDDEN_SCOPE_PATTERNS,
   KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS,
   SCOPE_SHAPE_PATTERNS,
+  STUDIO_SLICE_CATALOG,
 } from './studioScopeGovernanceRegistry.mjs';
 
 /** @typedef {'own_slice_allowed'|'known_later_studio_headless_artifact'|'evidence_only'|'test_only'|'gate_only'|'package_script_only'|'forbidden_scope'|'unknown_scope'} StudioScopeClass */
@@ -25,13 +32,123 @@ import {
 const asArray = (v) => (Array.isArray(v) ? v : []);
 const isRegExp = (v) => v instanceof RegExp;
 const matchesAny = (path, patterns) => asArray(patterns).some((re) => isRegExp(re) && re.test(path));
+const isPath = (v) => typeof v === 'string' && v.length > 0;
+
+// ---------------------------------------------------------------------------
+// Catalog lookups
+// ---------------------------------------------------------------------------
+
+/** The catalog sorted oldest-first by ordinal. Pure, computed once, never mutated. */
+const CATALOG_BY_ORDINAL = Object.freeze([...STUDIO_SLICE_CATALOG].sort((a, b) => a.sliceOrdinal - b.sliceOrdinal));
+
+/** Returns the catalogued slice with this id, or null. Pure. */
+export function getStudioSliceById(sliceId) {
+  if (typeof sliceId !== 'string' || sliceId.length === 0) return null;
+  return CATALOG_BY_ORDINAL.find((s) => s.sliceId === sliceId) || null;
+}
+
+/** Returns the catalogued slice with this ordinal, or null. Pure. */
+export function getStudioSliceByOrdinal(sliceOrdinal) {
+  if (!Number.isInteger(sliceOrdinal)) return null;
+  return CATALOG_BY_ORDINAL.find((s) => s.sliceOrdinal === sliceOrdinal) || null;
+}
+
+/**
+ * Every slice that OWNS this path (matches its `primaryArtifactPatterns`). Ownership never
+ * overlaps in a well-formed catalog, so this returns zero or one entry — returning a list
+ * lets the governance test prove that invariant instead of assuming it.
+ */
+export function findOwningStudioSlices(path) {
+  if (!isPath(path)) return [];
+  return CATALOG_BY_ORDINAL.filter((s) => matchesAny(path, s.primaryArtifactPatterns));
+}
+
+/** Every slice whose narrow branch markers match this path. */
+export function findMarkingStudioSlices(path) {
+  if (!isPath(path)) return [];
+  return CATALOG_BY_ORDINAL.filter((s) => matchesAny(path, s.branchMarkerPatterns));
+}
+
+/** The union of what a slice may legitimately touch: own + cross-authorized + shared. */
+function allowedPatternsFor(slice) {
+  return [
+    ...asArray(slice.primaryArtifactPatterns),
+    ...asArray(slice.crossSliceAuthorizedPatterns),
+    ...asArray(slice.sharedGovernancePatterns),
+  ];
+}
+
+/**
+ * The patterns a slice may legitimately touch, read from ITS OWN catalog entry. Pure. Returns an empty list for an
+ * unknown slice id, so an unknown caller can never widen anything.
+ */
+export function getAuthorizedPatternsForStudioSlice(sliceId) {
+  const slice = getStudioSliceById(sliceId);
+  return slice ? Object.freeze(allowedPatternsFor(slice)) : Object.freeze([]);
+}
+
+/** True iff `path` is one of the artifacts `sliceId` is authorized to touch. Pure. */
+export function isPathAuthorizedForStudioSlice(path, sliceId) {
+  if (!isPath(path)) return false;
+  return matchesAny(path, getAuthorizedPatternsForStudioSlice(sliceId));
+}
+
+/**
+ * The forbidden paths a slice explicitly authorizes, read from ITS OWN catalog entry. This is the ONLY source of
+ * such an authorization: it can never be supplied by a caller and can never be inherited by another slice.
+ */
+export function getExplicitlyAuthorizedForbiddenPatternsForStudioSlice(sliceId) {
+  const slice = getStudioSliceById(sliceId);
+  return slice ? Object.freeze([...asArray(slice.explicitlyAuthorizedForbiddenPatterns)]) : Object.freeze([]);
+}
+
+// ---------------------------------------------------------------------------
+// Active slice resolution
+// ---------------------------------------------------------------------------
+
+/**
+ * Resolves WHICH slice a branch is building, from its changed paths alone.
+ *
+ * Uses only `branchMarkerPatterns` — never the branch name, the network, GitHub, the clock
+ * or the environment. Shared infrastructure (package manifests, the registry, the guard) is
+ * never a marker, so touching it alone resolves nothing. Test and gate files are not markers
+ * either, because a later slice may touch them through an exact cross-slice authorization.
+ *
+ * Fails closed: zero markers and two-or-more distinct markers are BOTH refusals.
+ *
+ * @param {string[]} changedPaths
+ * @returns {{ok:boolean, sliceId:string|null, sliceOrdinal:number|null, candidates:string[], reason:string|null}}
+ */
+export function resolveActiveStudioSlice(changedPaths) {
+  const paths = asArray(changedPaths).filter(isPath);
+  const seen = new Map();
+  for (const p of paths) {
+    for (const s of findMarkingStudioSlices(p)) {
+      if (!seen.has(s.sliceId)) seen.set(s.sliceId, s);
+    }
+  }
+  const candidates = [...seen.keys()].sort();
+  if (candidates.length === 0) {
+    return { ok: false, sliceId: null, sliceOrdinal: null, candidates, reason: 'no_active_slice_resolved' };
+  }
+  if (candidates.length > 1) {
+    return { ok: false, sliceId: null, sliceOrdinal: null, candidates, reason: 'ambiguous_active_slice' };
+  }
+  const slice = seen.get(candidates[0]);
+  return { ok: true, sliceId: slice.sliceId, sliceOrdinal: slice.sliceOrdinal, candidates, reason: null };
+}
+
+// ---------------------------------------------------------------------------
+// Single-path classification
+// ---------------------------------------------------------------------------
 
 /**
  * Classifies a single changed path. Pure. Priority order (highest first):
  *  1. forbidden_scope — matches a forbidden pattern (unless the CURRENT slice explicitly
- *     authorizes that exact path via `options.ownSliceAuthorized`).
+ *     authorizes that exact path via `options.explicitlyAuthorizedForbidden`).
  *  2. own_slice_allowed — the current slice's own authorized paths.
- *  3. known_later_studio_headless_artifact — an explicitly registered later artifact.
+ *  3. known_later_studio_headless_artifact — registered in the catalog (chronology-free;
+ *     `evaluateStudioBranchScope` is the chronological answer).
  *  4. evidence_only / test_only / gate_only / package_script_only — structural shape.
  *  5. unknown_scope — anything else (fails by default).
  *
@@ -43,7 +160,7 @@ const matchesAny = (path, patterns) => asArray(patterns).some((re) => isRegExp(r
  * @returns {StudioScopeClass}
  */
 export function classifyStudioScopePath(path, options = {}) {
-  if (typeof path !== 'string' || path.length === 0) return 'unknown_scope';
+  if (!isPath(path)) return 'unknown_scope';
   const o = options && typeof options === 'object' ? options : {};
   const ownAuthorized = asArray(o.ownSliceAuthorized);
   const explicitForbidden = asArray(o.explicitlyAuthorizedForbidden);
@@ -51,7 +168,7 @@ export function classifyStudioScopePath(path, options = {}) {
   const isForbidden = matchesAny(path, FORBIDDEN_SCOPE_PATTERNS);
   if (isForbidden) {
     // A forbidden path can only escape if the current slice EXPLICITLY authorizes that
-    // exact path. Known-later tolerance can NEVER release a forbidden path.
+    // exact path. Catalog membership can NEVER release a forbidden path.
     if (matchesAny(path, explicitForbidden)) return 'own_slice_allowed';
     return 'forbidden_scope';
   }
@@ -67,8 +184,127 @@ export function classifyStudioScopePath(path, options = {}) {
   return 'unknown_scope';
 }
 
-/** True only when the path is an explicitly registered later Studio headless artifact
- * AND not forbidden. This is the tolerance predicate old scope checks consume. */
+// ---------------------------------------------------------------------------
+// Caller-aware branch evaluation — the chronological API
+// ---------------------------------------------------------------------------
+
+/**
+ * Evaluates a whole changed-path set from the point of view of ONE calling slice.
+ *
+ * The ONLY source of a forbidden-path authorization is the ACTIVE slice's own catalog entry
+ * (`explicitlyAuthorizedForbiddenPatterns`). There is deliberately NO caller-supplied option: a caller cannot
+ * inject a wide regex, cannot authorize a path for a slice that does not declare it, and cannot inherit another
+ * slice's authorization. A forbidden path the active slice DOES declare becomes `allowed` and is listed in
+ * `explicitForbiddenAuthorized` — it never falls through into `unknown`.
+ *
+ * Rules, in order:
+ *  1. a forbidden path blocks unless the ACTIVE slice's catalog entry explicitly authorizes it;
+ *  2. an authorization belongs to the slice that declares it and is never inherited or supplied from outside;
+ *  3. an unknown `callerSliceId` blocks;
+ *  4. an unresolved or ambiguous active slice blocks (and then NOTHING is authorized, forbidden included);
+ *  5. active === caller admits the caller's own primary / cross / shared paths;
+ *  6. active AFTER caller admits only the ACTIVE slice's primary / cross / shared paths;
+ *  7. active BEFORE caller blocks (an older slice cannot be building on top of a newer one);
+ *  8. a path owned by another catalogued slice that the active slice is not explicitly cross-authorized for blocks;
+ *  9. a path owned by nobody blocks (unknown fails closed);
+ * 10. a cross authorization belongs to the slice that declares it and is never inherited.
+ *
+ * @param {string[]} changedPaths
+ * @param {Object} options
+ * @param {string} options.callerSliceId the slice performing the check
+ * @returns {Object} deterministic, serializable report
+ */
+export function evaluateStudioBranchScope(changedPaths, options = {}) {
+  const o = options && typeof options === 'object' ? options : {};
+  const paths = [...new Set(asArray(changedPaths).filter(isPath))].sort();
+
+  const blockers = [];
+  const forbidden = [];
+  const allowed = [];
+  const unknown = [];
+  const chronologicalViolation = [];
+  const crossAuthorized = [];
+  const explicitForbiddenAuthorized = [];
+
+  // Rule 3 — the caller must be catalogued.
+  const caller = getStudioSliceById(o.callerSliceId);
+  if (!caller) blockers.push('unknown_caller_slice');
+
+  // Rule 4 — exactly one active slice, or refuse. Until it resolves, nothing is authorized.
+  const active = resolveActiveStudioSlice(paths);
+  if (!active.ok) blockers.push(active.reason);
+
+  // Rules 1/2 — the authorization comes from the ACTIVE slice's catalog entry and nowhere else.
+  const activeSlice = active.ok ? getStudioSliceById(active.sliceId) : null;
+  const activeExplicitForbidden = activeSlice ? asArray(activeSlice.explicitlyAuthorizedForbiddenPatterns) : [];
+  for (const p of paths) {
+    if (!matchesAny(p, FORBIDDEN_SCOPE_PATTERNS)) continue;
+    if (matchesAny(p, activeExplicitForbidden)) explicitForbiddenAuthorized.push(p);
+    else forbidden.push(p);
+  }
+  if (forbidden.length > 0) blockers.push('forbidden_scope');
+
+  if (caller && active.ok) {
+    // Rule 7 — an older active slice under a newer caller's check is a chronology violation.
+    if (activeSlice.sliceOrdinal < caller.sliceOrdinal) blockers.push('active_slice_before_caller');
+
+    const admitted = allowedPatternsFor(activeSlice);
+    const crossPatterns = asArray(activeSlice.crossSliceAuthorizedPatterns);
+    for (const p of paths) {
+      if (forbidden.includes(p)) continue;
+      // An explicitly authorized forbidden path IS allowed — it must never fall through into `unknown`.
+      if (explicitForbiddenAuthorized.includes(p)) { allowed.push(p); continue; }
+      if (matchesAny(p, admitted)) {
+        allowed.push(p);
+        // Rule 10 — record what was admitted purely by the ACTIVE slice's cross list.
+        if (matchesAny(p, crossPatterns)) crossAuthorized.push(p);
+        continue;
+      }
+      // Rules 8/9 — not admitted: owned by another catalogued slice, or owned by nobody.
+      if (findOwningStudioSlices(p).length > 0) chronologicalViolation.push(p);
+      else unknown.push(p);
+    }
+    if (chronologicalViolation.length > 0) blockers.push('unauthorized_foreign_slice_path');
+    if (unknown.length > 0) blockers.push('unknown_scope');
+  } else {
+    // Caller or active unresolved: nothing can be admitted, so everything non-forbidden is
+    // reported as unknown and the caller fails closed with a complete picture.
+    for (const p of paths) if (!forbidden.includes(p)) unknown.push(p);
+    if (unknown.length > 0) blockers.push('unknown_scope');
+  }
+
+  const uniqueBlockers = [...new Set(blockers)].sort();
+  return {
+    kind: 'studio-branch-scope-evaluation',
+    callerSliceId: caller ? caller.sliceId : null,
+    callerSliceOrdinal: caller ? caller.sliceOrdinal : null,
+    activeSliceId: active.ok ? active.sliceId : null,
+    activeSliceOrdinal: active.ok ? active.sliceOrdinal : null,
+    activeCandidates: [...active.candidates],
+    total: paths.length,
+    allowed: [...allowed].sort(),
+    forbidden: [...forbidden].sort(),
+    unknown: [...unknown].sort(),
+    chronologicalViolation: [...chronologicalViolation].sort(),
+    crossAuthorized: [...crossAuthorized].sort(),
+    explicitForbiddenAuthorized: [...explicitForbiddenAuthorized].sort(),
+    blockers: uniqueBlockers,
+    safe: uniqueBlockers.length === 0,
+    // This helper never performs a side effect.
+    sideEffects: false,
+    backendAccessed: false,
+    prismaAccessed: false,
+    fetchUsed: false,
+    mutationAllowed: false,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Legacy, chronology-free helpers (kept so unmigrated consumers keep working)
+// ---------------------------------------------------------------------------
+
+/** True only when the path is catalogued AND not forbidden. Carries NO chronology —
+ * prefer `evaluateStudioBranchScope` with a `callerSliceId`. */
 export function isKnownLaterStudioHeadlessArtifact(path, options = {}) {
   return classifyStudioScopePath(path, options) === 'known_later_studio_headless_artifact';
 }
@@ -83,7 +319,7 @@ export function filterUnknownScopePaths(paths, options = {}) {
   return asArray(paths).filter((p) => classifyStudioScopePath(p, options) === 'unknown_scope');
 }
 
-/** Returns only the explicitly-known later Studio headless artifacts from a list. */
+/** Returns only the catalogued Studio headless artifacts from a list. */
 export function filterKnownLaterStudioHeadlessArtifacts(paths, options = {}) {
   return asArray(paths).filter((p) => classifyStudioScopePath(p, options) === 'known_later_studio_headless_artifact');
 }
@@ -109,14 +345,15 @@ export function assertNoForbiddenScopePaths(paths, options = {}) {
 /**
  * Deterministic, serializable governance report for a changed-file list. Separates known
  * later artifacts, forbidden, and unknown. `blocked` is true when there is any forbidden
- * OR unknown path (unknown fails by default).
+ * OR unknown path (unknown fails by default). Chronology-free — see
+ * `evaluateStudioBranchScope` for the caller-aware answer.
  *
  * @param {string[]} paths
  * @param {Object} [options]
  * @returns {Object}
  */
 export function createStudioScopeGovernanceReport(paths, options = {}) {
-  const list = asArray(paths).filter((p) => typeof p === 'string' && p.length > 0);
+  const list = asArray(paths).filter(isPath);
   /** @type {Record<StudioScopeClass, string[]>} */
   const byClass = {
     own_slice_allowed: [], known_later_studio_headless_artifact: [], evidence_only: [],
