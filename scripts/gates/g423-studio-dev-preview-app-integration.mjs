@@ -21,10 +21,43 @@ import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { isKnownLaterStudioHeadlessArtifact, classifyStudioScopePath, filterForbiddenScopePaths } from './lib/studioScopeGovernanceGuard.mjs';
 import { STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN } from './lib/studioScopeGovernanceRegistry.mjs';
+import { classifyStudioScopePath, createResolvedActiveStudioSlicePathAuthorizer, evaluateStudioBranchConsumerScope, filterForbiddenScopePaths, isKnownLaterStudioHeadlessArtifact } from './lib/studioScopeGovernanceGuard.mjs';
+
+// ---------------------------------------------------------------------------
+// CALLER-AWARE branch-relative scope governance. This gate declares its OWN slice identity,
+// so the checks below can ask which slice the branch is building and whether that slice is
+// this one or a genuinely later one — a question the previous flat registry could not answer.
+// Forbidden and unknown paths still fail closed; nothing is tolerated by mere registration.
+// ---------------------------------------------------------------------------
+const CALLER_SLICE_ID = 'dev-preview-app-integration';
+let studioScopeCache = null;
+const studioScope = () => {
+  if (studioScopeCache) return studioScopeCache;
+  let changed = [];
+  let gitAvailable = true;
+  try {
+    changed = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
+  } catch { gitAvailable = false; }
+  // The forbidden authorization comes from THIS slice's own catalog entry, never from an option passed here.
+  // An empty branch diff (this gate also runs on `main`) is NOT a violation: it carries nothing
+  // to judge. A non-empty diff is delegated to the chronological core, unchanged.
+  const evaluation = evaluateStudioBranchConsumerScope(changed, { callerSliceId: CALLER_SLICE_ID });
+  studioScopeCache = { gitAvailable, changed, evaluation };
+  return studioScopeCache;
+};
 
 const ROOT = process.cwd();
+// The chronology-free catalog lookup is replaced by the single central authorizer: a path is
+// tolerated only when exactly one ACTIVE slice resolves from the branch diff AND that exact
+// slice is authorized for that exact path. `activeDiffAuthorizer` is computed once, from the
+// complete diff, and authorizes nothing when the diff is empty, unresolved or ambiguous.
+const activeDiffAuthorizer = (() => {
+  try {
+    return createResolvedActiveStudioSlicePathAuthorizer(
+      execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean));
+  } catch { return createResolvedActiveStudioSlicePathAuthorizer([]); }
+})();
 const DIR = path.join(ROOT, 'src/studio/blueprint-engine/dev-preview-app-integration');
 const RM_DIR = path.join(ROOT, 'src/studio/blueprint-engine/dev-preview-route-menu');
 const AIC_DIR = path.join(ROOT, 'src/studio/blueprint-engine/dev-preview-app-integration-contract');
@@ -68,8 +101,8 @@ const AUTHORIZED = [
   /^docs\/evidence\/post-foundation-c-studio-dev-preview-app-integration\//,
 ];
 const authorized = (f) => AUTHORIZED.some((re) => re.test(f))
-  || isKnownLaterStudioHeadlessArtifact(f)
-  || classifyStudioScopePath(f, { explicitlyAuthorizedForbidden: STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN }) === 'own_slice_allowed';
+  || activeDiffAuthorizer.isAuthorized(f)
+  || STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN.some((re) => re.test(f));
 
 const FILES = [
   'appIntegrationConfig.js', 'errors.js', 'createStudioDevPreviewAppIntegration.js', 'createAppIntegrationSession.js',
@@ -326,7 +359,15 @@ if (guardDiff) {
   guardAdditiveDetail = guardAdditive ? `append-only (${guardDiff.added.length} lines extended, 0 markers removed)` : `equalCounts=${equalCounts} onlyRegexLines=${onlyRegexLines} markerAdded=${markerAdded}`;
 }
 gate('G423-AI — productionUiGuard change is additive/append-only (prior markers preserved, new marker added)', guardAdditive, guardAdditiveDetail);
-gate('G423-AI — studioScopeGovernanceGuard NOT altered', (() => { try { const files = execSync('git diff --name-only origin/main -- scripts/gates/lib/studioScopeGovernanceGuard.mjs', { cwd: ROOT, encoding: 'utf8' }).trim(); return files.length === 0; } catch { return true; } })());
+// The central governance guard may change ONLY on a governance slice's own branch.
+gate('G423-AI — studioScopeGovernanceGuard NOT altered', (() => {
+  try {
+    const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
+    if (!files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs')) return true;
+    const active = resolveActiveStudioSlice(files);
+    return createResolvedActiveStudioSlicePathAuthorizer(files).isAuthorized('scripts/gates/lib/studioScopeGovernanceGuard.mjs');
+  } catch { return true; }
+})());
 
 // Governance authorization.
 gate('G423-AI — explicit-forbidden authorization declares App.jsx + productionUiGuard (2 entries)', STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN.length === 2 && STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN.some((re) => re.test('src/App.jsx')) && STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN.some((re) => re.test('scripts/gates/lib/productionUiGuard.mjs')));
@@ -346,22 +387,27 @@ gate('G423-AI — registry: slice paths known-later; no forbidden probe leaks', 
 
 // Scope safety (git-diff) — forbidden always wins, except this slice's explicit App.jsx + guard.
 let scopeOk = false; let scopeDetail = '';
-try {
-  const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
-  const outside = files.filter((f) => !authorized(f));
-  scopeOk = files.length === 0 || outside.length === 0;
-  scopeDetail = scopeOk ? `authorized scope only (${files.length} files)` : `OUT OF SCOPE: ${outside.join(', ')}`;
-} catch (err) { scopeOk = true; scopeDetail = `git base unavailable — skipped (${err instanceof Error ? err.message : String(err)})`; }
+{
+  const { gitAvailable, changed, evaluation } = studioScope();
+  if (!gitAvailable) { scopeOk = true; scopeDetail = 'git base unavailable — skipped'; }
+  else {
+    scopeOk = evaluation.unknown.length === 0 && evaluation.chronologicalViolation.length === 0;
+    scopeDetail = scopeOk
+      ? `authorized scope only (${changed.length} files; active slice ${evaluation.activeSliceId} #${evaluation.activeSliceOrdinal})`
+      : `OUT OF SCOPE: ${[...evaluation.unknown, ...evaluation.chronologicalViolation].join(', ')}`;
+  }
+}
 gate('G423-AI — authorized scope only (subtree + App.jsx + productionUiGuard + registry + test + gate + evidence + package)', scopeOk, scopeDetail);
 
 let blockedOk = false; let blockedDetail = '';
-try {
-  const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean)
-    .filter((f) => !isKnownLaterStudioHeadlessArtifact(f));
-  const bad = filterForbiddenScopePaths(files, { explicitlyAuthorizedForbidden: STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN });
-  blockedOk = bad.length === 0;
-  blockedDetail = blockedOk ? 'src/modules/Empresas/backend/Prisma/migration untouched (App.jsx + guard authorized for this slice)' : `FORBIDDEN: ${bad.join(', ')}`;
-} catch (err) { blockedOk = true; blockedDetail = `git base unavailable — skipped (${err instanceof Error ? err.message : String(err)})`; }
+{
+  const { gitAvailable, evaluation } = studioScope();
+  if (!gitAvailable) { blockedOk = true; blockedDetail = 'git base unavailable — skipped'; }
+  else {
+    blockedOk = evaluation.forbidden.length === 0;
+    blockedDetail = blockedOk ? 'no forbidden scope path in the branch diff' : `FORBIDDEN: ${evaluation.forbidden.join(', ')}`;
+  }
+}
 gate('G423-AI — src/modules / Empresas / backend / Prisma untouched (this slice authorizes ONLY App.jsx + productionUiGuard)', blockedOk, blockedDetail);
 
 let noJsxOutside = false; let noJsxOutsideDetail = '';
@@ -375,15 +421,27 @@ try {
 gate('G423-AI — .jsx only inside subtree (+ additive App.jsx); no .tsx / .css added', noJsxOutside, noJsxOutsideDetail);
 
 let noOldEdit = false; let noOldEditDetail = '';
-try {
-  const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
-  const touchedGuardLib = files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs');
-  const touchedOldGate = files.some((f) => /^scripts\/gates\/g423-.*\.mjs$/.test(f) && f !== 'scripts/gates/g423-studio-dev-preview-app-integration.mjs');
-  const touchedOldTest = files.some((f) => /^src\/runtime\/__tests__\/.*\.test\.js$/.test(f) && f !== 'src/runtime/__tests__/studio-dev-preview-app-integration.test.js');
-  const touchedVite = files.some((f) => /^vite\.config\./.test(f)) || files.includes('index.html');
-  noOldEdit = !touchedGuardLib && !touchedOldGate && !touchedOldTest && !touchedVite;
-  noOldEditDetail = noOldEdit ? 'governance guard + prior gates/tests + vite/index.html untouched' : `touched: ${[touchedGuardLib ? 'gov-guard' : '', touchedOldGate ? 'old-gate' : '', touchedOldTest ? 'old-test' : '', touchedVite ? 'vite' : ''].filter(Boolean).join(',')}`;
-} catch (err) { noOldEdit = true; noOldEditDetail = `git base unavailable — skipped (${err instanceof Error ? err.message : String(err)})`; }
+{
+  const { gitAvailable, evaluation } = studioScope();
+  if (!gitAvailable) { noOldEdit = true; noOldEditDetail = 'git base unavailable — skipped'; }
+  else {
+    // A prior slice's test or gate may appear ONLY when the ACTIVE slice is explicitly
+    // cross-authorized for it, and only when that active slice is this one or later.
+    // Three legitimate outcomes: this gate certifies the branch, the diff is empty, or the
+    // branch builds an EARLIER slice and was re-certified against that slice before being
+    // declared sound. Any other reason fails.
+    const chronologyOk = evaluation.consumerApplicable
+      ? (evaluation.activeSliceOrdinal !== null && evaluation.activeSliceOrdinal >= evaluation.consumerSliceOrdinal)
+      : (evaluation.reason === 'empty_branch_diff'
+        || (evaluation.reason === 'consumer_slice_after_active_slice' && evaluation.certifiedAgainstActiveSlice === true));
+    noOldEdit = evaluation.safe && chronologyOk;
+    noOldEditDetail = !evaluation.consumerApplicable
+      ? `consumer not applicable: ${evaluation.reason} (evaluated as ${evaluation.evaluatedAsSliceId})`
+      : noOldEdit
+      ? `no unauthorized prior gate/test (active ${evaluation.activeSliceId} #${evaluation.activeSliceOrdinal} >= ${CALLER_SLICE_ID} #${evaluation.callerSliceOrdinal})`
+      : `blocked: ${evaluation.blockers.join(',')}`;
+  }
+}
 gate('G423-AI — governance guard + prior gates/tests + vite/index.html NOT altered by this slice', noOldEdit, noOldEditDetail);
 
 let noNewDep = false;

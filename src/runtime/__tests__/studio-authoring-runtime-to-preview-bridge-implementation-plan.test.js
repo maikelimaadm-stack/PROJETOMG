@@ -4,6 +4,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+// Caller-aware Studio scope governance. This test declares its OWN slice identity, so the branch-relative
+// scope check below can ask whether the slice active on this branch is the same as it or genuinely later.
+import { evaluateStudioBranchConsumerScope, createResolvedActiveStudioSlicePathAuthorizer }
+  from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 
 import {
   BRIDGE_IMPLEMENTATION_PLAN_NAME,
@@ -746,10 +750,57 @@ test('613. no src/components in diff', () => { const f = changed(); if (f === nu
 test('614. no src/modules in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => /^src\/modules\//.test(x))); });
 test('615. no backend/prisma in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => /^backend\/|schema\.prisma$|^migrations\//.test(x))); });
 test('616. no .jsx/.tsx/.css in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => /\.(jsx|tsx|css)$/.test(x))); });
-test('617. no productionUiGuard/governanceGuard in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.includes('scripts/gates/lib/productionUiGuard.mjs') && !f.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs')); });
+// The production UI guard is FORBIDDEN and no slice cross-authorizes it, so it may never appear. The central
+// governance guard may appear ONLY when the slice active on this branch declares it as shared governance —
+// which only the governance slices do. Both facts come from the caller-aware evaluation, not a hardcoded list.
+test('617. no productionUiGuard/governanceGuard in diff', () => {
+  const f = changed(); if (f === null) return;
+  assert.ok(!f.includes('scripts/gates/lib/productionUiGuard.mjs'), 'productionUiGuard is never in scope');
+  const scope = evaluateStudioBranchConsumerScope(f, { callerSliceId: CALLER_SLICE_ID });
+  assert.deepEqual(scope.forbidden, []);
+  if (f.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs')) {
+    assert.ok(scope.allowed.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs'),
+      'the governance guard may only appear when the active slice shares it');
+    // Exact active-slice authorization: no sliceId prefix, no chronology-free catalog lookup.
+    const authorizer = createResolvedActiveStudioSlicePathAuthorizer(f);
+    assert.ok(authorizer.ok && authorizer.isAuthorized('scripts/gates/lib/studioScopeGovernanceGuard.mjs'),
+      `active ${authorizer.activeSliceId} does not own the governance guard`);
+  }
+});
 test('618. no upstream bridge-contract subtree in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => /^src\/studio\/blueprint-engine\/authoring-runtime-to-preview-bridge-contract\//.test(x))); });
 test('619. no authoring-runtime/preview-sandbox subtree in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => /^src\/studio\/blueprint-engine\/(module-blueprint-authoring-runtime|module-preview-sandbox|module-blueprint-authoring-implementation-plan|module-blueprint-authoring-foundation-contract)\//.test(x))); });
-test('620. no prior gate/test altered', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => (/^scripts\/gates\/g423-.*\.mjs$/.test(x) && x !== GATE_REL) || (/^src\/runtime\/__tests__\/.*\.test\.js$/.test(x) && x !== TEST_REL))); });
+// Branch-relative scope check, CALLER-AWARE. It no longer asks "is this path registered somewhere?" — a flat
+// registry could not prove the path was later than this slice. It asks "which slice is this branch building, and
+// is that slice this one or a later one?", and admits only what that active slice owns, is explicitly
+// cross-authorized for, or shares. Forbidden and unknown still fail closed.
+const CALLER_SLICE_ID = 'authoring-runtime-to-preview-bridge-implementation-plan';
+test('620. no prior gate/test altered', () => {
+  const f = changed(); if (f === null) return;
+  const scope = evaluateStudioBranchConsumerScope(f, { callerSliceId: CALLER_SLICE_ID });
+  assert.equal(scope.consumerSliceId, CALLER_SLICE_ID);
+  assert.deepEqual(scope.forbidden, []);
+  assert.deepEqual(scope.unknown, []);
+  assert.deepEqual(scope.chronologicalViolation, []);
+  // Three legitimate outcomes, and nothing else:
+  //  - applicable: this branch is at or after this slice, so this check IS the certifier;
+  //  - empty diff: nothing to judge (running on `main`);
+  //  - the branch builds an EARLIER slice: this check is a passenger, and the branch was
+  //    re-certified against its own active slice before being declared sound.
+  if (scope.consumerApplicable) {
+    assert.equal(scope.applicable, true);
+    assert.ok(scope.activeSliceOrdinal >= scope.consumerSliceOrdinal, `active ${scope.activeSliceId} precedes ${CALLER_SLICE_ID}`);
+  } else if (scope.reason === 'consumer_slice_after_active_slice') {
+    assert.equal(scope.notApplicable, true);
+    assert.equal(scope.certifiedAgainstActiveSlice, true);
+    assert.equal(scope.evaluatedAsSliceId, scope.activeSliceId);
+    assert.ok(scope.activeSliceOrdinal < scope.consumerSliceOrdinal);
+  } else {
+    assert.equal(scope.notApplicable, true);
+    assert.equal(scope.reason, 'empty_branch_diff');
+    assert.equal(scope.activeSliceId, null);
+  }
+  assert.equal(scope.safe, true, JSON.stringify(scope.blockers));
+});
 test('621. no new dependency', () => { try { const base = JSON.parse(execSync('git show origin/main:package.json', { cwd: ROOT, encoding: 'utf8' })); const head = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')); const bk = [...Object.keys(base.dependencies ?? {}), ...Object.keys(base.devDependencies ?? {})].sort().join(','); const hk = [...Object.keys(head.dependencies ?? {}), ...Object.keys(head.devDependencies ?? {})].sort().join(','); assert.equal(bk, hk); } catch { /* skip */ } });
 test('622. net-new scope subtree only', () => { const f = changed(); if (f === null) return; if (!f.some((x) => /^src\/studio\/blueprint-engine\/authoring-runtime-to-preview-bridge-implementation-plan\//.test(x))) return; assert.deepEqual(f.filter((x) => !authorized(x)), []); });
 test('623. plan subtree present', () => assert.ok(exists('src/studio/blueprint-engine/authoring-runtime-to-preview-bridge-implementation-plan/index.js')));

@@ -4,6 +4,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+// Central Studio scope governance. Real DB-migration and real menu/nav SOURCE changes are judged by the
+// central registry instead of a substring scan over file names, which produced false positives on the
+// names of governance artifacts. Forbidden paths still fail closed.
+import { filterForbiddenScopePaths, classifyStudioScopePath, createResolvedActiveStudioSlicePathAuthorizer } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 
 import * as E from '../../studio/blueprint-engine/bridge-decision-envelope-identity-contract/index.js';
 import { createStudioAuthoringRuntimeToPreviewBridge } from '../../studio/blueprint-engine/authoring-runtime-to-preview-bridge/index.js';
@@ -277,7 +281,7 @@ test('388. no App.jsx in diff', () => { const f = changed(); if (f === null) ret
 test('389. no .jsx/.tsx/.css in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => /\.(jsx|tsx|css)$/.test(x))); });
 test('390. no backend/prisma in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => /^backend\/|schema\.prisma$|^migrations\//.test(x))); });
 test('391. no src/modules in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => /^src\/modules\//.test(x))); });
-test('392. no guards in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.includes('scripts/gates/lib/productionUiGuard.mjs') && !f.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs')); });
+test('392. no guards in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.includes('scripts/gates/lib/productionUiGuard.mjs'), 'productionUiGuard is never in scope'); if (f.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs')) { const a = createResolvedActiveStudioSlicePathAuthorizer(f); assert.equal(a.ok, true); assert.ok(a.isAuthorized('scripts/gates/lib/studioScopeGovernanceGuard.mjs'), String(a.activeSliceId)); } });
 test('393. no upstream subtrees in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => /^src\/studio\/blueprint-engine\/(authoring-runtime-to-preview-bridge|bridge-to-preview-sandbox-runtime-contract|module-blueprint-authoring-runtime|module-preview-sandbox)\//.test(x))); });
 test('394. registry lists contract', () => { const reg = fs.readFileSync(path.join(ROOT, 'scripts/gates/lib/studioScopeGovernanceRegistry.mjs'), 'utf8'); assert.ok(/bridge-decision-envelope-identity-contract/.test(reg)); });
 test('395. package.json test script', () => { const pkg = fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'); assert.ok(/studio-bridge-decision-envelope-identity-contract\.test\.js/.test(pkg)); });

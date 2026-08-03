@@ -14,6 +14,31 @@
 import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import { evaluateStudioBranchConsumerScope } from './lib/studioScopeGovernanceGuard.mjs';
+
+// ---------------------------------------------------------------------------
+// CALLER-AWARE branch-relative scope governance. This gate declares its OWN slice identity,
+// so the checks below can ask which slice the branch is building and whether that slice is
+// this one or a genuinely later one — a question the previous flat registry could not answer.
+// Forbidden and unknown paths still fail closed; nothing is tolerated by mere registration.
+// ---------------------------------------------------------------------------
+const CALLER_SLICE_ID = 'studio-foundation-audit';
+let studioScopeCache = null;
+const studioScope = () => {
+  if (studioScopeCache) return studioScopeCache;
+  let changed = [];
+  let gitAvailable = true;
+  try {
+    changed = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
+  } catch { gitAvailable = false; }
+  // An empty branch diff (this gate also runs on `main`) is NOT a violation: it carries nothing
+  // to judge. A non-empty diff is delegated to the chronological core, unchanged.
+  const evaluation = evaluateStudioBranchConsumerScope(changed, {
+    callerSliceId: CALLER_SLICE_ID,
+  });
+  studioScopeCache = { gitAvailable, changed, evaluation };
+  return studioScopeCache;
+};
 
 const ROOT = process.cwd();
 const EV = path.join(ROOT, 'docs/evidence/post-foundation-c-studio-foundation-audit');
@@ -70,33 +95,29 @@ const AUTHORIZED = [
 ];
 
 // 7-19. ESCOPO PROIBIDO (git-diff).
-let blockedOk = false;
-let blockedDetail = '';
-try {
-  const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean)
-    .filter((f) => !AUTHORIZED.some((re) => re.test(f)));
-  const FORBIDDEN = [
-    /^src\/modules\//, /^src\/pages\//, /^src\/components\//, /^src\/App\.jsx$/,
-    /^src\/ModeloBase1\//, /^src\/ModeloBase2\//, /^src\/studio\//, /^src\/Studio\//,
-    /^src\/apis\//, /^backend\//, /prisma/i, /schema\.prisma/i, /migration/i,
-    /runtimeBridge/i, /makBootstrap/i, /^src\/framework\//, /^src\/bos\//, /\.css$/, /menu/i, /nav/i,
-    /^docs\/meta-model\//, /^docs\/platform-/, /^docs\/runtime-implementation\//,
-  ];
-  const bad = files.filter((f) => FORBIDDEN.some((re) => re.test(f)));
-  blockedOk = bad.length === 0;
-  blockedDetail = blockedOk ? 'modules/pages/components/App.jsx/MB1/MB2/backend/Prisma/migration/menu/CSS/SSOT untouched' : `FORBIDDEN: ${bad.join(', ')}`;
-} catch (err) { blockedOk = true; blockedDetail = `git base unavailable — skipped (${err instanceof Error ? err.message : String(err)})`; }
+let blockedOk = false; let blockedDetail = '';
+{
+  const { gitAvailable, evaluation } = studioScope();
+  if (!gitAvailable) { blockedOk = true; blockedDetail = 'git base unavailable — skipped'; }
+  else {
+    blockedOk = evaluation.forbidden.length === 0;
+    blockedDetail = blockedOk ? 'no forbidden scope path in the branch diff' : `FORBIDDEN: ${evaluation.forbidden.join(', ')}`;
+  }
+}
 gate('G423-STUDIO-AUDIT — modules/pages/App.jsx/MB1/MB2/Empresas/backend/Prisma/menu/SSOT untouched', blockedOk, blockedDetail);
 
 // AUTHORIZED SCOPE.
-let scopeOk = false;
-let scopeDetail = '';
-try {
-  const files = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
-  const outside = files.filter((f) => !AUTHORIZED.some((re) => re.test(f)));
-  scopeOk = files.length === 0 || outside.length === 0;
-  scopeDetail = scopeOk ? `authorized scope only (${files.length} files)` : `OUT OF SCOPE: ${outside.join(', ')}`;
-} catch (err) { scopeOk = true; scopeDetail = `git base unavailable — skipped (${err instanceof Error ? err.message : String(err)})`; }
+let scopeOk = false; let scopeDetail = '';
+{
+  const { gitAvailable, changed, evaluation } = studioScope();
+  if (!gitAvailable) { scopeOk = true; scopeDetail = 'git base unavailable — skipped'; }
+  else {
+    scopeOk = evaluation.unknown.length === 0 && evaluation.chronologicalViolation.length === 0;
+    scopeDetail = scopeOk
+      ? `authorized scope only (${changed.length} files; active slice ${evaluation.activeSliceId} #${evaluation.activeSliceOrdinal})`
+      : `OUT OF SCOPE: ${[...evaluation.unknown, ...evaluation.chronologicalViolation].join(', ')}`;
+  }
+}
 gate('G423-STUDIO-AUDIT — authorized scope only (docs/evidence/tests/gate/package.json)', scopeOk, scopeDetail);
 
 // 16. Sem dependência nova.

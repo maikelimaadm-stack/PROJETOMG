@@ -14,7 +14,7 @@ import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { isKnownLaterStudioHeadlessArtifact } from './lib/studioScopeGovernanceGuard.mjs';
+import { createResolvedActiveStudioSlicePathAuthorizer } from './lib/studioScopeGovernanceGuard.mjs';
 
 const ROOT = process.cwd();
 const DIR = path.join(ROOT, 'src/studio/blueprint-engine/bridge-decision-core-envelope-builder-implementation-plan');
@@ -44,7 +44,17 @@ const AUTHORIZED = [
   /^package\.json$/, /^package-lock\.json$/,
   /^docs\/evidence\/post-foundation-c-studio-bridge-decision-core-envelope-builder-implementation-plan\//,
 ];
-const authorized = (f) => AUTHORIZED.some((re) => re.test(f)) || isKnownLaterStudioHeadlessArtifact(f);
+// The chronology-free catalog lookup is replaced by the single central authorizer: a path is
+// tolerated only when exactly one ACTIVE slice resolves from the branch diff AND that exact
+// slice is authorized for that exact path. `activeDiffAuthorizer` is computed once, from the
+// complete diff, and authorizes nothing when the diff is empty, unresolved or ambiguous.
+const activeDiffAuthorizer = (() => {
+  try {
+    return createResolvedActiveStudioSlicePathAuthorizer(
+      execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean));
+  } catch { return createResolvedActiveStudioSlicePathAuthorizer([]); }
+})();
+const authorized = (f) => AUTHORIZED.some((re) => re.test(f)) || activeDiffAuthorizer.isAuthorized(f);
 
 const P = await import(pathToFileURL(path.join(DIR, 'index.js')).href);
 const BC = await import(pathToFileURL(path.join(BC_DIR, 'index.js')).href);
@@ -254,7 +264,11 @@ gate('G423-BIP — identity doc declares ARCHITECTURE 1 + no amendment', /ARCHIT
 const files = (() => { try { return execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean); } catch { return null; } })();
 if (files) {
   gate('G423-BIP — all changed files authorized', files.every((f) => authorized(f)), files.filter((f) => !authorized(f)).join(', ') || 'clean');
-  gate('G423-BIP — central guards not altered', !files.includes('scripts/gates/lib/productionUiGuard.mjs') && !files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs'));
+  // productionUiGuard is FORBIDDEN and no slice cross-authorizes it, so it may never appear. The central
+  // governance guard may appear ONLY when the slice active on this branch shares it — i.e. a governance slice.
+  gate('G423-BIP — central guards not altered', !files.includes('scripts/gates/lib/productionUiGuard.mjs')
+    && (!files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs')
+      || createResolvedActiveStudioSlicePathAuthorizer(files).isAuthorized('scripts/gates/lib/studioScopeGovernanceGuard.mjs')));
   gate('G423-BIP — no upstream subtrees in diff', !files.some((f) => /^src\/studio\/blueprint-engine\/(bridge-decision-core-envelope-builder-contract|bridge-decision-core-envelope-contract|bridge-decision-envelope-identity-contract|bridge-to-preview-sandbox-runtime-contract|bridge-to-preview-sandbox-runtime-implementation-plan|bridge-to-preview-sandbox-runtime-implementation-plan-alignment-amendment|authoring-runtime-to-preview-bridge|module-blueprint-authoring-runtime|module-preview-sandbox)\//.test(f)));
   gate('G423-BIP — no App/pages/components/modules in diff', !files.some((f) => /^src\/(pages|components|modules|ModeloBase1|ModeloBase2)\//.test(f) || f === 'src/App.jsx'));
   // LIFECYCLE CORRECTION: forbidding the future builder subtree in the DIFF was temporal (plan-only slice). The
