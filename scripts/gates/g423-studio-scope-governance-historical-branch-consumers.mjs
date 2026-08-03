@@ -7,10 +7,12 @@
  *    slice still FAILS a later caller through evaluateStudioBranchScope and through
  *    evaluateStudioBranchDiffScope, and no permissive option was introduced;
  *  - the NEW consumer-applicability boundary separates BRANCH CERTIFICATION from
- *    CONSUMER APPLICABILITY: a later consumer riding an older branch is declared
- *    NOT APPLICABLE only after the branch has been re-certified against the slice
- *    that actually owns it, and never masks a forbidden, unknown, foreign,
- *    ambiguous or unresolved path;
+ *    CONSUMER APPLICABILITY, and does so NARROWLY: a later consumer riding an older
+ *    branch is declared NOT APPLICABLE only when that branch's own active slice
+ *    carries the explicit, catalog-bound `historicalBranchConsumerCompatibility`
+ *    authorization AND the branch re-certifies cleanly against it. Merged slices are
+ *    never authorized, so they stay closed to later consumers; and the boundary never
+ *    masks a forbidden, unknown, foreign, ambiguous or unresolved path;
  *  - the nine tests, the twenty-two gates and the five branch-judging governance
  *    consumers really ask about their own applicability;
  *  - PR #495 is out of this slice's reach, in the catalog and in the diff.
@@ -54,6 +56,29 @@ const BUILDER41_FIXTURE = [
   'src/runtime/__tests__/studio-bridge-decision-core-envelope-builder.test.js',
   'scripts/gates/g423-studio-bridge-decision-core-envelope-builder.mjs',
   'package.json',
+];
+
+/**
+ * Representative diffs of slices that are MERGED and therefore must NOT be reopenable by any
+ * later consumer, no matter how sound their own paths are.
+ */
+const MERGED24_FIXTURE = [
+  'src/studio/blueprint-engine/dev-preview-app-integration/index.js',
+  'docs/evidence/post-foundation-c-studio-dev-preview-app-integration/CERTIFICATION-REPORT.md',
+  'src/runtime/__tests__/studio-dev-preview-app-integration.test.js',
+  'scripts/gates/g423-studio-dev-preview-app-integration.mjs',
+];
+const MERGED42_FIXTURE = [
+  'docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/SLICE-CATALOG.md',
+  'src/runtime/__tests__/studio-scope-governance-chronological-migration.test.js',
+  'scripts/gates/g423-studio-scope-governance-chronological-migration.mjs',
+  'scripts/gates/lib/studioScopeGovernanceRegistry.mjs',
+];
+const MERGED43_FIXTURE = [
+  'docs/evidence/post-foundation-c-studio-scope-governance-main-diff-correction/READINESS.md',
+  'src/runtime/__tests__/studio-scope-governance-main-diff-correction.test.js',
+  'scripts/gates/g423-studio-scope-governance-main-diff-correction.mjs',
+  'scripts/gates/lib/studioScopeGovernanceGuard.mjs',
 ];
 
 const readSrc = (rel) => { try { return fs.readFileSync(path.join(ROOT, rel), 'utf8'); } catch { return ''; } };
@@ -196,9 +221,9 @@ gate('G423-HBC — every catalogued pattern anchored', STUDIO_SLICE_CATALOG.ever
 gate('G423-HBC — no broad wildcard in the catalog', STUDIO_SLICE_CATALOG.every((s) =>
   ['primaryArtifactPatterns', 'crossSliceAuthorizedPatterns', 'sharedGovernancePatterns']
     .every((k) => s[k].every((p) => !/^\^?\.[*+]/.test(p.source)))));
-gate('G423-HBC — every entry keeps the same nine keys',
+gate('G423-HBC — every entry keeps the same ten keys',
   STUDIO_SLICE_CATALOG.every((s) => Object.keys(s).sort().join(',')
-    === 'branchMarkerPatterns,crossSliceAuthorizedPatterns,explicitlyAuthorizedForbiddenPatterns,primaryArtifactPatterns,sharedGovernancePatterns,sliceId,sliceOrdinal,status,title'));
+    === 'branchMarkerPatterns,crossSliceAuthorizedPatterns,explicitlyAuthorizedForbiddenPatterns,historicalBranchConsumerCompatibility,primaryArtifactPatterns,sharedGovernancePatterns,sliceId,sliceOrdinal,status,title'));
 gate('G423-HBC — catalog and entries frozen',
   Object.isFrozen(STUDIO_SLICE_CATALOG) && STUDIO_SLICE_CATALOG.every((s) => Object.isFrozen(s)));
 gate('G423-HBC — known-later export stays derived', (() => {
@@ -221,6 +246,117 @@ gate('G423-HBC — this slice exports its id from the registry',
 for (const [p] of NINE_TESTS) gate(`G423-HBC — authorized for the migrated test: ${path.basename(p)}`, G.isPathAuthorizedForStudioSlice(p, CONSUMERS));
 for (const p of TWENTY_TWO_GATES) gate(`G423-HBC — authorized for the migrated gate: ${path.basename(p)}`, G.isPathAuthorizedForStudioSlice(p, CONSUMERS));
 for (const p of GOVERNANCE_CONSUMERS) gate(`G423-HBC — authorized for the governance consumer: ${path.basename(p)}`, G.isPathAuthorizedForStudioSlice(p, CONSUMERS));
+
+// =====================================================================
+// Catalog-bound historical compatibility authorization
+// =====================================================================
+gate('G423-HBC — every entry declares historicalBranchConsumerCompatibility',
+  STUDIO_SLICE_CATALOG.every((s) => Object.prototype.hasOwnProperty.call(s, 'historicalBranchConsumerCompatibility')));
+gate('G423-HBC — the authorization is always a boolean',
+  STUDIO_SLICE_CATALOG.every((s) => typeof s.historicalBranchConsumerCompatibility === 'boolean'));
+gate('G423-HBC — exactly one slice is authorized, forty-three are not',
+  STUDIO_SLICE_CATALOG.filter((s) => s.historicalBranchConsumerCompatibility).length === 1
+  && STUDIO_SLICE_CATALOG.filter((s) => !s.historicalBranchConsumerCompatibility).length === 43);
+gate('G423-HBC — the authorized slice is the Builder of PR #495', (() => {
+  const a = STUDIO_SLICE_CATALOG.filter((s) => s.historicalBranchConsumerCompatibility);
+  return a.length === 1 && a[0].sliceId === BUILDER && a[0].sliceOrdinal === 41
+    && a[0].status === 'open_pull_request_495';
+})());
+gate('G423-HBC — no merged slice is authorized',
+  STUDIO_SLICE_CATALOG.filter((s) => s.status === 'merged').every((s) => s.historicalBranchConsumerCompatibility === false));
+gate('G423-HBC — the governance slices and this one are not authorized',
+  [MAINTENANCE, MIGRATION, CORRECTION, CONSUMERS, APP_INTEGRATION]
+    .every((id) => slice(id).historicalBranchConsumerCompatibility === false));
+gate('G423-HBC — the authorization is not inferable from the ordinal',
+  STUDIO_SLICE_CATALOG.filter((s) => s.sliceOrdinal < 44).every((s) => s.historicalBranchConsumerCompatibility) === false);
+gate('G423-HBC — the authorization is not inferable from the status',
+  STUDIO_SLICE_CATALOG.filter((s) => s.status !== 'merged' && s.historicalBranchConsumerCompatibility).length === 1);
+gate('G423-HBC — the authorization lives in the catalog, with no parallel list', (() => {
+  const src = readSrc(REGISTRY_REL);
+  const decls = (src.match(/historicalBranchConsumerCompatibility/g) || []).length;
+  // 44 entries + one typedef line + one design-rule mention.
+  return decls === 46 && /export const [A-Z_]*HISTORICAL_BRANCH_CONSUMER_COMPAT/.test(src) === false;
+})(), `${(readSrc(REGISTRY_REL).match(/historicalBranchConsumerCompatibility/g) || []).length} mentions`);
+gate('G423-HBC — the guard reads the authorization only from the active slice', (() => {
+  const src = readSrc(GUARD_REL);
+  const body = src.slice(src.indexOf('export function evaluateStudioBranchConsumerScope('));
+  const fn = body.slice(0, body.indexOf('\n}\n') + 3);
+  return /activeSlice\.historicalBranchConsumerCompatibility !== true/.test(fn)
+    && /consumer\.historicalBranchConsumerCompatibility/.test(fn) === false
+    && /o\.historicalBranchConsumerCompatibility/.test(fn) === false;
+})());
+for (const token of ['bridge-decision-core-envelope-builder', 'open_pull_request', '495',
+  'sliceOrdinal === 41', 'sliceOrdinal == 41']) {
+  gate(`G423-HBC — the guard hardcodes no slice identity: ${token}`, readSrc(GUARD_REL).includes(token) === false);
+}
+
+// =====================================================================
+// Merged earlier slices are NOT reopenable by later consumers
+// =====================================================================
+const MERGED_CASES = [
+  ['slice-24-dev-preview-app-integration', MERGED24_FIXTURE, APP_INTEGRATION, 24, [MIGRATION, CORRECTION, CONSUMERS]],
+  ['slice-42-chronological-migration', MERGED42_FIXTURE, MIGRATION, 42, [CORRECTION, CONSUMERS]],
+  ['slice-43-main-diff-correction', MERGED43_FIXTURE, CORRECTION, 43, [CONSUMERS]],
+];
+for (const [label, fixture, activeId, activeOrdinal, callers] of MERGED_CASES) {
+  gate(`G423-HBC — the fixture resolves exactly ${label}`, (() => {
+    const a = G.resolveActiveStudioSlice(fixture);
+    return a.ok === true && a.sliceId === activeId && a.sliceOrdinal === activeOrdinal && a.candidates.length === 1;
+  })());
+  gate(`G423-HBC — the fixture is sound for its OWN slice: ${label}`, (() => {
+    const r = G.evaluateStudioBranchConsumerScope(fixture, { callerSliceId: activeId });
+    return r.consumerApplicable === true && r.safe === true;
+  })());
+  for (const caller of callers) {
+    gate(`G423-HBC — ${label} is fail-closed for later caller ${caller}`, (() => {
+      const r = G.evaluateStudioBranchConsumerScope(fixture, { callerSliceId: caller });
+      return r.activeSliceId === activeId && r.activeSliceOrdinal === activeOrdinal
+        && r.consumerApplicable === false && r.applicable === false && r.notApplicable === false
+        && r.reason === 'historical_branch_consumer_compatibility_not_authorized'
+        && r.certifiedAgainstActiveSlice === false && r.evaluatedAsSliceId === null
+        && r.blockers.includes('active_slice_before_caller') && r.safe === false;
+    })());
+    gate(`G423-HBC — ${label} authorizes nothing for later caller ${caller}`, (() => {
+      const r = G.evaluateStudioBranchConsumerScope(fixture, { callerSliceId: caller });
+      return r.allowed.length === 0 && r.crossAuthorized.length === 0
+        && r.explicitForbiddenAuthorized.length === 0 && r.total === 0;
+    })());
+    gate(`G423-HBC — ${label} keeps the core verdict for later caller ${caller}`,
+      G.evaluateStudioBranchDiffScope(fixture, { callerSliceId: caller }).blockers.includes('active_slice_before_caller'));
+  }
+}
+gate('G423-HBC — no self-certification is attempted without the authorization', (() => {
+  const r = G.evaluateStudioBranchConsumerScope(MERGED24_FIXTURE, { callerSliceId: CONSUMERS });
+  return r.certifiedAgainstActiveSlice === false && r.evaluatedAsSliceId === null;
+})());
+for (const opt of [{ historicalBranchConsumerCompatibility: true }, { allowHistorical: true },
+  { ignoreChronology: true }, { expectedActiveSlice: APP_INTEGRATION }]) {
+  gate(`G423-HBC — no caller option grants the authorization: ${Object.keys(opt)[0]}`, (() => {
+    const r = G.evaluateStudioBranchConsumerScope(MERGED24_FIXTURE, { callerSliceId: CONSUMERS, ...opt });
+    return r.safe === false && r.reason === 'historical_branch_consumer_compatibility_not_authorized';
+  })());
+}
+gate('G423-HBC — the unauthorized report stays frozen and side-effect free', (() => {
+  const r = G.evaluateStudioBranchConsumerScope(MERGED24_FIXTURE, { callerSliceId: CONSUMERS });
+  return Object.isFrozen(r) && r.kind === 'studio-branch-consumer-scope-evaluation'
+    && r.sideEffects === false && r.mutationAllowed === false;
+})());
+gate('G423-HBC — the unauthorized state is a distinct named reason', (() => {
+  const r = G.evaluateStudioBranchConsumerScope(MERGED24_FIXTURE, { callerSliceId: CORRECTION });
+  return r.reason === 'historical_branch_consumer_compatibility_not_authorized'
+    && r.reason !== 'consumer_slice_after_active_slice' && r.reason !== 'active_slice_scope_invalid';
+})());
+gate('G423-HBC — an earlier ordinal alone never buys inapplicability', (() => {
+  const ok = G.evaluateStudioBranchConsumerScope(BUILDER41_FIXTURE, { callerSliceId: CONSUMERS });
+  const no = G.evaluateStudioBranchConsumerScope(MERGED24_FIXTURE, { callerSliceId: CONSUMERS });
+  return ok.activeSliceOrdinal < ok.consumerSliceOrdinal && no.activeSliceOrdinal < no.consumerSliceOrdinal
+    && ok.notApplicable === true && ok.safe === true && no.notApplicable === false && no.safe === false;
+})());
+gate('G423-HBC — the authorization never rescues a bad path on the authorized branch',
+  ['src/App.jsx', 'backend/server.js', 'src/modules/x.js', 'docs/nobody/x.md'].every((bad) => {
+    const r = G.evaluateStudioBranchConsumerScope([...BUILDER41_FIXTURE, bad], { callerSliceId: CONSUMERS });
+    return r.safe === false && r.certifiedAgainstActiveSlice === true;
+  }));
 
 // =====================================================================
 // Core non-regression — the certification semantics are unweakened
@@ -542,6 +678,43 @@ gate('G423-HBC — the consumer boundary re-certifies against the active slice',
 })());
 gate('G423-HBC — the consumer boundary signature carries no third argument',
   /export function evaluateStudioBranchConsumerScope\(changedPaths, options = \{\}\)/.test(readSrc(GUARD_REL)));
+/**
+ * Every branch-judging consumer must delegate the whole decision to the central wrapper.
+ * None may grant itself the historical authorization, and none may decide chronology from a
+ * catalog `status` string. Naming the Builder inside a FIXTURE stays legitimate — the two
+ * governance tests do exactly that — so the scan targets the decision forms, not the word.
+ */
+const ALL_CONSUMERS = [...NINE_TESTS.map(([p]) => p), ...TWENTY_TWO_GATES, ...GOVERNANCE_CONSUMERS];
+gate('G423-HBC — the consumer set is exactly thirty-six', ALL_CONSUMERS.length === 36, String(ALL_CONSUMERS.length));
+/**
+ * The JUDGEMENT REGION of a consumer is the wrapper call plus the lines that read its report.
+ * That region is what must be free of self-granted authority. Asserting the catalog's declared
+ * `status`, or naming the Builder inside a FIXTURE, happens elsewhere in these files and is
+ * legitimate — the two governance gates do exactly that — so the scan is scoped, not global.
+ */
+const judgementRegions = (src) => {
+  const lines = src.split('\n');
+  const out = [];
+  lines.forEach((line, idx) => {
+    if (line.includes('evaluateStudioBranchConsumerScope(')) out.push(lines.slice(idx, idx + 16).join('\n'));
+  });
+  return out;
+};
+for (const p of ALL_CONSUMERS) {
+  const src = readSrc(p);
+  const regions = judgementRegions(src);
+  gate(`G423-HBC — consumer grants itself no escape: ${path.basename(p)}`,
+    regions.length > 0
+    && src.includes('allowHistorical') === false
+    && src.includes('ignoreChronology') === false
+    && /historicalBranchConsumerCompatibility\s*:/.test(src) === false
+    && regions.every((r) => !/\.status\b/.test(r)
+      && !/sliceOrdinal\s*===/.test(r)
+      && !/historicalBranchConsumerCompatibility/.test(r)
+      && !r.includes("'bridge-decision-core-envelope-builder'")),
+    `${regions.length} judgement region(s)`);
+}
+
 gate('G423-HBC — no consumer accepts a bare notApplicable',
   [...NINE_TESTS.map(([p]) => p), ...TWENTY_TWO_GATES].every((p) => {
     const src = readSrc(p);
@@ -630,7 +803,8 @@ gate('G423-HBC — evidence directory exists', fs.existsSync(path.join(ROOT, EV_
 for (const doc of ['CERTIFICATION-REPORT.md', 'ROOT-CAUSE.md', 'CONSUMER-APPLICABILITY-CONTRACT.md',
   'CORE-NON-REGRESSION.md', 'PR495-HISTORICAL-BRANCH-FIXTURE.md', 'NINE-TEST-CONSUMER-MIGRATION.md',
   'TWENTY-TWO-GATE-CONSUMER-MIGRATION.md', 'GOVERNANCE-CONSUMER-MIGRATION.md', 'NEGATIVE-MATRIX.md',
-  'SCOPE-INVENTORY.md', 'READINESS.md', 'POST-MERGE-REVALIDATION-PLAN.md', 'PR495-NO-TOUCH-PROOF.md']) {
+  'SCOPE-INVENTORY.md', 'READINESS.md', 'POST-MERGE-REVALIDATION-PLAN.md', 'PR495-NO-TOUCH-PROOF.md',
+  'CATALOG-BOUND-COMPATIBILITY-AUTHORIZATION.md']) {
   gate(`G423-HBC — evidence present and non-trivial: ${doc}`, readEv(doc).length > 200);
 }
 gate('G423-HBC — the root-cause document names the blocker and the merged main',
@@ -655,6 +829,41 @@ gate('G423-HBC — the governance document lists all five branch-judging consume
 gate('G423-HBC — the negative matrix lists all eight lookalikes',
   EIGHT_LOOKALIKES.every((p) => readEv('NEGATIVE-MATRIX.md').includes(p)));
 gate('G423-HBC — the scope inventory records the exact cross count', /36/.test(readEv('SCOPE-INVENTORY.md')));
+gate('G423-HBC — the authorization document names the blocker and the single authorized slice', (() => {
+  const doc = readEv('CATALOG-BOUND-COMPATIBILITY-AUTHORIZATION.md');
+  return doc.includes('B-CONSUMER-INAPPLICABILITY-NOT-CATALOG-BOUND')
+    && doc.includes('historicalBranchConsumerCompatibility') && doc.includes(BUILDER) && doc.includes('43');
+})());
+gate('G423-HBC — the authorization document states what does NOT decide', (() => {
+  const doc = readEv('CATALOG-BOUND-COMPATIBILITY-AUTHORIZATION.md');
+  return ['ordinal', 'status', 'branch', 'PR'].every((t) => doc.includes(t))
+    && /n[ãa]o substitui a autocertifica/i.test(doc);
+})());
+gate('G423-HBC — the contract document describes the unauthorized state',
+  readEv('CONSUMER-APPLICABILITY-CONTRACT.md').includes('historical_branch_consumer_compatibility_not_authorized'));
+gate('G423-HBC — the core non-regression document records the merged-slice refusals',
+  readEv('CORE-NON-REGRESSION.md').includes('active_slice_before_caller')
+  && readEv('CORE-NON-REGRESSION.md').includes('FIXTURE_24'));
+gate('G423-HBC — the negative matrix records the merged-slice refusals', (() => {
+  const doc = readEv('NEGATIVE-MATRIX.md');
+  return doc.includes('historical_branch_consumer_compatibility_not_authorized')
+    && [APP_INTEGRATION, MIGRATION, CORRECTION].every((id) => doc.includes(id));
+})());
+gate('G423-HBC — readiness declares the authorization catalog-bound', (() => {
+  const doc = readEv('READINESS.md');
+  return /consumerInapplicabilityCatalogBound:\s*true/.test(doc)
+    && /catalogEntriesWithCompatibilityField:\s*44/.test(doc)
+    && /catalogEntriesAuthorized:\s*1/.test(doc)
+    && /mergedSlicesAuthorized:\s*0/.test(doc)
+    && /authorizationInferredFromStatus:\s*false/.test(doc)
+    && /authorizationInferredFromOrdinal:\s*false/.test(doc)
+    && /authorizationInjectableByCaller:\s*false/.test(doc)
+    && /selfCertificationStillMandatory:\s*true/.test(doc);
+})());
+gate('G423-HBC — the revalidation plan covers the authorization on main',
+  readEv('POST-MERGE-REVALIDATION-PLAN.md').includes('historical_branch_consumer_compatibility_not_authorized'));
+gate('G423-HBC — the scope inventory records the authorization',
+  readEv('SCOPE-INVENTORY.md').includes('historicalBranchConsumerCompatibility'));
 gate('G423-HBC — readiness still requires post-merge revalidation',
   /postMergeRevalidationRequired:\s*true/.test(readEv('READINESS.md')));
 gate('G423-HBC — readiness does not claim the main is green',

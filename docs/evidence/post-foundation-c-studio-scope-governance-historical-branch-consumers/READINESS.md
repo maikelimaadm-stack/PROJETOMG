@@ -8,6 +8,16 @@ sliceStatus:                           active_slice
 onePrPerSlice:                         true
 coreApisUnchanged:                     true
 activeSliceBeforeCallerStillFails:     true
+consumerInapplicabilityCatalogBound:   true
+catalogEntriesWithCompatibilityField:  44
+catalogEntriesAuthorized:              1
+catalogEntriesNotAuthorized:           43
+authorizedSliceId:                     bridge-decision-core-envelope-builder
+mergedSlicesAuthorized:                0
+authorizationInferredFromStatus:       false
+authorizationInferredFromOrdinal:      false
+authorizationInjectableByCaller:       false
+selfCertificationStillMandatory:       true
 newBoundaryIsAdditiveOnly:             true
 permissiveOptionIntroduced:            false
 historicalEvidenceRewritten:           false
@@ -71,11 +81,12 @@ escopo autorizado desta.
 ## Bateria agregada
 
 ```
-npm run test:runtime   → 21207 tests, 21207 pass, 0 fail   (main: 109 arquivos → esta branch: 110)
+npm run test:runtime   → 21259 tests, 21259 pass, 0 fail   (main: 109 arquivos → esta branch: 110)
 npm run gate:g423      → 7/7 PASS
 npm run lint           → exit 0, sem saída
 npm run build          → exit 0, built in ~20s
-dist/                  → nenhuma ocorrência de studioScopeGovernance / evaluateStudioBranchConsumerScope
+dist/                  → 0 hits para studio-scope-governance-historical-branch-consumers,
+                         evaluateStudioBranchConsumerScope e historicalBranchConsumerCompatibility
 ```
 
 ## O que esta fatia entrega
@@ -85,11 +96,18 @@ branch** de **aplicabilidade de consumidor**, e a migração dos 36 consumidores
 de branch para essa API. O núcleo de certificação não mudou: `active_slice_before_caller`
 continua reprovando exatamente onde reprovava.
 
+Correção pós-auditoria (`B-CONSUMER-INAPPLICABILITY-NOT-CATALOG-BOUND`): a inaplicabilidade é
+**vinculada ao catálogo**. Um consumidor posterior só pode se declarar inaplicável a uma branch
+mais antiga quando a fatia ativa daquela branch declara `historicalBranchConsumerCompatibility:
+true`. Hoje isso vale para exatamente uma fatia — a Builder da PR #495, ordinal 41. Fatias
+mergeadas, inclusive 24, 42 e 43, continuam fail-closed para consumidores posteriores.
+
 ## O que esta fatia NÃO entrega
 
 - não atualiza a PR #495;
 - não declara que a #495 pode ser atualizada com a `main`;
 - não migra os 21 gates pré-Studio (`LEGACY_PRE_STUDIO_SCOPE_GATES_NOT_MIGRATED`);
+- não autoriza nenhuma fatia além da Builder #495 a carregar consumidores posteriores;
 - não mede o diff real da branch da #495 — usa uma fixture representativa, declarada como tal;
 - não verifica a `main`, porque a `main` ainda não contém esta fatia.
 

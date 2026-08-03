@@ -185,11 +185,12 @@ test('R016b later slices never own this slice artifacts', () => {
     assert.deepEqual(findOwningStudioSlices(rel).map((x) => x.sliceId), [CORRECTION], rel);
   }
 });
-test('R016 every entry still declares the same nine keys', () => {
+test('R016 every entry still declares the same ten keys', () => {
   for (const s of STUDIO_SLICE_CATALOG) {
     assert.deepEqual(Object.keys(s).sort(), [
       'branchMarkerPatterns', 'crossSliceAuthorizedPatterns', 'explicitlyAuthorizedForbiddenPatterns',
-      'primaryArtifactPatterns', 'sharedGovernancePatterns', 'sliceId', 'sliceOrdinal', 'status', 'title',
+      'historicalBranchConsumerCompatibility', 'primaryArtifactPatterns', 'sharedGovernancePatterns',
+      'sliceId', 'sliceOrdinal', 'status', 'title',
     ], s.sliceId);
   }
 });

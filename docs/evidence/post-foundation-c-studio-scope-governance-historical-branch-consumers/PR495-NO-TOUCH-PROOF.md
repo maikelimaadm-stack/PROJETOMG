@@ -18,7 +18,7 @@ nenhum worktree sintético, nenhum `origin/main` movido.
 
 ## Prova pelo diff
 
-`git diff --name-only origin/main...HEAD` = 54 caminhos. Nenhum deles casa
+`git diff --name-only origin/main...HEAD` = 55 caminhos. Nenhum deles casa
 `bridge-decision-core-envelope-builder`. Verificado ao vivo pelo gate desta fatia
 (`this branch touches no Builder artifact`) e pelo teste (`P003`), não por inspeção manual.
 
@@ -33,6 +33,12 @@ primaryArtifactPatterns               4
 crossSliceAuthorizedPatterns          2
 explicitlyAuthorizedForbiddenPatterns 0
 ```
+
+A única alteração na entrada da fatia 41 é o novo campo obrigatório do catálogo,
+`historicalBranchConsumerCompatibility: true` — a autorização explícita que permite a esta branch,
+e só a esta, carregar consumidores posteriores. Nenhum arquivo do Builder foi tocado; nenhum
+padrão da entrada foi alterado; ordinal, status, primary, cross e forbidden explícito seguem
+idênticos. Ver `CATALOG-BOUND-COMPATIBILITY-AUTHORIZATION.md`.
 
 E está **fora do alcance** desta fatia — `isPathAuthorizedForStudioSlice(..., 44) === false` para:
 

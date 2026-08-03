@@ -129,3 +129,58 @@ Nunca aceitar `notApplicable` genericamente.
 ## Pureza
 
 Sem git, filesystem, env, rede, relógio, backend, Prisma ou mutação.
+
+
+---
+
+# Emenda pós-auditoria — a inaplicabilidade é vinculada ao catálogo
+
+Blocker corrigido: `B-CONSUMER-INAPPLICABILITY-NOT-CATALOG-BOUND`.
+
+Estar cronologicamente antes **não** é permissão para carregar consumidores posteriores. O ramo
+`activeSlice.sliceOrdinal < consumer.sliceOrdinal` passa a exigir, ANTES da autocertificação:
+
+```js
+activeSlice.historicalBranchConsumerCompatibility === true
+```
+
+## Novo estado terminal
+
+```
+reason                        historical_branch_consumer_compatibility_not_authorized
+consumerApplicable            false
+applicable                    false
+notApplicable                 false
+certifiedAgainstActiveSlice   false
+evaluatedAsSliceId            null
+activeSliceId                 a fatia ativa exata
+activeSliceOrdinal            o ordinal ativo exato
+blockers                      ['active_slice_before_caller']
+safe                          false
+allowed/cross/explicit/total  vazios / 0
+```
+
+A autocertificação **não roda** nesse estado: sem autorização não há o que certificar em nome de
+outra fatia. O veredito devolvido é o do core, verbatim.
+
+## Ordem de decisão, completa
+
+```
+1. entrada inválida            → invalid_changed_paths                                   safe=false
+2. caller desconhecido         → unknown_caller_slice                                    safe=false
+3. diff vazio                  → empty_branch_diff                    notApplicable=true safe=true
+4. ativa irresolvível/ambígua  → no_active_slice_resolved / ambiguous_active_slice        safe=false
+5. ativa >= consumidor         → delega a evaluateStudioBranchDiffScope      applicable=true
+6. ativa < consumidor E NÃO autorizada
+                               → historical_branch_consumer_compatibility_not_authorized  safe=false
+7. ativa < consumidor E autorizada, self suja
+                               → active_slice_scope_invalid                               safe=false
+8. ativa < consumidor E autorizada, self limpa
+                               → consumer_slice_after_active_slice   notApplicable=true   safe=true
+```
+
+Somente o passo 8 produz inaplicabilidade segura, e ele exige as duas condições — autorização
+explícita **e** recertificação limpa.
+
+Detalhamento das propriedades da autorização em
+[`CATALOG-BOUND-COMPATIBILITY-AUTHORIZATION.md`](./CATALOG-BOUND-COMPATIBILITY-AUTHORIZATION.md).

@@ -46,6 +46,35 @@ evaluateStudioBranchConsumerScope(FIXTURE_41, { caller: 42/43/44 })
 
 E toda a matriz negativa de `NEGATIVE-MATRIX.md` continuando a reprovar.
 
+## 3b. Autorização vinculada ao catálogo, na `main`
+
+```
+44 entradas com historicalBranchConsumerCompatibility, todas boolean
+exatamente 1 true  → bridge-decision-core-envelope-builder (#41, open_pull_request_495)
+exatamente 43 false
+nenhuma fatia merged autorizada
+```
+
+Negativos obrigatórios, todos `safe: false` com
+`reason = 'historical_branch_consumer_compatibility_not_authorized'`,
+`notApplicable = false`, `certifiedAgainstActiveSlice = false`,
+`blockers = ['active_slice_before_caller']`:
+
+```
+fixture da fatia 24 (merged) → callers 42, 43, 44
+fixture da fatia 42 (merged) → callers 43, 44
+fixture da fatia 43 (merged) → caller 44
+```
+
+E o guard continua sem `bridge-decision-core-envelope-builder`, `open_pull_request`, `495`,
+`sliceOrdinal === 41` no seu próprio código.
+
+## 3c. Quando a #495 for mergeada
+
+A entrada da Builder deve voltar a `historicalBranchConsumerCompatibility: false`, numa fatia
+corretiva própria. Manter `true` numa fatia mergeada é exatamente o defeito
+`B-CONSUMER-INAPPLICABILITY-NOT-CATALOG-BOUND` que este campo existe para impedir.
+
 ## 4. Bateria completa na `main`
 
 ```

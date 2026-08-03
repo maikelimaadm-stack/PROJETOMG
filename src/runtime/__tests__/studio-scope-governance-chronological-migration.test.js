@@ -121,7 +121,8 @@ for (const s of STUDIO_SLICE_CATALOG) {
   test(`C010 slice ${s.sliceId} has the exact entry shape`, () => {
     assert.deepEqual(Object.keys(s).sort(), [
       'branchMarkerPatterns', 'crossSliceAuthorizedPatterns', 'explicitlyAuthorizedForbiddenPatterns',
-      'primaryArtifactPatterns', 'sharedGovernancePatterns', 'sliceId', 'sliceOrdinal', 'status', 'title',
+      'historicalBranchConsumerCompatibility', 'primaryArtifactPatterns', 'sharedGovernancePatterns',
+      'sliceId', 'sliceOrdinal', 'status', 'title',
     ]);
     assert.equal(typeof s.title, 'string');
     assert.ok(s.title.length > 0);

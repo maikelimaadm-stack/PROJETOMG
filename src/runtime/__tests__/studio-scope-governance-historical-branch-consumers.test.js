@@ -53,6 +53,29 @@ const BUILDER41_FIXTURE = [
   'package.json',
 ];
 
+/**
+ * Representative diffs of slices that are MERGED and therefore must NOT be reopenable by any
+ * later consumer, no matter how sound their own paths are.
+ */
+const MERGED24_FIXTURE = [
+  'src/studio/blueprint-engine/dev-preview-app-integration/index.js',
+  'docs/evidence/post-foundation-c-studio-dev-preview-app-integration/CERTIFICATION-REPORT.md',
+  'src/runtime/__tests__/studio-dev-preview-app-integration.test.js',
+  'scripts/gates/g423-studio-dev-preview-app-integration.mjs',
+];
+const MERGED42_FIXTURE = [
+  'docs/evidence/post-foundation-c-studio-scope-governance-chronological-migration/SLICE-CATALOG.md',
+  'src/runtime/__tests__/studio-scope-governance-chronological-migration.test.js',
+  'scripts/gates/g423-studio-scope-governance-chronological-migration.mjs',
+  'scripts/gates/lib/studioScopeGovernanceRegistry.mjs',
+];
+const MERGED43_FIXTURE = [
+  'docs/evidence/post-foundation-c-studio-scope-governance-main-diff-correction/READINESS.md',
+  'src/runtime/__tests__/studio-scope-governance-main-diff-correction.test.js',
+  'scripts/gates/g423-studio-scope-governance-main-diff-correction.mjs',
+  'scripts/gates/lib/studioScopeGovernanceGuard.mjs',
+];
+
 const NINE_TESTS = [
   ['src/runtime/__tests__/studio-authoring-runtime-to-preview-bridge-contract.test.js', 'authoring-runtime-to-preview-bridge-contract'],
   ['src/runtime/__tests__/studio-authoring-runtime-to-preview-bridge-implementation-plan.test.js', 'authoring-runtime-to-preview-bridge-implementation-plan'],
@@ -87,7 +110,7 @@ const GOVERNANCE_CONSUMERS = [
   'scripts/gates/g423-studio-scope-governance-main-diff-correction.mjs',
 ];
 
-/** Later slices, each of which is a passenger on a Builder-41 branch. */
+/** Later slices, each of which is a passenger on the AUTHORIZED Builder-41 branch. */
 const LATER_CALLERS = [MIGRATION, CORRECTION, CONSUMERS];
 
 const MARKER = {
@@ -231,11 +254,12 @@ test('R025 the catalog and every entry stay frozen', () => {
   assert.ok(Object.isFrozen(STUDIO_SLICE_CATALOG));
   for (const s of STUDIO_SLICE_CATALOG) assert.ok(Object.isFrozen(s), s.sliceId);
 });
-test('R026 every entry declares the same nine keys', () => {
+test('R026 every entry declares the same ten keys', () => {
   for (const s of STUDIO_SLICE_CATALOG) {
     assert.deepEqual(Object.keys(s).sort(), [
       'branchMarkerPatterns', 'crossSliceAuthorizedPatterns', 'explicitlyAuthorizedForbiddenPatterns',
-      'primaryArtifactPatterns', 'sharedGovernancePatterns', 'sliceId', 'sliceOrdinal', 'status', 'title',
+      'historicalBranchConsumerCompatibility', 'primaryArtifactPatterns', 'sharedGovernancePatterns',
+      'sliceId', 'sliceOrdinal', 'status', 'title',
     ], s.sliceId);
   }
 });
@@ -269,6 +293,59 @@ for (const p of GOVERNANCE_CONSUMERS) {
   });
 }
 
+// ---------------------------------------------------------------------------
+// R032..R040 — the catalog-bound historical compatibility authorization
+// ---------------------------------------------------------------------------
+test('R032 every entry declares historicalBranchConsumerCompatibility', () => {
+  for (const s of STUDIO_SLICE_CATALOG) {
+    assert.ok(Object.prototype.hasOwnProperty.call(s, 'historicalBranchConsumerCompatibility'), s.sliceId);
+  }
+});
+test('R033 the authorization is always a boolean, never truthy-by-accident', () => {
+  for (const s of STUDIO_SLICE_CATALOG) {
+    assert.equal(typeof s.historicalBranchConsumerCompatibility, 'boolean', s.sliceId);
+  }
+});
+test('R034 exactly one slice carries the authorization', () => {
+  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.historicalBranchConsumerCompatibility).length, 1);
+  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => !s.historicalBranchConsumerCompatibility).length, 43);
+});
+test('R035 the authorized slice is the Builder of PR #495', () => {
+  const authorized = STUDIO_SLICE_CATALOG.filter((s) => s.historicalBranchConsumerCompatibility);
+  assert.deepEqual(authorized.map((s) => s.sliceId), [BUILDER]);
+  assert.equal(authorized[0].sliceOrdinal, 41);
+  assert.equal(authorized[0].status, 'open_pull_request_495');
+});
+test('R036 no merged slice is authorized', () => {
+  for (const s of STUDIO_SLICE_CATALOG) {
+    if (s.status === 'merged') assert.equal(s.historicalBranchConsumerCompatibility, false, s.sliceId);
+  }
+});
+test('R037 the three governance slices and this one are not authorized', () => {
+  for (const id of [MAINTENANCE, MIGRATION, CORRECTION, CONSUMERS, APP_INTEGRATION]) {
+    assert.equal(getStudioSliceById(id).historicalBranchConsumerCompatibility, false, id);
+  }
+});
+test('R038 the authorization is not inferable from the ordinal', () => {
+  const byOrdinal = STUDIO_SLICE_CATALOG.filter((s) => s.sliceOrdinal < 44);
+  assert.ok(byOrdinal.length > 1);
+  assert.notEqual(byOrdinal.every((s) => s.historicalBranchConsumerCompatibility), true);
+});
+test('R039 the authorization is not inferable from the status', () => {
+  const open = STUDIO_SLICE_CATALOG.filter((s) => s.status !== 'merged');
+  assert.ok(open.length >= 2, JSON.stringify(open.map((s) => s.sliceId)));
+  assert.equal(open.filter((s) => s.historicalBranchConsumerCompatibility).length, 1);
+});
+test('R040 the Builder entry is otherwise untouched', () => {
+  const b = getStudioSliceById(BUILDER);
+  assert.equal(b.sliceOrdinal, 41);
+  assert.equal(b.status, 'open_pull_request_495');
+  assert.equal(b.primaryArtifactPatterns.length, 4);
+  assert.equal(b.crossSliceAuthorizedPatterns.length, 2);
+  assert.deepEqual(b.explicitlyAuthorizedForbiddenPatterns, []);
+  assert.equal(b.historicalBranchConsumerCompatibility, true);
+});
+
 // ===========================================================================
 // K — the existing core APIs are untouched
 // ===========================================================================
@@ -294,6 +371,13 @@ for (const caller of LATER_CALLERS) {
     assert.equal(r.safe, false, JSON.stringify(r.blockers));
     assert.ok(r.blockers.includes('active_slice_before_caller'));
     assert.equal(r.applicable, true);
+  });
+}
+for (const caller of LATER_CALLERS) {
+  test(`K004b the branch-diff boundary still FAILS a MERGED slice-24 branch for caller ${caller}`, () => {
+    const r = evaluateStudioBranchDiffScope(MERGED24_FIXTURE, { callerSliceId: caller });
+    assert.equal(r.safe, false, JSON.stringify(r.blockers));
+    assert.ok(r.blockers.includes('active_slice_before_caller'));
   });
 }
 test('K005 the branch-diff boundary still PASSES a Builder branch for the Builder itself', () => {
@@ -452,7 +536,7 @@ test('C013 active later than the caller is applicable and delegates', () => {
   assert.equal(r.safe, true);
   assert.ok(r.activeSliceOrdinal > r.consumerSliceOrdinal);
 });
-test('C014 a later consumer on an earlier branch is inapplicable, not failing', () => {
+test('C014 a later consumer on an AUTHORIZED earlier branch is inapplicable, not failing', () => {
   const r = evaluateStudioBranchConsumerScope(BUILDER41_FIXTURE, { callerSliceId: CORRECTION });
   assert.equal(r.consumerApplicable, false);
   assert.equal(r.applicable, false);
@@ -570,6 +654,23 @@ test('C030 notApplicable is never true for an invalid or unresolvable state', ()
   }
 });
 
+test('C031 inapplicability requires the catalog authorization, not merely an earlier ordinal', () => {
+  const authorized = evaluateStudioBranchConsumerScope(BUILDER41_FIXTURE, { callerSliceId: CONSUMERS });
+  const unauthorized = evaluateStudioBranchConsumerScope(MERGED24_FIXTURE, { callerSliceId: CONSUMERS });
+  assert.ok(authorized.activeSliceOrdinal < authorized.consumerSliceOrdinal);
+  assert.ok(unauthorized.activeSliceOrdinal < unauthorized.consumerSliceOrdinal);
+  assert.equal(authorized.notApplicable, true);
+  assert.equal(authorized.safe, true);
+  assert.equal(unauthorized.notApplicable, false);
+  assert.equal(unauthorized.safe, false);
+});
+test('C032 the unauthorized state is a distinct, named reason', () => {
+  const r = evaluateStudioBranchConsumerScope(MERGED24_FIXTURE, { callerSliceId: CORRECTION });
+  assert.equal(r.reason, 'historical_branch_consumer_compatibility_not_authorized');
+  assert.notEqual(r.reason, 'consumer_slice_after_active_slice');
+  assert.notEqual(r.reason, 'active_slice_scope_invalid');
+});
+
 // ===========================================================================
 // F — the Builder-41 fixture, one caller at a time
 // ===========================================================================
@@ -630,6 +731,118 @@ test('F008 the fixture plus a second marker is unsafe for every later caller', (
 test('F009 the fixture is not empty and is not a synthetic worktree', () => {
   assert.ok(BUILDER41_FIXTURE.length >= 5);
   assert.ok(BUILDER41_FIXTURE.every((p) => typeof p === 'string' && p.length > 0));
+});
+
+// ===========================================================================
+// M — merged earlier slices are NOT reopenable by later consumers
+// ===========================================================================
+const MERGED_CASES = [
+  ['slice 24 dev-preview-app-integration', MERGED24_FIXTURE, APP_INTEGRATION, 24, [MIGRATION, CORRECTION, CONSUMERS]],
+  ['slice 42 chronological-migration', MERGED42_FIXTURE, MIGRATION, 42, [CORRECTION, CONSUMERS]],
+  ['slice 43 main-diff-correction', MERGED43_FIXTURE, CORRECTION, 43, [CONSUMERS]],
+];
+for (const [label, fixture, activeId, activeOrdinal, callers] of MERGED_CASES) {
+  test(`M001 the fixture resolves exactly ${label}`, () => {
+    const a = resolveActiveStudioSlice(fixture);
+    assert.equal(a.ok, true, JSON.stringify(a));
+    assert.equal(a.sliceId, activeId);
+    assert.equal(a.sliceOrdinal, activeOrdinal);
+    assert.equal(a.candidates.length, 1);
+  });
+  test(`M002 the fixture is sound for its OWN slice: ${label}`, () => {
+    const r = evaluateStudioBranchConsumerScope(fixture, { callerSliceId: activeId });
+    assert.equal(r.consumerApplicable, true);
+    assert.equal(r.safe, true, JSON.stringify(r.blockers));
+  });
+  for (const caller of callers) {
+    test(`M003 ${label} is fail-closed for later caller ${caller}`, () => {
+      const r = evaluateStudioBranchConsumerScope(fixture, { callerSliceId: caller });
+      assert.equal(r.activeSliceId, activeId);
+      assert.equal(r.activeSliceOrdinal, activeOrdinal);
+      assert.equal(r.consumerApplicable, false);
+      assert.equal(r.applicable, false);
+      assert.equal(r.notApplicable, false);
+      assert.equal(r.reason, 'historical_branch_consumer_compatibility_not_authorized');
+      assert.equal(r.certifiedAgainstActiveSlice, false);
+      assert.equal(r.evaluatedAsSliceId, null);
+      assert.ok(r.blockers.includes('active_slice_before_caller'), JSON.stringify(r.blockers));
+      assert.equal(r.safe, false);
+    });
+    test(`M004 ${label} authorizes nothing for later caller ${caller}`, () => {
+      const r = evaluateStudioBranchConsumerScope(fixture, { callerSliceId: caller });
+      assert.deepEqual(r.allowed, []);
+      assert.deepEqual(r.crossAuthorized, []);
+      assert.deepEqual(r.explicitForbiddenAuthorized, []);
+      assert.equal(r.total, 0);
+    });
+    test(`M005 ${label} keeps the consumer identity for caller ${caller}`, () => {
+      const r = evaluateStudioBranchConsumerScope(fixture, { callerSliceId: caller });
+      assert.equal(r.consumerSliceId, caller);
+      assert.equal(r.consumerSliceOrdinal, getStudioSliceById(caller).sliceOrdinal);
+      assert.ok(r.activeSliceOrdinal < r.consumerSliceOrdinal);
+    });
+  }
+}
+test('M006 the unauthorized refusal matches the core verdict exactly', () => {
+  for (const [, fixture, , , callers] of MERGED_CASES) {
+    for (const caller of callers) {
+      const wrapper = evaluateStudioBranchConsumerScope(fixture, { callerSliceId: caller });
+      const core = evaluateStudioBranchDiffScope(fixture, { callerSliceId: caller });
+      assert.equal(core.safe, false);
+      assert.equal(wrapper.safe, false);
+      assert.ok(core.blockers.includes('active_slice_before_caller'));
+      assert.ok(wrapper.blockers.includes('active_slice_before_caller'));
+    }
+  }
+});
+test('M007 no self-certification is attempted when the authorization is absent', () => {
+  const r = evaluateStudioBranchConsumerScope(MERGED24_FIXTURE, { callerSliceId: CONSUMERS });
+  assert.equal(r.certifiedAgainstActiveSlice, false);
+  assert.equal(r.evaluatedAsSliceId, null);
+});
+test('M008 authorization alone never rescues a bad path on the authorized branch', () => {
+  for (const bad of ['src/App.jsx', 'backend/server.js', 'src/modules/x.js', 'docs/nobody/x.md']) {
+    const r = evaluateStudioBranchConsumerScope([...BUILDER41_FIXTURE, bad], { callerSliceId: CONSUMERS });
+    assert.equal(r.safe, false, bad);
+    assert.equal(r.certifiedAgainstActiveSlice, true, bad);
+  }
+});
+test('M009 the guard reads the authorization only from the active slice entry', () => {
+  const src = readSrc(GUARD_REL);
+  const body = src.slice(src.indexOf('export function evaluateStudioBranchConsumerScope('));
+  const fn = body.slice(0, body.indexOf('\n}\n') + 3);
+  assert.match(fn, /activeSlice\.historicalBranchConsumerCompatibility !== true/);
+  assert.equal(/consumer\.historicalBranchConsumerCompatibility/.test(fn), false);
+  assert.equal(/o\.historicalBranchConsumerCompatibility/.test(fn), false);
+});
+test('M010 the guard hardcodes no slice id, ordinal, status or PR number', () => {
+  const src = readSrc(GUARD_REL);
+  for (const token of ['bridge-decision-core-envelope-builder', 'open_pull_request', '495',
+    'sliceOrdinal === 41', 'sliceOrdinal == 41']) {
+    assert.equal(src.includes(token), false, token);
+  }
+});
+test('M011 no caller-supplied option can grant the authorization', () => {
+  for (const opt of [{ historicalBranchConsumerCompatibility: true }, { allowHistorical: true },
+    { ignoreChronology: true }, { expectedActiveSlice: APP_INTEGRATION }]) {
+    const r = evaluateStudioBranchConsumerScope(MERGED24_FIXTURE, { callerSliceId: CONSUMERS, ...opt });
+    assert.equal(r.safe, false, JSON.stringify(opt));
+    assert.equal(r.reason, 'historical_branch_consumer_compatibility_not_authorized', JSON.stringify(opt));
+  }
+});
+test('M012 the unauthorized report is frozen and side-effect free', () => {
+  const r = evaluateStudioBranchConsumerScope(MERGED24_FIXTURE, { callerSliceId: CONSUMERS });
+  assert.ok(Object.isFrozen(r));
+  assert.equal(r.kind, 'studio-branch-consumer-scope-evaluation');
+  assert.equal(r.sideEffects, false);
+  assert.equal(r.mutationAllowed, false);
+});
+test('M013 the unauthorized branch is deterministic and order independent', () => {
+  const a = evaluateStudioBranchConsumerScope(MERGED24_FIXTURE, { callerSliceId: CONSUMERS });
+  const b = evaluateStudioBranchConsumerScope([...MERGED24_FIXTURE].reverse(), { callerSliceId: CONSUMERS });
+  assert.equal(a.reason, b.reason);
+  assert.equal(a.safe, b.safe);
+  assert.deepEqual(a.blockers, b.blockers);
 });
 
 // ===========================================================================
@@ -734,7 +947,8 @@ test('E001 this slice ships its own test, gate and evidence directory', () => {
 for (const doc of ['CERTIFICATION-REPORT.md', 'ROOT-CAUSE.md', 'CONSUMER-APPLICABILITY-CONTRACT.md',
   'CORE-NON-REGRESSION.md', 'PR495-HISTORICAL-BRANCH-FIXTURE.md', 'NINE-TEST-CONSUMER-MIGRATION.md',
   'TWENTY-TWO-GATE-CONSUMER-MIGRATION.md', 'GOVERNANCE-CONSUMER-MIGRATION.md', 'NEGATIVE-MATRIX.md',
-  'SCOPE-INVENTORY.md', 'READINESS.md', 'POST-MERGE-REVALIDATION-PLAN.md', 'PR495-NO-TOUCH-PROOF.md']) {
+  'SCOPE-INVENTORY.md', 'READINESS.md', 'POST-MERGE-REVALIDATION-PLAN.md', 'PR495-NO-TOUCH-PROOF.md',
+  'CATALOG-BOUND-COMPATIBILITY-AUTHORIZATION.md']) {
   test(`E002 evidence present and non-trivial: ${doc}`, () => assert.ok(readEv(doc).length > 200, doc));
 }
 test('E003 package.json wires this slice test and gate', () => {
@@ -791,6 +1005,35 @@ test('E014 readiness declares the core untouched', () => {
 });
 test('E015 readiness does not declare the PR495 update ready', () => {
   assert.match(readEv('READINESS.md'), /readyToUpdatePr495WithMain:\s*false/);
+});
+test('E017 the authorization document names the blocker and the single authorized slice', () => {
+  const doc = readEv('CATALOG-BOUND-COMPATIBILITY-AUTHORIZATION.md');
+  assert.match(doc, /B-CONSUMER-INAPPLICABILITY-NOT-CATALOG-BOUND/);
+  assert.match(doc, /historicalBranchConsumerCompatibility/);
+  assert.ok(doc.includes(BUILDER), BUILDER);
+  assert.match(doc, /43/);
+});
+test('E018 the authorization document states what does NOT decide', () => {
+  const doc = readEv('CATALOG-BOUND-COMPATIBILITY-AUTHORIZATION.md');
+  for (const t of ['ordinal', 'status', 'branch', 'PR']) assert.ok(doc.includes(t), t);
+  assert.match(doc, /n[ãa]o substitui a autocertifica/i);
+});
+test('E019 the contract document describes the unauthorized state', () => {
+  assert.match(readEv('CONSUMER-APPLICABILITY-CONTRACT.md'),
+    /historical_branch_consumer_compatibility_not_authorized/);
+});
+test('E020 the negative matrix records the merged-slice refusals', () => {
+  const doc = readEv('NEGATIVE-MATRIX.md');
+  assert.match(doc, /historical_branch_consumer_compatibility_not_authorized/);
+  for (const id of [APP_INTEGRATION, MIGRATION, CORRECTION]) assert.ok(doc.includes(id), id);
+});
+test('E021 readiness declares the authorization catalog-bound', () => {
+  const doc = readEv('READINESS.md');
+  assert.match(doc, /consumerInapplicabilityCatalogBound:\s*true/);
+  assert.match(doc, /catalogEntriesAuthorized:\s*1/);
+  assert.match(doc, /mergedSlicesAuthorized:\s*0/);
+  assert.match(doc, /authorizationInjectableByCaller:\s*false/);
+  assert.match(doc, /selfCertificationStillMandatory:\s*true/);
 });
 test('E016 no historical evidence directory of an earlier slice is touched', () => {
   const f = changedOnThisBranch(); if (f === null) return;

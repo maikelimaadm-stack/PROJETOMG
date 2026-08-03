@@ -96,3 +96,59 @@ tanto a branch própria quanto a branch passageira.
 Os 21 gates de `LEGACY_PRE_STUDIO_SCOPE_GATES_NOT_MIGRATED` não chamam nenhuma das três
 fronteiras, não têm dono no catálogo e não estão no escopo desta fatia. Não migrados,
 não PASS, não mascarados.
+
+
+---
+
+# 10. Fatias mergeadas anteriores NÃO são reabertas por consumidores posteriores
+
+Emenda pós-auditoria. Uma fatia ativa anterior só pode carregar consumidores posteriores quando
+declara `historicalBranchConsumerCompatibility: true` no catálogo. Hoje isso vale para exatamente
+uma fatia — a Builder da PR #495, ordinal 41. Todas as outras 43 são `false`.
+
+| branch (fatia ativa) | ordinal | status | caller | `reason` | `notApplicable` | `safe` |
+|---|---|---|---|---|---|---|
+| `dev-preview-app-integration` | 24 | merged | 42 | `historical_branch_consumer_compatibility_not_authorized` | false | **false** |
+| `dev-preview-app-integration` | 24 | merged | 43 | `historical_branch_consumer_compatibility_not_authorized` | false | **false** |
+| `dev-preview-app-integration` | 24 | merged | 44 | `historical_branch_consumer_compatibility_not_authorized` | false | **false** |
+| `studio-scope-governance-chronological-migration` | 42 | merged | 43 | `historical_branch_consumer_compatibility_not_authorized` | false | **false** |
+| `studio-scope-governance-chronological-migration` | 42 | merged | 44 | `historical_branch_consumer_compatibility_not_authorized` | false | **false** |
+| `studio-scope-governance-main-diff-correction` | 43 | merged | 44 | `historical_branch_consumer_compatibility_not_authorized` | false | **false** |
+| `bridge-decision-core-envelope-builder` | 41 | **open_pull_request_495** | 42/43/44 | `consumer_slice_after_active_slice` | true | true |
+
+Em todos os casos não autorizados:
+
+```
+blockers                     ['active_slice_before_caller']   (o veredito do core, verbatim)
+certifiedAgainstActiveSlice  false                            (a autocertificação não roda)
+evaluatedAsSliceId           null
+allowed/cross/explicit       []                               total 0
+```
+
+Cada fixture mergeada é sã para a **própria** fatia (`consumerApplicable: true`, `safe: true`) —
+ou seja, o bloqueio não vem de a branch ser ruim, vem de a fatia não estar autorizada a carregar
+passageiros posteriores. É exatamente a distinção que faltava.
+
+## 11. A autorização não é injetável nem inferível
+
+| tentativa | resultado |
+|---|---|
+| `{ historicalBranchConsumerCompatibility: true }` como opção do chamador | `safe: false`, reason inalterada |
+| `{ allowHistorical: true }` | `safe: false` |
+| `{ ignoreChronology: true }` | `safe: false` |
+| `{ expectedActiveSlice: 'dev-preview-app-integration' }` | `safe: false` |
+| ler o campo da fatia **consumidora** em vez da ativa | ausente do guard, verificado por varredura |
+| deduzir por `sliceOrdinal` | 43 fatias têm ordinal menor que 44; só uma é autorizada |
+| deduzir por `status` | há mais de uma fatia não-`merged`; só uma é autorizada |
+| id do Builder, `open_pull_request` ou `495` dentro do guard | ausentes, verificado por varredura |
+
+## 12. A autorização não é suficiente
+
+Na branch **autorizada** (Builder 41), os acréscimos ruins continuam reprovando com
+`certifiedAgainstActiveSlice: true` — prova de que a recertificação rodou:
+
+```
+src/App.jsx · backend/server.js · src/modules/x.js · docs/nobody/x.md
+scripts/gates/lib/productionUiGuard.mjs · prisma/schema.prisma · src/pages/x.jsx
+caminho de fatia estrangeira · segundo marcador
+```

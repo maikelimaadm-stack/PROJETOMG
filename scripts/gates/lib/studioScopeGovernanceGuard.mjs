@@ -414,14 +414,23 @@ export function evaluateStudioBranchDiffScope(changedPaths, options = {}) {
  *   "am I, a later check, applicable to this branch — and if not, is the branch still sound?"
  *
  * The second question matters because a merged later slice ships tests and gates that run inside
- * an older slice's still-open branch. Such a check is a passenger, not the certifier. Declaring it
- * inapplicable must never certify anything by omission, so this boundary FIRST re-certifies the
- * exact same changed-path set against the branch's OWN resolved active slice. Only when that
- * self-certification is clean is the consumer declared inapplicable-and-safe.
+ * an older slice's still-open branch. Such a check is a passenger, not the certifier.
+ *
+ * Inapplicability is deliberately NARROW and requires BOTH of the following, in this order:
+ *
+ *   1. the branch's own active slice declares `historicalBranchConsumerCompatibility: true` in the
+ *      catalog. Being chronologically earlier is not enough — otherwise every merged slice would
+ *      become reopenable by any later consumer. The authorization is catalog-bound, explicit, not
+ *      inherited, and never inferred from `sliceOrdinal`, `status`, a branch name, a PR number or
+ *      any environment signal. When it is absent or false the core's `active_slice_before_caller`
+ *      refusal is returned verbatim and self-certification is not attempted;
+ *   2. the exact same changed-path set re-certifies cleanly against that active slice. Declaring a
+ *      consumer inapplicable must never certify anything by omission.
  *
  * A later consumer therefore can never mask a forbidden path, an unknown path, a foreign slice
  * path, an unauthorized cross, an explicit-forbidden path the active slice does not declare, an
- * unresolved active slice or an ambiguous one — every one of those still fails.
+ * unresolved active slice, an ambiguous one, or an earlier slice that was never authorized to
+ * carry later consumers — every one of those still fails.
  *
  * Pure: no command, no filesystem, no env, no network, no clock, no mutation.
  *
@@ -524,8 +533,25 @@ export function evaluateStudioBranchConsumerScope(changedPaths, options = {}) {
     });
   }
 
-  // The branch is building an EARLIER slice. This consumer is a passenger — but the branch is only
-  // declared sound after the SAME path set is certified against its own active slice.
+  // The branch is building an EARLIER slice. Being earlier is NOT, by itself, permission to carry
+  // later consumers: that would silently reopen every merged slice. The active slice must declare
+  // the authorization EXPLICITLY in the catalog. Absent or false, the chronological refusal of the
+  // core stands verbatim and self-certification is not even attempted.
+  if (activeSlice.historicalBranchConsumerCompatibility !== true) {
+    return Object.freeze({
+      ...base,
+      activeSliceId: activeSlice.sliceId,
+      activeSliceOrdinal: activeSlice.sliceOrdinal,
+      activeCandidates: [...active.candidates],
+      consumerApplicable: false, applicable: false, notApplicable: false,
+      reason: 'historical_branch_consumer_compatibility_not_authorized',
+      certifiedAgainstActiveSlice: false,
+      blockers: ['active_slice_before_caller'], safe: false,
+    });
+  }
+
+  // Authorized historical branch. This consumer is a passenger — but the branch is only declared
+  // sound after the SAME path set is certified against its own active slice.
   const self = evaluateStudioBranchScope(changedPaths, { callerSliceId: activeSlice.sliceId });
   const common = {
     ...base,

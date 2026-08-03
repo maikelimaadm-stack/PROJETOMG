@@ -153,9 +153,9 @@ gate('G423-MDC — correction markers are a subset of its primary set',
 gate('G423-MDC — correction shared set is exactly four patterns', slice(CORRECTION).sharedGovernancePatterns.length === 4);
 gate('G423-MDC — correction declares no explicit forbidden authorization',
   slice(CORRECTION).explicitlyAuthorizedForbiddenPatterns.length === 0);
-gate('G423-MDC — every entry keeps the same nine keys',
+gate('G423-MDC — every entry keeps the same ten keys',
   STUDIO_SLICE_CATALOG.every((s) => Object.keys(s).sort().join(',')
-    === 'branchMarkerPatterns,crossSliceAuthorizedPatterns,explicitlyAuthorizedForbiddenPatterns,primaryArtifactPatterns,sharedGovernancePatterns,sliceId,sliceOrdinal,status,title'));
+    === 'branchMarkerPatterns,crossSliceAuthorizedPatterns,explicitlyAuthorizedForbiddenPatterns,historicalBranchConsumerCompatibility,primaryArtifactPatterns,sharedGovernancePatterns,sliceId,sliceOrdinal,status,title'));
 gate('G423-MDC — catalog and entries frozen',
   Object.isFrozen(STUDIO_SLICE_CATALOG) && STUDIO_SLICE_CATALOG.every((s) => Object.isFrozen(s)));
 gate('G423-MDC — no duplicated primary ownership', (() => {

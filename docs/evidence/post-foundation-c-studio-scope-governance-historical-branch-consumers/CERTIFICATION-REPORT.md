@@ -41,10 +41,38 @@ inaplicabilidade. Contrato completo em `CONSUMER-APPLICABILITY-CONTRACT.md`.
 - guard importa só o registry; registry não importa nada; zero `execSync`, `child_process`,
   `fetch(`, `process.env`, `Date.now`, `PrismaClient`, `readFileSync` em ambos.
 
+## Correção pós-auditoria — a inaplicabilidade é vinculada ao catálogo
+
+Blocker levantado e corrigido nesta mesma PR: `B-CONSUMER-INAPPLICABILITY-NOT-CATALOG-BOUND`.
+
+A primeira versão declarava um consumidor inaplicável sempre que a fatia ativa fosse
+cronologicamente anterior. Isso permitia, na prática, que **qualquer fatia Studio já mergeada**
+voltasse a ser branch válida para consumidores posteriores. O objetivo desta fatia nunca foi
+reabertura genérica — é desbloquear a única branch histórica ainda aberta, a PR #495.
+
+Novo campo obrigatório nas 44 entradas do catálogo:
+
+```
+historicalBranchConsumerCompatibility: boolean
+43 false · 1 true → bridge-decision-core-envelope-builder (#41, open_pull_request_495)
+```
+
+O wrapper exige a autorização **antes** da autocertificação. Sem ela devolve o veredito do core,
+verbatim, com `reason: 'historical_branch_consumer_compatibility_not_authorized'`,
+`notApplicable: false`, `certifiedAgainstActiveSlice: false` e
+`blockers: ['active_slice_before_caller']`. A autocertificação nem é tentada.
+
+A autorização é explícita, catalog-bound, fail-closed (`!== true`), não herdável, não injetável
+por opção do chamador, não inferida de `sliceOrdinal`, de `status`, de nome de branch, de número
+de PR ou de ambiente — e **não substitui** a autocertificação, que continua obrigatória.
+Detalhamento em `CATALOG-BOUND-COMPATIBILITY-AUTHORIZATION.md`; negativos medidos nas seções 10
+a 12 de `NEGATIVE-MATRIX.md`.
+
 ## Escopo entregue
 
 - **Registry**: fatia 44 registrada; fatia 43 → `merged`; catálogo com 44 entradas, ordinais
-  contíguos 1..44, exatamente uma `active_slice`; novo export
+  contíguos 1..44, dez chaves em todas, exatamente uma `active_slice` e exatamente uma
+  `historicalBranchConsumerCompatibility: true`; novo export
   `HISTORICAL_BRANCH_CONSUMERS_SLICE_ID`. A entrada da fatia 41 (Builder) permanece intacta:
   ordinal 41, `open_pull_request_495`, 4 primary, 2 cross, 0 forbidden explícito.
 - **Guard**: `evaluateStudioBranchConsumerScope` — aditiva, congelada, determinística,
@@ -52,17 +80,17 @@ inaplicabilidade. Contrato completo em `CONSUMER-APPLICABILITY-CONTRACT.md`.
 - **36 consumidores migrados**: 9 testes agregados, 22 gates Studio, 5 consumidores de
   governança que julgam diff de branch. Detalhes em `NINE-TEST-CONSUMER-MIGRATION.md`,
   `TWENTY-TWO-GATE-CONSUMER-MIGRATION.md` e `GOVERNANCE-CONSUMER-MIGRATION.md`.
-- **Fatia própria**: teste + gate + 13 documentos de evidência + wiring em `package.json`.
+- **Fatia própria**: teste + gate + 14 documentos de evidência + wiring em `package.json`.
 
-Inventário exato em `SCOPE-INVENTORY.md`. Diff da branch: 54 caminhos, um único marcador,
+Inventário exato em `SCOPE-INVENTORY.md`. Diff da branch: 55 caminhos, um único marcador,
 nenhum `forbidden`, nenhum `unknown`, nenhum `chronologicalViolation`.
 
 ## Resultados medidos
 
 | item | resultado |
 |---|---|
-| `test:runtime:studio-scope-governance-historical-branch-consumers` | **289/289 PASS**, 0 fail |
-| `gate:g423-studio-scope-governance-historical-branch-consumers` | **408/408 PASS**, exit 0 |
+| `test:runtime:studio-scope-governance-historical-branch-consumers` | **335/335 PASS**, 0 fail |
+| `gate:g423-studio-scope-governance-historical-branch-consumers` | **493/493 PASS**, exit 0 |
 | `test:runtime:studio-scope-governance-maintenance` | 74/74 PASS |
 | `gate:g423-studio-scope-governance-maintenance` | 34/34 PASS |
 | `test:runtime:studio-scope-governance-chronological-migration` | 807/807 PASS |
@@ -72,14 +100,14 @@ nenhum `forbidden`, nenhum `unknown`, nenhum `chronologicalViolation`.
 | 9 testes agregados migrados | 627 · 665 · 827 · 412 · 433 · 482 · 557 · 518 · 684 — **0 fail** |
 | 22 gates Studio migrados | todos exit 0 — 32 · 74 · 88 · 86 · 90 · 97 · 106 · 106 · 118 · 127 · 125 · 133 · 151 · 136 · 148 · 164 · 167 · 206 · 229 · 199 · 242 · 241 |
 
-O gate desta fatia julga a própria branch ao vivo (54 caminhos, nunca um diff vazio como prova)
+O gate desta fatia julga a própria branch ao vivo (55 caminhos, nunca um diff vazio como prova)
 e a declara sã para o próprio caller, para os nove callers agregados e para os três callers de
 governança.
 
 ## Bateria agregada
 
 ```
-npm run test:runtime   → 21207 tests, 21207 pass, 0 fail
+npm run test:runtime   → 21259 tests, 21259 pass, 0 fail
 npm run gate:g423      → 7/7 PASS
 npm run lint           → exit 0
 npm run build          → exit 0
@@ -102,7 +130,7 @@ de banco continuam proibidos.
 ## PR #495
 
 Não tocada. Sem checkout, sem merge, sem rebase, sem alteração de body, sem alteração de
-arquivo. Prova em `PR495-NO-TOUCH-PROOF.md` (head remoto `9634c364`, ausente de todos os 54 caminhos do diff). O exercício foi feito por fixture determinística em memória, declarada como
+arquivo. Prova em `PR495-NO-TOUCH-PROOF.md` (head remoto `9634c364`, ausente de todos os 55 caminhos do diff). O exercício foi feito por fixture determinística em memória, declarada como
 tal em `PR495-HISTORICAL-BRANCH-FIXTURE.md`.
 
 ## Limites declarados

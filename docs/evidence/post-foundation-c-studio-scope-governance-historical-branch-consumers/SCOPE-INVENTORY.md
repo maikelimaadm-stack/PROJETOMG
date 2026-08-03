@@ -9,8 +9,8 @@ title         Studio Scope Governance Historical Branch Consumers
 status        active_slice
 ```
 
-Catálogo: 44 fatias, ordinais contíguos 1..44, ids únicos, entradas congeladas, nove chaves em
-todas. Exatamente uma fatia com `status: active_slice` — esta. A fatia 43 passou a `merged`.
+Catálogo: 44 fatias, ordinais contíguos 1..44, ids únicos, entradas congeladas, dez chaves em
+todas (a décima é `historicalBranchConsumerCompatibility`). Exatamente uma fatia com `status: active_slice` — esta. A fatia 43 passou a `merged`.
 
 ## primaryArtifactPatterns — 3
 
@@ -38,6 +38,13 @@ teste e de gate nunca elegem fatia ativa.
 ^package-lock\.json$
 ```
 
+## historicalBranchConsumerCompatibility — false
+
+Esta fatia **não** autoriza consumidores posteriores sobre a própria branch. O campo é obrigatório
+em todas as 44 entradas do catálogo; 43 são `false` e apenas a fatia 41 (Builder, PR #495) é
+`true`. Nenhuma fatia `merged` é autorizada. Ver
+[`CATALOG-BOUND-COMPATIBILITY-AUTHORIZATION.md`](./CATALOG-BOUND-COMPATIBILITY-AUTHORIZATION.md).
+
 ## explicitlyAuthorizedForbiddenPatterns — 0
 
 Esta fatia não toca produção. Nada de `src/App.jsx`, nada de `productionUiGuard.mjs`.
@@ -54,11 +61,11 @@ Exatos, ancorados, sem curinga de diretório, sem caminho de evidência, sem cam
 `src/runtime/__tests__/studio-scope-governance-maintenance.test.js` está fora de propósito:
 não julga branch, não foi tocado, não recebe autorização.
 
-## Diff da branch — 54 caminhos
+## Diff da branch — 55 caminhos
 
 | bloco | caminhos |
 |---|---|
-| evidência própria (primary + marker) | 13 |
+| evidência própria (primary + marker) | 14 |
 | teste próprio (primary) | 1 |
 | gate próprio (primary) | 1 |
 | registry + guard (shared) | 2 |
