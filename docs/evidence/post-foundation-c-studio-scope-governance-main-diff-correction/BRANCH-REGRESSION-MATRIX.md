@@ -52,10 +52,10 @@ Ver CERTIFICATION-REPORT.md para os números finais de `gate:g423`, `npm run tes
 
 | comando | exit | resultado |
 |---|---|---|
-| `test:runtime:studio-scope-governance-main-diff-correction` | 0 | **424 / 424** |
-| `gate:g423-studio-scope-governance-main-diff-correction` | 0 | **409 / 409** |
-| `test:runtime:studio-scope-governance-chronological-migration` | 0 | **796 / 796** |
-| `gate:g423-studio-scope-governance-chronological-migration` | 0 | **713 / 713** |
+| `test:runtime:studio-scope-governance-main-diff-correction` | 0 | **469 / 469** |
+| `gate:g423-studio-scope-governance-main-diff-correction` | 0 | **451 / 451** |
+| `test:runtime:studio-scope-governance-chronological-migration` | 0 | **800 / 800** |
+| `gate:g423-studio-scope-governance-chronological-migration` | 0 | **717 / 717** |
 | `test:runtime:studio-scope-governance-maintenance` | 0 | 74 / 74 |
 | `gate:g423-studio-scope-governance-maintenance` | 0 | 34 / 34 |
 | nove testes migrados | 0 | 627 · 665 · 827 · 412 · 433 · 482 · 557 · 518 · 684 — 0 fail |
@@ -63,7 +63,7 @@ Ver CERTIFICATION-REPORT.md para os números finais de `gate:g423`, `npm run tes
 | vinte e dois gates Studio | 0 | 22 / 22 |
 | doze gates históricos | 0 | 12 / 12 |
 | **`gate:g423`** (oficial) | 0 | **7 / 7** |
-| **`npm run test:runtime`** | 0 | **20859 / 20859 — 0 fail** |
+| **`npm run test:runtime`** | 0 | **20908 / 20908 — 0 fail** |
 | `npm run lint` | 0 | limpo |
 | `npm run build` | 0 | ok |
 | `dist` grep | — | **0 hits** |
@@ -101,6 +101,20 @@ Os números acima foram medidos novamente após:
 2. remover integralmente a regra de "candidata emendada" de `resolveActiveStudioSlice`;
 3. remover os dois padrões de evidência da fatia 42 do `crossSliceAuthorizedPatterns` da fatia 43
    (cross list: 63 → **61 padrões únicos**).
+
+Contagens finais pós-correção:
+
+| alvo | antes da correção de auditoria | agora |
+|---|---|---|
+| `test:runtime:...main-diff-correction` | 424 | **469** |
+| `gate:g423-...main-diff-correction` | 409 | **451** |
+| `test:runtime:...chronological-migration` | 796 | **800** |
+| `gate:g423-...chronological-migration` | 713 | **717** |
+| `npm run test:runtime` | 20859 | **20908** |
+
+Nenhuma cobertura funcional desapareceu. As provas que dependiam do mecanismo de "candidata
+emendada" foram substituídas por provas de que ele **não existe**: `X001`–`X016` no teste da
+fatia 43 e `S001`–`S004` no teste da fatia 42.
 
 A branch passou a resolver a fatia 43 por um **único marker real** — o próprio diretório de
 evidências dela — sem qualquer regra de amendment.

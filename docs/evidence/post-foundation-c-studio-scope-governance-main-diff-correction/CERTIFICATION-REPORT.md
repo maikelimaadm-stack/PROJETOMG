@@ -49,9 +49,9 @@ certifica a `main`, e `READINESS.md` declara `mainVerifiedGreen:false`.
 
 | alvo | branch |
 |---|---|
-| `test:runtime:studio-scope-governance-main-diff-correction` | **424 / 424** (mínimo 180) |
-| `gate:g423-studio-scope-governance-main-diff-correction` | **409 / 409** (mínimo 120) |
-| `npm run test:runtime` | **20859 / 20859 — 0 fail** |
+| `test:runtime:studio-scope-governance-main-diff-correction` | **469 / 469** (mínimo 180) |
+| `gate:g423-studio-scope-governance-main-diff-correction` | **451 / 451** (mínimo 120) |
+| `npm run test:runtime` | **20908 / 20908 — 0 fail** |
 | `gate:g423` | 7 / 7 |
 | sweep `gate:g423*` | 95 verdes / 12 vermelhos, todos pré-Studio |
 
