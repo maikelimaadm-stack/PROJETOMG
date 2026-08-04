@@ -18,7 +18,9 @@ git diff --name-only origin/main...HEAD   # deve ser vazio
 
 ```
 45 entradas · ordinais contíguos 1..45 · dez chaves em todas
-exatamente uma active_slice → studio-builder-lifecycle-normalization (45)
+status da família merged → 45 (44 `merged` + a 39 `merged_without_dedicated_artifacts`)
+active_slice             → 0
+open_pull_request_*      → 0
 fatias com historicalBranchConsumerCompatibility true → 0
 nenhuma fatia merged autorizada
 
@@ -28,6 +30,17 @@ bridge-decision-core-envelope-builder (41)
 
 studio-scope-governance-historical-branch-consumers (44)
   status = merged
+
+studio-builder-lifecycle-normalization (45)
+  status = merged · compatibility = false
+```
+
+E, com o catálogo inteiro mergeado, a eleição continua funcionando:
+
+```
+resolveActiveStudioSlice(<qualquer marcador>) → elege aquela fatia, candidates 1
+dois marcadores                               → ambiguous_active_slice
+shared / cross                                → candidates 0
 ```
 
 ## 2. Fail-closed universal
@@ -79,8 +92,10 @@ varredura completa g423-*  → zero gate Studio vermelho
 
 ## 6. Estado de repouso
 
-Depois desta fatia o catálogo fica sem fatia ativa até a próxima ser registrada. Isso é
-esperado e correto — `active_slice` marca trabalho em curso, e não há trabalho em curso.
+O catálogo já está sem fatia ativa, e continuará assim até a próxima ser registrada. Isso é
+esperado e correto — `active_slice` marca trabalho em curso, e não há trabalho em curso. A
+próxima fatia registrará a sua entrada e, se quiser, marcará a si mesma como ativa enquanto
+estiver aberta; nada no guard depende disso.
 
 ## 7. Se algo reprovar
 

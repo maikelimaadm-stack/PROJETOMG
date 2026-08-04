@@ -6,7 +6,7 @@
 sliceId       studio-builder-lifecycle-normalization
 sliceOrdinal  45
 title         Studio Builder Lifecycle Normalization
-status        active_slice
+status        merged   (nasce em repouso — ver ROOT-CAUSE.md)
 historicalBranchConsumerCompatibility  false
 ```
 

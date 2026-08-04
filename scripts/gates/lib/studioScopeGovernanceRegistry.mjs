@@ -1332,7 +1332,13 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
     historicalBranchConsumerCompatibility: false,
-    status: 'active_slice',
+    // RESTING STATE: this slice is the last of the sequence, so the catalog ends with every
+    // entry `merged` and NO active slice at all. `status` is historical metadata — it never
+    // elects a slice and never grants anything. The branch that builds this slice is still
+    // resolved as slice 45 by its branchMarkerPatterns against the changed paths, exactly as
+    // every other slice is, whatever its status says. Marking it `active_slice` would leave a
+    // residual the moment it merges and would need yet another slice just to clear it.
+    status: 'merged',
   },
 
 ].map(Object.freeze));

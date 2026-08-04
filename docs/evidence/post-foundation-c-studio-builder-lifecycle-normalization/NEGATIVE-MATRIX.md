@@ -40,7 +40,19 @@ Ausentes do guard: `allowHistorical`, `ignoreChronology`, `skipChronology`, `per
 
 ## 3. Status e ordinal continuam não decidindo
 
-- há exatamente uma fatia não-`merged` (a 45) e ela **não** é autorizada;
+Com o catálogo em repouso — **todas** as 45 entradas com status da família `merged` e **zero**
+`active_slice` — a independência entre `status` e eleição fica demonstrada da forma mais forte
+possível: não existe nenhuma fatia ativa por status, e mesmo assim toda branch resolve
+exatamente uma fatia.
+
+```
+resolveActiveStudioSlice(OWN_DIFF)  → ok · slice 45 · candidates 1
+marker 24 → 24 · marker 41 → 41 · marker 44 → 44 · marker 45 → 45
+dois marcadores  → ambiguous_active_slice
+shared / cross   → candidates 0
+```
+
+- nenhuma fatia é autorizada, independentemente de status;
 - 44 fatias têm ordinal menor que 45 e nenhuma é autorizada;
 - o guard não contém `status`, `open_pull_request`, `495` nem `sliceOrdinal === 41`.
 

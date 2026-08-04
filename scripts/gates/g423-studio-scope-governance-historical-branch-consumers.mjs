@@ -175,10 +175,9 @@ gate('G423-HBC — ordinals unique and positive',
 gate('G423-HBC — ordinals contiguous from one',
   STUDIO_SLICE_CATALOG.map((s) => s.sliceOrdinal).sort((a, b) => a - b).every((o, i) => o === i + 1));
 gate('G423-HBC — this slice registered at ordinal 44', slice(CONSUMERS) !== null && slice(CONSUMERS).sliceOrdinal === 44);
-gate('G423-HBC — this slice is merged and exactly one later slice is active', (() => {
-  const active = STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice');
+gate('G423-HBC — this slice is merged and no slice is left active', (() => {
   return slice(CONSUMERS).status === 'merged'
-    && active.length === 1 && active[0].sliceOrdinal > slice(CONSUMERS).sliceOrdinal;
+    && STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice').length === 0;
 })());
 gate('G423-HBC — the previous governance slice is merged', slice(CORRECTION).status === 'merged');
 gate('G423-HBC — this slice is after every other governance slice',

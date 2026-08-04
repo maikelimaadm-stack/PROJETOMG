@@ -25,7 +25,9 @@ Imediatamente após esse merge a `main` ficou, transitoriamente, com o Builder a
 | Builder (41) | `historicalBranchConsumerCompatibility` | `true` | `false` |
 | Fatia 44 | `status` | `active_slice` | `merged` |
 
-Mais a entrada nova da fatia 45 como única `active_slice`, com `compatibility: false`.
+Mais a entrada nova da fatia 45, registrada já como `merged` — o catálogo entra em **repouso**
+nesta PR, sem nenhuma fatia ativa. Ver o adendo `B-FINAL-LIFECYCLE-LEAVES-ACTIVE-SLICE-RESIDUAL`
+em [`ROOT-CAUSE.md`](./ROOT-CAUSE.md).
 
 Detalhes em [`REGISTRY-LIFECYCLE-TRANSITION.md`](./REGISTRY-LIFECYCLE-TRANSITION.md) e
 [`BUILDER-COMPATIBILITY-RESET.md`](./BUILDER-COMPATIBILITY-RESET.md).
@@ -69,13 +71,13 @@ de status ou compatibilidade — por isso não são modificados nem autorizados.
 
 | item | resultado |
 |---|---|
-| `test:runtime:studio-builder-lifecycle-normalization` | **247/247 PASS**, 0 fail |
-| `gate:g423-studio-builder-lifecycle-normalization` | **288/288 PASS**, exit 0 |
+| `test:runtime:studio-builder-lifecycle-normalization` | **253/253 PASS**, 0 fail |
+| `gate:g423-studio-builder-lifecycle-normalization` | **293/293 PASS**, exit 0 |
 | `test:runtime:studio-bridge-decision-core-envelope-builder` | 1842/1842 PASS |
 | `gate:g423-studio-bridge-decision-core-envelope-builder` | 1049/1049 PASS |
 | `studio-scope-governance-historical-branch-consumers` | teste 349/349 · gate 510/510 |
 | `studio-scope-governance-main-diff-correction` | teste 473/473 · gate 456/456 |
-| `studio-scope-governance-chronological-migration` | teste 809/809 · gate 725/725 |
+| `studio-scope-governance-chronological-migration` | teste 816/816 · gate 730/730 |
 | `studio-scope-governance-maintenance` | teste 74/74 · gate 34/34 |
 | `npm run gate:g423` | 7/7 PASS |
 | `npm run test:runtime` | zero fail |
@@ -92,8 +94,8 @@ Matriz negativa completa em [`NEGATIVE-MATRIX.md`](./NEGATIVE-MATRIX.md).
   [`POST-MERGE-REVALIDATION-PLAN.md`](./POST-MERGE-REVALIDATION-PLAN.md);
 - os 21 gates pré-Studio de `LEGACY_PRE_STUDIO_SCOPE_GATES_NOT_MIGRATED` continuam não migrados,
   não PASS e não mascarados;
-- depois do merge desta fatia o catálogo fica **sem fatia ativa** até a próxima ser registrada —
-  esse é o estado correto de repouso.
+- o catálogo já está **sem fatia ativa** nesta PR, e continuará assim até a próxima fatia ser
+  registrada — esse é o estado correto de repouso, e evita deixar resíduo no merge.
 
 ## Decisão
 

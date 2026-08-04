@@ -148,8 +148,11 @@ test('R008 the correction is chronologically after the migration', () => {
 test('R009 the correction is chronologically after the Builder', () => {
   assert.ok(getStudioSliceById(CORRECTION).sliceOrdinal > getStudioSliceById(BUILDER).sliceOrdinal);
 });
-test('R010 exactly one slice carries status active_slice', () => {
-  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice').length, 1);
+test('R010 at most one slice is ever active, and at rest there is none', () => {
+  // Election never reads status, so a catalog at rest legitimately has zero active slices.
+  const active = STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice');
+  assert.ok(active.length <= 1, JSON.stringify(active.map((s) => s.sliceId)));
+  assert.equal(active.length, 0);
 });
 test('R011 the correction primary set is exactly three anchored patterns', () => {
   const s = getStudioSliceById(CORRECTION);

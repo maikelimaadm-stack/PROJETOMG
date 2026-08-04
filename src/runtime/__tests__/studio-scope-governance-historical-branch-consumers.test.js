@@ -236,10 +236,10 @@ test('R005 this slice is ordinal 44 and merged', () => {
   assert.equal(s.sliceOrdinal, 44);
   assert.equal(s.status, 'merged');
 });
-test('R006 exactly one slice carries status active_slice, and it is a later one', () => {
-  const active = STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice');
-  assert.equal(active.length, 1);
-  assert.ok(active[0].sliceOrdinal > getStudioSliceById(CONSUMERS).sliceOrdinal, active[0].sliceId);
+test('R006 no slice is left active once the sequence is at rest', () => {
+  // A catalog at rest has zero active slices; election never depended on status anyway.
+  assert.deepEqual(STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice').map((s) => s.sliceId), []);
+  assert.equal(getStudioSliceById(CONSUMERS).status, 'merged');
 });
 test('R007 the previous governance slice is now merged', () => {
   assert.equal(getStudioSliceById(CORRECTION).status, 'merged');

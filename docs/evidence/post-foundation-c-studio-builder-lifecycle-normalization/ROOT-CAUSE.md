@@ -46,3 +46,44 @@ qualquer auditoria futura mais difícil, não mais fácil.
 Nada no Builder, no guard central, no wrapper de aplicabilidade, no core cronológico ou nos 36
 consumidores migrados. Todos permanecem intocados. Esta fatia move três campos e ajusta as
 asserções que falavam do estado transitório.
+
+
+---
+
+# Adendo — `B-FINAL-LIFECYCLE-LEAVES-ACTIVE-SLICE-RESIDUAL`
+
+A primeira versão desta fatia registrava a entrada 45 com `status: 'active_slice'` e, ao mesmo
+tempo, afirmava que depois do merge o catálogo ficaria sem fatia ativa. As duas coisas não podem
+ser verdade ao mesmo tempo.
+
+Mergeada assim, a `main` ficaria com **zero PR aberta e uma fatia ainda marcada como ativa** —
+uma dívida de ciclo de vida idêntica, em natureza, à que esta fatia existe para liquidar, e que
+exigiria mais uma PR só para marcar a limpeza como mergeada.
+
+## Correção
+
+A entrada 45 nasce `merged`. O catálogo entra em repouso já nesta PR:
+
+```
+45 entradas · ordinais 1..45 · dez chaves em todas
+status da família merged  : 45   (44 `merged` + a 39 `merged_without_dedicated_artifacts`)
+active_slice              : 0
+open_pull_request_*       : 0
+historicalBranchConsumerCompatibility true : 0
+```
+
+## Por que isso não quebra a resolução
+
+`status` **nunca** elegeu fatia. A eleição lê `branchMarkerPatterns` contra os `changedPaths` e
+mais nada — é o que os testes de `resolveActiveStudioSlice` sempre provaram, e continuam
+provando agora com o catálogo inteiro mergeado:
+
+```
+resolveActiveStudioSlice(OWN_DIFF) → ok, slice 45, candidates 1
+marker 24 → 24 · marker 41 → 41 · marker 44 → 44 · marker 45 → 45
+dois marcadores → ambiguous_active_slice
+shared / cross  → nunca elegem
+```
+
+`active_slice` era, no máximo, uma anotação de "trabalho em curso". Sem trabalho em curso, o
+valor correto é nenhum.

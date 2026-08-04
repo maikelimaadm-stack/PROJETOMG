@@ -139,8 +139,8 @@ gate('G423-MDC — correction slice registered at ordinal 43',
   slice(CORRECTION) !== null && slice(CORRECTION).sliceOrdinal === 43);
 gate('G423-MDC — no slice before the correction is still active',
   STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice').every((s) => s.sliceOrdinal >= slice(CORRECTION).sliceOrdinal));
-gate('G423-MDC — exactly one active slice',
-  STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice').length === 1);
+gate('G423-MDC — at most one slice is ever active, and at rest there is none',
+  STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice').length === 0);
 gate('G423-MDC — previous governance slice is now merged', slice(MIGRATION).status === 'merged');
 gate('G423-MDC — correction is after the migration', slice(CORRECTION).sliceOrdinal > slice(MIGRATION).sliceOrdinal);
 gate('G423-MDC — correction is after the Builder', slice(CORRECTION).sliceOrdinal > slice(BUILDER).sliceOrdinal);

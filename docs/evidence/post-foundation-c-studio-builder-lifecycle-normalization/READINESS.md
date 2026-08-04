@@ -4,7 +4,7 @@
 
 ```
 sliceOrdinal:                          45
-sliceStatus:                           active_slice
+sliceStatus:                           merged
 onePrPerSlice:                         true
 pr495Merged:                           true
 pr495MergeCommit:                      5bfecd60f5035e39077d61e05b7c5a6482ac9fba
@@ -17,10 +17,15 @@ builderCrossPatterns:                  8
 builderExplicitForbidden:              0
 slice44StatusNormalized:               true
 slice44StatusIs:                       merged
+slice45StatusIs:                       merged
 catalogEntries:                        45
 catalogOrdinalsContiguous:             true
 catalogKeysPerEntry:                   10
-catalogActiveSlices:                   1
+catalogActiveSlices:                   0
+catalogOpenPullRequestStatuses:        0
+catalogMergedFamilyStatuses:           45
+branchStillResolvesSlice45ByMarker:    true
+statusUsedForActiveResolution:         false
 catalogCompatibilityTrueCount:         0
 mergedSlicesAuthorized:                0
 guardModified:                         false
@@ -59,5 +64,16 @@ estado transitório para o estado final.
 descrita em `POST-MERGE-REVALIDATION-PLAN.md`, executada **na `main`**, com todos os itens PASS.
 Antes disso, declarar a `main` verde seria afirmar sobre um estado não medido.
 
-Depois desse merge o catálogo fica sem fatia ativa até a próxima fatia ser registrada — que é o
-estado correto de repouso.
+## Estado de repouso — sem resíduo
+
+O catálogo já entra em repouso **nesta** PR: as 45 entradas carregam status da família `merged`
+(44 `merged` + a fatia 39, pré-existente, `merged_without_dedicated_artifacts`), e **zero** estão
+`active_slice`.
+
+Isso é deliberado. Marcar a fatia 45 como `active_slice` deixaria um resíduo no instante do
+merge — zero PR aberta e uma fatia ainda dita ativa — e exigiria mais uma PR só para corrigir o
+status da própria limpeza.
+
+A branch continua sendo reconhecida como fatia 45 por `branchMarkerPatterns` contra os
+`changedPaths`, exatamente como qualquer outra. `status` nunca participou da eleição: é metadado
+histórico. Blocker corrigido: `B-FINAL-LIFECYCLE-LEAVES-ACTIVE-SLICE-RESIDUAL`.

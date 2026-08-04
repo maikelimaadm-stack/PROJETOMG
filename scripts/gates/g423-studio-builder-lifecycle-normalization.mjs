@@ -118,9 +118,35 @@ gate('G423-BLN — ordinals contiguous 1..45',
 gate('G423-BLN — every entry keeps the same ten keys',
   STUDIO_SLICE_CATALOG.every((s) => Object.keys(s).sort().join(',')
     === 'branchMarkerPatterns,crossSliceAuthorizedPatterns,explicitlyAuthorizedForbiddenPatterns,historicalBranchConsumerCompatibility,primaryArtifactPatterns,sharedGovernancePatterns,sliceId,sliceOrdinal,status,title'));
-gate('G423-BLN — this slice is the only active one',
-  STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice').map((s) => s.sliceId).join(',') === NORMALIZATION);
-gate('G423-BLN — this slice is registered at ordinal 45', slice(NORMALIZATION) !== null && slice(NORMALIZATION).sliceOrdinal === 45);
+gate('G423-BLN — the catalog is at rest: ZERO slices are active',
+  STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice').length === 0,
+  `${STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice').length} active`);
+gate('G423-BLN — every entry carries a merged-family status',
+  STUDIO_SLICE_CATALOG.every((s) => s.status.startsWith('merged')));
+gate('G423-BLN — the only non-plain-merged status is the pre-existing slice 39', (() => {
+  const odd = STUDIO_SLICE_CATALOG.filter((s) => s.status !== 'merged');
+  return odd.length === 1 && odd[0].sliceOrdinal === 39
+    && odd[0].status === 'merged_without_dedicated_artifacts'
+    && STUDIO_SLICE_CATALOG.filter((s) => s.status === 'merged').length === 44;
+})());
+gate('G423-BLN — no status in the catalog is a pull-request status',
+  STUDIO_SLICE_CATALOG.every((s) => !/open_pull_request/.test(s.status)));
+gate('G423-BLN — this slice is registered at ordinal 45 and merged',
+  slice(NORMALIZATION) !== null && slice(NORMALIZATION).sliceOrdinal === 45
+  && slice(NORMALIZATION).status === 'merged');
+gate('G423-BLN — status does NOT elect the active slice, the markers do', (() => {
+  // Every entry is merged, and a branch still resolves to exactly one slice.
+  const a = G.resolveActiveStudioSlice(OWN_DIFF);
+  return a.ok === true && a.sliceId === NORMALIZATION && a.sliceOrdinal === 45 && a.candidates.length === 1
+    && slice(NORMALIZATION).status === 'merged'
+    && STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice').length === 0;
+})());
+gate('G423-BLN — a merged slice marker still elects that slice',
+  [[24, MARKER[24]], [41, MARKER[41]], [44, MARKER[44]], [45, MARKER[45]]].every(([o, m]) => {
+    const r = G.resolveActiveStudioSlice([m]);
+    return r.ok === true && r.sliceOrdinal === o && r.candidates.length === 1
+      && slice(r.sliceId).status.startsWith('merged');
+  }));
 gate('G423-BLN — slice 44 is merged', slice(CONSUMERS).sliceOrdinal === 44 && slice(CONSUMERS).status === 'merged');
 gate('G423-BLN — the Builder is merged', slice(BUILDER).sliceOrdinal === 41 && slice(BUILDER).status === 'merged');
 gate('G423-BLN — the Builder carries no historical branch consumer authorization',
@@ -461,11 +487,15 @@ gate('G423-BLN — the scope inventory records the exact six cross paths',
 gate('G423-BLN — the negative matrix records the fail-closed universality',
   readEv('NEGATIVE-MATRIX.md').includes('historical_branch_consumer_compatibility_not_authorized')
   && readEv('NEGATIVE-MATRIX.md').includes(BUILDER) && readEv('NEGATIVE-MATRIX.md').includes(APP_INTEGRATION));
-gate('G423-BLN — readiness declares the normalized lifecycle', (() => {
+gate('G423-BLN — readiness declares the resting lifecycle', (() => {
   const doc = readEv('READINESS.md');
   return /builderStatusIs:\s*merged/.test(doc) && /builderCompatibilityIs:\s*false/.test(doc)
-    && /slice44StatusIs:\s*merged/.test(doc) && /catalogCompatibilityTrueCount:\s*0/.test(doc)
-    && /catalogActiveSlices:\s*1/.test(doc);
+    && /slice44StatusIs:\s*merged/.test(doc) && /slice45StatusIs:\s*merged/.test(doc)
+    && /catalogCompatibilityTrueCount:\s*0/.test(doc)
+    && /catalogActiveSlices:\s*0/.test(doc)
+    && /catalogOpenPullRequestStatuses:\s*0/.test(doc)
+    && /branchStillResolvesSlice45ByMarker:\s*true/.test(doc)
+    && /statusUsedForActiveResolution:\s*false/.test(doc);
 })());
 gate('G423-BLN — readiness does not claim the main is green',
   /mainVerifiedGreen:\s*false/.test(readEv('READINESS.md'))

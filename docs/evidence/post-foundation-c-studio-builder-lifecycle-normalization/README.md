@@ -21,8 +21,11 @@ correto **depois** que a PR #495 (Builder, ordinal 41) foi mergeada.
 ```
 Builder 41   open_pull_request_495 → merged · compatibility true → false
 Fatia 44     active_slice          → merged
-Fatia 45     nova · active_slice   · compatibility false
+Fatia 45     nova · merged         · compatibility false
 ```
 
-Zero fatias autorizadas a carregar consumidores históricos. Zero runtime, zero produto, zero
-dependência.
+Catálogo em **repouso**: 45 entradas com status da família `merged`, zero `active_slice`, zero
+`open_pull_request_*`, zero fatias autorizadas a carregar consumidores históricos. `status` é
+metadado histórico — a eleição da fatia continua sendo feita pelos `branchMarkerPatterns`.
+
+Zero runtime, zero produto, zero dependência.

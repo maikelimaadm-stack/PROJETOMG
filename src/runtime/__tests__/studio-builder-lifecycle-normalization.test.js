@@ -112,11 +112,48 @@ test('R005 every entry declares the same ten keys', () => {
     ], s.sliceId);
   }
 });
-test('R006 exactly one slice is active, and it is this one', () => {
-  assert.deepEqual(STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice').map((s) => s.sliceId),
-    [NORMALIZATION]);
+test('R006 the catalog is at rest: ZERO slices are active', () => {
+  // This slice closes the sequence, so nothing is in progress. `status` is historical metadata:
+  // a catalog at rest legitimately has no active slice at all.
+  assert.deepEqual(STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice').map((s) => s.sliceId), []);
 });
-test('R007 this slice is ordinal 45', () => assert.equal(getStudioSliceById(NORMALIZATION).sliceOrdinal, 45));
+test('R006b every entry carries a merged-family status', () => {
+  for (const s of STUDIO_SLICE_CATALOG) {
+    assert.ok(s.status.startsWith('merged'), `${s.sliceId}: ${s.status}`);
+  }
+});
+test('R006c the only non-plain-merged status is the pre-existing slice 39', () => {
+  // `merged_without_dedicated_artifacts` predates this slice and is left exactly as it was.
+  const odd = STUDIO_SLICE_CATALOG.filter((s) => s.status !== 'merged');
+  assert.deepEqual(odd.map((s) => [s.sliceOrdinal, s.status]),
+    [[39, 'merged_without_dedicated_artifacts']]);
+  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status === 'merged').length, 44);
+});
+test('R007 this slice is ordinal 45 and merged', () => {
+  const s = getStudioSliceById(NORMALIZATION);
+  assert.equal(s.sliceOrdinal, 45);
+  assert.equal(s.status, 'merged');
+});
+test('R007b status does NOT elect the active slice — the markers do', () => {
+  // Every slice in the catalog is merged, and yet a branch still resolves to exactly one slice,
+  // because election reads branchMarkerPatterns against the changed paths and nothing else.
+  const a = resolveActiveStudioSlice(OWN_DIFF);
+  assert.equal(a.ok, true, JSON.stringify(a));
+  assert.equal(a.sliceId, NORMALIZATION);
+  assert.equal(a.sliceOrdinal, 45);
+  assert.equal(a.candidates.length, 1);
+  assert.equal(getStudioSliceById(NORMALIZATION).status, 'merged');
+  assert.equal(STUDIO_SLICE_CATALOG.filter((x) => x.status === 'active_slice').length, 0);
+});
+test('R007c a merged slice marker still elects that slice', () => {
+  for (const [ordinal, marker] of [[44, MARKER[44]], [45, MARKER[45]], [41, MARKER[41]], [24, MARKER[24]]]) {
+    const r = resolveActiveStudioSlice([marker]);
+    assert.equal(r.ok, true, String(ordinal));
+    assert.equal(r.sliceOrdinal, ordinal);
+    assert.equal(r.candidates.length, 1);
+    assert.ok(getStudioSliceById(r.sliceId).status.startsWith('merged'), r.sliceId);
+  }
+});
 test('R008 slice 44 is merged', () => {
   const s = getStudioSliceById(CONSUMERS);
   assert.equal(s.sliceOrdinal, 44);
@@ -209,6 +246,11 @@ test('R023 this slice declares no explicitly authorized forbidden path', () => {
 });
 test('R024 this slice is not authorized for historical branch consumers', () => {
   assert.equal(getStudioSliceById(NORMALIZATION).historicalBranchConsumerCompatibility, false);
+});
+test('R024b no status in the catalog is a pull-request status', () => {
+  for (const s of STUDIO_SLICE_CATALOG) {
+    assert.equal(/open_pull_request/.test(s.status), false, `${s.sliceId}: ${s.status}`);
+  }
 });
 test('R025 no two slices own the same primary pattern', () => {
   const seen = new Map();
@@ -661,13 +703,17 @@ test('E008 the negative matrix records the fail-closed universality', () => {
   assert.ok(doc.includes(BUILDER), BUILDER);
   assert.ok(doc.includes(APP_INTEGRATION), APP_INTEGRATION);
 });
-test('E009 readiness declares the normalized lifecycle', () => {
+test('E009 readiness declares the resting lifecycle', () => {
   const doc = readEv('READINESS.md');
   assert.match(doc, /builderStatusIs:\s*merged/);
   assert.match(doc, /builderCompatibilityIs:\s*false/);
   assert.match(doc, /slice44StatusIs:\s*merged/);
+  assert.match(doc, /slice45StatusIs:\s*merged/);
   assert.match(doc, /catalogCompatibilityTrueCount:\s*0/);
-  assert.match(doc, /catalogActiveSlices:\s*1/);
+  assert.match(doc, /catalogActiveSlices:\s*0/);
+  assert.match(doc, /catalogOpenPullRequestStatuses:\s*0/);
+  assert.match(doc, /branchStillResolvesSlice45ByMarker:\s*true/);
+  assert.match(doc, /statusUsedForActiveResolution:\s*false/);
 });
 test('E010 readiness does not claim the main is green', () => {
   assert.match(readEv('READINESS.md'), /mainVerifiedGreen:\s*false/);
