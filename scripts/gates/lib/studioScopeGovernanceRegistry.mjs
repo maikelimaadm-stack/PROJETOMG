@@ -1391,23 +1391,8 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
     // need a narrow, contract-shaped correction. Nothing broader: no directory wildcard, no
     // historical evidence path, no Builder source, no production path.
     crossSliceAuthorizedPatterns: [
-      /^src\/runtime\/__tests__\/studio-scope-governance-chronological-migration\.test\.js$/,
-      /^scripts\/gates\/g423-studio-scope-governance-chronological-migration\.mjs$/,
-      /^src\/runtime\/__tests__\/studio-scope-governance-main-diff-correction\.test\.js$/,
-      /^scripts\/gates\/g423-studio-scope-governance-main-diff-correction\.mjs$/,
-      /^src\/runtime\/__tests__\/studio-scope-governance-historical-branch-consumers\.test\.js$/,
-      /^scripts\/gates\/g423-studio-scope-governance-historical-branch-consumers\.mjs$/,
       /^src\/runtime\/__tests__\/studio-builder-lifecycle-normalization\.test\.js$/,
       /^scripts\/gates\/g423-studio-builder-lifecycle-normalization\.mjs$/,
-      /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge-contract\.test\.js$/,
-      /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge-implementation-plan\.test\.js$/,
-      /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge\.test\.js$/,
-      /^src\/runtime\/__tests__\/studio-dev-preview-app-integration-contract\.test\.js$/,
-      /^src\/runtime\/__tests__\/studio-dev-preview-app-integration-implementation-plan\.test\.js$/,
-      /^src\/runtime\/__tests__\/studio-dev-preview-app-integration\.test\.js$/,
-      /^src\/runtime\/__tests__\/studio-module-blueprint-authoring-foundation-contract\.test\.js$/,
-      /^src\/runtime\/__tests__\/studio-module-blueprint-authoring-implementation-plan\.test\.js$/,
-      /^src\/runtime\/__tests__\/studio-module-blueprint-authoring-runtime\.test\.js$/,
     ],
     sharedGovernancePatterns: [
       /^scripts\/gates\/lib\/studioScopeGovernanceRegistry\.mjs$/,
