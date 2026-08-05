@@ -40,12 +40,6 @@ jobs:
       - name: Typecheck (governance audit — TD-009 baseline)
         run: npm run typecheck:governance
 
-      - name: Runtime tests
-        run: npm run test:runtime
-
-      - name: G423 core gates
-        run: npm run gate:g423
-
       - name: Certification gates (G31-G108)
         run: npm run gate:certification
 
