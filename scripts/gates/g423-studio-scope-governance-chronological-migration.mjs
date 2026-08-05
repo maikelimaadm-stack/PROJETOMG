@@ -148,7 +148,9 @@ gate('G423-SGCM — ordinal lookup round-trips', CATALOG.every((s) => G.getStudi
 }
 
 // ---- Builder future registration ----
-gate('G423-SGCM — Builder registered as future known slice (PR #495)', G.getStudioSliceById(BUILDER).status === 'open_pull_request_495');
+gate('G423-SGCM — Builder registered and now merged (PR #495 closed)',
+  G.getStudioSliceById(BUILDER).status === 'merged'
+  && G.getStudioSliceById(BUILDER).historicalBranchConsumerCompatibility === false);
 gate('G423-SGCM — Builder declares exactly four primary patterns', G.getStudioSliceById(BUILDER).primaryArtifactPatterns.length === 4);
 for (const p of BUILDER_PRIMARY) gate(`G423-SGCM — Builder owns ${path.basename(p)}`, G.findOwningStudioSlices(p).map((s) => s.sliceId).join() === BUILDER);
 gate('G423-SGCM — Builder cross list is EXACTLY 2 lifecycle + 6 governance integration paths', (() => {
@@ -190,7 +192,7 @@ gate('G423-SGCM — the cross extension changes no classification and no electio
     'src/runtime/__tests__/studio-scope-governance-historical-branch-consumers.test.js',
     'scripts/gates/g423-studio-scope-governance-historical-branch-consumers.mjs',
   ].every((p) => G.resolveActiveStudioSlice([p]).candidates.length === 0)
-  && G.getStudioSliceById(BUILDER).historicalBranchConsumerCompatibility === true);
+  && G.getStudioSliceById(BUILDER).historicalBranchConsumerCompatibility === false);
 
 for (const p of BUILDER_CROSS) gate(`G423-SGCM — Builder cross-authorized for ${path.basename(p)}`, G.getStudioSliceById(BUILDER).crossSliceAuthorizedPatterns.some((re) => re.test(p)));
 for (const f of ['src/runtime/__tests__/studio-authoring-runtime-to-preview-bridge.test.js',
@@ -435,13 +437,19 @@ const ownScopeState = (paths) => {
         && scope.activeSliceOrdinal < scope.consumerSliceOrdinal))
     && scope.forbidden.length === 0 && scope.unknown.length === 0
     && scope.chronologicalViolation.length === 0;
+  // An own-scope sentence is only true on the branch this slice OWNS. Being merely applicable is
+  // not enough: a LATER slice's branch is legitimately certified by this consumer, yet its paths
+  // belong to that slice.
+  const ownsTheBranch = scope.consumerApplicable === true && scope.activeSliceId === OWN_SCOPE_CALLER;
   return {
     scope,
     valid: scope.consumerApplicable === true || safelyInapplicable,
-    runOwnScope: scope.consumerApplicable === true,
-    detail: scope.consumerApplicable
-      ? `own-scope APPLIES (active ${scope.activeSliceId} #${scope.activeSliceOrdinal})`
-      : `own-scope NOT APPLICABLE: ${scope.reason}, branch certified against ${scope.evaluatedAsSliceId}, no safety list discarded`,
+    runOwnScope: ownsTheBranch,
+    detail: ownsTheBranch
+      ? `own-scope APPLIES (this slice owns the branch)`
+      : scope.consumerApplicable
+        ? `own-scope NOT THIS SLICE'S: branch owned by ${scope.activeSliceId} #${scope.activeSliceOrdinal}, certified clean`
+        : `own-scope NOT APPLICABLE: ${scope.reason}, branch certified against ${scope.evaluatedAsSliceId}, no safety list discarded`,
   };
 };
 

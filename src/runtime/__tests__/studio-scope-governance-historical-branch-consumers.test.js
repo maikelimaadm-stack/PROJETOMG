@@ -123,7 +123,7 @@ const GOVERNANCE_CONSUMERS = [
   'scripts/gates/g423-studio-scope-governance-main-diff-correction.mjs',
 ];
 
-/** Later slices, each of which is a passenger on the AUTHORIZED Builder-41 branch. */
+/** Later slices, each of which was a passenger on the Builder-41 branch while PR #495 was open. */
 const LATER_CALLERS = [MIGRATION, CORRECTION, CONSUMERS];
 
 const MARKER = {
@@ -169,7 +169,11 @@ const ownScopeApplicability = (paths) => {
       || (scope.reason === 'consumer_slice_after_active_slice'
         && scope.certifiedAgainstActiveSlice === true
         && scope.evaluatedAsSliceId === scope.activeSliceId));
-  return { scope, runOwnScope: scope.consumerApplicable === true, safelyInapplicable };
+  // An own-scope sentence — "this branch touches no X other than mine" — is only true on the
+  // branch this slice OWNS. Being merely applicable is not enough: a LATER slice's branch is
+  // legitimately certified by this consumer, yet its paths are that slice's, not this one's.
+  const ownsTheBranch = scope.consumerApplicable === true && scope.activeSliceId === OWN_SCOPE_CALLER;
+  return { scope, runOwnScope: ownsTheBranch, safelyInapplicable: safelyInapplicable || scope.consumerApplicable === true };
 };
 
 /**
@@ -182,8 +186,17 @@ const ownScopeApplies = (paths) => {
   assert.ok(a.runOwnScope || a.safelyInapplicable,
     `own-scope assertion needs a valid consumer state: reason=${a.scope.reason} safe=${a.scope.safe} notApplicable=${a.scope.notApplicable}`);
   if (a.runOwnScope) return true;
-  assert.equal(a.scope.notApplicable, true);
   assert.equal(a.scope.safe, true);
+  if (a.scope.consumerApplicable === true) {
+    // Applicable, but the branch belongs to a LATER slice: this consumer certifies it and the
+    // certification above already passed. The own-scope sentence is simply not this slice's.
+    assert.ok(a.scope.activeSliceOrdinal > a.scope.consumerSliceOrdinal, JSON.stringify(a.scope));
+    assert.deepEqual(a.scope.forbidden, []);
+    assert.deepEqual(a.scope.unknown, []);
+    assert.deepEqual(a.scope.chronologicalViolation, []);
+    return false;
+  }
+  assert.equal(a.scope.notApplicable, true);
   if (a.scope.reason === 'consumer_slice_after_active_slice') {
     assert.equal(a.scope.certifiedAgainstActiveSlice, true);
     assert.equal(a.scope.evaluatedAsSliceId, a.scope.activeSliceId);
@@ -202,7 +215,7 @@ const ownScopeApplies = (paths) => {
 // ===========================================================================
 // R — registry after this slice
 // ===========================================================================
-test('R001 the catalog has forty-four slices', () => assert.equal(STUDIO_SLICE_CATALOG.length, 44));
+test('R001 the catalog keeps growing and is never truncated', () => assert.ok(STUDIO_SLICE_CATALOG.length >= 44, String(STUDIO_SLICE_CATALOG.length)));
 test('R002 slice ids stay unique', () => {
   const ids = STUDIO_SLICE_CATALOG.map((s) => s.sliceId);
   assert.equal(new Set(ids).size, ids.length);
@@ -212,17 +225,21 @@ test('R003 ordinals are unique, positive integers', () => {
   assert.equal(new Set(o).size, o.length);
   assert.ok(o.every((x) => Number.isInteger(x) && x > 0));
 });
-test('R004 ordinals are contiguous 1..44', () => {
+test('R004 ordinals are contiguous from one', () => {
   const o = [...STUDIO_SLICE_CATALOG.map((s) => s.sliceOrdinal)].sort((a, b) => a - b);
-  assert.deepEqual(o, Array.from({ length: 44 }, (_, i) => i + 1));
+  assert.deepEqual(o, Array.from({ length: STUDIO_SLICE_CATALOG.length }, (_, i) => i + 1));
 });
-test('R005 this slice is ordinal 44 and active', () => {
+test('R005 this slice is ordinal 44 and merged', () => {
+  // LIFECYCLE: this slice shipped with PR #498 and is merged. Its checks keep running as
+  // consumers on every later branch; only its own status moved on.
   const s = getStudioSliceById(CONSUMERS);
   assert.equal(s.sliceOrdinal, 44);
-  assert.equal(s.status, 'active_slice');
+  assert.equal(s.status, 'merged');
 });
-test('R006 exactly one slice carries status active_slice', () => {
-  assert.deepEqual(STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice').map((s) => s.sliceId), [CONSUMERS]);
+test('R006 no slice is left active once the sequence is at rest', () => {
+  // A catalog at rest has zero active slices; election never depended on status anyway.
+  assert.deepEqual(STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice').map((s) => s.sliceId), []);
+  assert.equal(getStudioSliceById(CONSUMERS).status, 'merged');
 });
 test('R007 the previous governance slice is now merged', () => {
   assert.equal(getStudioSliceById(CORRECTION).status, 'merged');
@@ -233,8 +250,9 @@ test('R008 this slice is after every other governance slice', () => {
   }
 });
 test('R009 the Builder keeps ordinal 41', () => assert.equal(getStudioSliceById(BUILDER).sliceOrdinal, 41));
-test('R010 the Builder keeps status open_pull_request_495', () => {
-  assert.equal(getStudioSliceById(BUILDER).status, 'open_pull_request_495');
+test('R010 the Builder is merged', () => {
+  // LIFECYCLE: PR #495 is merged; the entry moved from open_pull_request_495 to merged.
+  assert.equal(getStudioSliceById(BUILDER).status, 'merged');
 });
 test('R011 the Builder entry shape is untouched', () => {
   const b = getStudioSliceById(BUILDER);
@@ -298,8 +316,10 @@ test('R011e the extension changes no classification and no election', () => {
   const amb = resolveActiveStudioSlice([MARKER[41], MARKER[44]]);
   assert.equal(amb.ok, false);
   assert.equal(amb.reason, 'ambiguous_active_slice');
-  // The compatibility flag is untouched by the extension.
-  assert.equal(getStudioSliceById(BUILDER).historicalBranchConsumerCompatibility, true);
+  // The compatibility flag is untouched by the extension — whatever value the lifecycle
+  // gives it, extending the cross list must never change it.
+  assert.equal(typeof getStudioSliceById(BUILDER).historicalBranchConsumerCompatibility, 'boolean');
+  assert.equal(getStudioSliceById(BUILDER).historicalBranchConsumerCompatibility, false);
 });
 test('R012 this slice primary is exactly three anchored patterns', () => {
   assert.deepEqual(getStudioSliceById(CONSUMERS).primaryArtifactPatterns.map((r) => r.source), [
@@ -437,15 +457,20 @@ test('R033 the authorization is always a boolean, never truthy-by-accident', () 
     assert.equal(typeof s.historicalBranchConsumerCompatibility, 'boolean', s.sliceId);
   }
 });
-test('R034 exactly one slice carries the authorization', () => {
-  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.historicalBranchConsumerCompatibility).length, 1);
-  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => !s.historicalBranchConsumerCompatibility).length, 43);
-});
-test('R035 the authorized slice is the Builder of PR #495', () => {
+test('R034 at most one slice carries the authorization, and today none does', () => {
+  // LIFECYCLE: the authorization is granted to at most one still-open historical branch at a
+  // time. PR #495 was that branch; now that it is merged the catalog is back to zero.
   const authorized = STUDIO_SLICE_CATALOG.filter((s) => s.historicalBranchConsumerCompatibility);
-  assert.deepEqual(authorized.map((s) => s.sliceId), [BUILDER]);
-  assert.equal(authorized[0].sliceOrdinal, 41);
-  assert.equal(authorized[0].status, 'open_pull_request_495');
+  assert.ok(authorized.length <= 1, JSON.stringify(authorized.map((s) => s.sliceId)));
+  assert.equal(authorized.length, 0);
+  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => !s.historicalBranchConsumerCompatibility).length,
+    STUDIO_SLICE_CATALOG.length);
+});
+test('R035 any authorized slice would have to be open, never merged', () => {
+  for (const s of STUDIO_SLICE_CATALOG) {
+    if (!s.historicalBranchConsumerCompatibility) continue;
+    assert.notEqual(s.status, 'merged', s.sliceId);
+  }
 });
 test('R036 no merged slice is authorized', () => {
   for (const s of STUDIO_SLICE_CATALOG) {
@@ -463,18 +488,22 @@ test('R038 the authorization is not inferable from the ordinal', () => {
   assert.notEqual(byOrdinal.every((s) => s.historicalBranchConsumerCompatibility), true);
 });
 test('R039 the authorization is not inferable from the status', () => {
+  // Not carrying the plain `merged` status never grants it: the catalog is at rest with zero
+  // `active_slice` entries, and the entries outside plain `merged` are NOT authorized either.
   const open = STUDIO_SLICE_CATALOG.filter((s) => s.status !== 'merged');
-  assert.ok(open.length >= 2, JSON.stringify(open.map((s) => s.sliceId)));
-  assert.equal(open.filter((s) => s.historicalBranchConsumerCompatibility).length, 1);
+  assert.ok(open.length >= 1, JSON.stringify(open.map((s) => s.sliceId)));
+  assert.equal(open.filter((s) => s.historicalBranchConsumerCompatibility).length, 0);
 });
-test('R040 the Builder entry is otherwise untouched', () => {
+test('R040 the Builder entry keeps its scope through the lifecycle change', () => {
+  // The merged PR #495 scope is history and must not be rewritten: 4 primary, 8 cross, no
+  // explicit forbidden authorization. Only status and the authorization flag moved.
   const b = getStudioSliceById(BUILDER);
   assert.equal(b.sliceOrdinal, 41);
-  assert.equal(b.status, 'open_pull_request_495');
+  assert.equal(b.status, 'merged');
   assert.equal(b.primaryArtifactPatterns.length, 4);
   assert.equal(b.crossSliceAuthorizedPatterns.length, 8);
   assert.deepEqual(b.explicitlyAuthorizedForbiddenPatterns, []);
-  assert.equal(b.historicalBranchConsumerCompatibility, true);
+  assert.equal(b.historicalBranchConsumerCompatibility, false);
 });
 
 // ===========================================================================
@@ -667,18 +696,21 @@ test('C013 active later than the caller is applicable and delegates', () => {
   assert.equal(r.safe, true);
   assert.ok(r.activeSliceOrdinal > r.consumerSliceOrdinal);
 });
-test('C014 a later consumer on an AUTHORIZED earlier branch is inapplicable, not failing', () => {
+test('C014 a later consumer on an UNAUTHORIZED earlier branch fails closed', () => {
+  // LIFECYCLE: PR #495 is merged and its authorization was withdrawn, so the Builder fixture is
+  // now an ordinary earlier slice — and an earlier slice alone never buys inapplicability.
   const r = evaluateStudioBranchConsumerScope(BUILDER41_FIXTURE, { callerSliceId: CORRECTION });
   assert.equal(r.consumerApplicable, false);
   assert.equal(r.applicable, false);
-  assert.equal(r.notApplicable, true);
-  assert.equal(r.reason, 'consumer_slice_after_active_slice');
-  assert.equal(r.safe, true);
+  assert.equal(r.notApplicable, false);
+  assert.equal(r.reason, 'historical_branch_consumer_compatibility_not_authorized');
+  assert.ok(r.blockers.includes('active_slice_before_caller'), JSON.stringify(r.blockers));
+  assert.equal(r.safe, false);
 });
-test('C015 the inapplicable case is certified against the active slice', () => {
+test('C015 the unauthorized case never self-certifies', () => {
   const r = evaluateStudioBranchConsumerScope(BUILDER41_FIXTURE, { callerSliceId: CORRECTION });
-  assert.equal(r.certifiedAgainstActiveSlice, true);
-  assert.equal(r.evaluatedAsSliceId, BUILDER);
+  assert.equal(r.certifiedAgainstActiveSlice, false);
+  assert.equal(r.evaluatedAsSliceId, null);
   assert.equal(r.activeSliceId, BUILDER);
   assert.equal(r.activeSliceOrdinal, 41);
 });
@@ -688,38 +720,46 @@ test('C016 the inapplicable case preserves the consumer identity', () => {
   assert.equal(r.consumerSliceOrdinal, getStudioSliceById(CORRECTION).sliceOrdinal);
   assert.ok(r.activeSliceOrdinal < r.consumerSliceOrdinal);
 });
-test('C017 the inapplicable case reports the active slice self-evaluation', () => {
+test('C017 the unauthorized case authorizes nothing at all', () => {
   const r = evaluateStudioBranchConsumerScope(BUILDER41_FIXTURE, { callerSliceId: CORRECTION });
+  assert.deepEqual(r.allowed, []);
+  assert.deepEqual(r.crossAuthorized, []);
+  assert.deepEqual(r.explicitForbiddenAuthorized, []);
+  assert.equal(r.total, 0);
+  // The branch itself is still sound for its OWN slice — the refusal is about authorization.
   const self = evaluateStudioBranchScope(BUILDER41_FIXTURE, { callerSliceId: BUILDER });
-  assert.deepEqual(r.allowed, self.allowed);
-  assert.deepEqual(r.crossAuthorized, self.crossAuthorized);
-  assert.deepEqual(r.explicitForbiddenAuthorized, self.explicitForbiddenAuthorized);
-  assert.equal(r.total, self.total);
+  assert.equal(self.safe, true, JSON.stringify(self.blockers));
 });
 for (const bad of ['src/App.jsx', 'backend/server.js', 'src/modules/x.js',
   'scripts/gates/lib/productionUiGuard.mjs', 'prisma/schema.prisma']) {
   test(`C018 a later consumer never masks a forbidden path: ${bad}`, () => {
     const r = evaluateStudioBranchConsumerScope([...BUILDER41_FIXTURE, bad], { callerSliceId: CORRECTION });
+    // The authorization gate now fires FIRST, so the refusal is the authorization one — the
+    // forbidden path is still refused, only earlier in the order of decision.
     assert.equal(r.safe, false, bad);
     assert.equal(r.notApplicable, false);
-    assert.equal(r.reason, 'active_slice_scope_invalid');
-    assert.equal(r.certifiedAgainstActiveSlice, true);
-    assert.ok(r.forbidden.includes(bad), JSON.stringify(r.forbidden));
-    assert.ok(r.blockers.includes('forbidden_scope'));
+    assert.equal(r.reason, 'historical_branch_consumer_compatibility_not_authorized');
+    assert.equal(r.certifiedAgainstActiveSlice, false);
+    // and the path is still forbidden by the core, independently of the consumer boundary.
+    assert.equal(classifyStudioScopePath(bad), 'forbidden_scope', bad);
   });
 }
 test('C019 a later consumer never masks an unknown path', () => {
   const r = evaluateStudioBranchConsumerScope([...BUILDER41_FIXTURE, 'docs/nobody/x.md'], { callerSliceId: CORRECTION });
   assert.equal(r.safe, false);
-  assert.equal(r.reason, 'active_slice_scope_invalid');
-  assert.ok(r.unknown.includes('docs/nobody/x.md'));
+  assert.equal(r.reason, 'historical_branch_consumer_compatibility_not_authorized');
+  assert.equal(classifyStudioScopePath('docs/nobody/x.md'), 'unknown_scope');
+  // The core, asked directly, still reports it as unknown on the owning slice.
+  assert.ok(evaluateStudioBranchScope([...BUILDER41_FIXTURE, 'docs/nobody/x.md'],
+    { callerSliceId: BUILDER }).unknown.includes('docs/nobody/x.md'));
 });
 test('C020 a later consumer never masks a foreign catalogued path', () => {
   const foreign = 'src/runtime/__tests__/studio-module-preview-sandbox-contract.test.js';
   const r = evaluateStudioBranchConsumerScope([...BUILDER41_FIXTURE, foreign], { callerSliceId: CORRECTION });
   assert.equal(r.safe, false);
-  assert.equal(r.reason, 'active_slice_scope_invalid');
-  assert.ok(r.chronologicalViolation.includes(foreign));
+  assert.equal(r.reason, 'historical_branch_consumer_compatibility_not_authorized');
+  assert.ok(evaluateStudioBranchScope([...BUILDER41_FIXTURE, foreign],
+    { callerSliceId: BUILDER }).chronologicalViolation.includes(foreign));
 });
 test('C021 a later consumer never masks a second marker', () => {
   const r = evaluateStudioBranchConsumerScope([...BUILDER41_FIXTURE, MARKER[24]], { callerSliceId: CORRECTION });
@@ -786,14 +826,16 @@ test('C030 notApplicable is never true for an invalid or unresolvable state', ()
 });
 
 test('C031 inapplicability requires the catalog authorization, not merely an earlier ordinal', () => {
-  const authorized = evaluateStudioBranchConsumerScope(BUILDER41_FIXTURE, { callerSliceId: CONSUMERS });
-  const unauthorized = evaluateStudioBranchConsumerScope(MERGED24_FIXTURE, { callerSliceId: CONSUMERS });
-  assert.ok(authorized.activeSliceOrdinal < authorized.consumerSliceOrdinal);
-  assert.ok(unauthorized.activeSliceOrdinal < unauthorized.consumerSliceOrdinal);
-  assert.equal(authorized.notApplicable, true);
-  assert.equal(authorized.safe, true);
-  assert.equal(unauthorized.notApplicable, false);
-  assert.equal(unauthorized.safe, false);
+  // With ZERO authorized slices in the catalog, every earlier active slice is fail-closed —
+  // the Builder included. Being earlier has never been, and is not, sufficient.
+  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.historicalBranchConsumerCompatibility).length, 0);
+  for (const fixture of [BUILDER41_FIXTURE, MERGED24_FIXTURE]) {
+    const r = evaluateStudioBranchConsumerScope(fixture, { callerSliceId: CONSUMERS });
+    assert.ok(r.activeSliceOrdinal < r.consumerSliceOrdinal);
+    assert.equal(r.notApplicable, false);
+    assert.equal(r.safe, false);
+    assert.equal(r.reason, 'historical_branch_consumer_compatibility_not_authorized');
+  }
 });
 test('C032 the unauthorized state is a distinct, named reason', () => {
   const r = evaluateStudioBranchConsumerScope(MERGED24_FIXTURE, { callerSliceId: CORRECTION });
@@ -819,14 +861,18 @@ test('F002 caller 41 is applicable and safe', () => {
   assert.equal(r.allowed.length, BUILDER41_FIXTURE.length);
 });
 for (const caller of LATER_CALLERS) {
-  test(`F003 later caller is inapplicable and safe: ${caller}`, () => {
+  test(`F003 later caller is fail-closed once the authorization is withdrawn: ${caller}`, () => {
+    // While PR #495 was open the Builder carried historicalBranchConsumerCompatibility and this
+    // returned notApplicable + safe. It is merged now, the flag is false, and the same call is
+    // refused — the authorization was the whole difference.
     const r = evaluateStudioBranchConsumerScope(BUILDER41_FIXTURE, { callerSliceId: caller });
     assert.equal(r.consumerApplicable, false);
-    assert.equal(r.notApplicable, true);
-    assert.equal(r.reason, 'consumer_slice_after_active_slice');
-    assert.equal(r.certifiedAgainstActiveSlice, true);
-    assert.equal(r.evaluatedAsSliceId, BUILDER);
-    assert.equal(r.safe, true);
+    assert.equal(r.notApplicable, false);
+    assert.equal(r.reason, 'historical_branch_consumer_compatibility_not_authorized');
+    assert.equal(r.certifiedAgainstActiveSlice, false);
+    assert.equal(r.evaluatedAsSliceId, null);
+    assert.ok(r.blockers.includes('active_slice_before_caller'));
+    assert.equal(r.safe, false);
   });
   test(`F004 the core still refuses to certify for the same caller: ${caller}`, () => {
     const r = evaluateStudioBranchDiffScope(BUILDER41_FIXTURE, { callerSliceId: caller });
@@ -856,6 +902,7 @@ test('F008 the fixture plus a second marker is unsafe for every later caller', (
   for (const caller of LATER_CALLERS) {
     const r = evaluateStudioBranchConsumerScope([...BUILDER41_FIXTURE, MARKER[24]], { callerSliceId: caller });
     assert.equal(r.safe, false, caller);
+    // Ambiguity is resolved BEFORE the authorization gate, so it stays the reason.
     assert.equal(r.reason, 'ambiguous_active_slice');
   }
 });
@@ -931,11 +978,14 @@ test('M007 no self-certification is attempted when the authorization is absent',
   assert.equal(r.certifiedAgainstActiveSlice, false);
   assert.equal(r.evaluatedAsSliceId, null);
 });
-test('M008 authorization alone never rescues a bad path on the authorized branch', () => {
+test('M008 a bad path is refused on the Builder branch too, in every lifecycle state', () => {
   for (const bad of ['src/App.jsx', 'backend/server.js', 'src/modules/x.js', 'docs/nobody/x.md']) {
-    const r = evaluateStudioBranchConsumerScope([...BUILDER41_FIXTURE, bad], { callerSliceId: CONSUMERS });
-    assert.equal(r.safe, false, bad);
-    assert.equal(r.certifiedAgainstActiveSlice, true, bad);
+    // Through the consumer boundary: refused.
+    assert.equal(evaluateStudioBranchConsumerScope([...BUILDER41_FIXTURE, bad],
+      { callerSliceId: CONSUMERS }).safe, false, bad);
+    // And through the core, asked as the owning slice: still refused.
+    assert.equal(evaluateStudioBranchScope([...BUILDER41_FIXTURE, bad],
+      { callerSliceId: BUILDER }).safe, false, bad);
   }
 });
 test('M009 the guard reads the authorization only from the active slice entry', () => {
@@ -1258,10 +1308,12 @@ test('T009 an empty diff is admitted ONLY as the safe empty_branch_diff state', 
 });
 test('T010 a real slice branch diff is substantive and never reads as empty', () => {
   const f = changedOnThisBranch(); if (f === null || f.length === 0) return;
-  assert.ok(f.length > 20, String(f.length));
+  // UNIVERSAL: a non-empty diff must never read as empty, whichever slice owns the branch.
   const r = evaluateStudioBranchConsumerScope(f, { callerSliceId: CONSUMERS });
   assert.notEqual(r.reason, 'empty_branch_diff');
   assert.notEqual(r.activeSliceId, null);
+  // OWN-SCOPE: the >20 size floor describes THIS slice's own branch, not someone else's.
+  if (ownScopeApplies(f)) assert.ok(f.length > 20, String(f.length));
 });
 test('T008 this branch owns exactly the artifacts the catalog says it owns', () => {
   for (const rel of [TEST_REL, GATE_REL]) {

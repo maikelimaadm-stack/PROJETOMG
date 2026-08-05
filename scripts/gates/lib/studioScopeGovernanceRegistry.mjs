@@ -1046,8 +1046,11 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^package-lock\.json$/,
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
-    historicalBranchConsumerCompatibility: true,
-    status: 'open_pull_request_495',
+    // LIFECYCLE: PR #495 is merged. The historical-branch authorization existed only so that
+    // this branch could carry the checks of slices written after it; a merged slice must never
+    // stay authorized, or every merged slice becomes reopenable by a later consumer.
+    historicalBranchConsumerCompatibility: false,
+    status: 'merged',
   },
   {
     sliceId: 'studio-scope-governance-chronological-migration',
@@ -1296,7 +1299,46 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
     ],
     explicitlyAuthorizedForbiddenPatterns: [],
     historicalBranchConsumerCompatibility: false,
-    status: 'active_slice',
+    status: 'merged',
+  },
+  {
+    sliceId: 'studio-builder-lifecycle-normalization',
+    sliceOrdinal: 45,
+    title: 'Studio Builder Lifecycle Normalization',
+    primaryArtifactPatterns: [
+      /^src\/runtime\/__tests__\/studio-builder-lifecycle-normalization\.test\.js$/,
+      /^scripts\/gates\/g423-studio-builder-lifecycle-normalization\.mjs$/,
+      /^docs\/evidence\/post-foundation-c-studio-builder-lifecycle-normalization\//,
+    ],
+    branchMarkerPatterns: [
+      /^docs\/evidence\/post-foundation-c-studio-builder-lifecycle-normalization\//,
+    ],
+    crossSliceAuthorizedPatterns: [
+      // The EXACT six governance consumers that assert the lifecycle this slice normalizes —
+      // the Builder's status and historical-branch authorization, and slice 44's own status.
+      // Nothing else: the Builder's functional source, test and gate carry no live lifecycle
+      // assertion, so they are neither modified nor authorized here.
+      /^src\/runtime\/__tests__\/studio-scope-governance-chronological-migration\.test\.js$/,
+      /^scripts\/gates\/g423-studio-scope-governance-chronological-migration\.mjs$/,
+      /^src\/runtime\/__tests__\/studio-scope-governance-main-diff-correction\.test\.js$/,
+      /^scripts\/gates\/g423-studio-scope-governance-main-diff-correction\.mjs$/,
+      /^src\/runtime\/__tests__\/studio-scope-governance-historical-branch-consumers\.test\.js$/,
+      /^scripts\/gates\/g423-studio-scope-governance-historical-branch-consumers\.mjs$/,
+    ],
+    sharedGovernancePatterns: [
+      /^scripts\/gates\/lib\/studioScopeGovernanceRegistry\.mjs$/,
+      /^package\.json$/,
+      /^package-lock\.json$/,
+    ],
+    explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
+    // RESTING STATE: this slice is the last of the sequence, so the catalog ends with every
+    // entry `merged` and NO active slice at all. `status` is historical metadata — it never
+    // elects a slice and never grants anything. The branch that builds this slice is still
+    // resolved as slice 45 by its branchMarkerPatterns against the changed paths, exactly as
+    // every other slice is, whatever its status says. Marking it `active_slice` would leave a
+    // residual the moment it merges and would need yet another slice just to clear it.
+    status: 'merged',
   },
 
 ].map(Object.freeze));
@@ -1310,6 +1352,9 @@ export const MAIN_DIFF_CORRECTION_SLICE_ID = 'studio-scope-governance-main-diff-
  * either weakening the core or falsely certifying the branch.
  */
 export const HISTORICAL_BRANCH_CONSUMERS_SLICE_ID = 'studio-scope-governance-historical-branch-consumers';
+
+/** The lifecycle normalization slice (ordinal 45). */
+export const BUILDER_LIFECYCLE_NORMALIZATION_SLICE_ID = 'studio-builder-lifecycle-normalization';
 
 /** Ordinals of the slices whose branch-relative scope checks this migration rewires. */
 export const CHRONOLOGICAL_MIGRATION_SLICE_ID = 'studio-scope-governance-chronological-migration';

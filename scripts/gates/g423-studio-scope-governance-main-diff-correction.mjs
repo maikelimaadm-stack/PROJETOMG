@@ -139,8 +139,8 @@ gate('G423-MDC — correction slice registered at ordinal 43',
   slice(CORRECTION) !== null && slice(CORRECTION).sliceOrdinal === 43);
 gate('G423-MDC — no slice before the correction is still active',
   STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice').every((s) => s.sliceOrdinal >= slice(CORRECTION).sliceOrdinal));
-gate('G423-MDC — exactly one active slice',
-  STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice').length === 1);
+gate('G423-MDC — at most one slice is ever active, and at rest there is none',
+  STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice').length === 0);
 gate('G423-MDC — previous governance slice is now merged', slice(MIGRATION).status === 'merged');
 gate('G423-MDC — correction is after the migration', slice(CORRECTION).sliceOrdinal > slice(MIGRATION).sliceOrdinal);
 gate('G423-MDC — correction is after the Builder', slice(CORRECTION).sliceOrdinal > slice(BUILDER).sliceOrdinal);
@@ -432,7 +432,7 @@ gate('G423-MDC — Builder evidence outside this slice scope',
   G.isPathAuthorizedForStudioSlice('docs/evidence/post-foundation-c-studio-bridge-decision-core-envelope-builder/X.md', CORRECTION) === false);
 gate('G423-MDC — Builder entry untouched', (() => {
   const b = slice(BUILDER);
-  return b.sliceOrdinal === 41 && b.status === 'open_pull_request_495'
+  return b.sliceOrdinal === 41 && b.status === 'merged'
     && b.primaryArtifactPatterns.length === 4 && b.crossSliceAuthorizedPatterns.length === 8
     && b.explicitlyAuthorizedForbiddenPatterns.length === 0;
 })());
@@ -475,7 +475,7 @@ gate('G423-MDC — the cross extension changes no classification and no election
     'src/runtime/__tests__/studio-scope-governance-historical-branch-consumers.test.js',
     'scripts/gates/g423-studio-scope-governance-historical-branch-consumers.mjs',
   ].every((p) => G.resolveActiveStudioSlice([p]).candidates.length === 0)
-  && G.getStudioSliceById(BUILDER).historicalBranchConsumerCompatibility === true);
+  && G.getStudioSliceById(BUILDER).historicalBranchConsumerCompatibility === false);
 gate('G423-MDC — a Builder-shaped branch is still judged by the same rules', (() => {
   const r = G.evaluateStudioBranchDiffScope([
     'src/studio/blueprint-engine/bridge-decision-core-envelope-builder/index.js',
@@ -636,13 +636,19 @@ const ownScopeState = (paths) => {
         && scope.activeSliceOrdinal < scope.consumerSliceOrdinal))
     && scope.forbidden.length === 0 && scope.unknown.length === 0
     && scope.chronologicalViolation.length === 0;
+  // An own-scope sentence is only true on the branch this slice OWNS. Being merely applicable is
+  // not enough: a LATER slice's branch is legitimately certified by this consumer, yet its paths
+  // belong to that slice.
+  const ownsTheBranch = scope.consumerApplicable === true && scope.activeSliceId === OWN_SCOPE_CALLER;
   return {
     scope,
     valid: scope.consumerApplicable === true || safelyInapplicable,
-    runOwnScope: scope.consumerApplicable === true,
-    detail: scope.consumerApplicable
-      ? `own-scope APPLIES (active ${scope.activeSliceId} #${scope.activeSliceOrdinal})`
-      : `own-scope NOT APPLICABLE: ${scope.reason}, branch certified against ${scope.evaluatedAsSliceId}, no safety list discarded`,
+    runOwnScope: ownsTheBranch,
+    detail: ownsTheBranch
+      ? `own-scope APPLIES (this slice owns the branch)`
+      : scope.consumerApplicable
+        ? `own-scope NOT THIS SLICE'S: branch owned by ${scope.activeSliceId} #${scope.activeSliceOrdinal}, certified clean`
+        : `own-scope NOT APPLICABLE: ${scope.reason}, branch certified against ${scope.evaluatedAsSliceId}, no safety list discarded`,
   };
 };
 
@@ -674,8 +680,8 @@ if (branchPaths === null) {
     branchPaths.every((p) => G.classifyStudioScopePath(p) !== 'forbidden_scope'));
   gateOwnScope('G423-MDC — this branch touches no Studio blueprint-engine source of another slice',
     branchPaths, () => branchPaths.every((p) => !p.startsWith('src/studio/blueprint-engine/')));
-  gate('G423-MDC — this branch is not proven by an empty diff',
-    branchPaths.length === 0 || branchPaths.length > 20, `${branchPaths.length} paths`);
+  gateOwnScope('G423-MDC — this branch is not proven by an empty diff', branchPaths,
+    () => branchPaths.length === 0 || branchPaths.length > 20);
 }
 
 console.log(`\n--- G423-STUDIO-SCOPE-GOVERNANCE-MAIN-DIFF-CORRECTION summary ---`);
