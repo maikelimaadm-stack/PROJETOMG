@@ -488,7 +488,8 @@ test('R038 the authorization is not inferable from the ordinal', () => {
   assert.notEqual(byOrdinal.every((s) => s.historicalBranchConsumerCompatibility), true);
 });
 test('R039 the authorization is not inferable from the status', () => {
-  // Being non-merged never grants it: there is an active slice and it is NOT authorized.
+  // Not carrying the plain `merged` status never grants it: the catalog is at rest with zero
+  // `active_slice` entries, and the entries outside plain `merged` are NOT authorized either.
   const open = STUDIO_SLICE_CATALOG.filter((s) => s.status !== 'merged');
   assert.ok(open.length >= 1, JSON.stringify(open.map((s) => s.sliceId)));
   assert.equal(open.filter((s) => s.historicalBranchConsumerCompatibility).length, 0);

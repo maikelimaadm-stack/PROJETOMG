@@ -738,6 +738,35 @@ test('E013 no historical evidence directory of an earlier slice is touched', () 
   }
 });
 
+// --- documentation/state consistency regression -----------------------------
+// The catalog reached rest with zero `active_slice`. Three artifacts of THIS slice used to
+// claim the opposite. These proofs are deliberately narrow: they pin the exact stale phrasings
+// that were false, never a blanket ban on the token `active_slice` — legitimate historical
+// references and the branch-level "active slice" concept must keep working.
+test('E014 readiness states the resting state and no longer claims sole activity for slice 45', () => {
+  const doc = readEv('READINESS.md');
+  assert.match(doc, /slice45StatusIs:\s*merged/);
+  assert.match(doc, /catalogActiveSlices:\s*0/);
+  assert.equal(/fatia\s+45\s+como\s+única\s+ativa/.test(doc), false, 'stale claim still present');
+  assert.equal(/como\s+única\s+ativa/.test(doc), false, 'stale claim still present');
+});
+test('E015 the gate header no longer claims sole activity for this slice', () => {
+  // Needle assembled from fragments: writing it out would plant it in this file, and the gate
+  // reads this file as one of its own source scans.
+  const needle = ['the', 'only', 'active', 'one'].join(' ');
+  const src = readSrc(GATE_REL);
+  const header = src.slice(0, src.indexOf('*/'));
+  assert.ok(header.length > 0);
+  assert.equal(src.includes(needle), false, 'stale header claim');
+  assert.match(header, /ZERO `active_slice`/);
+});
+test('E016 no consumer comment still asserts that an active slice exists', () => {
+  for (const rel of SIX_CONSUMERS) {
+    const src = readSrc(rel);
+    assert.equal(/there is an active slice and it is/.test(src), false, rel);
+  }
+});
+
 // ===========================================================================
 // T — this branch, judged by its own rules
 // ===========================================================================

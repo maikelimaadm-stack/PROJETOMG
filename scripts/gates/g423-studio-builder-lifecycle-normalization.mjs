@@ -5,7 +5,8 @@
  * correct FINAL state after PR #495 was merged:
  *  - the Builder at ordinal 41 is `merged` and no longer authorized to carry historical
  *    branch consumers, while keeping the exact scope of the merged PR (4 primary, 8 cross);
- *  - slice 44 is `merged` and this slice is the only active one;
+ *  - slice 44 and slice 45 are `merged`, and the catalog is at rest with ZERO `active_slice`
+ *    statuses — `status` is historical metadata and never elects the branch's active slice;
  *  - ZERO slices carry `historicalBranchConsumerCompatibility`, so every earlier active slice
  *    is fail-closed for a later consumer — the Builder included, with no special case left;
  *  - the guard, the wrapper and the chronological core are untouched, and the Builder's
@@ -508,6 +509,26 @@ gate('G423-BLN — readiness declares the core and the guard untouched', (() => 
 gate('G423-BLN — the revalidation plan covers the zero-authorization state on main',
   readEv('POST-MERGE-REVALIDATION-PLAN.md').includes('historical_branch_consumer_compatibility_not_authorized')
   && readEv('POST-MERGE-REVALIDATION-PLAN.md').includes('empty_branch_diff'));
+// --- documentation/state consistency regression ---------------------------------
+// The catalog is at rest with zero `active_slice`. These checks pin the exact stale phrasings
+// that contradicted it, never the token `active_slice` itself: legitimate historical references
+// and the branch-level "active slice" concept must keep passing.
+gate('G423-BLN — readiness no longer claims sole activity for slice 45', (() => {
+  const doc = readEv('READINESS.md');
+  return /slice45StatusIs:\s*merged/.test(doc) && /catalogActiveSlices:\s*0/.test(doc)
+    && !/fatia\s+45\s+como\s+única\s+ativa/.test(doc) && !/como\s+única\s+ativa/.test(doc);
+})());
+// The stale needle is assembled from fragments on purpose: spelling it out literally here would
+// plant it in this gate's own source and make the check permanently red against itself.
+const STALE_SOLE_ACTIVE_CLAIM = ['the', 'only', 'active', 'one'].join(' ');
+gate('G423-BLN — this gate header no longer claims sole activity for this slice', (() => {
+  const src = readSrc(GATE_REL);
+  const header = src.slice(0, src.indexOf('*/'));
+  return header.length > 0 && !src.includes(STALE_SOLE_ACTIVE_CLAIM)
+    && /ZERO `active_slice`/.test(header);
+})());
+gate('G423-BLN — no consumer comment still asserts that an active slice exists',
+  SIX_CONSUMERS.every((rel) => !/there is an active slice and it is/.test(readSrc(rel))));
 gate('G423-BLN — package.json wires the slice test',
   /"test:runtime:studio-builder-lifecycle-normalization":/.test(readSrc('package.json')));
 gate('G423-BLN — package.json wires the slice gate',

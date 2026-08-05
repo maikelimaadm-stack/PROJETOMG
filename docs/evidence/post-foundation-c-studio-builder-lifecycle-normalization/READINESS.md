@@ -46,7 +46,8 @@ legacyPreStudioGatesMasked:            false
 ## O que esta fatia entrega
 
 O estado final do catálogo depois do merge da PR #495: Builder `merged` e sem autorização
-histórica, fatia 44 `merged`, fatia 45 como única ativa, zero fatias autorizadas a carregar
+histórica, fatia 44 `merged`, fatia 45 `merged` e catálogo em repouso com zero `active_slice`,
+zero fatias autorizadas a carregar
 consumidores posteriores — e as asserções dos seis consumidores de governança atualizadas do
 estado transitório para o estado final.
 
