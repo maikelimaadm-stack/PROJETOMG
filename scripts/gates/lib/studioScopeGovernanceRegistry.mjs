@@ -1385,14 +1385,25 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
     branchMarkerPatterns: [
       /^docs\/evidence\/post-foundation-c-studio-scope-governance-non-studio-branch-applicability\//,
     ],
-    // The EXACT consumers whose branch-relative assertions encode the assumption this slice
-    // retires — "a non-empty diff always resolves an active slice" and "empty_branch_diff is
-    // the only inapplicable state". Each was proven to fail on a non-Studio branch and to
-    // need a narrow, contract-shaped correction. Nothing broader: no directory wildcard, no
-    // historical evidence path, no Builder source, no production path.
+    // EXACTLY the three artifacts this slice actually edits, and not one more. Every entry
+    // here was proven to fail against this slice's own branch and to need a narrow,
+    // contract-shaped correction — an authorization for a file that is not touched would be
+    // an empty authorization, which is itself a defect.
+    //
+    //   1-2. the two lifecycle-normalization consumers (slice 45 test + gate), whose
+    //        branch-relative self-assertions assumed "a non-empty diff always resolves an
+    //        active slice" and "empty_branch_diff is the only inapplicable state";
+    //   3.   the Builder gate, whose `central guards not altered` assertion was written
+    //        unconditionally and therefore claimed authority over branches the Builder does
+    //        not own. It becomes ownership-aware; its functional checks are untouched.
+    //
+    // Deliberately ABSENT: the Builder's own test (it needs no change), the Builder's source
+    // subtree, any directory wildcard, any historical evidence path, any production path.
+    // The central guard is `shared`, never `cross` — it is infrastructure, not a consumer.
     crossSliceAuthorizedPatterns: [
       /^src\/runtime\/__tests__\/studio-builder-lifecycle-normalization\.test\.js$/,
       /^scripts\/gates\/g423-studio-builder-lifecycle-normalization\.mjs$/,
+      /^scripts\/gates\/g423-studio-bridge-decision-core-envelope-builder\.mjs$/,
     ],
     sharedGovernancePatterns: [
       /^scripts\/gates\/lib\/studioScopeGovernanceRegistry\.mjs$/,

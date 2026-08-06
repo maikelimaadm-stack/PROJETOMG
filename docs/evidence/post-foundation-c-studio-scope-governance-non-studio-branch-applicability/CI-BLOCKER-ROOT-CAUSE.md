@@ -78,3 +78,36 @@ com evidência própria. É o que as fatias 42, 43, 44 e 45 sempre foram. Esta �
 **P1-01 continua aberto.** O enforcement de CI foi revertido nesta PR e volta numa PR
 posterior, pequena, contendo apenas os dois steps — que, com esta fatia mergeada, será
 genuinamente non-Studio e passará pela nova regra.
+
+
+## Segundo blocker, descoberto e RESOLVIDO nesta fatia
+
+`SLICE46_SCOPE_EXPANSION_REQUIRED` — registrado quando o gate do Builder ficou vermelho ao
+esta fatia alterar o guard central.
+
+```js
+// antes — incondicional
+gate('G423-BLD — central guards not altered',
+  !files.includes('scripts/gates/lib/productionUiGuard.mjs')
+  && !files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs'));
+```
+
+A asserção julgava o diff bruto sem verificar de quem é a branch, e portanto reivindicava
+autoridade sobre branches que o Builder não possui. A regra que ela sempre quis expressar é
+de **ownership**.
+
+```js
+// depois — ownership-aware, e ainda exige branch sã
+const branchConsumerScope = evaluateStudioBranchConsumerScope(files, { callerSliceId: BUILDER_SLICE_ID });
+const builderOwnsThisBranch = branchConsumerScope.activeSliceId === BUILDER_SLICE_ID;
+gate('G423-BLD — central guards not altered',
+  branchConsumerScope.safe === true
+  && (!builderOwnsThisBranch || (!files.includes(PUI) && !files.includes(GUARD))));
+```
+
+Ownership vem do guard central (`activeSliceId`), nunca de nome de branch, número de PR,
+variável de ambiente ou `status`. Os checks funcionais do Builder ficaram intocados, e o
+**teste** do Builder não foi alterado — ele não precisava.
+
+Status atual: **RESOLVED**. Cross da fatia 46 = 3. Sweep: 0 regressões novas; os 12 gates
+legados branch-relative continuam sendo os mesmos de sempre.

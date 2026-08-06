@@ -24,6 +24,14 @@ unregisteredGovernedPathStillFails:    true
 mixedStudioAndUnknownStillFails:       true
 coreEvaluationRelaxed:                 false
 boundariesChanged:                     2
+slice46CrossCount:                     3
+slice46CrossIsMinimal:                 true
+builderOwnTestAuthorized:              false
+builderGateOwnershipAware:             true
+builderGateFunctionalChecksPreserved:  true
+scopeExpansionBlocker:                 RESOLVED
+sweepNewRegressions:                   0
+legacyBranchRelativeRed:               12
 genericBypassIntroduced:               false
 
 registryEntries1to45SemanticallyChanged: false

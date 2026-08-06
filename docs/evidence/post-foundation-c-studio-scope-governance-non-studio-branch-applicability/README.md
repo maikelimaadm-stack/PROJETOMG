@@ -39,3 +39,12 @@ Detalhe completo em `CI-BLOCKER-ROOT-CAUSE.md`.
 | `CI-BLOCKER-ROOT-CAUSE.md` | o run vermelho, as 61 falhas, o erro metodológico |
 | `READINESS.md` | flags declaradas |
 | `POST-MERGE-REVALIDATION-PLAN.md` | o que revalidar na `main` |
+
+## Blockers desta fatia
+
+| id | estado |
+|---|---|
+| `B-CI-ENFORCEMENT-61-GOVERNANCE-FAILURES` | resolvido pela própria fatia |
+| `SLICE46_SCOPE_EXPANSION_REQUIRED` | **RESOLVED** — gate do Builder ownership-aware |
+
+**P1-01 continua ABERTO.** Esta fatia é o pré-requisito; o enforcement de CI volta depois.

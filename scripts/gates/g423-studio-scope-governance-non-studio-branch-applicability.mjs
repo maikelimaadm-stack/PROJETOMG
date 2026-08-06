@@ -37,6 +37,13 @@ const EV_REL = 'docs/evidence/post-foundation-c-studio-scope-governance-non-stud
 const TEST_REL = 'src/runtime/__tests__/studio-scope-governance-non-studio-branch-applicability.test.js';
 const GATE_REL = 'scripts/gates/g423-studio-scope-governance-non-studio-branch-applicability.mjs';
 const GUARD_REL = 'scripts/gates/lib/studioScopeGovernanceGuard.mjs';
+const BUILDER_GATE_REL = 'scripts/gates/g423-studio-bridge-decision-core-envelope-builder.mjs';
+const BUILDER_TEST_REL = 'src/runtime/__tests__/studio-bridge-decision-core-envelope-builder.test.js';
+const PRODUCTION_UI_GUARD_REL = 'scripts/gates/lib/productionUiGuard.mjs';
+const BUILDER = 'bridge-decision-core-envelope-builder';
+const MARKER_41 = 'docs/evidence/post-foundation-c-studio-bridge-decision-core-envelope-builder/README.md';
+const MARKER_24 = 'docs/evidence/post-foundation-c-studio-dev-preview-app-integration/README.md';
+const BUILDER_SRC = 'src/studio/blueprint-engine/bridge-decision-core-envelope-builder/index.js';
 const REGISTRY_REL = 'scripts/gates/lib/studioScopeGovernanceRegistry.mjs';
 
 const readSrc = (rel) => fs.readFileSync(path.join(ROOT, rel), 'utf8');
@@ -232,6 +239,99 @@ gate('G423-NSB — O: an empty diff stays empty_branch_diff, a different reason'
 gate('G423-NSB — O: the two inapplicable reasons are never conflated',
   consumer([]).reason === 'empty_branch_diff' && consumer(['README.md']).reason === 'non_studio_branch'
   && diffScope([]).reason === 'empty_branch_diff' && diffScope(['README.md']).reason === 'non_studio_branch');
+
+
+// =====================================================================
+// BLD — the Builder gate is ownership-aware (slice 46 cross-consumer)
+// =====================================================================
+const builderGuardPolicy = (files) => {
+  const scope = G.evaluateStudioBranchConsumerScope(files, { callerSliceId: BUILDER });
+  const owner = scope.activeSliceId === BUILDER;
+  return {
+    scope, owner,
+    pass: scope.safe === true
+      && (!owner || (!files.includes(PRODUCTION_UI_GUARD_REL) && !files.includes(GUARD_REL))),
+  };
+};
+gate('G423-NSB — slice 46 cross-authorizes exactly three artifacts', (() => {
+  const cross = G.getStudioSliceById(APPLICABILITY).crossSliceAuthorizedPatterns.map((r) => r.source);
+  return cross.length === 3
+    && cross[0] === '^src\\/runtime\\/__tests__\\/studio-builder-lifecycle-normalization\\.test\\.js$'
+    && cross[1] === '^scripts\\/gates\\/g423-studio-builder-lifecycle-normalization\\.mjs$'
+    && cross[2] === '^scripts\\/gates\\/g423-studio-bridge-decision-core-envelope-builder\\.mjs$';
+})());
+gate('G423-NSB — the Builder own TEST is NOT authorized by slice 46',
+  G.isPathAuthorizedForStudioSlice(BUILDER_TEST_REL, APPLICABILITY) === false);
+gate('G423-NSB — the Builder GATE is authorized, and only as cross', (() => {
+  const s = G.getStudioSliceById(APPLICABILITY);
+  return G.isPathAuthorizedForStudioSlice(BUILDER_GATE_REL, APPLICABILITY) === true
+    && !s.primaryArtifactPatterns.some((r) => r.test(BUILDER_GATE_REL))
+    && !s.sharedGovernancePatterns.some((r) => r.test(BUILDER_GATE_REL));
+})());
+gate('G423-NSB — no cross pattern is a directory wildcard',
+  G.getStudioSliceById(APPLICABILITY).crossSliceAuthorizedPatterns.every((r) => r.source.endsWith('$')));
+gate('G423-NSB — the central guard stays shared, never cross', (() => {
+  const s = G.getStudioSliceById(APPLICABILITY);
+  return !s.crossSliceAuthorizedPatterns.some((r) => r.test(GUARD_REL))
+    && s.sharedGovernancePatterns.some((r) => r.test(GUARD_REL));
+})());
+gate('G423-NSB — BLD-A a slice 46 branch passes and the Builder is not its owner', (() => {
+  const r = builderGuardPolicy([...OWN_DIFF, BUILDER_GATE_REL]);
+  return r.scope.activeSliceId === APPLICABILITY && r.owner === false && r.scope.safe === true && r.pass === true;
+})());
+gate('G423-NSB — BLD-B the Builder own branch without the guards passes', (() => {
+  const r = builderGuardPolicy([MARKER_41, BUILDER_SRC, BUILDER_TEST_REL, BUILDER_GATE_REL]);
+  return r.scope.activeSliceId === BUILDER && r.owner === true && r.pass === true;
+})());
+gate('G423-NSB — BLD-C the Builder own branch touching the central guard still FAILS', (() => {
+  const r = builderGuardPolicy([MARKER_41, BUILDER_SRC, GUARD_REL]);
+  return r.owner === true && r.pass === false;
+})());
+gate('G423-NSB — BLD-C2 the Builder own branch touching productionUiGuard still FAILS', (() => {
+  const r = builderGuardPolicy([MARKER_41, BUILDER_SRC, PRODUCTION_UI_GUARD_REL]);
+  return r.owner === true && r.pass === false;
+})());
+gate('G423-NSB — BLD-D slice 46 plus an unknown path FAILS', (() => {
+  const r = builderGuardPolicy([...OWN_DIFF, 'README.md']);
+  return r.owner === false && r.scope.safe === false && r.pass === false;
+})());
+gate('G423-NSB — BLD-E two markers FAIL', (() => {
+  const r = builderGuardPolicy([MARKER_41, MARKER_46]);
+  return r.scope.reason === 'ambiguous_active_slice' && r.pass === false;
+})());
+gate('G423-NSB — BLD-F an EARLIER unauthorized historical branch FAILS', (() => {
+  const r = builderGuardPolicy([MARKER_24, 'src/studio/blueprint-engine/dev-preview-app-integration/index.js']);
+  return r.scope.reason === 'historical_branch_consumer_compatibility_not_authorized' && r.pass === false;
+})());
+gate('G423-NSB — BLD-G a workflow-only branch passes as non-Studio, owner false', (() => {
+  const r = builderGuardPolicy(['.github/workflows/foundation-governance.yml']);
+  return r.scope.reason === 'non_studio_branch' && r.scope.notApplicable === true
+    && r.owner === false && r.pass === true;
+})());
+gate('G423-NSB — BLD-H invalid input and a marker-less shared diff FAIL', (() => {
+  const invalid = G.evaluateStudioBranchConsumerScope('nope', { callerSliceId: BUILDER });
+  return builderGuardPolicy(['package.json']).pass === false
+    && invalid.reason === 'invalid_changed_paths' && invalid.safe === false;
+})());
+gate('G423-NSB — the Builder gate consumes the central consumer boundary',
+  readSrc(BUILDER_GATE_REL).includes('evaluateStudioBranchConsumerScope'));
+gate('G423-NSB — the Builder gate asks with its own identity',
+  readSrc(BUILDER_GATE_REL).includes("const BUILDER_SLICE_ID = 'bridge-decision-core-envelope-builder';")
+  && readSrc(BUILDER_GATE_REL).includes('callerSliceId: BUILDER_SLICE_ID'));
+gate('G423-NSB — the Builder gate decides ownership by activeSliceId',
+  readSrc(BUILDER_GATE_REL).includes('branchConsumerScope.activeSliceId === BUILDER_SLICE_ID'));
+gate('G423-NSB — the Builder gate still requires a sound branch',
+  readSrc(BUILDER_GATE_REL).includes('branchConsumerScope.safe === true'));
+gate('G423-NSB — the Builder gate carries no slice-46 bypass and no escape hatch', (() => {
+  const src = readSrc(BUILDER_GATE_REL);
+  return !src.includes(APPLICABILITY) && !src.includes('|| true') && !/continue-on-error/.test(src);
+})());
+gate('G423-NSB — the Builder own TEST is untouched by this slice', (() => {
+  try {
+    const f = execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean);
+    return !f.includes(BUILDER_TEST_REL);
+  } catch { return true; }
+})());
 
 // =====================================================================
 // M — historical consumer matrix untouched

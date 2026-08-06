@@ -19,7 +19,7 @@ import {
   getStudioSliceById, findOwningStudioSlices, resolveActiveStudioSlice,
   classifyStudioScopePath, evaluateStudioBranchScope, evaluateStudioBranchDiffScope,
   evaluateStudioBranchConsumerScope, createResolvedActiveStudioSlicePathAuthorizer,
-  isStudioGovernedDomainPath,
+  isStudioGovernedDomainPath, isPathAuthorizedForStudioSlice,
 } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -40,6 +40,9 @@ const APP_INTEGRATION = 'dev-preview-app-integration';
 const TEST_REL = 'src/runtime/__tests__/studio-scope-governance-non-studio-branch-applicability.test.js';
 const GATE_REL = 'scripts/gates/g423-studio-scope-governance-non-studio-branch-applicability.mjs';
 const GUARD_REL = 'scripts/gates/lib/studioScopeGovernanceGuard.mjs';
+const BUILDER_GATE_REL = 'scripts/gates/g423-studio-bridge-decision-core-envelope-builder.mjs';
+const BUILDER_TEST_REL = 'src/runtime/__tests__/studio-bridge-decision-core-envelope-builder.test.js';
+const PRODUCTION_UI_GUARD_REL = 'scripts/gates/lib/productionUiGuard.mjs';
 const REGISTRY_REL = 'scripts/gates/lib/studioScopeGovernanceRegistry.mjs';
 
 /** The marker that elects this slice, and a realistic full diff for it. */
@@ -116,6 +119,44 @@ test('R013 this slice does not authorize historical branch consumers either', ()
 });
 test('R014 this slice authorizes no forbidden path', () => {
   assert.deepEqual(getStudioSliceById(APPLICABILITY).explicitlyAuthorizedForbiddenPatterns, []);
+});
+test('R014b this slice cross-authorizes exactly three artifacts', () => {
+  const cross = getStudioSliceById(APPLICABILITY).crossSliceAuthorizedPatterns.map((r) => r.source);
+  assert.deepEqual(cross, [
+    '^src\\/runtime\\/__tests__\\/studio-builder-lifecycle-normalization\\.test\\.js$',
+    '^scripts\\/gates\\/g423-studio-builder-lifecycle-normalization\\.mjs$',
+    '^scripts\\/gates\\/g423-studio-bridge-decision-core-envelope-builder\\.mjs$',
+  ]);
+});
+test('R014c the Builder own TEST is NOT authorized — it needs no change', () => {
+  assert.equal(isPathAuthorizedForStudioSlice(BUILDER_TEST_REL, APPLICABILITY), false);
+});
+test('R014d the Builder GATE is authorized, and only as cross', () => {
+  assert.equal(isPathAuthorizedForStudioSlice(BUILDER_GATE_REL, APPLICABILITY), true);
+  const s = getStudioSliceById(APPLICABILITY);
+  assert.equal(s.primaryArtifactPatterns.some((r) => r.test(BUILDER_GATE_REL)), false);
+  assert.equal(s.sharedGovernancePatterns.some((r) => r.test(BUILDER_GATE_REL)), false);
+});
+test('R014e no cross pattern is a directory wildcard', () => {
+  for (const r of getStudioSliceById(APPLICABILITY).crossSliceAuthorizedPatterns) {
+    assert.ok(r.source.endsWith('$'), r.source);
+    assert.equal(/\\\/\$$|\\\/$/.test(r.source), false, r.source);
+  }
+});
+test('R014f the central guard stays SHARED, never cross', () => {
+  const s = getStudioSliceById(APPLICABILITY);
+  assert.equal(s.crossSliceAuthorizedPatterns.some((r) => r.test(GUARD_REL)), false);
+  assert.equal(s.sharedGovernancePatterns.some((r) => r.test(GUARD_REL)), true);
+});
+test('R014g no cross authorization is empty — every cross path is really touched', () => {
+  // An authorization for a file this slice does not change would be an empty authorization,
+  // which is itself a defect. Proven against the real branch diff when it owns the branch.
+  const f = changedOnThisBranch(); if (f === null || f.length === 0) return;
+  const r = consumer(f);
+  if (r.activeSliceId !== APPLICABILITY) return;
+  for (const re of getStudioSliceById(APPLICABILITY).crossSliceAuthorizedPatterns) {
+    assert.ok(f.some((p) => re.test(p)), `unused cross authorization: ${re.source}`);
+  }
 });
 test('R015 this slice owns exactly its test, gate and evidence root', () => {
   assert.equal(getStudioSliceById(APPLICABILITY).primaryArtifactPatterns.length, 3);
@@ -353,6 +394,117 @@ test('O002 the two inapplicable reasons are never conflated', () => {
   assert.equal(consumer(['README.md']).reason, 'non_studio_branch');
   assert.equal(diffScope([]).reason, 'empty_branch_diff');
   assert.equal(diffScope(['README.md']).reason, 'non_studio_branch');
+});
+
+
+// ===========================================================================
+// BLD — the Builder gate becomes ownership-aware (slice 46 cross-consumer)
+// ===========================================================================
+/**
+ * The Builder gate asserted `central guards not altered` unconditionally, so it claimed
+ * authority over branches the Builder does not own and reported this very slice — legitimately
+ * authorized to change the guard — as a Builder violation. The rule it always meant is an
+ * OWNERSHIP rule, reproduced here exactly as the gate now implements it.
+ */
+const builderGuardPolicy = (files) => {
+  const scope = evaluateStudioBranchConsumerScope(files, { callerSliceId: BUILDER });
+  const owner = scope.activeSliceId === BUILDER;
+  const pass = scope.safe === true
+    && (!owner || (!files.includes(PRODUCTION_UI_GUARD_REL) && !files.includes(GUARD_REL)));
+  return { scope, owner, pass };
+};
+const MARKER_41 = 'docs/evidence/post-foundation-c-studio-bridge-decision-core-envelope-builder/README.md';
+const MARKER_24 = 'docs/evidence/post-foundation-c-studio-dev-preview-app-integration/README.md';
+const BUILDER_SRC = 'src/studio/blueprint-engine/bridge-decision-core-envelope-builder/index.js';
+
+test('BLD-A a slice 46 branch passes: the Builder is not its owner', () => {
+  const r = builderGuardPolicy([...OWN_DIFF, BUILDER_GATE_REL]);
+  assert.equal(r.scope.activeSliceId, APPLICABILITY);
+  assert.equal(r.owner, false);
+  assert.equal(r.scope.safe, true);
+  assert.equal(r.pass, true);
+});
+test('BLD-B the Builder own branch without the guards passes', () => {
+  const r = builderGuardPolicy([MARKER_41, BUILDER_SRC, BUILDER_TEST_REL, BUILDER_GATE_REL]);
+  assert.equal(r.scope.activeSliceId, BUILDER);
+  assert.equal(r.owner, true);
+  assert.equal(r.scope.safe, true);
+  assert.equal(r.pass, true);
+});
+test('BLD-C the Builder own branch touching the central guard still FAILS', () => {
+  const r = builderGuardPolicy([MARKER_41, BUILDER_SRC, GUARD_REL]);
+  assert.equal(r.owner, true);
+  assert.equal(r.pass, false);
+});
+test('BLD-C2 the Builder own branch touching productionUiGuard still FAILS', () => {
+  const r = builderGuardPolicy([MARKER_41, BUILDER_SRC, PRODUCTION_UI_GUARD_REL]);
+  assert.equal(r.owner, true);
+  assert.equal(r.pass, false);
+});
+test('BLD-D slice 46 plus an unknown path FAILS — inapplicability is never a waiver', () => {
+  const r = builderGuardPolicy([...OWN_DIFF, 'README.md']);
+  assert.equal(r.owner, false);
+  assert.equal(r.scope.safe, false);
+  assert.equal(r.pass, false);
+});
+test('BLD-E two markers FAIL', () => {
+  const r = builderGuardPolicy([MARKER_41, MARKER_46]);
+  assert.equal(r.scope.reason, 'ambiguous_active_slice');
+  assert.equal(r.pass, false);
+});
+test('BLD-F an EARLIER unauthorized historical branch FAILS', () => {
+  const r = builderGuardPolicy([MARKER_24, 'src/studio/blueprint-engine/dev-preview-app-integration/index.js']);
+  assert.equal(r.scope.reason, 'historical_branch_consumer_compatibility_not_authorized');
+  assert.deepEqual(r.scope.blockers, ['active_slice_before_caller']);
+  assert.equal(r.pass, false);
+});
+test('BLD-G a workflow-only branch passes as non-Studio, and the Builder claims no ownership', () => {
+  const r = builderGuardPolicy(['.github/workflows/foundation-governance.yml']);
+  assert.equal(r.scope.reason, 'non_studio_branch');
+  assert.equal(r.scope.notApplicable, true);
+  assert.equal(r.owner, false);
+  assert.equal(r.pass, true);
+});
+test('BLD-H invalid input and a marker-less shared diff both FAIL', () => {
+  assert.equal(builderGuardPolicy(['package.json']).pass, false);
+  const invalid = evaluateStudioBranchConsumerScope('nope', { callerSliceId: BUILDER });
+  assert.equal(invalid.reason, 'invalid_changed_paths');
+  assert.equal(invalid.safe, false);
+});
+
+// --- source shape of the Builder gate -------------------------------------
+const builderGateSrc = () => readSrc(BUILDER_GATE_REL);
+test('BLD-S001 the Builder gate consumes the central consumer boundary', () => {
+  assert.match(builderGateSrc(), /evaluateStudioBranchConsumerScope/);
+});
+test('BLD-S002 it asks with the Builder identity', () => {
+  const src = builderGateSrc();
+  assert.match(src, /const BUILDER_SLICE_ID = 'bridge-decision-core-envelope-builder';/);
+  assert.match(src, /callerSliceId: BUILDER_SLICE_ID/);
+});
+test('BLD-S003 ownership is decided by activeSliceId, not by anything else', () => {
+  assert.match(builderGateSrc(), /branchConsumerScope\.activeSliceId === BUILDER_SLICE_ID/);
+});
+test('BLD-S004 the assertion still requires the branch to be sound', () => {
+  assert.match(builderGateSrc(), /branchConsumerScope\.safe === true/);
+});
+test('BLD-S005 there is no slice-46-specific bypass and no escape hatch', () => {
+  const src = builderGateSrc();
+  assert.equal(src.includes(APPLICABILITY), false, 'the Builder gate must not name slice 46');
+  assert.equal(src.includes('|| true'), false);
+  assert.equal(/continue-on-error/.test(src), false);
+});
+test('BLD-S006 ownership is never inferred from branch name, PR, env or status', () => {
+  const src = builderGateSrc();
+  const block = src.slice(src.indexOf('const branchConsumerScope'), src.indexOf('no upstream subtrees in diff'));
+  assert.ok(block.length > 0);
+  for (const forbidden of ['process.env', 'rev-parse --abbrev-ref', 'GITHUB_', 'pull_request', '.status']) {
+    assert.equal(block.includes(forbidden), false, forbidden);
+  }
+});
+test('BLD-S007 the Builder own TEST was not modified by this slice', () => {
+  const f = changedOnThisBranch(); if (f === null) return;
+  assert.equal(f.includes(BUILDER_TEST_REL), false);
 });
 
 // ===========================================================================
