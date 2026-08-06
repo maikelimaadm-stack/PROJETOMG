@@ -41,6 +41,39 @@
  */
 
 /**
+ * The ROOTS of the territory this governance governs — slice 46.
+ *
+ * DOMAIN IS NOT AUTHORIZATION. This list answers exactly one question: "does the Studio
+ * scope governance have any business judging this path at all?" It grants nothing, admits
+ * nothing and authorizes nobody. What a given slice may TOUCH is decided, as before, only by
+ * that slice's own `primaryArtifactPatterns` / `crossSliceAuthorizedPatterns` /
+ * `sharedGovernancePatterns`, and a governed path with no authorization still fails closed.
+ *
+ * These are deliberately ROOTS, not artifact lists, and that is the whole safety property:
+ * a brand-new, not-yet-registered file under any of them (say `src/studio/whatever.js`) is
+ * IN the domain from the moment it exists, so it is judged, found unauthorized, and refused.
+ * Deriving the domain from `classifyStudioScopePath(p) !== 'unknown_scope'` would do the
+ * opposite — an unregistered Studio file would look like "not ours" and escape. It must not
+ * be used for this decision.
+ *
+ * Coverage was PROVEN, not assumed: all 177 distinct authorization patterns across the 45
+ * pre-existing catalog entries were extracted and matched against these roots. 176 are
+ * covered here; the remaining one (`^src/App.jsx$`) is a forbidden path, and the guard's
+ * domain predicate also treats every `FORBIDDEN_SCOPE_PATTERNS` match as in-domain, so a
+ * forbidden path can never be mistaken for foreign territory. 177/177.
+ *
+ * @type {RegExp[]}
+ */
+export const STUDIO_GOVERNED_DOMAIN_PATTERNS = Object.freeze([
+  /^src\/studio\//,
+  /^src\/runtime\//,
+  /^scripts\/gates\//,
+  /^docs\/evidence\//,
+  /^package\.json$/,
+  /^package-lock\.json$/,
+]);
+
+/**
  * Paths that are ALWAYS forbidden in a Studio headless slice, no matter what. These are
  * the dangerous surfaces the whole Studio-first policy protects. Matching any of these
  * makes a path `forbidden_scope`.
@@ -1340,6 +1373,52 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
     // residual the moment it merges and would need yet another slice just to clear it.
     status: 'merged',
   },
+  {
+    sliceId: 'studio-scope-governance-non-studio-branch-applicability',
+    sliceOrdinal: 46,
+    title: 'Studio Scope Governance Non-Studio Branch Applicability',
+    primaryArtifactPatterns: [
+      /^src\/runtime\/__tests__\/studio-scope-governance-non-studio-branch-applicability\.test\.js$/,
+      /^scripts\/gates\/g423-studio-scope-governance-non-studio-branch-applicability\.mjs$/,
+      /^docs\/evidence\/post-foundation-c-studio-scope-governance-non-studio-branch-applicability\//,
+    ],
+    branchMarkerPatterns: [
+      /^docs\/evidence\/post-foundation-c-studio-scope-governance-non-studio-branch-applicability\//,
+    ],
+    // EXACTLY the three artifacts this slice actually edits, and not one more. Every entry
+    // here was proven to fail against this slice's own branch and to need a narrow,
+    // contract-shaped correction — an authorization for a file that is not touched would be
+    // an empty authorization, which is itself a defect.
+    //
+    //   1-2. the two lifecycle-normalization consumers (slice 45 test + gate), whose
+    //        branch-relative self-assertions assumed "a non-empty diff always resolves an
+    //        active slice" and "empty_branch_diff is the only inapplicable state";
+    //   3.   the Builder gate, whose `central guards not altered` assertion was written
+    //        unconditionally and therefore claimed authority over branches the Builder does
+    //        not own. It becomes ownership-aware; its functional checks are untouched.
+    //
+    // Deliberately ABSENT: the Builder's own test (it needs no change), the Builder's source
+    // subtree, any directory wildcard, any historical evidence path, any production path.
+    // The central guard is `shared`, never `cross` — it is infrastructure, not a consumer.
+    crossSliceAuthorizedPatterns: [
+      /^src\/runtime\/__tests__\/studio-builder-lifecycle-normalization\.test\.js$/,
+      /^scripts\/gates\/g423-studio-builder-lifecycle-normalization\.mjs$/,
+      /^scripts\/gates\/g423-studio-bridge-decision-core-envelope-builder\.mjs$/,
+    ],
+    sharedGovernancePatterns: [
+      /^scripts\/gates\/lib\/studioScopeGovernanceRegistry\.mjs$/,
+      /^scripts\/gates\/lib\/studioScopeGovernanceGuard\.mjs$/,
+      /^package\.json$/,
+      /^package-lock\.json$/,
+    ],
+    explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
+    // Born `merged`, exactly like slice 45 and for the same reason: the catalog describes the
+    // state of `main` AFTER this merges, `status` never elects a slice, and this branch is
+    // still resolved as slice 46 by its own marker. Marking it `active_slice` would leave a
+    // residual that would need a slice 47 just to clear.
+    status: 'merged',
+  },
 
 ].map(Object.freeze));
 
@@ -1355,6 +1434,9 @@ export const HISTORICAL_BRANCH_CONSUMERS_SLICE_ID = 'studio-scope-governance-his
 
 /** The lifecycle normalization slice (ordinal 45). */
 export const BUILDER_LIFECYCLE_NORMALIZATION_SLICE_ID = 'studio-builder-lifecycle-normalization';
+
+/** Slice 46 — the boundary that makes a purely non-Studio branch `notApplicable`. */
+export const NON_STUDIO_BRANCH_APPLICABILITY_SLICE_ID = 'studio-scope-governance-non-studio-branch-applicability';
 
 /** Ordinals of the slices whose branch-relative scope checks this migration rewires. */
 export const CHRONOLOGICAL_MIGRATION_SLICE_ID = 'studio-scope-governance-chronological-migration';

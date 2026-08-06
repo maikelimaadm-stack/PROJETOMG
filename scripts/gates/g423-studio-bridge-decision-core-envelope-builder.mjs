@@ -14,9 +14,11 @@ import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { isKnownLaterStudioHeadlessArtifact } from './lib/studioScopeGovernanceGuard.mjs';
+import { isKnownLaterStudioHeadlessArtifact, evaluateStudioBranchConsumerScope } from './lib/studioScopeGovernanceGuard.mjs';
 
 const ROOT = process.cwd();
+/** This gate's own slice identity, used only to ask the guard whose branch this is. */
+const BUILDER_SLICE_ID = 'bridge-decision-core-envelope-builder';
 const DIR = path.join(ROOT, 'src/studio/blueprint-engine/bridge-decision-core-envelope-builder');
 const BC_DIR = path.join(ROOT, 'src/studio/blueprint-engine/bridge-decision-core-envelope-builder-contract');
 const ENV_DIR = path.join(ROOT, 'src/studio/blueprint-engine/bridge-decision-envelope-identity-contract');
@@ -266,7 +268,22 @@ for (const d of DOCS) gate(`G423-BLD — doc ${d}`, readEv(d).length > 60);
 const files = (() => { try { return execSync('git diff --name-only origin/main...HEAD', { cwd: ROOT, encoding: 'utf8' }).trim().split('\n').filter(Boolean); } catch { return null; } })();
 if (files) {
   gate('G423-BLD — all changed files authorized', files.every((f) => authorized(f)), files.filter((f) => !authorized(f)).join(', ') || 'clean');
-  gate('G423-BLD — central guards not altered', !files.includes('scripts/gates/lib/productionUiGuard.mjs') && !files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs'));
+  // Slice 46 — "the Builder does not touch the central guards" is a statement about the branch
+  // the BUILDER OWNS. Written unconditionally it also claimed authority over branches the
+  // Builder does not own, so a later slice legitimately authorized to change the guard was
+  // reported as a Builder violation. Ownership is decided by the central guard itself
+  // (activeSliceId === the Builder), never by a branch name, a PR number, an env var or a
+  // catalog status; and the branch must be SOUND first, so an invalid, ambiguous, unresolved,
+  // unknown-path or chronologically refused branch still fails here — inapplicability is
+  // never a waiver.
+  const branchConsumerScope = evaluateStudioBranchConsumerScope(files, { callerSliceId: BUILDER_SLICE_ID });
+  const builderOwnsThisBranch = branchConsumerScope.activeSliceId === BUILDER_SLICE_ID;
+  gate('G423-BLD — central guards not altered',
+    branchConsumerScope.safe === true
+    && (!builderOwnsThisBranch
+      || (!files.includes('scripts/gates/lib/productionUiGuard.mjs')
+        && !files.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs'))),
+    `owner=${builderOwnsThisBranch} active=${branchConsumerScope.activeSliceId} reason=${branchConsumerScope.reason} safe=${branchConsumerScope.safe}`);
   gate('G423-BLD — no upstream subtrees in diff', !files.some((f) => /^src\/studio\/blueprint-engine\/(bridge-decision-core-envelope-builder-contract|bridge-decision-core-envelope-builder-implementation-plan|bridge-decision-core-envelope-contract|bridge-decision-envelope-identity-contract|bridge-to-preview-sandbox-runtime-contract|authoring-runtime-to-preview-bridge|module-blueprint-authoring-runtime|module-preview-sandbox)\//.test(f)));
   gate('G423-BLD — no App/pages/components/modules in diff', !files.some((f) => /^src\/(pages|components|modules|ModeloBase1|ModeloBase2)\//.test(f) || f === 'src/App.jsx'));
 }

@@ -89,7 +89,11 @@ const changedOnThisBranch = () => {
 // ===========================================================================
 // R — the catalog after normalization
 // ===========================================================================
-test('R001 the catalog holds forty-five slices', () => assert.equal(STUDIO_SLICE_CATALOG.length, 45));
+// The catalog grows with every later slice. What THIS slice guarantees is that slice 45
+// exists and that the sequence stays contiguous — not that 45 is forever the last one.
+test('R001 the catalog holds at least the forty-five slices this one closes', () => {
+  assert.ok(STUDIO_SLICE_CATALOG.length >= 45, String(STUDIO_SLICE_CATALOG.length));
+});
 test('R002 slice ids stay unique', () => {
   const ids = STUDIO_SLICE_CATALOG.map((s) => s.sliceId);
   assert.equal(new Set(ids).size, ids.length);
@@ -99,9 +103,10 @@ test('R003 ordinals are unique, positive integers', () => {
   assert.equal(new Set(o).size, o.length);
   assert.ok(o.every((x) => Number.isInteger(x) && x > 0));
 });
-test('R004 ordinals are contiguous 1..45', () => {
+test('R004 ordinals are contiguous from 1, covering at least 1..45', () => {
   const o = [...STUDIO_SLICE_CATALOG.map((s) => s.sliceOrdinal)].sort((a, b) => a - b);
-  assert.deepEqual(o, Array.from({ length: 45 }, (_, i) => i + 1));
+  assert.deepEqual(o, Array.from({ length: o.length }, (_, i) => i + 1));
+  assert.ok(o.length >= 45, String(o.length));
 });
 test('R005 every entry declares the same ten keys', () => {
   for (const s of STUDIO_SLICE_CATALOG) {
@@ -127,7 +132,9 @@ test('R006c the only non-plain-merged status is the pre-existing slice 39', () =
   const odd = STUDIO_SLICE_CATALOG.filter((s) => s.status !== 'merged');
   assert.deepEqual(odd.map((s) => [s.sliceOrdinal, s.status]),
     [[39, 'merged_without_dedicated_artifacts']]);
-  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status === 'merged').length, 44);
+  // Every entry except slice 39 carries the plain status, whatever the catalog length is.
+  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status === 'merged').length,
+    STUDIO_SLICE_CATALOG.length - 1);
 });
 test('R007 this slice is ordinal 45 and merged', () => {
   const s = getStudioSliceById(NORMALIZATION);
@@ -730,8 +737,9 @@ test('E012 the revalidation plan covers the zero-authorization state on main', (
   assert.match(doc, /historical_branch_consumer_compatibility_not_authorized/);
   assert.match(doc, /empty_branch_diff/);
 });
-test('E013 no historical evidence directory of an earlier slice is touched', () => {
+test('E013 when this branch is mine, it touches no other evidence directory', () => {
   const f = changedOnThisBranch(); if (f === null) return;
+  if (!ownsThisBranch(f)) return;
   for (const p of f) {
     if (!p.startsWith('docs/evidence/')) continue;
     assert.ok(p.startsWith(EV_REL), p);
@@ -770,10 +778,33 @@ test('E016 no consumer comment still asserts that an active slice exists', () =>
 // ===========================================================================
 // T — this branch, judged by its own rules
 // ===========================================================================
-test('T001 this branch resolves exactly this slice, or is empty', () => {
+/**
+ * Own-scope applicability — slice 46.
+ *
+ * A branch-relative self-assertion ("THIS branch resolves MY slice", "every path here is
+ * authorized by MY slice") only speaks about the branch this slice OWNS. On a later slice's
+ * branch, or on a branch outside this governance entirely, the honest answer is that the
+ * assertion does not apply — not that the branch is malformed. Merely being applicable is
+ * not enough: ownership is `activeSliceId === NORMALIZATION`.
+ *
+ * Nothing is skipped silently: the three states are distinguished and the universal checks
+ * (forbidden / unknown / chronology / soundness) keep running in all of them.
+ */
+const ownsThisBranch = (f) => {
+  const scope = evaluateStudioBranchConsumerScope(f, { callerSliceId: NORMALIZATION });
+  return scope.activeSliceId === NORMALIZATION;
+};
+
+test('T001 when this branch is mine, it resolves exactly this slice', () => {
   const f = changedOnThisBranch(); if (f === null) return;
   const a = resolveActiveStudioSlice(f);
   if (f.length === 0) { assert.equal(a.ok, false); return; }
+  if (!ownsThisBranch(f)) {
+    // Someone else's branch, or none of this governance's business. Both are legitimate and
+    // are proven elsewhere; what must NOT happen is this slice claiming a foreign branch.
+    assert.notEqual(a.sliceId, NORMALIZATION);
+    return;
+  }
   assert.equal(a.ok, true, JSON.stringify(a));
   assert.equal(a.candidates.length, 1);
   assert.equal(a.sliceId, NORMALIZATION);
@@ -796,8 +827,9 @@ test('T004 this branch touches no forbidden path', () => {
   const f = changedOnThisBranch(); if (f === null) return;
   for (const p of f) assert.notEqual(classifyStudioScopePath(p), 'forbidden_scope', p);
 });
-test('T005 every path on this branch is authorized by the active slice', () => {
+test('T005 when this branch is mine, every path is authorized by the active slice', () => {
   const f = changedOnThisBranch(); if (f === null || f.length === 0) return;
+  if (!ownsThisBranch(f)) return;
   const a = createResolvedActiveStudioSlicePathAuthorizer(f);
   assert.equal(a.ok, true, JSON.stringify(a));
   for (const p of f) assert.equal(a.isAuthorized(p), true, p);

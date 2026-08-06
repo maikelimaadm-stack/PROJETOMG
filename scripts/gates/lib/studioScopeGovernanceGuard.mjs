@@ -24,6 +24,7 @@ import {
   FORBIDDEN_SCOPE_PATTERNS,
   KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS,
   SCOPE_SHAPE_PATTERNS,
+  STUDIO_GOVERNED_DOMAIN_PATTERNS,
   STUDIO_SLICE_CATALOG,
 } from './studioScopeGovernanceRegistry.mjs';
 
@@ -182,6 +183,63 @@ export function classifyStudioScopePath(path, options = {}) {
   if (SCOPE_SHAPE_PATTERNS.evidence_only.test(path)) return 'evidence_only';
 
   return 'unknown_scope';
+}
+
+// ---------------------------------------------------------------------------
+// Domain membership — slice 46. DOMAIN IS NOT AUTHORIZATION.
+// ---------------------------------------------------------------------------
+
+/**
+ * True iff this path lies inside the territory the Studio scope governance governs.
+ *
+ * This decides only whether this governance has jurisdiction — never whether anything is
+ * permitted. A governed path with no authorization still fails closed exactly as before;
+ * membership creates no `allowed` entry, elects no slice and relaxes nothing.
+ *
+ * Two sources, both pre-existing data, deliberately no third:
+ *  - `STUDIO_GOVERNED_DOMAIN_PATTERNS` — the stable ROOTS of the territory;
+ *  - `FORBIDDEN_SCOPE_PATTERNS` — a forbidden path is always ours to refuse, so it can
+ *    never be mistaken for foreign territory (proven by the forbidden + infra scenario).
+ *
+ * It is NOT derived from `classifyStudioScopePath(p) !== 'unknown_scope'`. That would be
+ * unsafe in the one case that matters most: a new, not-yet-registered file under a Studio
+ * root classifies as `unknown_scope`, and would therefore be read as "not our territory"
+ * and escape judgement entirely. Roots make the opposite, correct call — the file is in the
+ * domain the moment it exists, so it is judged and refused for want of authorization.
+ *
+ * Pure: no command, no filesystem, no env, no network, no clock, no mutation.
+ *
+ * @param {string} path repo-relative path
+ * @returns {boolean}
+ */
+export function isStudioGovernedDomainPath(path) {
+  if (!isPath(path)) return false;
+  return matchesAny(path, STUDIO_GOVERNED_DOMAIN_PATTERNS) || matchesAny(path, FORBIDDEN_SCOPE_PATTERNS);
+}
+
+/**
+ * True iff a NON-EMPTY diff touches nothing this governance governs.
+ *
+ * Such a branch — CI configuration, build tooling, human documentation — is outside this
+ * governance altogether: it has no slice to resolve and no slice scope to violate. The
+ * honest answer is `notApplicable`, not "safe by waiver".
+ *
+ * ALL-or-nothing on purpose. A single governed path anywhere in the diff makes the whole
+ * diff governed again, so the mixed case (Studio + unknown) keeps failing closed on
+ * `unknown_scope`. There is no partial exemption and no per-path waiver in this file.
+ *
+ * An empty diff is NOT a non-Studio diff: that state is `empty_branch_diff`, decided by the
+ * callers before this predicate is ever consulted. The two reasons stay distinct.
+ *
+ * @param {string[]} paths already-validated, non-empty changed paths
+ * @returns {boolean}
+ */
+function isNonStudioOnlyDiff(paths) {
+  if (!Array.isArray(paths) || paths.length === 0) return false;
+  if (paths.some((p) => isStudioGovernedDomainPath(p))) return false;
+  // Belt and braces: every marker is a catalogued path under a governed root, so this can
+  // never fire alone. Asserted anyway so the predicate can never disagree with slice election.
+  return resolveActiveStudioSlice(paths).candidates.length === 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -383,6 +441,17 @@ export function evaluateStudioBranchDiffScope(changedPaths, options = {}) {
     });
   }
 
+  // Slice 46 — non-empty diff outside this governance's territory. No slice to resolve and no
+  // slice scope to violate, so the check is not applicable. It authorizes nothing: `allowed`
+  // stays empty, `activeSliceId` stays null, and a single governed path sends it to the core.
+  if (isNonStudioOnlyDiff(changedPaths)) {
+    return Object.freeze({
+      ...base, total: [...new Set(changedPaths)].length,
+      applicable: false, notApplicable: true, reason: 'non_studio_branch',
+      blockers: [], safe: true,
+    });
+  }
+
   // Non-empty diff: the chronological core decides, unchanged.
   const inner = evaluateStudioBranchScope(changedPaths, { callerSliceId: o.callerSliceId });
   return Object.freeze({
@@ -490,6 +559,17 @@ export function evaluateStudioBranchConsumerScope(changedPaths, options = {}) {
     return Object.freeze({
       ...base, consumerApplicable: false, applicable: false, notApplicable: true,
       reason: 'empty_branch_diff', blockers: [], safe: true,
+    });
+  }
+
+  // Slice 46 — nothing here is governed by Studio scope, so this consumer has no opinion about
+  // such a branch. Checked BEFORE slice resolution, because a non-Studio branch legitimately
+  // has no active slice: demanding one is exactly the false negative this state removes.
+  if (isNonStudioOnlyDiff(changedPaths)) {
+    return Object.freeze({
+      ...base, total: [...new Set(changedPaths)].length,
+      consumerApplicable: false, applicable: false, notApplicable: true,
+      reason: 'non_studio_branch', blockers: [], safe: true,
     });
   }
 

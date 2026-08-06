@@ -109,13 +109,16 @@ console.log('--- G423-STUDIO-BUILDER-LIFECYCLE-NORMALIZATION ---\n');
 // =====================================================================
 // Catalog after normalization
 // =====================================================================
-gate('G423-BLN — catalog holds exactly 45 slices', STUDIO_SLICE_CATALOG.length === 45, String(STUDIO_SLICE_CATALOG.length));
+// The catalog grows with every later slice; this slice guarantees its own presence and the
+// contiguity of the sequence, not that 45 is forever the last ordinal.
+gate('G423-BLN — catalog holds at least the 45 slices this one closes', STUDIO_SLICE_CATALOG.length >= 45, String(STUDIO_SLICE_CATALOG.length));
 gate('G423-BLN — slice ids unique', new Set(STUDIO_SLICE_CATALOG.map((s) => s.sliceId)).size === STUDIO_SLICE_CATALOG.length);
 gate('G423-BLN — ordinals unique and positive',
   new Set(STUDIO_SLICE_CATALOG.map((s) => s.sliceOrdinal)).size === STUDIO_SLICE_CATALOG.length
   && STUDIO_SLICE_CATALOG.every((s) => Number.isInteger(s.sliceOrdinal) && s.sliceOrdinal > 0));
-gate('G423-BLN — ordinals contiguous 1..45',
-  STUDIO_SLICE_CATALOG.map((s) => s.sliceOrdinal).sort((a, b) => a - b).every((o, i) => o === i + 1));
+gate('G423-BLN — ordinals contiguous from 1, covering at least 1..45',
+  STUDIO_SLICE_CATALOG.map((s) => s.sliceOrdinal).sort((a, b) => a - b).every((o, i) => o === i + 1)
+  && STUDIO_SLICE_CATALOG.length >= 45);
 gate('G423-BLN — every entry keeps the same ten keys',
   STUDIO_SLICE_CATALOG.every((s) => Object.keys(s).sort().join(',')
     === 'branchMarkerPatterns,crossSliceAuthorizedPatterns,explicitlyAuthorizedForbiddenPatterns,historicalBranchConsumerCompatibility,primaryArtifactPatterns,sharedGovernancePatterns,sliceId,sliceOrdinal,status,title'));
@@ -128,7 +131,7 @@ gate('G423-BLN — the only non-plain-merged status is the pre-existing slice 39
   const odd = STUDIO_SLICE_CATALOG.filter((s) => s.status !== 'merged');
   return odd.length === 1 && odd[0].sliceOrdinal === 39
     && odd[0].status === 'merged_without_dedicated_artifacts'
-    && STUDIO_SLICE_CATALOG.filter((s) => s.status === 'merged').length === 44;
+    && STUDIO_SLICE_CATALOG.filter((s) => s.status === 'merged').length === STUDIO_SLICE_CATALOG.length - 1;
 })());
 gate('G423-BLN — no status in the catalog is a pull-request status',
   STUDIO_SLICE_CATALOG.every((s) => !/open_pull_request/.test(s.status)));
@@ -556,17 +559,24 @@ if (branchPaths === null) {
     branchPaths.every((p) => G.classifyStudioScopePath(p) !== 'forbidden_scope'));
   gate('G423-BLN — this branch touches no Studio blueprint-engine source',
     branchPaths.every((p) => !p.startsWith('src/studio/blueprint-engine/')));
-  gate('G423-BLN — this branch touches no earlier slice evidence directory',
-    branchPaths.filter((p) => p.startsWith('docs/evidence/')).every((p) => p.startsWith(EV_REL)));
-  gate('G423-BLN — this branch does not touch the central guard',
-    branchPaths.includes(GUARD_REL) === false);
-  gate('G423-BLN — this branch resolves exactly this slice, or is empty', (() => {
+  // Slice 46 — self-assertions speak only about the branch THIS slice owns. On a later
+  // slice's branch, or outside this governance entirely, they do not apply; claiming a
+  // foreign branch would be the false negative, not a finding. Ownership, not applicability.
+  const ownsThisBranch = G.evaluateStudioBranchConsumerScope(branchPaths,
+    { callerSliceId: CALLER_SLICE_ID }).activeSliceId === NORMALIZATION;
+  gate('G423-BLN — when this branch is mine, it touches no other evidence directory',
+    !ownsThisBranch
+    || branchPaths.filter((p) => p.startsWith('docs/evidence/')).every((p) => p.startsWith(EV_REL)));
+  gate('G423-BLN — when this branch is mine, it does not touch the central guard',
+    !ownsThisBranch || branchPaths.includes(GUARD_REL) === false);
+  gate('G423-BLN — when this branch is mine, it resolves exactly this slice', (() => {
     const a = G.resolveActiveStudioSlice(branchPaths);
-    return branchPaths.length === 0
-      || (a.ok === true && a.candidates.length === 1 && a.sliceId === NORMALIZATION);
-  })());
-  gate('G423-BLN — every path on this branch is authorized by the active slice', (() => {
     if (branchPaths.length === 0) return true;
+    if (!ownsThisBranch) return a.sliceId !== NORMALIZATION;
+    return a.ok === true && a.candidates.length === 1 && a.sliceId === NORMALIZATION;
+  })());
+  gate('G423-BLN — when this branch is mine, every path is authorized by the active slice', (() => {
+    if (branchPaths.length === 0 || !ownsThisBranch) return true;
     const a = G.createResolvedActiveStudioSlicePathAuthorizer(branchPaths);
     return a.ok === true && branchPaths.every((p) => a.isAuthorized(p))
       && ['src/App.jsx', 'docs/nobody/x.md', GUARD_REL].every((p) => a.isAuthorized(p) === false);
