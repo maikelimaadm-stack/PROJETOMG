@@ -3,7 +3,7 @@
  * GATE G423 — SLICE 47 · STUDIO SCOPE GOVERNANCE NON-STUDIO RUNTIME COMPATIBILITY
  *
  * Verifica, de forma estática e comportamental, que:
- *   - o catálogo tem 47 entradas contíguas e as 1..46 seguem íntegras;
+ *   - o catálogo tem 48 entradas contíguas e as 1..46 seguem íntegras;
  *   - as autorizações da fatia 47 são exatas, sem wildcard e sem caminho proibido;
  *   - os catorze consumidores corrigidos reconhecem `non_studio_branch` e o PROVAM;
  *   - nenhum deles usa skip/todo/only, env, nome de branch ou lista de caminhos;
@@ -80,7 +80,7 @@ const consumer = (paths, caller = SLICE) =>
 console.log('=== G423 — Slice 47 · Non-Studio Runtime Compatibility ===\n');
 
 /* ---------------- catálogo ---------------- */
-gate('G423-47-C01 — catálogo com 47 entradas', STUDIO_SLICE_CATALOG.length === 47,
+gate('G423-47-C01 — catálogo com 48 entradas', STUDIO_SLICE_CATALOG.length === 48,
   String(STUDIO_SLICE_CATALOG.length));
 gate('G423-47-C02 — ordinais contíguos 1..47',
   STUDIO_SLICE_CATALOG.every((s, i) => s.sliceOrdinal === i + 1));

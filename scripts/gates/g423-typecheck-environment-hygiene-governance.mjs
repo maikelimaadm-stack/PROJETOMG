@@ -28,6 +28,13 @@ const TEST_REL = `src/runtime/__tests__/${SLICE}.test.js`;
 const GATE_REL = `scripts/gates/g423-${SLICE}.mjs`;
 const EV_REL = `docs/evidence/post-foundation-c-${SLICE}`;
 
+const CROSS_CORRECTED = [
+  'src/runtime/__tests__/studio-scope-governance-non-studio-branch-applicability.test.js',
+  'scripts/gates/g423-studio-scope-governance-non-studio-branch-applicability.mjs',
+  'src/runtime/__tests__/studio-scope-governance-non-studio-runtime-compatibility.test.js',
+  'scripts/gates/g423-studio-scope-governance-non-studio-runtime-compatibility.mjs',
+];
+
 const OWN_NON_GOVERNED = [
   'jsconfig.typecheck.json',
   'scripts/run-typecheck-governance.mjs',
@@ -96,8 +103,16 @@ gate('G423-48-O06 — governança compartilhada é exatamente registry + package
   entry.sharedGovernancePatterns.length === 2
   && entry.sharedGovernancePatterns.some((r) => r.test('scripts/gates/lib/studioScopeGovernanceRegistry.mjs'))
   && entry.sharedGovernancePatterns.some((r) => r.test('package.json')));
-gate('G423-48-O07 — cross-slice authorizations são ZERO',
-  entry.crossSliceAuthorizedPatterns.length === 0);
+gate('G423-48-O07 — uma autorização cruzada por consumidor de cardinalidade quebrado',
+  entry.crossSliceAuthorizedPatterns.length === CROSS_CORRECTED.length
+  && CROSS_CORRECTED.length === 4
+  && CROSS_CORRECTED.every((f) => entry.crossSliceAuthorizedPatterns.filter((r) => r.test(f)).length === 1)
+  && entry.crossSliceAuthorizedPatterns.every((r) => CROSS_CORRECTED.filter((f) => r.test(f)).length === 1),
+  String(entry.crossSliceAuthorizedPatterns.length));
+gate('G423-48-O07b — toda autorização cruzada é ancorada, sem curinga',
+  entry.crossSliceAuthorizedPatterns.every((r) =>
+    r.source.startsWith('^') && r.source.endsWith('$')
+    && !r.source.includes('.*') && !r.source.includes('.+')));
 gate('G423-48-O08 — zero autorização explícita de caminho proibido',
   entry.explicitlyAuthorizedForbiddenPatterns.length === 0);
 

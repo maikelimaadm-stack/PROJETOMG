@@ -1525,8 +1525,17 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
     branchMarkerPatterns: [
       /^docs\/evidence\/post-foundation-c-typecheck-environment-hygiene-governance\//,
     ],
-    // ZERO. Nenhum artefato de outra fatia é tocado por esta.
-    crossSliceAuthorizedPatterns: [],
+    // Quatro arquivos, e só. Cada um afirma a cardinalidade EXATA do catálogo — "47
+    // entradas", "ordinais 1..47", "46 merged" — e crescer o catálogo para 48 as torna
+    // falsas. Nenhum outro consumidor histórico quebrou: `test:runtime` e os demais gates
+    // dedicados ficaram verdes com a entrada 48 presente, e por isso não foram tocados.
+    // Um padrão ancorado por arquivo, sem curinga.
+    crossSliceAuthorizedPatterns: [
+      /^src\/runtime\/__tests__\/studio-scope-governance-non-studio-branch-applicability\.test\.js$/,
+      /^scripts\/gates\/g423-studio-scope-governance-non-studio-branch-applicability\.mjs$/,
+      /^src\/runtime\/__tests__\/studio-scope-governance-non-studio-runtime-compatibility\.test\.js$/,
+      /^scripts\/gates\/g423-studio-scope-governance-non-studio-runtime-compatibility\.mjs$/,
+    ],
     // Apenas o que a missão realmente precisa. `package-lock.json` está ausente de
     // propósito: ele NÃO muda nesta fatia, e autorizar o que não se toca seria uma
     // autorização vazia. O guard também está ausente: esta fatia não o altera.

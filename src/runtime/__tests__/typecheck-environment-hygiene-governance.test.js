@@ -49,6 +49,17 @@ const OWN_NON_GOVERNED = Object.freeze([
   'docs/engineering/P1-02A-TYPECHECK-ENVIRONMENT-HYGIENE-REPORT.md',
 ]);
 
+/**
+ * Os quatro consumidores históricos que afirmam a cardinalidade EXATA do catálogo e
+ * quebraram ao crescer para 48. Nenhum outro precisou mudar.
+ */
+const CROSS_CORRECTED = Object.freeze([
+  'src/runtime/__tests__/studio-scope-governance-non-studio-branch-applicability.test.js',
+  'scripts/gates/g423-studio-scope-governance-non-studio-branch-applicability.mjs',
+  'src/runtime/__tests__/studio-scope-governance-non-studio-runtime-compatibility.test.js',
+  'scripts/gates/g423-studio-scope-governance-non-studio-runtime-compatibility.mjs',
+]);
+
 const entry = () => STUDIO_SLICE_CATALOG.find((s) => s.sliceId === SLICE);
 const consumer = (paths, caller = SLICE) =>
   evaluateStudioBranchConsumerScope(paths, { callerSliceId: caller });
@@ -182,8 +193,27 @@ test('B009 o guard NÃO é autorizado — não é alterado por esta fatia', () =
   }
 });
 
-test('B010 cross-slice authorizations são ZERO', () => {
-  assert.deepEqual(entry().crossSliceAuthorizedPatterns, []);
+test('B010 cross-slice authorizations: uma por consumidor de cardinalidade quebrado', () => {
+  const pats = entry().crossSliceAuthorizedPatterns;
+  assert.equal(pats.length, CROSS_CORRECTED.length);
+  assert.equal(CROSS_CORRECTED.length, 4);
+  for (const f of CROSS_CORRECTED) assert.equal(pats.filter((r) => r.test(f)).length, 1, f);
+  for (const r of pats) assert.equal(CROSS_CORRECTED.filter((f) => r.test(f)).length, 1, r.source);
+});
+
+test('B010b toda autorização cruzada é ancorada, sem curinga', () => {
+  for (const r of entry().crossSliceAuthorizedPatterns) {
+    assert.ok(r.source.startsWith('^') && r.source.endsWith('$'), r.source);
+    assert.ok(!r.source.includes('.*') && !r.source.includes('.+'), r.source);
+  }
+});
+
+test('B010c os quatro corrigidos acompanharam o catálogo', () => {
+  for (const f of CROSS_CORRECTED) {
+    const src = read(f);
+    assert.ok(/forty-eight|48 entradas|=== 48|length, 48|length: 48/.test(src),
+      `${f} não acompanhou a cardinalidade`);
+  }
 });
 
 test('B011 zero autorização explícita de caminho proibido', () => {
