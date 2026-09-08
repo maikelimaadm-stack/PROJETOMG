@@ -637,6 +637,20 @@ test('E008 no historical evidence directory of an earlier slice is touched', () 
 });
 test('E009 the workflow is NOT part of this slice', () => {
   const f = changedOnThisBranch(); if (f === null) return;
+  const r = consumer(f);
+  // OWN-SCOPE. "The workflow is not mine" is a sentence about THIS slice's own branch. On a
+  // branch that is entirely outside the Studio territory — the very state this slice exists to
+  // recognise — `.github/**` is the legitimate subject and this slice owns nothing there.
+  // Recorded, never swallowed: the whole envelope is asserted, and every path is proven to be
+  // outside the governed domain, so an unregistered Studio path can never take this door.
+  if (r.reason === 'non_studio_branch') {
+    assert.equal(r.notApplicable, true);
+    assert.equal(r.safe, true);
+    assert.equal(r.activeSliceId, null);
+    assert.deepEqual(r.blockers, []);
+    for (const p of f) assert.equal(isStudioGovernedDomainPath(p), false, p);
+    return;
+  }
   for (const p of f) assert.equal(p.startsWith('.github/'), false, p);
 });
 

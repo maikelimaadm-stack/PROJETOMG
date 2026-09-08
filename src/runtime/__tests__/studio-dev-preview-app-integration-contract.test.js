@@ -583,6 +583,14 @@ test('404. no prior gate/test altered', () => {
     assert.equal(scope.certifiedAgainstActiveSlice, true);
     assert.equal(scope.evaluatedAsSliceId, scope.activeSliceId);
     assert.ok(scope.activeSliceOrdinal < scope.consumerSliceOrdinal);
+  } else if (scope.reason === 'non_studio_branch') {
+    //  - the branch is entirely outside the Studio-governed territory (Slice 46): there is no
+    //    slice to be at, before or after, so this consumer is a passenger. Asserted in full,
+    //    never assumed.
+    assert.equal(scope.notApplicable, true);
+    assert.equal(scope.applicable, false);
+    assert.equal(scope.activeSliceId, null);
+    assert.deepEqual(scope.blockers, []);
   } else {
     assert.equal(scope.notApplicable, true);
     assert.equal(scope.reason, 'empty_branch_diff');

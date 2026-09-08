@@ -166,6 +166,11 @@ const ownScopeApplicability = (paths) => {
   const scope = evaluateStudioBranchConsumerScope(paths, { callerSliceId: OWN_SCOPE_CALLER });
   const safelyInapplicable = scope.safe === true && scope.notApplicable === true
     && (scope.reason === 'empty_branch_diff'
+      // Slice 46 boundary. A branch whose whole diff lies outside the Studio-governed
+      // territory is legitimately inapplicable: it is not empty, and it owns no slice, so an
+      // own-scope sentence ("this branch touches no X other than mine") has no subject on it.
+      // This is recorded, never swallowed — ownScopeApplies asserts the full contract below.
+      || scope.reason === 'non_studio_branch'
       || (scope.reason === 'consumer_slice_after_active_slice'
         && scope.certifiedAgainstActiveSlice === true
         && scope.evaluatedAsSliceId === scope.activeSliceId));
@@ -201,6 +206,13 @@ const ownScopeApplies = (paths) => {
     assert.equal(a.scope.certifiedAgainstActiveSlice, true);
     assert.equal(a.scope.evaluatedAsSliceId, a.scope.activeSliceId);
     assert.ok(a.scope.activeSliceOrdinal < a.scope.consumerSliceOrdinal);
+  } else if (a.scope.reason === 'non_studio_branch') {
+    // Proven, not assumed: the whole Slice 46 non-Studio envelope must hold before an
+    // own-scope sentence is allowed to stand down.
+    assert.equal(a.scope.applicable, false);
+    assert.equal(a.scope.activeSliceId, null);
+    assert.deepEqual(a.scope.blockers, []);
+    assert.equal(a.scope.certifiedAgainstActiveSlice, false);
   } else {
     assert.equal(a.scope.reason, 'empty_branch_diff');
     assert.equal(a.scope.activeSliceId, null);
@@ -1241,6 +1253,14 @@ test('E016 no historical evidence directory of an earlier slice is touched', () 
 test('E016b every evidence path on this branch belongs to the ACTIVE slice, in any state', () => {
   // UNIVERSAL: whatever slice is active, no branch may carry a foreign slice's evidence.
   const f = changedOnThisBranch(); if (f === null || f.length === 0) return;
+  const s = evaluateStudioBranchConsumerScope(f, { callerSliceId: CONSUMERS });
+  if (s.reason === 'non_studio_branch') {
+    // `docs/evidence/**` is itself governed territory, so a branch the boundary calls
+    // non-Studio cannot be carrying evidence at all. Proven, not assumed.
+    assert.equal(s.safe, true);
+    for (const p of f) assert.equal(p.startsWith('docs/evidence/'), false, p);
+    return;
+  }
   const auth = createResolvedActiveStudioSlicePathAuthorizer(f);
   assert.equal(auth.ok, true, JSON.stringify(auth));
   for (const p of f) {
@@ -1286,11 +1306,31 @@ test('T006 this branch resolves exactly one slice, or none at all', () => {
   const f = changedOnThisBranch(); if (f === null) return;
   const a = resolveActiveStudioSlice(f);
   if (f.length === 0) { assert.equal(a.ok, false); return; }
+  // "or none at all": a branch outside the Studio territory resolves NO slice. The door is the
+  // boundary verdict, never an empty candidate list — an UNREGISTERED Studio path also produces
+  // zero candidates and must keep failing closed right here.
+  const s = evaluateStudioBranchConsumerScope(f, { callerSliceId: CONSUMERS });
+  if (s.reason === 'non_studio_branch') {
+    assert.equal(s.notApplicable, true);
+    assert.equal(s.safe, true);
+    assert.equal(a.ok, false);
+    assert.equal(a.candidates.length, 0);
+    return;
+  }
   assert.equal(a.ok, true, JSON.stringify(a));
   assert.equal(a.candidates.length, 1);
 });
 test('T007 the active path authorizer still admits only this slice artifacts', () => {
   const f = changedOnThisBranch(); if (f === null || f.length === 0) return;
+  const s = evaluateStudioBranchConsumerScope(f, { callerSliceId: CONSUMERS });
+  if (s.reason === 'non_studio_branch') {
+    // No active slice exists outside the Studio territory, so there is no authorizer to build.
+    // The authorizer must say so plainly rather than authorising anything.
+    assert.equal(s.safe, true);
+    assert.equal(s.activeSliceId, null);
+    assert.equal(createResolvedActiveStudioSlicePathAuthorizer(f).ok, false);
+    return;
+  }
   const a = createResolvedActiveStudioSlicePathAuthorizer(f);
   assert.equal(a.ok, true);
   for (const p of f) assert.equal(a.isAuthorized(p), true, p);
@@ -1311,6 +1351,14 @@ test('T010 a real slice branch diff is substantive and never reads as empty', ()
   // UNIVERSAL: a non-empty diff must never read as empty, whichever slice owns the branch.
   const r = evaluateStudioBranchConsumerScope(f, { callerSliceId: CONSUMERS });
   assert.notEqual(r.reason, 'empty_branch_diff');
+  if (r.reason === 'non_studio_branch') {
+    // Substantive, yet owning no slice: "never reads as empty" still holds and is the whole
+    // sentence available here.
+    assert.equal(r.notApplicable, true);
+    assert.equal(r.safe, true);
+    assert.equal(r.activeSliceId, null);
+    return;
+  }
   assert.notEqual(r.activeSliceId, null);
   // OWN-SCOPE: the >20 size floor describes THIS slice's own branch, not someone else's.
   if (ownScopeApplies(f)) assert.ok(f.length > 20, String(f.length));
