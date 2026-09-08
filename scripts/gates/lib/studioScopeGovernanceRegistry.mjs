@@ -1473,6 +1473,10 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       //       catálogo que o teste dela. Crescer o catálogo para 47 as torna falsas nos dois
       //       lugares, e corrigir só um deixaria o gate vermelho.
       /^scripts\/gates\/g423-studio-scope-governance-non-studio-branch-applicability\.mjs$/,
+      //   16. o gate da fatia 42, gêmeo do Hx03 do teste dela: afirma que um caminho é
+      //       autorizado SÓ para a migração e já mantém uma lista nomeada de fatias
+      //       posteriores que legitimamente reescrevem os mesmos artefatos. A 47 entra nela.
+      /^scripts\/gates\/g423-studio-scope-governance-chronological-migration\.mjs$/,
     ],
     sharedGovernancePatterns: [
       /^scripts\/gates\/lib\/studioScopeGovernanceRegistry\.mjs$/,

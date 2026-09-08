@@ -71,6 +71,8 @@ const CORRECTED = Object.freeze([
  */
 const CORRECTED_GATES = Object.freeze([
   'scripts/gates/g423-studio-scope-governance-non-studio-branch-applicability.mjs',
+  // gêmeo do Hx03: a mesma lista nomeada de fatias posteriores vive no gate da fatia 42
+  'scripts/gates/g423-studio-scope-governance-chronological-migration.mjs',
 ]);
 const AUTHORIZED = Object.freeze([...CORRECTED, ...CORRECTED_GATES]);
 
@@ -149,7 +151,7 @@ test('C008 o catálogo está congelado', () => {
 
 test('A001 há exatamente uma autorização cruzada por arquivo corrigido', () => {
   assert.equal(entry().crossSliceAuthorizedPatterns.length, AUTHORIZED.length);
-  assert.equal(AUTHORIZED.length, 15);
+  assert.equal(AUTHORIZED.length, 16);
 });
 
 test('A002 cada arquivo corrigido é autorizado, e nenhum outro', () => {

@@ -58,7 +58,10 @@ const CORRECTED = [
 
 // O gate da fatia 46 repete as cardinalidades do catálogo do teste dela e por isso também
 // é corrigido — e também autorizado, um arquivo, um padrão.
-const CORRECTED_GATES = ['scripts/gates/g423-studio-scope-governance-non-studio-branch-applicability.mjs'];
+const CORRECTED_GATES = [
+  'scripts/gates/g423-studio-scope-governance-non-studio-branch-applicability.mjs',
+  'scripts/gates/g423-studio-scope-governance-chronological-migration.mjs',
+];
 const AUTHORIZED = [...CORRECTED, ...CORRECTED_GATES];
 
 let passed = 0;
@@ -96,7 +99,7 @@ if (!entry) {
 
 /* ---------------- autorização ---------------- */
 gate('G423-47-A01 — uma autorização cruzada por arquivo corrigido',
-  entry.crossSliceAuthorizedPatterns.length === AUTHORIZED.length && AUTHORIZED.length === 15,
+  entry.crossSliceAuthorizedPatterns.length === AUTHORIZED.length && AUTHORIZED.length === 16,
   String(entry.crossSliceAuthorizedPatterns.length));
 gate('G423-47-A02 — cada arquivo corrigido casa exatamente um padrão',
   AUTHORIZED.every((f) => entry.crossSliceAuthorizedPatterns.filter((r) => r.test(f)).length === 1));
