@@ -1,7 +1,35 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-30 (D-075 BOS MVP)
+**Last updated:** 2026-09-08 (P1-02A Typecheck Environment Hygiene)
+
+---
+
+## 2026-09-08 — P1-02A: Typecheck Environment Hygiene & Debt Reclassification
+
+**Base:** `14de11106af834c1fd627c247490aac87c6452b3` (merge da PR #503)
+**Deliverable:** [P1-02A-TYPECHECK-ENVIRONMENT-HYGIENE-REPORT.md](./P1-02A-TYPECHECK-ENVIRONMENT-HYGIENE-REPORT.md)
+
+**Por que existiu:** a tentativa P1-02 parou com `P1_02_BASELINE_SCOPE_DRIFT`. A premissa
+registrada em TD-009 — "erros apenas em `src/shared/ui/*`" — foi refutada pela medição:
+3745 diagnósticos em 594 arquivos, dos quais só 316 (8,4%) em `src/shared/ui/**`.
+
+**O que mudou:** separação dos contextos de execução. `jsconfig.typecheck.json` passa a ser
+o escopo de PRODUÇÃO, browser-safe (`types: []` herdado, sem globals do Node), excluindo
+uma única raiz — `src/runtime/__tests__` — cujo dono executável é `npm run test:runtime`,
+que enumera nominalmente os 114 testes e roda no CI. Nenhuma raiz de produção foi excluída.
+
+**Medição:** produção 2365/477 · inventário legado 3745/594 · removidos do escopo de
+produção 1380 (1333 testes + 47 ferramentas Node alcançadas por importação).
+
+**Findings preservados:** 8 diagnósticos de builtins Node em 7 arquivos de produção
+continuam vermelhos, deliberadamente não ocultados.
+
+**Dívida:** TD-009 reduzida ao subconjunto real; TD-016 aberta para a dívida global.
+Nenhuma baseline criada — isso é P1-02B.
+
+**Bloqueador conhecido:** `typecheck:governance` continua devolvendo 0. A mensagem parou de
+atribuir toda falha a TD-009/shadcn, mas o bypass permanece até P1-02B.
 
 ---
 

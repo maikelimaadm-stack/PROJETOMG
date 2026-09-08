@@ -1,0 +1,28 @@
+{
+  "//": [
+    "PRODUCTION TYPECHECK SCOPE — P1-02A.",
+    "",
+    "Herda TODA a configuração de compilação de ./jsconfig.json, inclusive `types: []`,",
+    "que mantém o escopo browser-safe: nenhum global do Node é habilitado para o código",
+    "de produção. Se um arquivo de produção usar `node:fs`, `process` ou `Buffer`, o",
+    "diagnóstico continua aparecendo — é isso que se quer.",
+    "",
+    "`exclude` NÃO é mesclado pelo TypeScript: a lista abaixo SUBSTITUI a do arquivo base,",
+    "por isso as três entradas originais são repetidas aqui.",
+    "",
+    "A única exclusão nova é src/runtime/__tests__, o contexto Node de testes. Ela tem",
+    "dono executável comprovado: `npm run test:runtime` enumera nominalmente os 114",
+    "arquivos .test.js do diretório, e as 2 fixtures restantes são importadas por eles.",
+    "Esse comando roda no CI, no step `Runtime tests` do workflow Foundation Governance.",
+    "",
+    "Nenhuma raiz de produção é excluída. Arquivos de classificação incerta permanecem",
+    "INCLUÍDOS por princípio."
+  ],
+  "extends": "./jsconfig.json",
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/vite-plugins",
+    "src/runtime/__tests__"
+  ]
+}

@@ -129,10 +129,12 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 |-------|----------------------|
 | `npm run build` | ✅ Pass |
 | `npm run lint` | ✅ Pass (0 errors) |
-| `npm run typecheck` | ⚠️ Known noise in `src/shared/ui/*` (TD-009) |
-| `npm run typecheck:governance` | ✅ Runs in CI — records TD-009 baseline without blocking |
+| `npm run typecheck` | ⚠️ Escopo de PRODUÇÃO (`jsconfig.typecheck.json`) — 2365 diagnósticos em 477 arquivos (TD-016) |
+| `npm run typecheck:legacy-all` | ⚠️ Inventário completo (`jsconfig.json`) — 3745 diagnósticos em 594 arquivos. Espera-se vermelho |
+| `npm run test:typecheck-scope-governance` | ✅ Prova que nenhuma raiz de produção saiu do escopo |
+| `npm run typecheck:governance` | ⚠️ **Ponte PERMISSIVA** — roda o escopo de produção e ainda devolve 0. NÃO é fail-closed; um diagnóstico novo passa. Remoção do bypass: P1-02B |
 | `npm run verify:governance` | ✅ Pass — G31–G142 + G156–G261 |
-| `npm run verify:ci` | ✅ Pass — full PR mirror (build + lint + typecheck:governance + all gates) |
+| `npm run verify:ci` | ⚠️ Inclui `test:typecheck-scope-governance`. Vermelho por falha PRÉ-EXISTENTE em `gate:studio-sdk` (G265), agregada em `gate:capabilities` — que o workflow do CI não executa |
 | CI workflow | `.github/workflows/foundation-governance.yml` — foundation job + parallel capability-gates matrix |
 | Gates V13–V20 (G156–G261) | ✅ **In CI** — TD-013 resolved (IFM 1D-1) |
 | Supplementary gates | `gate:functional-completion`, `gate:foundation-completion`, V15/V15.1/V15.2 — manual |
