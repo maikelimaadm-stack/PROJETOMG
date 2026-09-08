@@ -164,10 +164,20 @@ test('A002 cada arquivo corrigido é autorizado, e nenhum outro', () => {
   }
 });
 
-test('A012 o gate corrigido da fatia 46 acompanha o teste dela', () => {
+test('A012 o gate corrigido da fatia 46 acompanha o catálogo VIGENTE', () => {
+  // Relativo ao catálogo, não a uma palavra congelada: a versão anterior fixava
+  // "forty-seven" e envelhecia a cada fatia nova, transformando crescimento legítimo
+  // do catálogo em falha. A intenção sempre foi que o gate acompanhe a cardinalidade.
+  // Ancorado na asserção de COMPRIMENTO do catálogo: o gate contém outros números
+  // legítimos (a contagem de `merged`, por exemplo), então um regex solto por `=== N`
+  // produziria falso positivo.
   const src = read(CORRECTED_GATES[0]);
-  assert.ok(src.includes('forty-seven'), 'cardinalidade do gate não acompanhou o catálogo');
-  assert.ok(!src.includes('forty-six slices'), 'cardinalidade antiga remanescente');
+  const n = STUDIO_SLICE_CATALOG.length;
+  const lengthAssertions = [...src.matchAll(/STUDIO_SLICE_CATALOG\.length === (\d+)/g)]
+    .map((m) => Number(m[1]));
+  assert.ok(lengthAssertions.length > 0, 'o gate não afirma a cardinalidade do catálogo');
+  assert.deepEqual([...new Set(lengthAssertions)], [n],
+    `o gate afirma ${JSON.stringify(lengthAssertions)}, catálogo vigente é ${n}`);
 });
 
 test('A003 nenhuma autorização cruzada é wildcard de diretório', () => {

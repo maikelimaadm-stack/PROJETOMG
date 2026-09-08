@@ -105,9 +105,14 @@ gate('G423-47-A02 — cada arquivo corrigido casa exatamente um padrão',
   AUTHORIZED.every((f) => entry.crossSliceAuthorizedPatterns.filter((r) => r.test(f)).length === 1));
 gate('G423-47-A03 — nenhum padrão cruzado sobra sem alvo',
   entry.crossSliceAuthorizedPatterns.every((p) => AUTHORIZED.filter((f) => p.test(f)).length === 1));
-gate('G423-47-A12 — o gate corrigido da fatia 46 acompanha o catálogo',
-  read(CORRECTED_GATES[0]).includes('forty-seven')
-  && !read(CORRECTED_GATES[0]).includes('forty-six slices'));
+// Relativo ao catálogo, não a uma palavra congelada — ver A012 no teste desta fatia.
+gate('G423-47-A12 — o gate corrigido da fatia 46 acompanha o catálogo vigente', (() => {
+  const src = read(CORRECTED_GATES[0]);
+  const n = STUDIO_SLICE_CATALOG.length;
+  const found = [...new Set([...src.matchAll(/STUDIO_SLICE_CATALOG\.length === (\d+)/g)]
+    .map((m) => Number(m[1])))];
+  return found.length === 1 && found[0] === n;
+})());
 gate('G423-47-A04 — todo padrão cruzado é ancorado',
   entry.crossSliceAuthorizedPatterns.every((p) => p.source.startsWith('^') && p.source.endsWith('$')));
 gate('G423-47-A05 — nenhum curinga em autorização cruzada',
