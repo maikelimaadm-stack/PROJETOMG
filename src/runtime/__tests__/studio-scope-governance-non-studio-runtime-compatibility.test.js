@@ -64,6 +64,16 @@ const CORRECTED = Object.freeze([
   'src/runtime/__tests__/studio-scope-governance-non-studio-branch-applicability.test.js',
 ]);
 
+/**
+ * O gate da fatia 46 repete as asserções de cardinalidade do catálogo que existem no teste
+ * dela. Crescer o catálogo para 47 as torna falsas nos dois lugares, então ele também é
+ * corrigido — e por isso também é autorizado, um arquivo, um padrão.
+ */
+const CORRECTED_GATES = Object.freeze([
+  'scripts/gates/g423-studio-scope-governance-non-studio-branch-applicability.mjs',
+]);
+const AUTHORIZED = Object.freeze([...CORRECTED, ...CORRECTED_GATES]);
+
 const entry = () => STUDIO_SLICE_CATALOG.find((s) => s.sliceId === SLICE);
 const consumer = (paths, caller = SLICE) =>
   evaluateStudioBranchConsumerScope(paths, { callerSliceId: caller });
@@ -137,18 +147,25 @@ test('C008 o catálogo está congelado', () => {
 // A — AUTORIZAÇÃO: EXATA, SEM WILDCARD, SEM CAMINHO PROIBIDO
 // ===========================================================================
 
-test('A001 há exatamente catorze autorizações cruzadas', () => {
-  assert.equal(entry().crossSliceAuthorizedPatterns.length, CORRECTED.length);
+test('A001 há exatamente uma autorização cruzada por arquivo corrigido', () => {
+  assert.equal(entry().crossSliceAuthorizedPatterns.length, AUTHORIZED.length);
+  assert.equal(AUTHORIZED.length, 15);
 });
 
 test('A002 cada arquivo corrigido é autorizado, e nenhum outro', () => {
   const pats = entry().crossSliceAuthorizedPatterns;
-  for (const f of CORRECTED) {
+  for (const f of AUTHORIZED) {
     assert.equal(pats.filter((r) => r.test(f)).length, 1, f);
   }
   for (const p of pats) {
-    assert.equal(CORRECTED.filter((f) => p.test(f)).length, 1, p.source);
+    assert.equal(AUTHORIZED.filter((f) => p.test(f)).length, 1, p.source);
   }
+});
+
+test('A012 o gate corrigido da fatia 46 acompanha o teste dela', () => {
+  const src = read(CORRECTED_GATES[0]);
+  assert.ok(src.includes('forty-seven'), 'cardinalidade do gate não acompanhou o catálogo');
+  assert.ok(!src.includes('forty-six slices'), 'cardinalidade antiga remanescente');
 });
 
 test('A003 nenhuma autorização cruzada é wildcard de diretório', () => {

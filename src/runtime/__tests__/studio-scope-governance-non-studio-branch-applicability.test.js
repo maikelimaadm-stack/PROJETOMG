@@ -77,14 +77,14 @@ const changedOnThisBranch = () => {
 // ===========================================================================
 // R — the catalog after slice 46
 // ===========================================================================
-test('R001 the catalog holds forty-six slices', () => assert.equal(STUDIO_SLICE_CATALOG.length, 46));
+test('R001 the catalog holds forty-seven slices', () => assert.equal(STUDIO_SLICE_CATALOG.length, 47));
 test('R002 slice ids stay unique', () => {
   const ids = STUDIO_SLICE_CATALOG.map((s) => s.sliceId);
   assert.equal(new Set(ids).size, ids.length);
 });
-test('R003 ordinals are contiguous 1..46', () => {
+test('R003 ordinals are contiguous 1..47', () => {
   const o = STUDIO_SLICE_CATALOG.map((s) => s.sliceOrdinal).sort((a, b) => a - b);
-  assert.deepEqual(o, Array.from({ length: 46 }, (_, i) => i + 1));
+  assert.deepEqual(o, Array.from({ length: 47 }, (_, i) => i + 1));
 });
 test('R004 every entry still carries exactly ten keys', () => {
   for (const s of STUDIO_SLICE_CATALOG) assert.equal(Object.keys(s).length, 10, s.sliceId);
@@ -101,11 +101,11 @@ test('R007 the catalog carries zero active_slice', () => {
 test('R008 the catalog carries zero open_pull_request_* status', () => {
   assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status.startsWith('open_pull_request')).length, 0);
 });
-test('R009 the merged family covers all forty-six entries', () => {
-  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status.startsWith('merged')).length, 46);
+test('R009 the merged family covers all forty-seven entries', () => {
+  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status.startsWith('merged')).length, 47);
 });
-test('R010 exactly forty-five carry the plain merged status', () => {
-  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status === 'merged').length, 45);
+test('R010 exactly forty-six carry the plain merged status', () => {
+  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status === 'merged').length, 46);
 });
 test('R011 slice 39 keeps its pre-existing deviating status, named explicitly', () => {
   const s39 = STUDIO_SLICE_CATALOG.find((s) => s.sliceOrdinal === 39);
@@ -630,8 +630,13 @@ test('E007 the negative matrix records every fail-closed state', () => {
 });
 test('E008 no historical evidence directory of an earlier slice is touched', () => {
   const f = changedOnThisBranch(); if (f === null) return;
+  // A evidência aceita além da própria é a da slice ATIVA, julgada pelo autorizador — e uma
+  // slice ativa POSTERIOR não é "uma fatia anterior". Evidência estranha ou de fatia anterior
+  // continua reprovando, porque o autorizador não a admite.
+  const auth = createResolvedActiveStudioSlicePathAuthorizer(f);
   for (const p of f) {
     if (!p.startsWith('docs/evidence/')) continue;
+    if (auth.ok && auth.isAuthorized(p)) continue;
     assert.ok(p.startsWith(EV_REL), p);
   }
 });
@@ -665,8 +670,12 @@ test('T001 this branch is not applicable, or resolves exactly this slice', () =>
     assert.equal(r.activeSliceId, null);
     return;
   }
-  assert.equal(r.activeSliceId, APPLICABILITY, JSON.stringify(r));
-  assert.deepEqual(r.activeCandidates, [APPLICABILITY]);
+  // Exatamente uma slice ativa, e ela é esta ou uma POSTERIOR: uma fatia corretiva posterior
+  // pode legitimamente reescrever estes artefatos, e a boundary certifica a branch contra ela.
+  assert.equal(r.activeCandidates.length, 1, JSON.stringify(r));
+  const ativa = STUDIO_SLICE_CATALOG.find((s) => s.sliceId === r.activeSliceId);
+  const propria = STUDIO_SLICE_CATALOG.find((s) => s.sliceId === APPLICABILITY);
+  assert.ok(ativa && ativa.sliceOrdinal >= propria.sliceOrdinal, JSON.stringify(r));
 });
 test('T002 this branch is sound for this slice', () => {
   const f = changedOnThisBranch(); if (f === null) return;

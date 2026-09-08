@@ -1469,6 +1469,10 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^src\/runtime\/__tests__\/studio-scope-governance-main-diff-correction\.test\.js$/,
       /^src\/runtime\/__tests__\/studio-builder-lifecycle-normalization\.test\.js$/,
       /^src\/runtime\/__tests__\/studio-scope-governance-non-studio-branch-applicability\.test\.js$/,
+      //   15. o gate da fatia 46, que carrega as MESMAS asserções de cardinalidade do
+      //       catálogo que o teste dela. Crescer o catálogo para 47 as torna falsas nos dois
+      //       lugares, e corrigir só um deixaria o gate vermelho.
+      /^scripts\/gates\/g423-studio-scope-governance-non-studio-branch-applicability\.mjs$/,
     ],
     sharedGovernancePatterns: [
       /^scripts\/gates\/lib\/studioScopeGovernanceRegistry\.mjs$/,

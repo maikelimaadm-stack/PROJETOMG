@@ -1046,6 +1046,7 @@ for (const p of [...NINE_TESTS.map(([x]) => x), ...TWENTY_TWO_GATES.map(([x]) =>
       if (s.sliceId === MIGRATION) continue;
       if (s.sliceId === CORRECTION) continue; // the later correction slice rewires the same artifacts
       if (s.sliceId === CONSUMERS) continue; // the later consumers slice rewires the same artifacts
+      if (s.sliceId === 'studio-scope-governance-non-studio-runtime-compatibility') continue; // the later non-Studio compatibility slice rewires the same artifacts
       if (s.sliceId === 'studio-scope-governance-maintenance') continue; // its own earlier, separately proven wiring
       if (s.sliceId === BUILDER && BUILDER_CROSS.includes(p)) continue;  // the Builder's own lifecycle pair
       const owns = findOwningStudioSlices(p).some((o) => o.sliceId === s.sliceId);
