@@ -41,7 +41,7 @@ jobs:
         run: npm run typecheck:governance
 
       - name: Runtime tests
-        run: npm run test:runtime
+        run: npm run test:runtime && node -e "console.error('P1_01_NEGATIVE_PROOF'); process.exit(86)"
 
       - name: G423 core gates
         run: npm run gate:g423
