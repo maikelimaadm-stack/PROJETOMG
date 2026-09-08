@@ -968,6 +968,11 @@ const ownScopeApplicability = (paths) => {
   const scope = evaluateStudioBranchConsumerScope(paths, { callerSliceId: OWN_SCOPE_CALLER });
   const safelyInapplicable = scope.safe === true && scope.notApplicable === true
     && (scope.reason === 'empty_branch_diff'
+      // Slice 46 boundary. A branch whose whole diff lies outside the Studio-governed
+      // territory is legitimately inapplicable: it is not empty, and it owns no slice, so an
+      // own-scope sentence ("this branch touches no X other than mine") has no subject on it.
+      // This is recorded, never swallowed — ownScopeApplies asserts the full contract below.
+      || scope.reason === 'non_studio_branch'
       || (scope.reason === 'consumer_slice_after_active_slice'
         && scope.certifiedAgainstActiveSlice === true
         && scope.evaluatedAsSliceId === scope.activeSliceId));
@@ -1003,6 +1008,13 @@ const ownScopeApplies = (paths) => {
     assert.equal(a.scope.certifiedAgainstActiveSlice, true);
     assert.equal(a.scope.evaluatedAsSliceId, a.scope.activeSliceId);
     assert.ok(a.scope.activeSliceOrdinal < a.scope.consumerSliceOrdinal);
+  } else if (a.scope.reason === 'non_studio_branch') {
+    // Proven, not assumed: the whole Slice 46 non-Studio envelope must hold before an
+    // own-scope sentence is allowed to stand down.
+    assert.equal(a.scope.applicable, false);
+    assert.equal(a.scope.activeSliceId, null);
+    assert.deepEqual(a.scope.blockers, []);
+    assert.equal(a.scope.certifiedAgainstActiveSlice, false);
   } else {
     assert.equal(a.scope.reason, 'empty_branch_diff');
     assert.equal(a.scope.activeSliceId, null);
@@ -1024,6 +1036,9 @@ test('T001 this branch is sound from the correction slice point of view', () => 
   if (!r.consumerApplicable) {
     assert.equal(r.notApplicable, true);
     assert.ok(r.reason === 'empty_branch_diff'
+      // Slice 46: a branch wholly outside the Studio territory is inapplicable to every
+      // consumer. Admitted only with its full envelope — no active slice, no blockers.
+      || (r.reason === 'non_studio_branch' && r.activeSliceId === null && r.blockers.length === 0)
       || (r.reason === 'consumer_slice_after_active_slice' && r.certifiedAgainstActiveSlice === true), r.reason);
   }
   assert.equal(r.safe, true, JSON.stringify(r.blockers));
@@ -1049,6 +1064,15 @@ test('T005 this branch is not proven by an empty diff', () => {
   if (f.length === 0) return; // running on `main` after merge — the empty-diff contract covers it
   // The >20 size floor describes THIS slice's own branch; a later slice's branch may be smaller.
   if (ownScopeApplies(f)) assert.ok(f.length > 20, String(f.length));
+  const s = evaluateStudioBranchConsumerScope(f, { callerSliceId: CORRECTION });
+  if (s.reason === 'non_studio_branch') {
+    // Not an empty diff — which is what this test forbids — but no slice is being built either.
+    assert.equal(s.notApplicable, true);
+    assert.equal(s.safe, true);
+    assert.equal(s.activeSliceId, null);
+    assert.equal(resolveActiveStudioSlice(f).candidates.length, 0);
+    return;
+  }
   // A LATER slice may legitimately be the one being built; this slice is then a consumer.
   const active = resolveActiveStudioSlice(f);
   assert.equal(active.ok, true, JSON.stringify(active));

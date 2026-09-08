@@ -851,8 +851,18 @@ test('T007 an empty diff is admitted ONLY as the safe empty_branch_diff state', 
 });
 test('T008 a real slice branch diff is substantive and never reads as empty', () => {
   const f = changedOnThisBranch(); if (f === null || f.length === 0) return;
-  assert.ok(f.length >= 5, String(f.length));
   const r = evaluateStudioBranchConsumerScope(f, { callerSliceId: NORMALIZATION });
+  // UNIVERSAL: a non-empty diff must never read as empty, whichever branch this is.
   assert.notEqual(r.reason, 'empty_branch_diff');
+  if (r.reason === 'non_studio_branch') {
+    // No slice is being built outside the Studio territory, so neither the size floor nor the
+    // resolved-slice sentence has a subject here. Proven in full, never assumed.
+    assert.equal(r.notApplicable, true);
+    assert.equal(r.safe, true);
+    assert.equal(r.activeSliceId, null);
+    assert.deepEqual(r.blockers, []);
+    return;
+  }
+  assert.ok(f.length >= 5, String(f.length));
   assert.notEqual(r.activeSliceId, null);
 });

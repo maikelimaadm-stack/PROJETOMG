@@ -78,15 +78,16 @@ const isNonStudio = (r) => r.notApplicable === true && r.applicable === false
 // =====================================================================
 // Catalog
 // =====================================================================
-gate('G423-NSB — the catalog holds forty-six slices', STUDIO_SLICE_CATALOG.length === 46, String(STUDIO_SLICE_CATALOG.length));
+gate('G423-NSB — the catalog holds forty-seven slices', STUDIO_SLICE_CATALOG.length === 47, String(STUDIO_SLICE_CATALOG.length));
 gate('G423-NSB — ordinals are contiguous 1..46', (() => {
   const o = STUDIO_SLICE_CATALOG.map((s) => s.sliceOrdinal).sort((a, b) => a - b);
-  return o.length === 46 && o.every((v, i) => v === i + 1);
+  return o.length === 47 && o.every((v, i) => v === i + 1);
 })());
 gate('G423-NSB — every entry carries exactly ten keys',
   STUDIO_SLICE_CATALOG.every((s) => Object.keys(s).length === 10));
 gate('G423-NSB — slice ids are unique',
-  new Set(STUDIO_SLICE_CATALOG.map((s) => s.sliceId)).size === 46);
+  new Set(STUDIO_SLICE_CATALOG.map((s) => s.sliceId)).size === STUDIO_SLICE_CATALOG.length
+  && STUDIO_SLICE_CATALOG.length === 47);
 gate('G423-NSB — this slice is ordinal 46', G.getStudioSliceById(APPLICABILITY)?.sliceOrdinal === 46);
 gate('G423-NSB — this slice is born merged', G.getStudioSliceById(APPLICABILITY)?.status === 'merged');
 gate('G423-NSB — zero active_slice remains',
@@ -94,9 +95,9 @@ gate('G423-NSB — zero active_slice remains',
 gate('G423-NSB — zero open_pull_request_* remains',
   STUDIO_SLICE_CATALOG.filter((s) => s.status.startsWith('open_pull_request')).length === 0);
 gate('G423-NSB — the merged family covers all forty-six',
-  STUDIO_SLICE_CATALOG.filter((s) => s.status.startsWith('merged')).length === 46);
+  STUDIO_SLICE_CATALOG.filter((s) => s.status.startsWith('merged')).length === 47);
 gate('G423-NSB — exactly forty-five carry the plain merged status',
-  STUDIO_SLICE_CATALOG.filter((s) => s.status === 'merged').length === 45);
+  STUDIO_SLICE_CATALOG.filter((s) => s.status === 'merged').length === 46);
 gate('G423-NSB — slice 39 keeps its pre-existing deviating status',
   STUDIO_SLICE_CATALOG.find((s) => s.sliceOrdinal === 39)?.status === 'merged_without_dedicated_artifacts');
 gate('G423-NSB — zero slices authorize historical branch consumers',
@@ -438,12 +439,22 @@ if (branchPaths === null) {
     branchPaths.every((p) => !p.startsWith('src/studio/')));
   gate('G423-NSB — this branch does NOT carry the CI workflow',
     branchPaths.every((p) => !p.startsWith('.github/')));
-  gate('G423-NSB — this branch touches no earlier slice evidence directory',
-    branchPaths.filter((p) => p.startsWith('docs/evidence/')).every((p) => p.startsWith(EV_REL)));
+  // A evidência aceita além da própria é a da slice ATIVA, julgada pelo autorizador: uma
+  // slice ativa POSTERIOR não é "uma fatia anterior". Evidência estranha continua reprovando.
+  gate('G423-NSB — this branch touches no earlier slice evidence directory', (() => {
+    const auth = G.createResolvedActiveStudioSlicePathAuthorizer(branchPaths);
+    return branchPaths.filter((p) => p.startsWith('docs/evidence/'))
+      .every((p) => p.startsWith(EV_REL) || (auth.ok && auth.isAuthorized(p)));
+  })());
+  // Exatamente uma slice ativa, e ela é esta ou uma POSTERIOR: uma fatia corretiva posterior
+  // pode legitimamente reescrever estes artefatos.
   gate('G423-NSB — this branch is not applicable, or resolves exactly this slice', (() => {
     const x = consumer(branchPaths);
     if (x.reason === 'empty_branch_diff' || x.reason === 'non_studio_branch') return x.notApplicable === true;
-    return x.activeSliceId === APPLICABILITY;
+    if (x.activeCandidates.length !== 1) return false;
+    const ativa = STUDIO_SLICE_CATALOG.find((s) => s.sliceId === x.activeSliceId);
+    const propria = STUDIO_SLICE_CATALOG.find((s) => s.sliceId === APPLICABILITY);
+    return Boolean(ativa) && Boolean(propria) && ativa.sliceOrdinal >= propria.sliceOrdinal;
   })());
   gate('G423-NSB — the future CI-only branch is admitted by every consumer',
     [MAINTENANCE, MIGRATION, CORRECTION, CONSUMERS, NORMALIZATION, APPLICABILITY]

@@ -756,6 +756,11 @@ const ownScopeApplicability = (paths) => {
   const scope = evaluateStudioBranchConsumerScope(paths, { callerSliceId: OWN_SCOPE_CALLER });
   const safelyInapplicable = scope.safe === true && scope.notApplicable === true
     && (scope.reason === 'empty_branch_diff'
+      // Slice 46 boundary. A branch whose whole diff lies outside the Studio-governed
+      // territory is legitimately inapplicable: it is not empty, and it owns no slice, so an
+      // own-scope sentence ("this branch touches no X other than mine") has no subject on it.
+      // This is recorded, never swallowed — ownScopeApplies asserts the full contract below.
+      || scope.reason === 'non_studio_branch'
       || (scope.reason === 'consumer_slice_after_active_slice'
         && scope.certifiedAgainstActiveSlice === true
         && scope.evaluatedAsSliceId === scope.activeSliceId));
@@ -791,6 +796,13 @@ const ownScopeApplies = (paths) => {
     assert.equal(a.scope.certifiedAgainstActiveSlice, true);
     assert.equal(a.scope.evaluatedAsSliceId, a.scope.activeSliceId);
     assert.ok(a.scope.activeSliceOrdinal < a.scope.consumerSliceOrdinal);
+  } else if (a.scope.reason === 'non_studio_branch') {
+    // Proven, not assumed: the whole Slice 46 non-Studio envelope must hold before an
+    // own-scope sentence is allowed to stand down.
+    assert.equal(a.scope.applicable, false);
+    assert.equal(a.scope.activeSliceId, null);
+    assert.deepEqual(a.scope.blockers, []);
+    assert.equal(a.scope.certifiedAgainstActiveSlice, false);
   } else {
     assert.equal(a.scope.reason, 'empty_branch_diff');
     assert.equal(a.scope.activeSliceId, null);
@@ -807,6 +819,17 @@ test('T001 this branch resolves exactly one slice, or none at all', () => {
   const f = changedOnThisBranch(); if (f === null) return;
   const r = resolveActiveStudioSlice(f);
   if (f.length === 0) { assert.equal(r.ok, false); assert.equal(r.reason, 'no_active_slice_resolved'); return; }
+  // "or none at all": outside the Studio territory nothing resolves. The door is the boundary
+  // verdict, never an empty candidate list — an UNREGISTERED Studio path also yields zero
+  // candidates and must keep failing closed here.
+  const s = evaluateStudioBranchConsumerScope(f, { callerSliceId: MIGRATION });
+  if (s.reason === 'non_studio_branch') {
+    assert.equal(s.notApplicable, true);
+    assert.equal(s.safe, true);
+    assert.equal(r.ok, false);
+    assert.equal(r.candidates.length, 0);
+    return;
+  }
   assert.equal(r.ok, true, JSON.stringify(r));
   assert.equal(r.candidates.length, 1);
 });
@@ -821,6 +844,9 @@ test('T002 this branch is sound from the migration slice point of view', () => {
   if (!r.consumerApplicable) {
     assert.equal(r.notApplicable, true);
     assert.ok(r.reason === 'empty_branch_diff'
+      // Slice 46: a branch wholly outside the Studio territory is inapplicable to every
+      // consumer. Admitted only with its full envelope — no active slice, no blockers.
+      || (r.reason === 'non_studio_branch' && r.activeSliceId === null && r.blockers.length === 0)
       || (r.reason === 'consumer_slice_after_active_slice' && r.certifiedAgainstActiveSlice === true), r.reason);
   }
   assert.equal(r.safe, true, JSON.stringify(r.blockers));
@@ -1020,6 +1046,7 @@ for (const p of [...NINE_TESTS.map(([x]) => x), ...TWENTY_TWO_GATES.map(([x]) =>
       if (s.sliceId === MIGRATION) continue;
       if (s.sliceId === CORRECTION) continue; // the later correction slice rewires the same artifacts
       if (s.sliceId === CONSUMERS) continue; // the later consumers slice rewires the same artifacts
+      if (s.sliceId === 'studio-scope-governance-non-studio-runtime-compatibility') continue; // the later non-Studio compatibility slice rewires the same artifacts
       if (s.sliceId === 'studio-scope-governance-maintenance') continue; // its own earlier, separately proven wiring
       if (s.sliceId === BUILDER && BUILDER_CROSS.includes(p)) continue;  // the Builder's own lifecycle pair
       const owns = findOwningStudioSlices(p).some((o) => o.sliceId === s.sliceId);

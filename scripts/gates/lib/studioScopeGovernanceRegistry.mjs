@@ -1419,6 +1419,78 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
     // residual that would need a slice 47 just to clear.
     status: 'merged',
   },
+  {
+    sliceId: 'studio-scope-governance-non-studio-runtime-compatibility',
+    sliceOrdinal: 47,
+    title: 'Studio Scope Governance Non-Studio Runtime Compatibility',
+    primaryArtifactPatterns: [
+      /^src\/runtime\/__tests__\/studio-scope-governance-non-studio-runtime-compatibility\.test\.js$/,
+      /^scripts\/gates\/g423-studio-scope-governance-non-studio-runtime-compatibility\.mjs$/,
+      /^docs\/evidence\/post-foundation-c-studio-scope-governance-non-studio-runtime-compatibility\//,
+    ],
+    branchMarkerPatterns: [
+      /^docs\/evidence\/post-foundation-c-studio-scope-governance-non-studio-runtime-compatibility\//,
+    ],
+    // Slice 46 created the `non_studio_branch` applicability state. The consumers written
+    // BEFORE it enumerate the legitimate branch states exhaustively, so a branch whose whole
+    // diff lies outside the governed territory fell through to a branch that demanded
+    // `empty_branch_diff`, or demanded a resolved active slice. Measured on a workflow-only
+    // branch over ca65b7c0: 23544 tests, 24 failures, none of them a product defect.
+    //
+    // Each entry below is EXACTLY one file that was proven to fail in that reproduction and
+    // that received a narrow, contract-shaped correction. There is no directory wildcard, no
+    // prefix, no `.*`: fourteen files, fourteen anchored patterns. An authorization for a file
+    // that is not touched would be an empty authorization, which is itself a defect.
+    //
+    //   1-9.   the nine `no prior gate/test altered` consumers, whose three-outcome
+    //          enumeration had no room for the fourth, later state;
+    //   10-12. the three `ownScopeApplies` helper copies (historical-branch-consumers,
+    //          chronological-migration, main-diff-correction), plus the branch-relative
+    //          assertions in those files that assumed a slice always resolves;
+    //   13.    the lifecycle-normalization `substantive diff` assertion;
+    //   14.    slice 46's own `E009 the workflow is NOT part of this slice`, which is an
+    //          own-scope sentence and had to become ownership-aware.
+    //
+    // Deliberately ABSENT: the guard, which is NOT changed by this slice and is `shared`
+    // rather than `cross`; every production path; every historical evidence directory; every
+    // Studio source subtree. This slice corrects test consumers only.
+    crossSliceAuthorizedPatterns: [
+      /^src\/runtime\/__tests__\/studio-module-blueprint-authoring-foundation-contract\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-module-blueprint-authoring-implementation-plan\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-module-blueprint-authoring-runtime\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-app-integration-contract\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-app-integration-implementation-plan\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-app-integration\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge-contract\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge-implementation-plan\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-scope-governance-historical-branch-consumers\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-scope-governance-chronological-migration\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-scope-governance-main-diff-correction\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-builder-lifecycle-normalization\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-scope-governance-non-studio-branch-applicability\.test\.js$/,
+      //   15. o gate da fatia 46, que carrega as MESMAS asserções de cardinalidade do
+      //       catálogo que o teste dela. Crescer o catálogo para 47 as torna falsas nos dois
+      //       lugares, e corrigir só um deixaria o gate vermelho.
+      /^scripts\/gates\/g423-studio-scope-governance-non-studio-branch-applicability\.mjs$/,
+      //   16. o gate da fatia 42, gêmeo do Hx03 do teste dela: afirma que um caminho é
+      //       autorizado SÓ para a migração e já mantém uma lista nomeada de fatias
+      //       posteriores que legitimamente reescrevem os mesmos artefatos. A 47 entra nela.
+      /^scripts\/gates\/g423-studio-scope-governance-chronological-migration\.mjs$/,
+    ],
+    sharedGovernancePatterns: [
+      /^scripts\/gates\/lib\/studioScopeGovernanceRegistry\.mjs$/,
+      /^scripts\/gates\/lib\/studioScopeGovernanceGuard\.mjs$/,
+      /^package\.json$/,
+      /^package-lock\.json$/,
+    ],
+    explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
+    // Born `merged`, for the same reason slices 45 and 46 were: the catalog describes the
+    // state of `main` AFTER this merges, `status` never elects a slice, and this branch is
+    // still resolved as slice 47 by its own evidence marker.
+    status: 'merged',
+  },
 
 ].map(Object.freeze));
 

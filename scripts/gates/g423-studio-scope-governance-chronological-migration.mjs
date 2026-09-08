@@ -586,6 +586,8 @@ for (const [p] of [...NINE_TESTS, ...TWENTY_TWO_GATES]) {
     G.isPathAuthorizedForStudioSlice(p, MIGRATION)
     && CATALOG.filter((s) => s.sliceId !== MIGRATION && s.sliceId !== CORRECTION && s.sliceId !== CONSUMERS
       && s.sliceId !== 'studio-scope-governance-maintenance'
+      // a fatia corretiva posterior reescreve os mesmos artefatos, como as anteriores
+      && s.sliceId !== 'studio-scope-governance-non-studio-runtime-compatibility'
       && !(s.sliceId === BUILDER && BUILDER_CROSS.includes(p))
       && !G.findOwningStudioSlices(p).some((o) => o.sliceId === s.sliceId))
       .every((s) => !G.isPathAuthorizedForStudioSlice(p, s.sliceId)));
