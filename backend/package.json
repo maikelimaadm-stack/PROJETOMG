@@ -71,7 +71,8 @@
     "test:filters:semantics": "node scripts/testAdvancedFilterSemantics.js",
     "test:preferences:backend": "node scripts/testPreferencesValidators.js && node scripts/testPreferencesUserIsolation.js",
     "seed:pref-isolation-users": "node scripts/seedPreferenceIsolationUsers.js",
-    "cleanup:pref-isolation-users": "node scripts/cleanupPreferenceIsolationUsers.js"
+    "cleanup:pref-isolation-users": "node scripts/cleanupPreferenceIsolationUsers.js",
+    "test:lifecycle-security": "node scripts/testLifecycleSecurityIsolation.js"
   },
   "dependencies": {
     "@fastify/compress": "^9.0.0",

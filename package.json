@@ -364,7 +364,8 @@
     "typecheck:baseline:capture": "node scripts/capture-typecheck-production-baseline.mjs",
     "test:typecheck-governance": "node --test scripts/tests/typecheck-governance.test.mjs",
     "test:runtime:typecheck-fail-closed-baseline-governance": "node --test src/runtime/__tests__/typecheck-fail-closed-baseline-governance.test.js",
-    "gate:g423-typecheck-fail-closed-baseline-governance": "node scripts/gates/g423-typecheck-fail-closed-baseline-governance.mjs"
+    "gate:g423-typecheck-fail-closed-baseline-governance": "node scripts/gates/g423-typecheck-fail-closed-baseline-governance.mjs",
+    "gate:lifecycle-security": "node scripts/gate-lifecycle-security-isolation.mjs"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.3",
