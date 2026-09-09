@@ -50,10 +50,13 @@ import {
   foldToEntries,
   parseTypecheckOutput,
   readBaselineFile,
+  repositoryRootVariants,
   validateBaseline,
 } from "./lib/typecheckGovernance.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+// Raiz lógica + raiz canônica (symlink), resolvidas UMA vez por execução.
+const ROOTS = repositoryRootVariants(ROOT);
 const CAPTURE_HINT = "npm run typecheck:baseline:capture -- --write";
 
 /** Único ponto de saída em falha. Nenhum caller decide sozinho o código de saída. */
@@ -91,7 +94,7 @@ function main() {
     ]);
   }
 
-  const validation = validateBaseline(baseline, { root: ROOT, checkFilesExist: true });
+  const validation = validateBaseline(baseline, { root: ROOT, roots: ROOTS, checkFilesExist: true });
   if (!validation.ok) {
     fail(`baseline inválida (${BASELINE_REL}):`, validation.errors.map((e) => `- ${e}`));
   }
@@ -123,7 +126,9 @@ function main() {
 
   let entries;
   try {
-    entries = foldToEntries(parseTypecheckOutput(output, { root: ROOT }).diagnostics);
+    entries = foldToEntries(
+      parseTypecheckOutput(output, { root: ROOTS, status: run.status }).diagnostics,
+    );
   } catch (err) {
     process.stdout.write(output);
     fail(err.message, [
@@ -142,7 +147,6 @@ function main() {
 
   if (!delta.ok) {
     const regressao = delta.added.length + delta.increased.length;
-    const stale = delta.missing.length + delta.decreased.length;
     fail(
       regressao > 0
         ? "REGRESSÃO DE TIPOS: há diagnóstico de produção fora da baseline."

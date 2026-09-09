@@ -25,10 +25,13 @@ import {
   compareToBaseline,
   foldToEntries,
   parseTypecheckOutput,
+  repositoryRootVariants,
   validateBaseline,
 } from "./lib/typecheckGovernance.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+// Raiz lógica + raiz canônica (symlink), resolvidas UMA vez por execução.
+const ROOTS = repositoryRootVariants(ROOT);
 const WRITE = process.argv.slice(2).includes("--write");
 
 const unknownFlags = process.argv.slice(2).filter((a) => a !== "--write");
@@ -56,7 +59,10 @@ if (run.signal) {
 let entries;
 try {
   entries = foldToEntries(
-    parseTypecheckOutput(`${run.stdout ?? ""}${run.stderr ?? ""}`, { root: ROOT }).diagnostics,
+    parseTypecheckOutput(`${run.stdout ?? ""}${run.stderr ?? ""}`, {
+      root: ROOTS,
+      status: run.status,
+    }).diagnostics,
   );
 } catch (err) {
   console.error(`[FAIL] ${err.message}`);
@@ -64,7 +70,7 @@ try {
 }
 
 const document = buildBaselineDocument(entries);
-const validation = validateBaseline(document, { root: ROOT, checkFilesExist: true });
+const validation = validateBaseline(document, { root: ROOT, roots: ROOTS, checkFilesExist: true });
 if (!validation.ok) {
   console.error("[FAIL] a baseline capturada não passa na própria validação:");
   for (const e of validation.errors) console.error(`  - ${e}`);

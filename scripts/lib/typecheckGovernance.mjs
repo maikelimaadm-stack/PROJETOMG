@@ -73,13 +73,121 @@ const SUMMARY_RE = /^Found (\d+) errors? in (?:\d+ files?|the same file).*\.$/;
 const ERROR_TOKEN_RE = /error TS\d+:/g;
 
 /**
- * Formas de raiz absoluta de sistema de arquivos que jamais podem sobrar numa mensagem
- * normalizada. Uma barra solta NÃO basta como sinal: `./x.js`, `../types/x.js` e
- * `@/styles/x.css` são caminhos legítimos e machine-independent que aparecem em
- * mensagens reais do tsc.
+ * Comparador de strings INVARIANTE POR LOCALE, por unidades de código UTF-16.
+ *
+ * `String.prototype.localeCompare` NÃO serve aqui, e a auditoria da PR #505 provou por
+ * quê: a collation do ICU depende do locale do processo. O par real
+ *
+ *   A = "Property 'viewModeKey' does not exist on type '{}'."
+ *   B = "Property 'VISIBLE_KEY' does not exist on type '{}'."
+ *
+ * dá A.localeCompare(B) === -1 em en-US e +1 em tr-TR. Com `localeCompare` decidindo a
+ * ordem, a baseline gravada numa máquina era recusada noutra — "entries fora da
+ * ordenação determinística" — sem que uma linha de código tivesse mudado. É a mesma
+ * classe de não-portabilidade que derrubou o run #665, ali pela raiz absoluta, aqui
+ * pela collation.
+ *
+ * Unidades de código não dependem de locale, de ICU, de `LANG` nem de sistema
+ * operacional. É a única base defensável para um artefato versionado.
  */
-const ABSOLUTE_PATH_IN_MESSAGE_RE =
-  /(^|["'\s([])(?:[A-Za-z]:[\\/]|\/(?:home|Users|root|opt|var|tmp|mnt|srv|work|private)\/)/;
+export function compareCodeUnits(a, b) {
+  const x = String(a);
+  const y = String(b);
+  return x < y ? -1 : x > y ? 1 : 0;
+}
+
+/**
+ * A ordem canônica de uma entrada da baseline: path, depois code, depois message.
+ * ÚNICA fonte dessa ordem — captura, validação e comparação consomem esta função, para
+ * que não existam duas noções de ordem convivendo no mesmo contrato.
+ */
+export function compareEntries(a, b) {
+  return (
+    compareCodeUnits(a.path, b.path) ||
+    compareCodeUnits(a.code, b.code) ||
+    compareCodeUnits(a.message, b.message)
+  );
+}
+
+/**
+ * Detecta um caminho ABSOLUTO em qualquer forma, sem allowlist de diretórios.
+ *
+ * O desenho anterior listava raízes Unix conhecidas (`home|Users|opt|tmp|…`) e por isso
+ * não via `/usr`, `/workspaces` (Codespaces), `/builds` (GitLab), `/github/workspace`,
+ * `/data`, `/app` nem `/checkout`. Uma allowlist de diretórios nunca fica completa: o
+ * princípio correto é "absoluto é absoluto, seja qual for o nome da primeira pasta".
+ *
+ * Três formas, e o que distingue cada uma de um caminho RELATIVO legítimo:
+ *
+ *  1. POSIX — `/segmento/`. O lookbehind recusa a barra quando ela é precedida por algo
+ *     que a torna relativa ou interna: `./x`, `../x`, `@/x`, `A/B`, `http://x`.
+ *  2. Windows — letra de unidade seguida de separador (`C:\` ou `C:/`), exigindo
+ *     fronteira antes para não casar dentro de um identificador como `ABC:/`.
+ *  3. UNC — `\\servidor\compartilhamento`.
+ */
+const ABSOLUTE_PATH_IN_MESSAGE_RE = new RegExp(
+  [
+    String.raw`(?<![A-Za-z0-9_.\-@/])\/[A-Za-z0-9_.\-]+\/`,
+    String.raw`(?<![A-Za-z0-9])[A-Za-z]:[\\/]`,
+    String.raw`\\\\[A-Za-z0-9_.\-]+\\`,
+  ].join("|"),
+);
+
+/** True se a mensagem ainda carrega um caminho absoluto — portanto dependente de máquina. */
+export function hasAbsolutePathInMessage(message) {
+  return ABSOLUTE_PATH_IN_MESSAGE_RE.test(String(message));
+}
+
+const REGEX_META = /[.*+?^${}()|[\]\\]/g;
+const escapeRegex = (s) => String(s).replace(REGEX_META, "\\$&");
+
+/**
+ * As formas sob as quais a raiz do repositório pode aparecer numa mensagem do `tsc`.
+ *
+ * Inclui a raiz lógica (o caminho por onde o processo chegou) e a raiz CANÔNICA
+ * (`realpathSync`), porque um checkout atrás de symlink faz o `tsc` emitir o realpath
+ * enquanto o script conhece apenas o caminho lógico — e aí a relativização não casaria.
+ * A resolução acontece UMA vez por execução, nunca por mensagem.
+ *
+ * Falha de `realpath` (raiz inexistente, sem permissão) não é fatal: segue-se com a
+ * forma lógica, e qualquer caminho absoluto que sobrar é recusado adiante — fail-closed.
+ */
+export function repositoryRootVariants(root) {
+  const out = [];
+  const add = (value) => {
+    if (typeof value !== "string" || value.length === 0) return;
+    const trimmed = value.replace(/[\\/]+$/, "");
+    if (trimmed === "") return;
+    for (const form of [trimmed, trimmed.replace(/\\/g, "/")]) {
+      if (form && !out.includes(form)) out.push(form);
+    }
+  };
+  add(root);
+  try {
+    add(fs.realpathSync(root));
+  } catch {
+    // Raiz não resolvível: mantém-se a forma lógica. Nada é silenciado — um absoluto
+    // remanescente continua reprovando na detecção.
+  }
+  return out;
+}
+
+/** Constrói o regex que remove a raiz APENAS em fronteira de caminho. */
+function rootBoundaryRegex(roots) {
+  const variants = (Array.isArray(roots) ? roots : [roots])
+    .filter((r) => typeof r === "string" && r.length > 0)
+    .map((r) => r.replace(/[\\/]+$/, ""))
+    .filter(Boolean)
+    .flatMap((r) => [r, r.replace(/\\/g, "/")])
+    .filter((r, i, a) => a.indexOf(r) === i)
+    // Mais longas primeiro: uma raiz que seja prefixo de outra não pode vencer.
+    .sort((a, b) => b.length - a.length);
+  if (variants.length === 0) return null;
+  return new RegExp(
+    String.raw`(?<![A-Za-z0-9_.\-/\\])(?:${variants.map(escapeRegex).join("|")})[\\/]`,
+    "g",
+  );
+}
 
 /**
  * Colapsa espaços em branco e RELATIVIZA a raiz do repositório.
@@ -94,26 +202,24 @@ const ABSOLUTE_PATH_IN_MESSAGE_RE =
  * produziria fingerprints diferentes e o enforcement acusaria regressão onde nada mudou.
  * Foi exatamente o que aconteceu na primeira execução de CI desta fatia.
  *
+ * A remoção acontece SOMENTE em fronteira de caminho — a raiz precisa vir seguida de um
+ * separador e não pode estar colada a outro token. A versão anterior removia a raiz como
+ * substring arbitrária, inclusive a raiz NUA, de modo que `Property '<raiz>' missing.`
+ * colapsava em `Property '' missing.` e podia colidir com outra mensagem. Hoje a raiz nua
+ * simplesmente não é removida: sobra um caminho absoluto, e a detecção reprova — o que é
+ * diagnosticável, ao contrário de uma colisão silenciosa.
+ *
  * Fora isso, nada é apagado: nem aspas, nem tipos, nem números. A mensagem continua
  * sendo parte da identidade do diagnóstico.
  *
  * @param {string} raw
- * @param {string} [root] raiz absoluta do repositório, quando conhecida
+ * @param {string|string[]|null} [roots] raiz(es) do repositório — ver `repositoryRootVariants`
  */
-export function normalizeMessage(raw, root = null) {
+export function normalizeMessage(raw, roots = null) {
   let text = String(raw);
-  if (typeof root === "string" && root.length > 0) {
-    for (const variant of [root.replace(/\\/g, "/"), root]) {
-      if (!variant) continue;
-      text = text.split(`${variant}/`).join("").split(variant).join("");
-    }
-  }
+  const re = roots === null || roots === undefined ? null : rootBoundaryRegex(roots);
+  if (re) text = text.replace(re, "");
   return text.replace(/\s+/g, " ").trim();
-}
-
-/** True se a mensagem ainda carrega um caminho absoluto — portanto dependente de máquina. */
-export function hasAbsolutePathInMessage(message) {
-  return ABSOLUTE_PATH_IN_MESSAGE_RE.test(String(message));
 }
 
 /** Normaliza um caminho para a forma relativa POSIX que a baseline registra. */
@@ -137,13 +243,19 @@ export function fingerprintOf({ path: p, code, message }) {
  * sumário do tsc que não bate com o total parseado.
  *
  * @param {string} output
- * @param {{ root?: string }} [options] raiz do repositório, para relativizar caminhos
- *   absolutos embutidos no TEXTO das mensagens (ver `normalizeMessage`)
+ * @param {{ root?: string|string[], status?: number }} [options]
+ *   `root` — raiz(es) do repositório, para relativizar caminhos absolutos embutidos no
+ *   TEXTO das mensagens (ver `normalizeMessage`).
+ *   `status` — código de saída real do `tsc`. Quando informado e diferente de zero, a
+ *   ausência de diagnósticos é ANOMALIA e reprova: o compilador falhou por um motivo que
+ *   este parser não soube nomear, e tratar isso como "nenhum erro" seria falso verde.
  * @returns {{ diagnostics: Array<{path:string,line:number,column:number,code:string,message:string}> }}
  * @throws {Error} quando a saída não é integralmente compreendida
  */
 export function parseTypecheckOutput(output, options = {}) {
-  const root = typeof options?.root === "string" ? options.root : null;
+  const root =
+    typeof options?.root === "string" || Array.isArray(options?.root) ? options.root : null;
+  const status = Number.isInteger(options?.status) ? options.status : null;
   const text = String(output ?? "");
   const lines = text.split(/\r?\n/);
   const diagnostics = [];
@@ -206,6 +318,12 @@ export function parseTypecheckOutput(output, options = {}) {
   if (summaryClaim !== null && summaryClaim !== diagnostics.length) {
     problems.push(`o tsc declarou ${summaryClaim} erros; foram parseados ${diagnostics.length}`);
   }
+  if (status !== null && status !== 0 && diagnostics.length === 0) {
+    problems.push(
+      `o tsc terminou com status ${status} e nenhum diagnóstico foi parseado — ` +
+        `falha sem causa identificada NÃO pode ser lida como ausência de erros`,
+    );
+  }
 
   if (problems.length > 0) {
     throw new Error(`saída do tsc não compreendida integralmente:\n  - ${problems.join("\n  - ")}`);
@@ -240,10 +358,7 @@ export function foldToEntries(diagnostics) {
       })
       .join(" ");
   }
-  entries.sort(
-    (a, b) =>
-      a.path.localeCompare(b.path) || a.code.localeCompare(b.code) || a.message.localeCompare(b.message),
-  );
+  entries.sort(compareEntries);
   return entries;
 }
 
@@ -269,6 +384,8 @@ export function buildBaselineDocument(entries) {
  */
 export function validateBaseline(baseline, options = {}) {
   const { root = null, checkFilesExist = false } = options;
+  // `roots` já resolvido pelo caller (inclui o realpath); senão, a forma literal da raiz.
+  const roots = options.roots ?? (root === null ? null : root);
   const errors = [];
   const fail = (m) => errors.push(m);
 
@@ -317,7 +434,7 @@ export function validateBaseline(baseline, options = {}) {
     if (typeof e.code !== "string" || !/^TS\d+$/.test(e.code)) fail(`${at}: code inválido: ${e.code}`);
     if (typeof e.message !== "string" || e.message.trim() === "") fail(`${at}: message inválida`);
     else {
-      if (e.message !== normalizeMessage(e.message, root)) fail(`${at}: message não normalizada`);
+      if (e.message !== normalizeMessage(e.message, roots)) fail(`${at}: message não normalizada`);
       // Uma mensagem com caminho absoluto torna o fingerprint dependente da máquina:
       // a mesma árvore verificada noutro diretório produziria outro fingerprint, e o
       // enforcement acusaria regressão sem que nada tivesse mudado.
@@ -348,14 +465,7 @@ export function validateBaseline(baseline, options = {}) {
     (e) => e && typeof e.path === "string" && typeof e.code === "string" && typeof e.message === "string",
   );
   const asIs = keyed.map(fingerprintOf);
-  const expected = [...keyed]
-    .sort(
-      (a, b) =>
-        a.path.localeCompare(b.path) ||
-        a.code.localeCompare(b.code) ||
-        a.message.localeCompare(b.message),
-    )
-    .map(fingerprintOf);
+  const expected = [...keyed].sort(compareEntries).map(fingerprintOf);
   if (JSON.stringify(asIs) !== JSON.stringify(expected)) {
     fail("entries fora da ordenação determinística (path, code, message)");
   }
@@ -397,11 +507,11 @@ export function compareToBaseline(currentEntries, baseline) {
     if (!currMap.has(key)) missing.push(base);
   }
 
-  const order = (a, b) => a.path.localeCompare(b.path) || a.code.localeCompare(b.code);
-  added.sort(order);
-  increased.sort(order);
-  missing.sort(order);
-  decreased.sort(order);
+  // Mesma noção de ordem do resto do contrato: nada aqui pode depender de locale.
+  added.sort(compareEntries);
+  increased.sort(compareEntries);
+  missing.sort(compareEntries);
+  decreased.sort(compareEntries);
 
   return {
     ok: added.length === 0 && increased.length === 0 && missing.length === 0 && decreased.length === 0,

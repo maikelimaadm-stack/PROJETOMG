@@ -27,6 +27,7 @@ import {
   PRODUCTION_PROJECT,
   SCHEMA_VERSION,
   buildBaselineDocument,
+  compareEntries,
   compareToBaseline,
   fingerprintOf,
   foldToEntries,
@@ -36,6 +37,41 @@ import {
   parseTypecheckOutput,
   validateBaseline,
 } from "../lib/typecheckGovernance.mjs";
+
+const LIB_REL = "scripts/lib/typecheckGovernance.mjs";
+const LIB_URL = new URL("../lib/typecheckGovernance.mjs", import.meta.url).href;
+
+/** O par real que expôs a dependência de locale na auditoria da PR #505. */
+const PAR_LOCALE = Object.freeze([
+  "Property 'viewModeKey' does not exist on type '{}'.",
+  "Property 'VISIBLE_KEY' does not exist on type '{}'.",
+]);
+
+/**
+ * Ordena um conjunto de diagnósticos NUM PROCESSO SEPARADO, sob um locale escolhido.
+ *
+ * A prova de invariância precisa ser comportamental: rodar o código de PRODUÇÃO com
+ * `LC_ALL` diferente e exigir o mesmo resultado. Uma asserção que chamasse
+ * `localeCompare` com locale fixo dentro do teste não provaria nada sobre a biblioteca.
+ * O filho também devolve o locale que o ICU de fato resolveu, para que o teste falhe em
+ * vez de passar vazio caso o ambiente ignore `LC_ALL`.
+ */
+function ordenarSobLocale(locale, diagnosticos) {
+  const codigo =
+    `import(${JSON.stringify(LIB_URL)}).then((m) => {` +
+    `const e = m.foldToEntries(${JSON.stringify(diagnosticos)});` +
+    `process.stdout.write(JSON.stringify({` +
+    `locale: Intl.Collator().resolvedOptions().locale,` +
+    `ordem: e.map((x) => x.path + "|" + x.code + "|" + x.message),` +
+    `}));});`;
+  const r = spawnSync("node", ["-e", codigo], {
+    encoding: "utf8",
+    shell: false,
+    env: { ...process.env, LC_ALL: locale, LANG: locale, LANGUAGE: locale },
+  });
+  assert.equal(r.status, 0, `processo filho falhou sob ${locale}: ${r.stderr}`);
+  return JSON.parse(r.stdout);
+}
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const BASELINE_ABS = path.join(ROOT, BASELINE_REL);
@@ -109,6 +145,26 @@ test("T03 normalização colapsa espaço em branco e relativiza o caminho, sem a
   assert.equal(normalizePath("src\\a.js"), "src/a.js");
   // Nada de aspas, tipos ou números é removido — a mensagem é parte da identidade.
   assert.equal(normalizeMessage("Property '2' on type '{ a: 1 }'."), "Property '2' on type '{ a: 1 }'.");
+
+  // A raiz do repositório sai SOMENTE em fronteira de caminho. A versão anterior a
+  // removia como substring arbitrária, e por isso `Property '<raiz>' missing.` colapsava
+  // em `Property '' missing.`, podendo colidir com outra mensagem.
+  const R = "/home/user/PROJETOMG";
+  assert.equal(normalizeMessage(`Namespace '"${R}/src/a"' x.`, R), `Namespace '"src/a"' x.`);
+  assert.equal(normalizeMessage(`Namespace '"${R}/src/a"' x.`, `${R}/`), `Namespace '"src/a"' x.`);
+  assert.equal(normalizeMessage(`A '${R}/x' e B '${R}/y'.`, R), "A 'x' e B 'y'.");
+  // Raiz NUA não é removida: sobra caminho absoluto, e a detecção reprova — diagnosticável.
+  const nua = normalizeMessage(`Property '${R}' missing.`, R);
+  assert.equal(nua, `Property '${R}' missing.`, "a raiz nua não pode virar string vazia");
+  assert.equal(hasAbsolutePathInMessage(nua), true, "raiz nua remanescente precisa reprovar");
+  // Raiz que é apenas PREFIXO de outra pasta, ou colada a outro token, não é removida.
+  assert.equal(normalizeMessage(`A '${R}-outro/src/a' B.`, R), `A '${R}-outro/src/a' B.`);
+  assert.equal(normalizeMessage(`X '/prefixo${R}/src/a' Y.`, R), `X '/prefixo${R}/src/a' Y.`);
+  // Idempotente: a validação re-normaliza a mensagem já gravada.
+  const uma = normalizeMessage(`Namespace '"${R}/src/a"' x.`, R);
+  assert.equal(uma, normalizeMessage(uma, R));
+  // Aceita lista de raízes (forma lógica + realpath do checkout).
+  assert.equal(normalizeMessage(`'${R}/src/a'`, ["/outra/raiz", R]), "'src/a'");
 });
 
 test("T04 uma linha não classificável faz o parsing falhar, nunca ser ignorada", () => {
@@ -137,7 +193,7 @@ test("T05 divergência entre cabeçalhos e ocorrências de 'error TS' faz o pars
   );
 });
 
-test("T06 o sumário do tsc é conferido contra o total parseado", () => {
+test("T06 o sumário e o status do tsc são conferidos contra o total parseado", () => {
   const ok = parseTypecheckOutput(
     ["src/a.js(1,1): error TS2304: Cannot find name 'x'.", "Found 1 error in 1 file."].join("\n"),
   );
@@ -148,6 +204,19 @@ test("T06 o sumário do tsc é conferido contra o total parseado", () => {
         ["src/a.js(1,1): error TS2304: Cannot find name 'x'.", "Found 7 errors in 3 files."].join("\n"),
       ),
     /o tsc declarou 7 erros/,
+  );
+
+  // Status anômalo: o tsc falhou e nenhum diagnóstico foi entendido. Ler isso como
+  // "nenhum erro" seria falso verde — inclusive com a baseline vazia, que é o único
+  // estado em que a comparação aprovaria sem nada para comparar.
+  assert.throws(() => parseTypecheckOutput("", { status: 2 }), /status 2 e nenhum diagn/);
+  assert.throws(() => parseTypecheckOutput("\n\n", { status: 1 }), /nenhum diagn/);
+  // E os dois casos legítimos seguem passando.
+  assert.equal(parseTypecheckOutput("", { status: 0 }).diagnostics.length, 0);
+  assert.equal(
+    parseTypecheckOutput("src/a.js(1,1): error TS2304: Cannot find name 'x'.", { status: 2 })
+      .diagnostics.length,
+    1,
   );
 });
 
@@ -198,6 +267,53 @@ test("T10 a ordenação de entradas e de evidências é determinística", () => 
     ],
   );
   assert.equal(foldToEntries([diag({ line: 20 }), diag({ line: 3 })])[0].evidence, "3:5 20:5");
+
+  // ---------------------------------------------------------------------
+  // INVARIÂNCIA POR LOCALE — o bloqueador que a auditoria da PR #505 encontrou.
+  //
+  // A ordem era decidida por `localeCompare`, cuja collation depende do locale do
+  // processo. Com o par real abaixo, en-US e tr-TR discordam do SINAL da comparação, e
+  // a baseline gravada numa máquina passava a ser recusada noutra como "fora da
+  // ordenação determinística" — sem que uma linha tivesse mudado.
+  // ---------------------------------------------------------------------
+  const [viewModeKey, VISIBLE_KEY] = PAR_LOCALE;
+  const parEmbaralhado = [
+    diag({ path: "src/p.js", message: viewModeKey }),
+    diag({ path: "src/p.js", message: VISIBLE_KEY }),
+  ];
+
+  // Por unidades de código, 'V' (U+0056) antecede 'v' (U+0076). Sem ambiguidade.
+  assert.equal(
+    compareEntries({ path: "p", code: "TS1", message: viewModeKey },
+      { path: "p", code: "TS1", message: VISIBLE_KEY }),
+    1,
+  );
+  assert.deepEqual(
+    foldToEntries(parEmbaralhado).map((e) => e.message),
+    [VISIBLE_KEY, viewModeKey],
+  );
+
+  // Prova COMPORTAMENTAL: o código de produção, rodado em processos com locales
+  // diferentes, produz exatamente a mesma ordem.
+  const conjunto = [
+    ...parEmbaralhado,
+    diag({ path: "src/A.js" }),
+    diag({ path: "src/a.js" }),
+    diag({ path: "src/i.js", message: "Property 'I' does not exist on type '{}'." }),
+    diag({ path: "src/I.js", message: "Property 'i' does not exist on type '{}'." }),
+  ];
+  const enUS = ordenarSobLocale("en_US.UTF-8", conjunto);
+  const trTR = ordenarSobLocale("tr_TR.UTF-8", conjunto);
+  const cLoc = ordenarSobLocale("C", conjunto);
+
+  // Se o ambiente ignorasse LC_ALL, esta prova seria vazia — então ela é verificada.
+  assert.notEqual(enUS.locale, trTR.locale,
+    `LC_ALL não foi honrado: ambos resolveram ${enUS.locale}; a prova seria vazia`);
+  assert.match(trTR.locale, /^tr\b/, `esperado locale turco no filho, veio ${trTR.locale}`);
+
+  assert.deepEqual(trTR.ordem, enUS.ordem, "a ordem mudou entre tr-TR e en-US");
+  assert.deepEqual(cLoc.ordem, enUS.ordem, "a ordem mudou entre C e en-US");
+  assert.deepEqual(enUS.ordem, foldToEntries(conjunto).map((e) => `${e.path}|${e.code}|${e.message}`));
 });
 
 // ===========================================================================
@@ -253,10 +369,40 @@ test("T15 caminho absoluto, escapada de raiz e curinga reprovam — no path E na
 
   // E caminhos RELATIVOS legítimos, que aparecem em mensagens reais do tsc, jamais
   // podem ser confundidos com absolutos.
+  // O detector é GENÉRICO: absoluto é absoluto, seja qual for o nome da primeira pasta.
+  // O desenho anterior usava allowlist de raízes Unix e não via /usr, /workspaces
+  // (Codespaces), /builds (GitLab), /github/workspace, /data, /app nem /checkout.
+  for (const abs of [
+    "/usr/lib/node_modules/typescript/lib/lib.dom.d.ts",
+    "/workspaces/PROJETOMG/src/a.js",
+    "/builds/grupo/proj/src/a.js",
+    "/github/workspace/src/a.js",
+    "/data/proj/src/a.js",
+    "/app/src/a.js",
+    "/checkout/src/a.js",
+    "/home/user/x/a.js",
+    "/Users/ana/x/a.js",
+    "/opt/build/x/a.js",
+    "/nfs/qualquer/raiz/nova/a.js",
+    "C:/proj/x/a.js",
+    "C:\\proj\\x\\a.js",
+    "D:\\x\\y\\z",
+  ]) {
+    assert.equal(hasAbsolutePathInMessage(`Namespace '"${abs}"' has no exported member 'X'.`),
+      true, `não detectou absoluto: ${abs}`);
+  }
+  assert.equal(hasAbsolutePathInMessage("\\\\servidor\\compartilhamento\\x.ts"), true, "UNC");
+  assert.equal(hasAbsolutePathInMessage("/usr/lib/x/ no início da mensagem"), true, "início da string");
+
+  // E nenhum relativo legítimo pode virar falso positivo.
   for (const ok of [
     "Cannot find module './bosTypes.js' or its corresponding type declarations.",
     "Cannot find module '../../types/context.js' or its corresponding type declarations.",
     "Cannot find module '@/styles/mg-prototype.css' or its corresponding type declarations.",
+    "Module './uec.js' has already exported a member named 'AuthCredentials'.",
+    "Type 'A/B' is not assignable to type 'C/D'.",
+    "Namespace '\"src/runtime/types/context\"' has no exported member 'RuntimeMetricsSnapshot'.",
+    "See https://example.com/docs/x for details.",
   ]) {
     assert.equal(hasAbsolutePathInMessage(ok), false, ok);
   }
@@ -431,6 +577,21 @@ test("T24 o wrapper não tem bypass, não regrava a baseline e não depende de a
   const zeros = [...wrapper.matchAll(/process\.exit\(0\)/g)].length;
   assert.equal(zeros, 2, "esperados exatamente dois exit(0): baseline vazia + comparação exata");
   assert.ok(/exceção interna do enforcement/.test(wrapper), "exceção interna precisa reprovar");
+
+  // O wrapper precisa entregar o status real ao parser, para que "tsc falhou sem
+  // diagnóstico" não possa ser lido como ausência de erros.
+  assert.ok(/status:\s*run\.status/.test(wrapper), "o wrapper não confere o status do tsc");
+
+  // Nenhuma ordenação dependente de locale pode voltar à biblioteca do contrato.
+  // Segunda camada, estrutural: a prova comportamental está em T10.
+  const lib = stripComments(read(LIB_REL));
+  assert.ok(lib.includes("compareCodeUnits"), "a remoção de comentários comeu código da lib");
+  assert.equal(
+    (lib.match(/localeCompare/g) ?? []).length,
+    0,
+    "localeCompare voltou à lógica da biblioteca de baseline",
+  );
+  assert.equal((lib.match(/Intl\.Collator/g) ?? []).length, 0, "collation por Intl na lib");
 
   // A captura é manual e exige --write explícito, sem equivalente por ambiente.
   const capture = stripComments(read(CAPTURE_REL));
