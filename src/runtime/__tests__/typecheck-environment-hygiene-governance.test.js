@@ -236,11 +236,23 @@ test('B012 esta fatia não declara compatibilidade histórica', () => {
 // C — A BRANCH ATUAL
 // ===========================================================================
 
-test('C001 esta branch resolve exatamente a Slice 48', () => {
+test('C001 esta branch resolve exatamente a Slice 48, ou uma fatia posterior', () => {
   const f = changedOnThisBranch();
   if (f === null || f.length === 0) return;
   const a = resolveActiveStudioSlice(f);
+  // A resolução precisa ser SEMPRE inequívoca — isto nunca é dispensado.
   assert.equal(a.ok, true, JSON.stringify(a));
+  assert.equal(a.candidates.length, 1, JSON.stringify(a.candidates));
+  // ESCOPO DE BRANCH PRÓPRIA (P1-02B): quando a fatia ativa é ESTRITAMENTE POSTERIOR, esta
+  // branch não é a desta fatia. A inaplicabilidade é afirmada, nunca pulada; e a branch
+  // da fatia posterior ainda precisa estar integralmente autorizada.
+  if (a.sliceOrdinal > ORDINAL) {
+    const r = consumer(f);
+    assert.equal(r.certifiedAgainstActiveSlice, false);
+    assert.deepEqual(r.blockers, [], JSON.stringify(r.blockers));
+    assert.equal(r.safe, true);
+    return;
+  }
   assert.deepEqual(a.candidates, [SLICE]);
 });
 
@@ -268,6 +280,28 @@ test('C003 o núcleo também aprova esta branch', () => {
 test('D001 esta branch não toca produto, backend, Prisma, migration ou workflow', () => {
   const f = changedOnThisBranch();
   if (f === null || f.length === 0) return;
+  // ESCOPO DE BRANCH PRÓPRIA (P1-02B). A fatia 49 possui o workflow e precisa editá-lo.
+  // Numa branch de fatia ESTRITAMENTE POSTERIOR este check não tem sujeito — afirmado,
+  // nunca pulado. As regras de backend, Prisma e produto continuam sendo verificadas
+  // para TODA branch, inclusive a posterior, logo abaixo.
+  const a = resolveActiveStudioSlice(f);
+  const posterior = a.ok && a.sliceOrdinal > ORDINAL;
+  if (posterior) {
+    const r = consumer(f);
+    assert.equal(r.certifiedAgainstActiveSlice, false);
+    assert.deepEqual(r.blockers, [], JSON.stringify(r.blockers));
+    assert.equal(r.safe, true);
+    // O que NUNCA é dispensado, nem para uma fatia posterior:
+    for (const p of f) {
+      assert.equal(/^backend\//.test(p), false, p);
+      assert.equal(/^prisma\//.test(p), false, p);
+      assert.equal(/migrations?\//.test(p), false, p);
+      assert.equal(p === 'package-lock.json', false, p);
+      assert.equal(p === 'src/App.jsx', false, p);
+      assert.equal(/^src\/(modules|framework)\//.test(p), false, p);
+    }
+    return;
+  }
   for (const p of f) {
     assert.equal(/^backend\//.test(p), false, p);
     assert.equal(/^prisma\//.test(p), false, p);

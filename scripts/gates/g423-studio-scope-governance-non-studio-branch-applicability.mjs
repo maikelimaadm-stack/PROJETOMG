@@ -445,8 +445,17 @@ if (branchPaths === null) {
     branchPaths.every((p) => G.classifyStudioScopePath(p) !== 'forbidden_scope'));
   gate('G423-NSB — this branch touches no Studio blueprint-engine source',
     branchPaths.every((p) => !p.startsWith('src/studio/')));
-  gate('G423-NSB — this branch does NOT carry the CI workflow',
-    branchPaths.every((p) => !p.startsWith('.github/')));
+  // OWN-BRANCH SCOPE (P1-02B): a slice 49 possui o workflow e precisa edita-lo. Numa branch
+  // de fatia ESTRITAMENTE POSTERIOR este check nao tem sujeito — e a inaplicabilidade e
+  // afirmada, nunca pulada. Fatia anterior ou nao resolvida continua caindo na regra.
+  gate('G423-NSB — this branch does NOT carry the CI workflow', (() => {
+    const a = G.resolveActiveStudioSlice(branchPaths);
+    if (a.ok && a.sliceOrdinal > 46) {
+      const r = consumer(branchPaths);
+      return r.certifiedAgainstActiveSlice === false && r.blockers.length === 0 && r.safe === true;
+    }
+    return branchPaths.every((p) => !p.startsWith('.github/'));
+  })());
   // A evidência aceita além da própria é a da slice ATIVA, julgada pelo autorizador: uma
   // slice ativa POSTERIOR não é "uma fatia anterior". Evidência estranha continua reprovando.
   gate('G423-NSB — this branch touches no earlier slice evidence directory', (() => {

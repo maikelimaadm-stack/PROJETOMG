@@ -663,6 +663,20 @@ test('E008 no historical evidence directory of an earlier slice is touched', () 
 test('E009 the workflow is NOT part of this slice', () => {
   const f = changedOnThisBranch(); if (f === null) return;
   const r = consumer(f);
+  // OWN-BRANCH SCOPE (P1-02B). "The workflow is not mine" is a sentence about THIS slice's
+  // own branch. Slice 49 must edit `.github/workflows/foundation-governance.yml` to install
+  // the fail-closed typecheck, and it owns that file. On slice 49's branch this check has no
+  // subject -- but it is never silently skipped: the whole envelope is asserted, and the
+  // escape is available ONLY to a strictly LATER slice. An EARLIER or unresolved active
+  // slice still falls through and still fails.
+  const a = resolveActiveStudioSlice(f);
+  if (a.ok && a.sliceOrdinal > 46) {
+    assert.equal(r.certifiedAgainstActiveSlice, false, 'a branch não é desta fatia');
+    assert.deepEqual(r.blockers, [], JSON.stringify(r.blockers));
+    assert.equal(r.safe, true, 'a branch da fatia posterior precisa estar autorizada');
+    assert.deepEqual(r.forbidden, []);
+    return;
+  }
   // OWN-SCOPE. "The workflow is not mine" is a sentence about THIS slice's own branch. On a
   // branch that is entirely outside the Studio territory — the very state this slice exists to
   // recognise — `.github/**` is the legitimate subject and this slice owns nothing there.

@@ -467,6 +467,19 @@ test('S004 esta branch não toca produto, backend, Prisma nem workflow', () => {
   if (f === null || f.length === 0) return;
   const r = consumer(f);
   if (r.reason === 'non_studio_branch') { assertNonStudioEnvelope(r, 'branch'); return; }
+  // ESCOPO DE BRANCH PRÓPRIA (P1-02B). A regra `.github/**` fala da branch DESTA fatia.
+  // A fatia 49 possui o workflow e precisa editá-lo para instalar o typecheck fail-closed.
+  // Numa branch de fatia ESTRITAMENTE POSTERIOR o check não tem sujeito — e a
+  // inaplicabilidade é afirmada por inteiro, nunca pulada. Fatia anterior ou não
+  // resolvida continua caindo na regra abaixo e continua reprovando.
+  const a = resolveActiveStudioSlice(f);
+  if (a.ok && a.sliceOrdinal > ORDINAL) {
+    assert.equal(r.certifiedAgainstActiveSlice, false, 'a branch não é desta fatia');
+    assert.deepEqual(r.blockers, [], JSON.stringify(r.blockers));
+    assert.equal(r.safe, true, 'a branch da fatia posterior precisa estar autorizada');
+    assert.deepEqual(r.forbidden, []);
+    return;
+  }
   for (const p of f) {
     assert.equal(/^backend\//.test(p), false, p);
     assert.equal(/^prisma\//.test(p), false, p);

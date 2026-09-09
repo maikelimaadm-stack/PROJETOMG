@@ -24,6 +24,7 @@ import {
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 const SLICE = 'typecheck-environment-hygiene-governance';
+const ORDINAL_48 = 48;
 const TEST_REL = `src/runtime/__tests__/${SLICE}.test.js`;
 const GATE_REL = `scripts/gates/g423-${SLICE}.mjs`;
 const EV_REL = `docs/evidence/post-foundation-c-${SLICE}`;
@@ -183,8 +184,15 @@ if (branchPaths === null || branchPaths.length === 0) {
   gate('G423-48-B00 — sem diff de branch para julgar (main)', true);
 } else {
   const a = resolveActiveStudioSlice(branchPaths);
-  gate('G423-48-B01 — a branch resolve exatamente a Slice 48',
-    a.ok === true && a.candidates.length === 1 && a.candidates[0] === SLICE,
+  // ESCOPO DE BRANCH PROPRIA (P1-02B): uma fatia ESTRITAMENTE POSTERIOR pode ser a ativa.
+  // A resolucao inequivoca nunca e dispensada; o que passa a ser aceito e que a fatia
+  // eleita seja esta OU uma posterior, e nesse caso a inaplicabilidade e afirmada.
+  const posterior = a.ok && a.sliceOrdinal > ORDINAL_48;
+  gate('G423-48-B01 — a branch resolve exatamente a Slice 48, ou uma fatia posterior',
+    a.ok === true && a.candidates.length === 1
+    && (a.candidates[0] === SLICE
+      || (posterior && consumer(branchPaths).certifiedAgainstActiveSlice === false
+        && consumer(branchPaths).blockers.length === 0)),
     JSON.stringify(a.candidates));
   const r = consumer(branchPaths);
   gate('G423-48-B02 — a branch é sound', r.safe === true, JSON.stringify(r.blockers));
@@ -193,6 +201,19 @@ if (branchPaths === null || branchPaths.length === 0) {
   gate('G423-48-B05 — zero violação cronológica', r.chronologicalViolation.length === 0);
   gate('G423-48-B06 — o núcleo também aprova',
     evaluateStudioBranchScope(branchPaths, { callerSliceId: SLICE }).safe === true);
+  // `.github/**` e regra de branch PROPRIA: a slice 49 possui o workflow. Backend, Prisma,
+  // migration, produto e lockfile continuam proibidos para TODA branch — inclusive a
+  // posterior — e sao verificados em G423-48-B07b logo abaixo.
+  gate('G423-48-B07b — nem a fatia posterior toca backend, Prisma, migration ou produto',
+    branchPaths.every((p) => !/^backend\//.test(p) && !/^prisma\//.test(p)
+      && !/migrations?\//.test(p) && p !== 'package-lock.json' && p !== 'src/App.jsx'
+      && !/^src\/(modules|framework)\//.test(p)));
+  if (posterior) {
+    gate('G423-48-B07 — regra de branch própria inaplicável: a fatia ativa é posterior',
+      consumer(branchPaths).certifiedAgainstActiveSlice === false
+      && consumer(branchPaths).safe === true,
+      `ativa=${a.sliceOrdinal}`);
+  } else
   gate('G423-48-B07 — a branch não toca produto, backend, Prisma, migration ou workflow',
     branchPaths.every((p) => !/^backend\//.test(p) && !/^prisma\//.test(p)
       && !/migrations?\//.test(p) && !/^\.github\//.test(p) && p !== 'package-lock.json'
