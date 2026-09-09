@@ -10,6 +10,24 @@ import {
   createBackupAction,
 } from "./lifecycleSyncRepository.js";
 import { listApprovalRequestsByGroup } from "./lifecycleRepository.js";
+import { resolveLifecycleTenantId } from "./lifecycleTenant.js";
+
+/**
+ * Defesa em profundidade: mesmo que um caller futuro esqueça de validar, o tenant
+ * gravado tem de ser o do cliente. `tenant_id` não é subdivisão independente neste
+ * produto — ver `lifecycleTenant.js`. O antigo fallback `"default"` sumiu: gravar
+ * dado persistente sob um tenant não provado é pior do que recusar a operação.
+ */
+const assertTenantMatchesCliente = (clienteId, tenantId) => {
+  const authorized = resolveLifecycleTenantId({ clienteId });
+  if (String(tenantId) !== authorized) {
+    const error = new Error("tenantId forbidden for authenticated scope.");
+    error.statusCode = 403;
+    error.code = "TENANT_FORBIDDEN";
+    throw error;
+  }
+  return authorized;
+};
 
 export async function getSyncSnapshot(clienteId, groupId) {
   const [approvals, syncStates, errors, notifications, storageActions, backupActions] = await Promise.all([
@@ -50,13 +68,14 @@ export async function getSyncSnapshot(clienteId, groupId) {
 }
 
 export async function pushSyncBatchBackend(clienteId, groupId, tenantId, batch) {
+  const scopedTenantId = assertTenantMatchesCliente(clienteId, tenantId);
   let pushed = 0;
 
   for (const approval of batch.approvals ?? []) {
     await upsertSyncState({
       cliente_id: clienteId,
       group_id: groupId,
-      tenant_id: tenantId,
+      tenant_id: scopedTenantId,
       entity_type: "approval",
       entity_id: approval.entityId,
       frontend_state: approval.status,
@@ -73,7 +92,7 @@ export async function pushSyncBatchBackend(clienteId, groupId, tenantId, batch) 
     await createStorageAction({
       cliente_id: clienteId,
       group_id: groupId,
-      tenant_id: tenantId,
+      tenant_id: scopedTenantId,
       request_id: storage.requestId ?? null,
       action_type: storage.actionType ?? "archive",
       storage_target: storage.storageTarget ?? "tenant-archive",
@@ -88,7 +107,7 @@ export async function pushSyncBatchBackend(clienteId, groupId, tenantId, batch) 
     await createBackupAction({
       cliente_id: clienteId,
       group_id: groupId,
-      tenant_id: tenantId,
+      tenant_id: scopedTenantId,
       request_id: backup.requestId ?? null,
       backup_snapshot: backup.backupSnapshot ?? "tenant-backup",
       status: backup.status ?? "confirmed",
@@ -111,10 +130,11 @@ export async function reconcileSyncBackend(clienteId, groupId) {
 }
 
 export async function recordSyncDivergence(clienteId, groupId, tenantId, partial) {
+  const scopedTenantId = assertTenantMatchesCliente(clienteId, tenantId);
   await appendSyncError({
     cliente_id: clienteId,
     group_id: groupId,
-    tenant_id: tenantId,
+    tenant_id: scopedTenantId,
     error_code: partial.errorCode ?? "sync_divergence",
     summary: partial.summary ?? "Divergência frontend/backend.",
     entity_type: partial.entityType,
@@ -125,7 +145,7 @@ export async function recordSyncDivergence(clienteId, groupId, tenantId, partial
   await upsertSyncState({
     cliente_id: clienteId,
     group_id: groupId,
-    tenant_id: tenantId,
+    tenant_id: scopedTenantId,
     entity_type: partial.entityType ?? "sync",
     entity_id: partial.entityId ?? `div-${Date.now()}`,
     frontend_state: partial.frontendState,
