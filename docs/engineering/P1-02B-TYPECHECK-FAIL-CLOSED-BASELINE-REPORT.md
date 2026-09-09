@@ -343,3 +343,102 @@ separador e elimina qualquer colisão possível.
 `gate:capabilities` falha em G265 (`gate:studio-sdk`) e **já falhava na base intocada**.
 Não foi causada nem corrigida aqui; o workflow do CI não executa esse agregado, e os 7 jobs
 de capability que ele executa estão verdes. Owner: P1-04.
+
+---
+
+## 14. Correção pós-auditoria — o head 439dbd3f foi BLOQUEADO
+
+O run #666 ficou verde e **mesmo assim a fatia tinha um defeito de portabilidade**. Este
+registro existe para que isso não se perca: CI verde não é prova de portabilidade, porque
+o CI é uma única máquina, com um único locale e uma única raiz.
+
+### 14.1 O bloqueador — ordenação dependente de locale
+
+A auditoria independente reprovou o head `439dbd3f`. Causa: `foldToEntries`,
+`validateBaseline` e `compareToBaseline` ordenavam com `String.prototype.localeCompare`,
+cuja collation depende do locale do processo.
+
+Par real, medido com locale explícito — independe do que o SO tem instalado:
+
+| locale | `A.localeCompare(B)` |
+|---|---|
+| en-US | **−1** |
+| pt-BR | −1 |
+| de-DE | −1 |
+| sv-SE | −1 |
+| **tr-TR** | **+1** |
+
+```
+A = "Property 'viewModeKey' does not exist on type '{}'."
+B = "Property 'VISIBLE_KEY' does not exist on type '{}'."
+```
+
+Reprodução ponta a ponta, árvore intocada, antes da correção:
+
+```
+LC_ALL=en_US.UTF-8 npm run typecheck:governance   -> exit 0
+LC_ALL=tr_TR.UTF-8 npm run typecheck:governance   -> exit 1
+    [FAIL] baseline inválida (config/typecheck-production-baseline.json):
+      - entries fora da ordenação determinística (path, code, message)
+```
+
+Dois impactos, e o segundo é o mais grave: uma máquina recusava baseline íntegra criada
+noutra; e a **única via sancionada de manutenção** — `typecheck:baseline:capture --write` —
+gravava, sob esse locale, uma ordem rejeitada em todo o resto. É a mesma classe de
+não-portabilidade do run #665: lá pela raiz absoluta, aqui pela collation.
+
+Como o #665, este defeito é **fail-closed**: nunca deixou regressão de tipos passar.
+
+### 14.2 O que mudou
+
+| # | correção | onde |
+|---|---|---|
+| P1 | `compareCodeUnits` / `compareEntries` — ordem por unidades de código UTF-16, sem locale, sem ICU. Fonte ÚNICA da ordem, consumida pelos três pontos | `scripts/lib/typecheckGovernance.mjs` |
+| P2 | detector de caminho absoluto **genérico** — POSIX, letra de unidade e UNC — no lugar da allowlist de raízes Unix, que não via `/usr`, `/workspaces`, `/builds`, `/github`, `/data`, `/app`, `/checkout` | idem |
+| P3 | variável morta `stale` removida | `scripts/run-typecheck-governance.mjs` |
+| P3 | `status ≠ 0` com zero diagnósticos parseados passa a REPROVAR — falha sem causa identificada não é ausência de erros | biblioteca + wrapper |
+| P3 | raiz removida SOMENTE em fronteira de caminho; a raiz nua deixa de virar string vazia, eliminando a colisão teórica | `normalizeMessage` |
+| P3 | `repositoryRootVariants` resolve também o `realpath`, cobrindo checkout atrás de symlink | idem |
+| P3 | redundância de proibidos de D001/B07b (slice 48) restaurada à cobertura original | teste e gate da slice 48 |
+
+### 14.3 Regravação da baseline
+
+Puramente reordenação. Nenhuma mudança lógica:
+
+```
+dry-run  : delta novos 0 · aumentados 0 · desaparecidos 0 · reduzidos 0
+           hash idêntico antes e depois do dry-run
+--write  : 2365 diagnósticos · 477 arquivos · 1528 fingerprints · 0 duplicados
+diff     : 2959 linhas, 782 posições reordenadas
+prova    : conjunto de (path, code, message, count, evidence) IDÊNTICO ao anterior —
+           zero entradas só no antigo, zero só no novo
+```
+
+### 14.4 Verificação
+
+```
+LC_ALL=C            -> exit 0        LC_ALL=de_DE.UTF-8 -> exit 0
+LC_ALL=en_US.UTF-8  -> exit 0        LC_ALL=sv_SE.UTF-8 -> exit 0
+LC_ALL=pt_BR.UTF-8  -> exit 0        LC_ALL=tr_TR.UTF-8 -> exit 0   <-- era 1
+```
+
+A prova de invariância em `T10` é **comportamental**: ordena o mesmo conjunto em processos
+separados sob `LC_ALL` distintos e exige o mesmo resultado. Ela verifica antes que o ICU
+do filho realmente resolveu locales diferentes (`en-US` vs `tr-TR`), de modo que não possa
+passar vazia caso o ambiente ignore a variável. A defesa estrutural em `T24` — proibir
+`localeCompare` e `Intl.Collator` na biblioteca — é segunda camada, não a prova.
+
+Matriz de fail-closed reexecutada contra o código corrigido, numa raiz diferente:
+20 cenários de recusa + controle, todos corretos. Captura em raiz alternativa produz
+baseline **byte a byte idêntica**.
+
+### 14.5 Precisão da alegação
+
+A formulação "independente de máquina" era ampla demais para o que estava provado. O que
+esta fatia sustenta, e apenas isto:
+
+- a **raiz do repositório** é relativizada em fronteira de caminho, incluindo o realpath;
+- a **ordenação** é invariante por locale, por unidades de código;
+- caminhos absolutos **remanescentes são recusados**, em vez de gravados;
+- portanto a baseline é **portátil entre raízes e locales** sob o contrato certificado —
+  o que é verificado por teste, não presumido.

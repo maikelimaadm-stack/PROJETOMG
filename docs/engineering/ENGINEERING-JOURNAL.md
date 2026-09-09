@@ -34,6 +34,16 @@ foi revertido com `git revert --no-edit`. História preservada, sem reescrita.
 baseline. Tornaram-se falsas por SUCESSO e foram reescritas para exigir o contrato vigente
 — nenhuma removida, nenhuma pulada. A evidência histórica permanece imutável.
 
+**Correção pós-auditoria:** a auditoria independente bloqueou o head `439dbd3f` mesmo com
+o CI verde. A ordem da baseline dependia de `localeCompare`, cuja collation varia por
+locale: `LC_ALL=tr_TR.UTF-8` reprovava a árvore intocada como "fora da ordenação
+determinística", `en_US.UTF-8` aprovava. Mesma classe do run #665 — não-portabilidade —,
+lá pela raiz absoluta, aqui pela collation; fail-closed nos dois. A ordem passou a ser por
+unidades de código, o detector de caminho absoluto ficou genérico (sem allowlist de raízes
+Unix), a raiz é removida só em fronteira de caminho, `realpath` cobre checkout com symlink,
+e `tsc` com status ≠ 0 sem diagnóstico passou a reprovar. Baseline regravada: só
+reordenação, 2365/477/1528 preservados. Seis locales verdes.
+
 **Dívida:** TD-016 passa a **Open — contida**. Nenhum dos 2365 diagnósticos foi corrigido:
 a dívida foi congelada, não paga.
 

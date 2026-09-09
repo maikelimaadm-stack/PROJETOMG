@@ -101,3 +101,45 @@ ambiente · bypass por nome de branch · tolerância numérica · `continue-on-e
   builtins que continuam vermelhos em 7 arquivos de produção reais
 - `studioScopeGovernanceGuard.mjs` não é tocado
 - Os 2365 diagnósticos permanecem exatamente onde estavam
+
+---
+
+## Correção pós-auditoria — portabilidade por locale
+
+A auditoria independente **bloqueou** o head `439dbd3f`, com o CI já verde (run #666).
+
+A ordem da baseline era decidida por `String.prototype.localeCompare`, cuja collation
+depende do locale do processo. Com o par real
+
+```
+A = "Property 'viewModeKey' does not exist on type '{}'."
+B = "Property 'VISIBLE_KEY' does not exist on type '{}'."
+```
+
+`A.localeCompare(B)` vale **−1 em en-US** e **+1 em tr-TR**. Consequência medida em árvore
+intocada: `LC_ALL=tr_TR.UTF-8 npm run typecheck:governance` reprovava com *"entries fora da
+ordenação determinística"*, enquanto `en_US.UTF-8` aprovava.
+
+Mesma classe de não-portabilidade do run #665 — lá pela raiz absoluta, aqui pela collation.
+Fail-closed nos dois casos: nunca deixou regressão passar.
+
+### O que a fatia passou a garantir
+
+| garantia | como |
+|---|---|
+| ordem invariante por locale | `compareCodeUnits` / `compareEntries` — unidades de código UTF-16, fonte única consumida por captura, validação e comparação |
+| absoluto é absoluto | detector genérico (POSIX, letra de unidade, UNC) no lugar da allowlist de raízes Unix, que não via `/usr`, `/workspaces`, `/builds`, `/github`, `/data`, `/app`, `/checkout` |
+| raiz removida sem colisão | remoção apenas em fronteira de caminho; a raiz nua não vira string vazia |
+| checkout atrás de symlink | `repositoryRootVariants` resolve também o `realpath` |
+| falha sem causa não é sucesso | `tsc` com status ≠ 0 e zero diagnósticos parseados REPROVA |
+
+A baseline foi regravada: **puramente reordenação** — 782 posições, zero entradas alteradas,
+2365 / 477 / 1528 preservados, delta lógico 0/0/0/0.
+
+Verificado em seis locales (`C`, `en_US`, `pt_BR`, `tr_TR`, `de_DE`, `sv_SE`): todos exit 0.
+A prova de invariância é comportamental — o mesmo conjunto é ordenado em processos separados
+sob `LC_ALL` distintos, e o teste confere antes que o ICU do filho de fato resolveu locales
+diferentes, para não passar vazio.
+
+**Lição registrada:** CI verde não prova portabilidade. O CI é uma máquina, um locale, uma
+raiz. Determinismo entre execuções não é determinismo entre ambientes.

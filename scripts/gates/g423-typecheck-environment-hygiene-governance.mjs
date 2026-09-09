@@ -204,10 +204,12 @@ if (branchPaths === null || branchPaths.length === 0) {
   // `.github/**` e regra de branch PROPRIA: a slice 49 possui o workflow. Backend, Prisma,
   // migration, produto e lockfile continuam proibidos para TODA branch — inclusive a
   // posterior — e sao verificados em G423-48-B07b logo abaixo.
+  // Mesma cobertura da regra de branch propria, menos `.github/**` — o unico item cuja
+  // inaplicabilidade a fatia 49 justifica. Correcao da auditoria: restaura a redundancia.
   gate('G423-48-B07b — nem a fatia posterior toca backend, Prisma, migration ou produto',
     branchPaths.every((p) => !/^backend\//.test(p) && !/^prisma\//.test(p)
-      && !/migrations?\//.test(p) && p !== 'package-lock.json' && p !== 'src/App.jsx'
-      && !/^src\/(modules|framework)\//.test(p)));
+      && !/migrations?\//.test(p) && p !== 'package-lock.json'
+      && !/^src\/(App\.jsx|main\.jsx|shared|framework|modules|bos|intelligence|apis|ModeloBase1|ModeloBase2)/.test(p)));
   if (posterior) {
     gate('G423-48-B07 — regra de branch própria inaplicável: a fatia ativa é posterior',
       consumer(branchPaths).certifiedAgainstActiveSlice === false

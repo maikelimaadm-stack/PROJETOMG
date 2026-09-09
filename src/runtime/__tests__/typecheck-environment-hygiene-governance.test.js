@@ -291,14 +291,20 @@ test('D001 esta branch não toca produto, backend, Prisma, migration ou workflow
     assert.equal(r.certifiedAgainstActiveSlice, false);
     assert.deepEqual(r.blockers, [], JSON.stringify(r.blockers));
     assert.equal(r.safe, true);
-    // O que NUNCA é dispensado, nem para uma fatia posterior:
+    // O que NUNCA é dispensado, nem para uma fatia posterior. Esta lista é a MESMA da
+    // regra abaixo menos `.github/**` — que é o único item cuja inaplicabilidade a fatia
+    // 49 justifica. Correção da auditoria: a versão anterior cobria só um subconjunto,
+    // perdendo redundância de segurança sem que nada a exigisse.
     for (const p of f) {
       assert.equal(/^backend\//.test(p), false, p);
       assert.equal(/^prisma\//.test(p), false, p);
       assert.equal(/migrations?\//.test(p), false, p);
       assert.equal(p === 'package-lock.json', false, p);
-      assert.equal(p === 'src/App.jsx', false, p);
-      assert.equal(/^src\/(modules|framework)\//.test(p), false, p);
+      assert.equal(
+        /^src\/(App\.jsx|main\.jsx|shared|framework|modules|bos|intelligence|apis|ModeloBase1|ModeloBase2)/.test(p),
+        false,
+        p,
+      );
     }
     return;
   }
