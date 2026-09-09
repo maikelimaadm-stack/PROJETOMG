@@ -170,8 +170,21 @@ Sem `?`. Cada linha é uma afirmação verificável por um teste ou gate nomeado
 | Gate da fatia | `npm run gate:g423-lifecycle-auth-tenant-atomicity-governance` | **32/32 PASS** |
 | Suíte de runtime | `npm run test:runtime` | **0 fail** |
 
-**Prova negativa:** a bateria roda contra a base (`git stash` do diff) e sai **1**; roda contra
-a branch e sai **0**. Um teste que passasse nos dois estados não estaria provando a correção.
+**Prova negativa — e o que ela NÃO é.** A bateria completa **não** roda contra a base: ela
+importa `lifecycleTenant.js`, um módulo que a base não possui, de modo que o `exit 1` produzido
+lá seria `ERR_MODULE_NOT_FOUND` — um falso negativo, não evidência de vulnerabilidade. Rodá-la
+assim e reportar "sai 1 na base" seria reportar o erro do carregador como se fosse o defeito.
+
+A prova negativa executada ataca apenas o que existe nos DOIS lados — a decisão de aprovação —
+com o MESMO duplo assíncrono de Prisma em ambos, num worktree em `origin/main`:
+
+| | vencedores | auditorias | jobs | cliente B decide? | exit |
+|---|---|---|---|---|---|
+| **base** (`origin/main`) | **2** | **2** | **2** | (função global por id existe) | **1** |
+| **branch** | **1** | **1** | **1** | **não** | **0** |
+
+A sonda também confirma que a base exporta `getApprovalRequestById` e `updateApprovalRequest`,
+as duas assinaturas globais-por-id que esta fatia removeu.
 
 ---
 
