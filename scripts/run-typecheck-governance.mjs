@@ -123,7 +123,7 @@ function main() {
 
   let entries;
   try {
-    entries = foldToEntries(parseTypecheckOutput(output).diagnostics);
+    entries = foldToEntries(parseTypecheckOutput(output, { root: ROOT }).diagnostics);
   } catch (err) {
     process.stdout.write(output);
     fail(err.message, [

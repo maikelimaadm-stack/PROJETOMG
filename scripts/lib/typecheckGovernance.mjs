@@ -72,9 +72,48 @@ const SUMMARY_RE = /^Found (\d+) errors? in (?:\d+ files?|the same file).*\.$/;
 /** Toda ocorrência do token de erro, usada como conferência independente do parsing. */
 const ERROR_TOKEN_RE = /error TS\d+:/g;
 
-/** Colapsa espaços em branco. Nada além disso: não se apaga aspas, tipos nem números. */
-export function normalizeMessage(raw) {
-  return String(raw).replace(/\s+/g, " ").trim();
+/**
+ * Formas de raiz absoluta de sistema de arquivos que jamais podem sobrar numa mensagem
+ * normalizada. Uma barra solta NÃO basta como sinal: `./x.js`, `../types/x.js` e
+ * `@/styles/x.css` são caminhos legítimos e machine-independent que aparecem em
+ * mensagens reais do tsc.
+ */
+const ABSOLUTE_PATH_IN_MESSAGE_RE =
+  /(^|["'\s([])(?:[A-Za-z]:[\\/]|\/(?:home|Users|root|opt|var|tmp|mnt|srv|work|private)\/)/;
+
+/**
+ * Colapsa espaços em branco e RELATIVIZA a raiz do repositório.
+ *
+ * A relativização não é cosmética. Alguns diagnósticos — TS2694 entre eles — embutem o
+ * caminho ABSOLUTO do arquivo dentro do texto da mensagem:
+ *
+ *   Namespace '"/home/user/PROJETOMG/src/runtime/types/context"' has no exported member ...
+ *
+ * Como a mensagem é parte do fingerprint, deixá-la assim tornaria a baseline dependente
+ * da máquina: a mesma árvore, verificada em `/home/runner/work/PROJETOMG/PROJETOMG`,
+ * produziria fingerprints diferentes e o enforcement acusaria regressão onde nada mudou.
+ * Foi exatamente o que aconteceu na primeira execução de CI desta fatia.
+ *
+ * Fora isso, nada é apagado: nem aspas, nem tipos, nem números. A mensagem continua
+ * sendo parte da identidade do diagnóstico.
+ *
+ * @param {string} raw
+ * @param {string} [root] raiz absoluta do repositório, quando conhecida
+ */
+export function normalizeMessage(raw, root = null) {
+  let text = String(raw);
+  if (typeof root === "string" && root.length > 0) {
+    for (const variant of [root.replace(/\\/g, "/"), root]) {
+      if (!variant) continue;
+      text = text.split(`${variant}/`).join("").split(variant).join("");
+    }
+  }
+  return text.replace(/\s+/g, " ").trim();
+}
+
+/** True se a mensagem ainda carrega um caminho absoluto — portanto dependente de máquina. */
+export function hasAbsolutePathInMessage(message) {
+  return ABSOLUTE_PATH_IN_MESSAGE_RE.test(String(message));
 }
 
 /** Normaliza um caminho para a forma relativa POSIX que a baseline registra. */
@@ -98,10 +137,13 @@ export function fingerprintOf({ path: p, code, message }) {
  * sumário do tsc que não bate com o total parseado.
  *
  * @param {string} output
+ * @param {{ root?: string }} [options] raiz do repositório, para relativizar caminhos
+ *   absolutos embutidos no TEXTO das mensagens (ver `normalizeMessage`)
  * @returns {{ diagnostics: Array<{path:string,line:number,column:number,code:string,message:string}> }}
  * @throws {Error} quando a saída não é integralmente compreendida
  */
-export function parseTypecheckOutput(output) {
+export function parseTypecheckOutput(output, options = {}) {
+  const root = typeof options?.root === "string" ? options.root : null;
   const text = String(output ?? "");
   const lines = text.split(/\r?\n/);
   const diagnostics = [];
@@ -119,7 +161,7 @@ export function parseTypecheckOutput(output) {
         line: Number(header.groups.line),
         column: Number(header.groups.column),
         code: `TS${header.groups.code}`,
-        message: normalizeMessage(header.groups.message),
+        message: normalizeMessage(header.groups.message, root),
         _parts: [header.groups.message],
       });
       continue;
@@ -145,8 +187,14 @@ export function parseTypecheckOutput(output) {
   }
 
   for (const d of diagnostics) {
-    d.message = normalizeMessage(d._parts.join(" "));
+    d.message = normalizeMessage(d._parts.join(" "), root);
     delete d._parts;
+    if (hasAbsolutePathInMessage(d.message)) {
+      problems.push(
+        `${d.path} ${d.code}: mensagem retém caminho absoluto após normalização — ` +
+          `o fingerprint seria dependente de máquina: ${d.message.slice(0, 160)}`,
+      );
+    }
   }
 
   const errorTokens = (text.match(ERROR_TOKEN_RE) ?? []).length;
@@ -268,7 +316,15 @@ export function validateBaseline(baseline, options = {}) {
 
     if (typeof e.code !== "string" || !/^TS\d+$/.test(e.code)) fail(`${at}: code inválido: ${e.code}`);
     if (typeof e.message !== "string" || e.message.trim() === "") fail(`${at}: message inválida`);
-    else if (e.message !== normalizeMessage(e.message)) fail(`${at}: message não normalizada`);
+    else {
+      if (e.message !== normalizeMessage(e.message, root)) fail(`${at}: message não normalizada`);
+      // Uma mensagem com caminho absoluto torna o fingerprint dependente da máquina:
+      // a mesma árvore verificada noutro diretório produziria outro fingerprint, e o
+      // enforcement acusaria regressão sem que nada tivesse mudado.
+      if (hasAbsolutePathInMessage(e.message)) {
+        fail(`${at}: message com caminho absoluto (fingerprint dependente de máquina)`);
+      }
+    }
     if (!Number.isInteger(e.count) || e.count < 1) fail(`${at}: count inválido: ${e.count}`);
     if (typeof e.evidence !== "string" || e.evidence === "") fail(`${at}: evidence ausente`);
     else {

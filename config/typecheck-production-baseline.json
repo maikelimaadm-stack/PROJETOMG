@@ -7044,7 +7044,7 @@
     {
       "path": "src/runtime/types/crb.js",
       "code": "TS2694",
-      "message": "Namespace '\"/home/user/PROJETOMG/src/runtime/types/context\"' has no exported member 'RuntimeMetricsSnapshot'.",
+      "message": "Namespace '\"src/runtime/types/context\"' has no exported member 'RuntimeMetricsSnapshot'.",
       "count": 1,
       "evidence": "58:38"
     },
@@ -7058,7 +7058,7 @@
     {
       "path": "src/runtime/types/loader.js",
       "code": "TS2694",
-      "message": "Namespace '\"/home/user/PROJETOMG/src/runtime/types/loader\"' has no exported member 'LoaderContext'.",
+      "message": "Namespace '\"src/runtime/types/loader\"' has no exported member 'LoaderContext'.",
       "count": 1,
       "evidence": "10:62"
     },

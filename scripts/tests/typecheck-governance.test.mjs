@@ -30,6 +30,7 @@ import {
   compareToBaseline,
   fingerprintOf,
   foldToEntries,
+  hasAbsolutePathInMessage,
   normalizeMessage,
   normalizePath,
   parseTypecheckOutput,
@@ -235,7 +236,44 @@ test("T14 fingerprint duplicado reprova", () => {
   assert.ok(r.errors.some((e) => /fingerprint duplicado/.test(e)));
 });
 
-test("T15 caminho absoluto, escapada de raiz e curinga reprovam", () => {
+test("T15 caminho absoluto, escapada de raiz e curinga reprovam — no path E na mensagem", () => {
+  // A MENSAGEM também é caminho. Diagnósticos como TS2694 embutem o caminho ABSOLUTO
+  // do arquivo dentro do texto, e como a mensagem é parte do fingerprint isso tornaria a
+  // baseline dependente da máquina: a mesma árvore, verificada em outro diretório,
+  // produziria outro fingerprint e o enforcement acusaria regressão sem que nada tivesse
+  // mudado. Foi exatamente o que a primeira execução de CI desta fatia expôs.
+  const raiz = "/home/user/PROJETOMG";
+  const bruta = `Namespace '"${raiz}/src/runtime/types/context"' has no exported member 'X'.`;
+  assert.equal(hasAbsolutePathInMessage(bruta), true, "o detector não vê o caminho absoluto");
+  assert.equal(
+    normalizeMessage(bruta, raiz),
+    `Namespace '"src/runtime/types/context"' has no exported member 'X'.`,
+  );
+  assert.equal(hasAbsolutePathInMessage(normalizeMessage(bruta, raiz)), false);
+
+  // E caminhos RELATIVOS legítimos, que aparecem em mensagens reais do tsc, jamais
+  // podem ser confundidos com absolutos.
+  for (const ok of [
+    "Cannot find module './bosTypes.js' or its corresponding type declarations.",
+    "Cannot find module '../../types/context.js' or its corresponding type declarations.",
+    "Cannot find module '@/styles/mg-prototype.css' or its corresponding type declarations.",
+  ]) {
+    assert.equal(hasAbsolutePathInMessage(ok), false, ok);
+  }
+
+  // Uma baseline que ainda carregue caminho absoluto na mensagem é INVÁLIDA.
+  const suja = baselineOf(diag());
+  suja.entries[0].message = bruta;
+  const rSuja = validateBaseline(suja);
+  assert.equal(rSuja.ok, false);
+  assert.ok(rSuja.errors.some((e) => /caminho absoluto/.test(e)), rSuja.errors.join(" | "));
+
+  // E o parsing recusa a saída em vez de gravar um fingerprint dependente de máquina.
+  assert.throws(
+    () => parseTypecheckOutput(`src/a.js(1,1): error TS2694: ${bruta}`),
+    /caminho absoluto após normalização/,
+  );
+
   for (const [p, padrao] of [
     ["/etc/passwd.js", /path absoluto/],
     ["C:/w/a.js", /path absoluto/],

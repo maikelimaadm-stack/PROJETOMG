@@ -55,7 +55,9 @@ if (run.signal) {
 
 let entries;
 try {
-  entries = foldToEntries(parseTypecheckOutput(`${run.stdout ?? ""}${run.stderr ?? ""}`).diagnostics);
+  entries = foldToEntries(
+    parseTypecheckOutput(`${run.stdout ?? ""}${run.stderr ?? ""}`, { root: ROOT }).diagnostics,
+  );
 } catch (err) {
   console.error(`[FAIL] ${err.message}`);
   process.exit(1);

@@ -296,6 +296,40 @@ continuam proibidos para toda branch, verificados nos dois lados.
 fatia seguinte. Reescrita para ser relativa ao catálogo vigente — o padrão que `A012` já
 adotara na fatia 47.
 
+### 12.6 — Fingerprint dependente de máquina (encontrado pelo CI, run #665)
+
+**A falha mais importante desta fatia, e a única que só o CI revelou.**
+
+O primeiro run de CI reprovou no step 1. Causa: quatro diagnósticos `TS2694` embutem o
+caminho **absoluto** do arquivo dentro do TEXTO da mensagem.
+
+```
+local:  Namespace '"/home/user/PROJETOMG/src/runtime/types/context"' has no exported member ...
+CI:     Namespace '"/home/runner/work/PROJETOMG/PROJETOMG/src/runtime/types/context"' ...
+```
+
+Como a mensagem é parte do fingerprint, a baseline capturada numa máquina não valia noutra.
+As contagens batiam — 2365/477 dos dois lados — mas 2 fingerprints liam como **novos** e 2
+como **desaparecidos**. O enforcement acusou regressão onde nada havia mudado.
+
+Isto não é um detalhe de ambiente: é uma falha do desenho do fingerprint que eu escrevi. A
+baseline precisa ser determinística **entre máquinas**, não apenas entre execuções na mesma
+máquina — e a verificação de determinismo que rodei localmente (duas capturas, delta
+0/0/0/0) era incapaz de detectá-la.
+
+Correção, em três camadas para que a classe não volte em silêncio:
+
+1. `normalizeMessage(raw, root)` relativiza a raiz do repositório dentro do texto. Nada
+   mais é apagado — aspas, tipos e números seguem intactos.
+2. O **parsing** recusa a saída se alguma mensagem ainda retiver caminho absoluto depois da
+   normalização, em vez de gravar um fingerprint dependente de máquina.
+3. A **validação** rejeita uma baseline cuja mensagem contenha caminho absoluto.
+
+O detector distingue absoluto de relativo: `./bosTypes.js`, `../../types/context.js` e
+`@/styles/mg-prototype.css` aparecem em mensagens reais e continuam válidos. Coberto por T15.
+
+Baseline regravada: 2365/477, 1528 fingerprints, **zero** caminhos absolutos.
+
 ### 12.5 — Byte NUL em código-fonte (corrigido antes de qualquer medição)
 
 A primeira versão de `fingerprintOf` usou um separador NUL literal, gravado como byte de
