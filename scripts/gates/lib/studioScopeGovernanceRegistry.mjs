@@ -1632,6 +1632,8 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^docs\/evidence\/post-foundation-c-lifecycle-auth-tenant-atomicity-governance\//,
       /^scripts\/gate-lifecycle-security-isolation\.mjs$/,
       /^scripts\/gate-deploy-pipeline\.mjs$/,
+      /^docs\/engineering\/P1-03-LIFECYCLE-AUTH-TENANT-ATOMICITY-REPORT\.md$/,
+      /^docs\/engineering\/GATE-REGISTRY\.md$/,
       /^backend\/package\.json$/,
       /^backend\/scripts\/testLifecycleSecurityIsolation\.js$/,
       /^backend\/src\/modules\/lifecycle\/routes\.js$/,
@@ -1704,6 +1706,11 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^src\/runtime\/__tests__\/studio-scope-governance-non-studio-runtime-compatibility\.test\.js$/,
       /^src\/runtime\/__tests__\/typecheck-environment-hygiene-governance\.test\.js$/,
       /^src\/runtime\/__tests__\/typecheck-fail-closed-baseline-governance\.test\.js$/,
+      // (c) os diários de engenharia, que a fatia 48 possui e que toda fatia posterior
+      //     precisa acrescentar — estado corrente, dívida registrada e log da missão.
+      /^docs\/engineering\/CURRENT-STATE\.md$/,
+      /^docs\/engineering\/TECH-DEBT\.md$/,
+      /^docs\/engineering\/ENGINEERING-JOURNAL\.md$/,
     ],
     sharedGovernancePatterns: [
       /^scripts\/gates\/lib\/studioScopeGovernanceRegistry\.mjs$/,

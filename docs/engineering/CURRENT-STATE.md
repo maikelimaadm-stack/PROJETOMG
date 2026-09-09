@@ -135,8 +135,12 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 | `npm run test:typecheck-governance` | ✅ T01–T25 — contrato do enforcement fail-closed |
 | `npm run typecheck:governance` | ✅ **FAIL-CLOSED** (P1-02B) — compara contra `config/typecheck-production-baseline.json`. Diagnóstico novo reprova; baseline stale também. O bypass foi removido |
 | `npm run typecheck:baseline:capture` | ℹ️ Ferramenta MANUAL de regravação da baseline. Exige `--write`; sem ele é dry-run. Nunca roda no CI |
+| `npm run test:lifecycle-security` (backend) | ✅ 32/32 — bateria adversarial do lifecycle: auth, IDOR cross-tenant, corrida de decisão (P1-03) |
+| `npm run gate:lifecycle-security` | ✅ **G403 · 28/28** — afirma a FORMA do código corrigido e executa a bateria. Roda em `gate:deploy-pipeline`, que o CI executa (P1-03) |
+| `npm run gate:g423-lifecycle-auth-tenant-atomicity-governance` | ✅ 32/32 — governa a Slice 50: entrada de catálogo exata, autorização forbidden estreita, diff da branch explicado (P1-03) |
 | `npm run verify:governance` | ✅ Pass — G31–G142 + G156–G261 |
 | `npm run verify:ci` | ⚠️ Inclui `test:typecheck-scope-governance` e `test:typecheck-governance`. Vermelho por falha PRÉ-EXISTENTE em `gate:studio-sdk` (G265), agregada em `gate:capabilities` — que o workflow do CI não executa |
+| `npm run gate:deploy-pipeline` | ✅ G401 + G402 + **G403** (P1-03) |
 | CI workflow | `.github/workflows/foundation-governance.yml` — foundation job + parallel capability-gates matrix. Typecheck em 3 steps após Lint: escopo · contrato · enforcement fail-closed |
 | Gates V13–V20 (G156–G261) | ✅ **In CI** — TD-013 resolved (IFM 1D-1) |
 | Supplementary gates | `gate:functional-completion`, `gate:foundation-completion`, V15/V15.1/V15.2 — manual |

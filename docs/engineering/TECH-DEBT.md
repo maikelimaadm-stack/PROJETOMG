@@ -217,6 +217,31 @@
 | **Roadmap** | — |
 | **Status** | Open — Constitution §7 declares them historical/subordinate |
 
+### TD-017 — Autorização forbidden de backend depende do marcador de branch
+
+| Campo | Valor |
+|---|---|
+| **Discovered** | 2026-09-09 — P1-03, ao tornar verde a primeira correção de backend sob o catálogo de fatias |
+| **O que é** | `FORBIDDEN_SCOPE_PATTERNS` inclui `/^backend\//`, então nenhuma fatia pode tocar backend sem declarar cada arquivo em `explicitlyAuthorizedForbiddenPatterns`. A Slice 50 é a segunda e última autorizadora do catálogo |
+| **Por que é dívida** | A autorização vive na fatia, não no arquivo: depois do merge, o marcador da Slice 50 continua no catálogo e a autorização dos sete arquivos continua declarada. Uma fatia FUTURA que precise mexer nos mesmos arquivos terá de declará-los de novo, e o catálogo acumulará entradas de backend fatia a fatia |
+| **Contenção atual** | A autorização é da FATIA ATIVA: sem o marcador de branch que elege a Slice 50, os mesmos caminhos voltam a ser recusados (provado por `G423-50-B07` e pelo teste `E004`). O LEDGER em `studio-scope-governance-chronological-migration.test.js` (S004/F002/F010) prende a lista de autorizadoras por identidade e cardinalidade — uma terceira não aparece em silêncio |
+| **Correção estrutural pendente** | `isPathAuthorizedForStudioSlice` hoje considera primary + cross + shared, mas **não** `explicitlyAuthorizedForbiddenPatterns`, o que obriga a fatia a declarar os sete arquivos em DUAS listas. Unificar isso exigiria alterar `studioScopeGovernanceGuard.mjs` — o guard central, que P1-03 deliberadamente não toca |
+| **Roadmap** | Reavaliar quando uma terceira fatia precisar autorizar caminho proibido, ou quando o guard central abrir para alteração |
+| **Status** | Open — contida desde 2026-09-09 (P1-03) |
+
+---
+
+### TD-018 — `prisma:validate` falha por variável de ambiente ausente
+
+| Campo | Valor |
+|---|---|
+| **Discovered** | 2026-09-09 — P1-03, na bateria de verificação |
+| **O que é** | `npm run prisma:validate` sai **1** com `P1012`: `DIRECT_URL` não está definida |
+| **Escopo** | Ambiental, não de schema. Reproduzido na base intocada via `git stash` — **pré-existente**, não regressão de P1-03. O schema foi validado com variáveis efêmeras, apenas em memória; `.env` não foi tocado e nenhuma credencial foi persistida |
+| **Impacto** | O comando não pode ser usado como gate enquanto depender de uma variável que o ambiente de desenvolvimento não fornece |
+| **Roadmap** | Ou o schema deixa de exigir `DIRECT_URL`, ou o comando passa a receber um valor sintético explícito. Nenhuma das duas cabe numa fatia de segurança de backend |
+| **Status** | Open — pré-existente |
+
 ---
 
 ## Resolved Debt
