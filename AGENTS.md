@@ -30,7 +30,10 @@ npm run dev                        # http://127.0.0.1:5173
 |------|---------|
 | Frontend dev | `npm run dev` |
 | Lint | `npm run lint` |
-| Typecheck | `npm run typecheck` — escopo de PRODUÇÃO (`jsconfig.typecheck.json`). Ainda vermelho: dívida legada real, TD-016. Não é só shadcn |
+| Typecheck | `npm run typecheck` — escopo de PRODUÇÃO (`jsconfig.typecheck.json`). Vermelho por desenho: dívida legada real congelada, TD-016. Não é só shadcn |
+| Typecheck no CI | `npm run typecheck:governance` — **FAIL-CLOSED** (P1-02B): compara contra `config/typecheck-production-baseline.json`. Diagnóstico novo reprova |
+| Contrato do enforcement | `npm run test:typecheck-governance` — T01–T25: parsing, validação da baseline e reprovação nos dois sentidos |
+| Regravar a baseline | `npm run typecheck:baseline:capture -- --write` — MANUAL e consciente. Sem `--write` é dry-run. Nunca automático, nunca no CI |
 | Typecheck (inventário) | `npm run typecheck:legacy-all` — inclui testes e ferramentas Node. Espera-se vermelho |
 | Production build | `npm run build` |
 | Foundation governance | `npm run verify:governance` |

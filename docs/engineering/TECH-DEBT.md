@@ -133,9 +133,12 @@
 | **Áreas** | framework 488 · shared 402 (dos quais 316 são TD-009) · studio 393 · runtime 345 · bos 270 · intelligence 163 · modules 110 · ModeloBase1 82 · ModeloBase2 74 · apis 28 · App.jsx 4 · main.jsx 4 · integrations 2 |
 | **Códigos dominantes** | TS2339 1308 · TS2322 499 · TS2741 110 · TS2345 98 · TS2353 66 |
 | **Finding específico** | 8 diagnósticos de builtins Node permanecem em **7 arquivos de produção** (`src/runtime/core/{completion,context,crb,session,workflow}`, `src/studio/governance/{architectureRules,dependencyGraph}`). Deliberadamente NÃO ocultados |
-| **Impact** | `typecheck:governance` é uma ponte permissiva: roda o escopo de produção e ainda devolve 0. Um diagnóstico **novo** não reprova o CI |
-| **Owner / remediation** | **P1-02B** — baseline exata + comparação fail-closed. Nenhuma baseline foi criada em P1-02A |
-| **Status** | Open |
+| **Impact (até P1-02A)** | `typecheck:governance` era uma ponte permissiva: rodava o escopo de produção e devolvia 0. Um diagnóstico **novo** não reprovava o CI |
+| **Contenção (P1-02B, 2026-09-09)** | ✅ A ponte foi removida. `typecheck:governance` compara contra `config/typecheck-production-baseline.json` — 1528 fingerprints, 2365 diagnósticos, 477 arquivos — e **reprova nos dois sentidos**: diagnóstico novo ou contagem maior (regressão), diagnóstico que sumiu ou contagem menor (baseline stale). O CI executa 3 steps após o Lint: escopo, contrato do enforcement, enforcement |
+| **Fingerprint** | `caminho + código TS + mensagem normalizada` → contagem de ocorrências. Linha e coluna são evidência, não autorização: com 2365 diagnósticos vivos, uma reformatação inocente invalidaria a baseline inteira sem que nenhum erro novo existisse |
+| **O que NÃO foi feito** | Nenhum dos 2365 diagnósticos foi corrigido. A dívida foi **congelada**, não paga. Congelar não é esconder: a baseline é legível, versionada, e só encolhe por decisão consciente (`npm run typecheck:baseline:capture -- --write`), nunca automaticamente |
+| **Owner / remediation** | Aberto — reduzir os 2365 diagnósticos exige fatias de produto, uma raiz por vez, cada uma regravando a baseline no próprio commit. A contenção impede que a dívida CRESÇA; ela não a paga |
+| **Status** | Open — **contida** desde 2026-09-09 (P1-02B). A regressão está bloqueada; o saldo permanece |
 
 ---
 

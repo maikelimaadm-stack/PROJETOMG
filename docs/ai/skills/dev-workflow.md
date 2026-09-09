@@ -71,7 +71,8 @@ src/
 | Layout antigo | Console: `window.__empPersonalizacoes.resetStoredLayouts()` |
 | E2E blank com auto-login | Desligar `VITE_DEV_AUTO_LOGIN` para Playwright mock |
 | Typecheck | `npm run typecheck` = escopo de produção. Dívida legada real (TD-016), não só `src/shared/ui/*` |
-| Typecheck no CI | `typecheck:governance` — ponte PERMISSIVA até P1-02B; ainda não reprova código novo |
+| Typecheck no CI | `typecheck:governance` — **FAIL-CLOSED** desde P1-02B: compara contra `config/typecheck-production-baseline.json` e reprova diagnóstico novo |
+| Baseline | Regravar é ato manual: `npm run typecheck:baseline:capture -- --write`. Ela reprova nos DOIS sentidos — dívida que cresce E dívida que some sem registro |
 
 ## E2E
 

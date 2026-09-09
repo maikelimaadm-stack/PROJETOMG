@@ -245,12 +245,28 @@ test("S20 @types/node não foi adicionado nem alterado por esta fatia", () => {
 });
 
 // ===========================================================================
-// W — o wrapper de governança parou de mentir
+// W — o wrapper de governança parou de mentir, e depois parou de deixar passar
 //
 // A prova aqui é COMPORTAMENTAL: executa o wrapper e lê o que ele de fato emite.
 // Uma busca textual no arquivo não serviria — o cabeçalho dele CITA a afirmação
 // falsa antiga justamente para documentar que ela foi removida, e a busca
 // confundiria a citação com o uso.
+//
+// SUPERSESSÃO — P1-02B.
+// Escritas em P1-02A, W02, W03, W04 e W05 afirmavam o estado daquela fatia: o
+// wrapper era uma PONTE PERMISSIVA declarada (`process.exit(0)` diante de
+// diagnósticos, registrado como KNOWN_P1_02B_BLOCKER) e nenhuma baseline existia,
+// porque criá-la era escopo de P1-02B.
+//
+// P1-02B entregou exatamente o que essas asserções antecipavam, e por isso elas
+// passaram a ser falsas por SUCESSO, não por regressão. Foram reescritas para
+// afirmar o contrato vigente — nunca removidas, nunca puladas: cada uma continua
+// exigindo uma propriedade positiva, agora a propriedade certa. A evidência de
+// P1-02A permanece imutável no registro; esta fatia declara a supersessão.
+//
+// O enforcement em si — que o wrapper REPROVA de fato — é provado em
+// `scripts/tests/typecheck-governance.test.mjs`, T25. Aqui não se duplica aquela
+// bateria: este arquivo governa ESCOPO, não enforcement.
 // ===========================================================================
 
 const wrapperRun = (() => {
@@ -270,30 +286,51 @@ test("W01 o wrapper executa o MESMO config de produção", () => {
 test("W02 a saída do wrapper não atribui a falha ao TD-009/shadcn", () => {
   assert.ok(!/TD-009 baseline/.test(wrapperRun.out), "a atribuição falsa a TD-009 persiste");
   assert.ok(!/shadcn/i.test(wrapperRun.out), "a atribuição falsa a shadcn persiste");
-  assert.ok(/LEGACY TYPECHECK DEBT/.test(wrapperRun.out), "falta declarar a dívida legada");
-  assert.ok(/permissive bridge pending P1-02B/.test(wrapperRun.out),
-    "falta declarar a ponte permissiva e seu dono");
+  // P1-02B: a dívida continua declarada, agora como CONGELADA e rastreada, não
+  // como ruído tolerado por uma ponte.
+  assert.ok(/D[íi]vida legada congelada/.test(wrapperRun.out), "falta declarar a dívida legada");
+  assert.ok(/TD-016/.test(wrapperRun.out), "falta apontar o registro que rastreia a dívida");
+  assert.ok(!/permissive bridge/i.test(wrapperRun.out),
+    "a ponte permissiva foi removida por P1-02B e não pode voltar a ser anunciada");
 });
 
 test("W03 o wrapper relata o número real de diagnósticos", () => {
-  const m = wrapperRun.out.match(/Diagn[óo]sticos contados: (\d+)/);
-  assert.ok(m, "o wrapper não informa a contagem real");
-  assert.ok(Number(m[1]) > 0, "contagem implausível para o estado atual da dívida");
+  const medido = wrapperRun.out.match(/Medido agora: (\d+) diagn[óo]sticos em (\d+) arquivos/);
+  const registrado = wrapperRun.out.match(/Baseline: (\d+) diagn[óo]sticos em (\d+) arquivos/);
+  assert.ok(medido, "o wrapper não informa a contagem medida agora");
+  assert.ok(registrado, "o wrapper não informa a contagem registrada na baseline");
+  assert.ok(Number(medido[1]) > 0, "contagem implausível para o estado atual da dívida");
+  // Fail-closed: só passa quando o medido e o registrado coincidem exatamente.
+  assert.equal(medido[1], registrado[1], "contagens divergentes não poderiam ter passado");
+  assert.equal(medido[2], registrado[2], "contagem de arquivos divergente não poderia ter passado");
 });
 
-test("W04 o bypass permanece declarado, não disfarçado", () => {
+test("W04 o bypass foi removido, não disfarçado", () => {
   const src = fs.readFileSync(path.join(ROOT, "scripts/run-typecheck-governance.mjs"), "utf8");
-  assert.ok(/BYPASS CONHECIDO/.test(src), "o bypass precisa continuar explícito no arquivo");
-  assert.ok(src.includes("P1-02B"), "falta apontar o dono da remoção do bypass");
-  // A ponte AINDA devolve 0 — é o bloqueador conhecido que P1-02B remove.
-  assert.equal(wrapperRun.status, 0);
-  assert.ok(/ainda N[ÃA]O é fail-closed/.test(wrapperRun.out),
-    "o wrapper precisa admitir que não é fail-closed");
+  // O arquivo continua NOMEANDO a fatia que removeu a ponte — a história não some.
+  assert.ok(src.includes("P1-02B"), "falta declarar quem removeu o bypass");
+  assert.ok(/FAIL-CLOSED/.test(src), "o wrapper precisa declarar o regime vigente");
+  // Ele devolve 0 aqui porque a comparação bateu — e a saída diz isso explicitamente.
+  assert.equal(wrapperRun.status, 0, `o wrapper reprovou:\n${wrapperRun.out}`);
+  assert.ok(/nenhum diagn[óo]stico fora da baseline registrada/.test(wrapperRun.out),
+    "o exit 0 precisa ser justificado pela comparação, não concedido");
+  // E a confissão de P1-02A não pode sobreviver: ela deixou de ser verdadeira.
+  assert.ok(!/ainda N[ÃA]O é fail-closed/.test(wrapperRun.out),
+    "o wrapper ainda se declara não fail-closed");
 });
 
-test("W05 nenhuma baseline foi criada nesta fatia", () => {
+test("W05 a baseline de P1-02B existe, é única e é a versionada", () => {
   const cfg = path.join(ROOT, "config");
-  if (!fs.existsSync(cfg)) return;
+  assert.ok(fs.existsSync(cfg), "o diretório config/ precisa existir");
   const baselines = fs.readdirSync(cfg).filter((f) => /baseline/i.test(f) && /typecheck/i.test(f));
-  assert.deepEqual(baselines, [], "P1-02A não pode criar baseline; isso é P1-02B");
+  assert.deepEqual(baselines, ["typecheck-production-baseline.json"],
+    "esperada exatamente uma baseline de typecheck — nem zero, nem duas");
+  const doc = JSON.parse(fs.readFileSync(path.join(cfg, baselines[0]), "utf8"));
+  // Ela governa o MESMO escopo que esta fatia definiu, e nada além dele.
+  assert.equal(doc.project, `./${PROD_CONFIG_REL}`);
+  assert.ok(Array.isArray(doc.entries) && doc.entries.length > 0);
+  for (const e of doc.entries) {
+    assert.ok(!e.path.startsWith(`${AUTHORIZED_NEW_EXCLUSION}/`),
+      `a baseline registra caminho fora do escopo de produção: ${e.path}`);
+  }
 });

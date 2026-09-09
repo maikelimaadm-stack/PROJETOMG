@@ -34,6 +34,7 @@ import {
   resolveActiveStudioSlice,
   isStudioGovernedDomainPath,
   classifyStudioScopePath,
+  findOwningStudioSlices,
 } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
@@ -103,8 +104,8 @@ const assertNonStudioEnvelope = (r, label) => {
 // C — CATÁLOGO
 // ===========================================================================
 
-test('C001 o catálogo tem exatamente 48 entradas', () => {
-  assert.equal(STUDIO_SLICE_CATALOG.length, 48);
+test('C001 o catálogo tem exatamente 49 entradas', () => {
+  assert.equal(STUDIO_SLICE_CATALOG.length, 49);
 });
 
 test('C002 os ordinais são contíguos de 1 a 47', () => {
@@ -304,8 +305,23 @@ test('N003 o núcleo continua fail-closed para o mesmo diff workflow-only', () =
   assert.ok(core.blockers.includes('unknown_scope'), JSON.stringify(core.blockers));
 });
 
-test('N004 o workflow continua sendo unknown_scope para o classificador', () => {
-  assert.equal(classifyStudioScopePath(WORKFLOW), 'unknown_scope');
+test('N004 caminho non-Studio sem dono continua unknown_scope, e o workflow tem dono posterior', () => {
+  // Correcao P1-02B. Este teste afirmava `unknown_scope` para o workflow, o que valia
+  // apenas enquanto NENHUMA fatia o registrasse. A fatia 49 precisa edita-lo para
+  // instalar o typecheck fail-closed e por isso o declara como artefato proprio.
+  //
+  // O que a fatia 47 realmente depende nao mudou: o workflow segue FORA do dominio
+  // governado, e e isso que faz a porta non-Studio funcionar. A assercao de
+  // classificacao continua existindo, agora sobre um caminho comprovadamente sem dono,
+  // e o novo estado do workflow e afirmado — nao ignorado.
+  for (const p of ['README.md', 'vite.config.js']) {
+    assert.equal(findOwningStudioSlices(p).length, 0, p);
+    assert.equal(classifyStudioScopePath(p), 'unknown_scope', p);
+  }
+  const donos = findOwningStudioSlices(WORKFLOW);
+  assert.equal(donos.length, 1, 'o workflow precisa ter no maximo um dono');
+  assert.ok(donos[0].sliceOrdinal > 47, 'o dono do workflow precisa ser posterior a 47');
+  assert.equal(isStudioGovernedDomainPath(WORKFLOW), false);
 });
 
 test('N005 backend continua proibido, e o domínio continua o mesmo', () => {

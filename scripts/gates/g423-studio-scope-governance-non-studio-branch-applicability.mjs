@@ -78,26 +78,26 @@ const isNonStudio = (r) => r.notApplicable === true && r.applicable === false
 // =====================================================================
 // Catalog
 // =====================================================================
-gate('G423-NSB — the catalog holds forty-eight slices', STUDIO_SLICE_CATALOG.length === 48, String(STUDIO_SLICE_CATALOG.length));
-gate('G423-NSB — ordinals are contiguous 1..46', (() => {
+gate('G423-NSB — the catalog holds forty-nine slices', STUDIO_SLICE_CATALOG.length === 49, String(STUDIO_SLICE_CATALOG.length));
+gate('G423-NSB — ordinals are contiguous 1..49', (() => {
   const o = STUDIO_SLICE_CATALOG.map((s) => s.sliceOrdinal).sort((a, b) => a - b);
-  return o.length === 48 && o.every((v, i) => v === i + 1);
+  return o.length === 49 && o.every((v, i) => v === i + 1);
 })());
 gate('G423-NSB — every entry carries exactly ten keys',
   STUDIO_SLICE_CATALOG.every((s) => Object.keys(s).length === 10));
 gate('G423-NSB — slice ids are unique',
   new Set(STUDIO_SLICE_CATALOG.map((s) => s.sliceId)).size === STUDIO_SLICE_CATALOG.length
-  && STUDIO_SLICE_CATALOG.length === 48);
+  && STUDIO_SLICE_CATALOG.length === 49);
 gate('G423-NSB — this slice is ordinal 46', G.getStudioSliceById(APPLICABILITY)?.sliceOrdinal === 46);
 gate('G423-NSB — this slice is born merged', G.getStudioSliceById(APPLICABILITY)?.status === 'merged');
 gate('G423-NSB — zero active_slice remains',
   STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice').length === 0);
 gate('G423-NSB — zero open_pull_request_* remains',
   STUDIO_SLICE_CATALOG.filter((s) => s.status.startsWith('open_pull_request')).length === 0);
-gate('G423-NSB — the merged family covers all forty-eight',
-  STUDIO_SLICE_CATALOG.filter((s) => s.status.startsWith('merged')).length === 48);
-gate('G423-NSB — exactly forty-five carry the plain merged status',
-  STUDIO_SLICE_CATALOG.filter((s) => s.status === 'merged').length === 47);
+gate('G423-NSB — the merged family covers all forty-nine',
+  STUDIO_SLICE_CATALOG.filter((s) => s.status.startsWith('merged')).length === 49);
+gate('G423-NSB — exactly forty-eight carry the plain merged status',
+  STUDIO_SLICE_CATALOG.filter((s) => s.status === 'merged').length === 48);
 gate('G423-NSB — slice 39 keeps its pre-existing deviating status',
   STUDIO_SLICE_CATALOG.find((s) => s.sliceOrdinal === 39)?.status === 'merged_without_dedicated_artifacts');
 gate('G423-NSB — zero slices authorize historical branch consumers',
@@ -202,10 +202,18 @@ gate('G423-NSB — H: slice 46 plus an unauthorized path fails closed', (() => {
   return r.activeSliceId === APPLICABILITY && r.unknown.includes('README.md')
     && r.blockers.includes('unknown_scope') && r.safe === false;
 })());
+// P1-02B: refusal now has two flavours — unregistered paths land in `unknown`, and a
+// LATER slice's registered artifact (slice 49 owns the workflow file it must edit) lands
+// in `chronologicalViolation`. Both are refusals; the gate asserts each in its own right.
 gate('G423-NSB — H: one governed path makes the whole diff governed', (() => {
   const r = consumer([...NON_STUDIO, MARKER_46]);
-  return r.reason !== 'non_studio_branch' && r.safe === false
-    && NON_STUDIO.every((p) => r.unknown.includes(p));
+  const refused = NON_STUDIO.every((p) => !r.allowed.includes(p)
+    && (G.findOwningStudioSlices(p).length > 0
+      ? r.chronologicalViolation.includes(p)
+      : r.unknown.includes(p)));
+  return r.reason !== 'non_studio_branch' && r.safe === false && refused
+    && NON_STUDIO.some((p) => G.findOwningStudioSlices(p).length > 0)
+    && NON_STUDIO.some((p) => G.findOwningStudioSlices(p).length === 0);
 })());
 gate('G423-NSB — I: two markers stay ambiguous', (() => {
   const r = consumer([MARKER_45, MARKER_46]);

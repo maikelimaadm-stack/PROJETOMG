@@ -77,14 +77,14 @@ const changedOnThisBranch = () => {
 // ===========================================================================
 // R — the catalog after slice 46
 // ===========================================================================
-test('R001 the catalog holds forty-eight slices', () => assert.equal(STUDIO_SLICE_CATALOG.length, 48));
+test('R001 the catalog holds forty-nine slices', () => assert.equal(STUDIO_SLICE_CATALOG.length, 49));
 test('R002 slice ids stay unique', () => {
   const ids = STUDIO_SLICE_CATALOG.map((s) => s.sliceId);
   assert.equal(new Set(ids).size, ids.length);
 });
-test('R003 ordinals are contiguous 1..48', () => {
+test('R003 ordinals are contiguous 1..49', () => {
   const o = STUDIO_SLICE_CATALOG.map((s) => s.sliceOrdinal).sort((a, b) => a - b);
-  assert.deepEqual(o, Array.from({ length: 48 }, (_, i) => i + 1));
+  assert.deepEqual(o, Array.from({ length: 49 }, (_, i) => i + 1));
 });
 test('R004 every entry still carries exactly ten keys', () => {
   for (const s of STUDIO_SLICE_CATALOG) assert.equal(Object.keys(s).length, 10, s.sliceId);
@@ -101,11 +101,11 @@ test('R007 the catalog carries zero active_slice', () => {
 test('R008 the catalog carries zero open_pull_request_* status', () => {
   assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status.startsWith('open_pull_request')).length, 0);
 });
-test('R009 the merged family covers all forty-eight entries', () => {
-  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status.startsWith('merged')).length, 48);
+test('R009 the merged family covers all forty-nine entries', () => {
+  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status.startsWith('merged')).length, 49);
 });
-test('R010 exactly forty-seven carry the plain merged status', () => {
-  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status === 'merged').length, 47);
+test('R010 exactly forty-eight carry the plain merged status', () => {
+  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status === 'merged').length, 48);
 });
 test('R011 slice 39 keeps its pre-existing deviating status, named explicitly', () => {
   const s39 = STUDIO_SLICE_CATALOG.find((s) => s.sliceOrdinal === 39);
@@ -343,7 +343,27 @@ test('H002 one governed path is enough to make the whole diff governed', () => {
   const r = consumer([...NON_STUDIO, MARKER_46]);
   assert.notEqual(r.reason, 'non_studio_branch');
   assert.equal(r.safe, false);
-  for (const p of NON_STUDIO) assert.ok(r.unknown.includes(p), p);
+  // Not one of them is waved through. That is the property, and it is unconditional.
+  for (const p of NON_STUDIO) assert.ok(!r.allowed.includes(p), p);
+  // P1-02B correction. This used to assert `unknown` for every path, which held only
+  // while NO slice had registered any of them. Slice 49 registers the workflow file --
+  // it must edit it to add the fail-closed typecheck steps -- so refusal now arrives in
+  // two flavours, and asserting only the first would have quietly stopped checking the
+  // second. Both are still refusals; neither is skipped.
+  for (const p of NON_STUDIO) {
+    const registered = findOwningStudioSlices(p).length > 0;
+    if (registered) {
+      // A LATER slice's artifact inside slice 46's branch: a chronological violation.
+      assert.ok(r.chronologicalViolation.includes(p), `${p} escaped chronology`);
+      assert.ok(r.blockers.includes('unauthorized_foreign_slice_path'), p);
+    } else {
+      assert.ok(r.unknown.includes(p), p);
+      assert.ok(r.blockers.includes('unknown_scope'), p);
+    }
+  }
+  // And at least one of each kind actually exercised, so neither branch can rot unseen.
+  assert.ok(NON_STUDIO.some((p) => findOwningStudioSlices(p).length > 0));
+  assert.ok(NON_STUDIO.some((p) => findOwningStudioSlices(p).length === 0));
 });
 test('I001 two markers stay ambiguous', () => {
   const r = consumer([MARKER_45, MARKER_46]);

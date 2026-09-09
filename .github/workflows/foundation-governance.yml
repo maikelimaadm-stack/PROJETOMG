@@ -37,7 +37,23 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Typecheck (governance audit — TD-009 baseline)
+      # P1-02B — o typecheck deixou de ser auditoria e passou a ser enforcement.
+      # O nome anterior deste step ("governance audit — TD-009 baseline") descrevia uma
+      # ponte permissiva que devolvia 0 diante de qualquer erro, atribuindo a dívida a
+      # uma causa que a medição refutou. Os três steps abaixo substituem aquele único.
+
+      # 1. O ESCOPO continua o que P1-02A definiu: produção, sem os testes.
+      - name: Typecheck scope governance tests
+        run: npm run test:typecheck-scope-governance
+
+      # 2. O ENFORCEMENT em si é testado antes de ser confiado: parsing, validação da
+      #    baseline e a reprovação nos dois sentidos (regressão e baseline stale).
+      - name: Typecheck governance contract tests
+        run: npm run test:typecheck-governance
+
+      # 3. E só então a dívida real é comparada contra a baseline exata e versionada.
+      #    Este step REPROVA: um diagnóstico novo em produção quebra o CI.
+      - name: Typecheck (fail-closed legacy baseline)
         run: npm run typecheck:governance
 
       - name: Runtime tests

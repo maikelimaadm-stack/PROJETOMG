@@ -1549,6 +1549,79 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
     // DEPOIS do merge, e a branch é resolvida por seu próprio marker durante a PR.
     status: 'merged',
   },
+  {
+    sliceId: 'typecheck-fail-closed-baseline-governance',
+    sliceOrdinal: 49,
+    title: 'Typecheck Fail-Closed Baseline Governance',
+    // Sucessora direta da 48. A 48 normalizou o ESCOPO do typecheck e deixou o wrapper
+    // como ponte permissiva declarada (KNOWN_P1_02B_BLOCKER). Esta fatia remove a ponte:
+    // o step de typecheck do CI passa a reprovar contra uma baseline exata e versionada.
+    // Continua sendo GOVERNANÇA DE CI — nenhum módulo, nenhuma UI, nenhum backend,
+    // nenhum Prisma, e nenhum dos 2365 diagnósticos de dívida é corrigido aqui.
+    primaryArtifactPatterns: [
+      // Os três artefatos canônicos de uma fatia: teste, gate e evidência.
+      /^src\/runtime\/__tests__\/typecheck-fail-closed-baseline-governance\.test\.js$/,
+      /^scripts\/gates\/g423-typecheck-fail-closed-baseline-governance\.mjs$/,
+      /^docs\/evidence\/post-foundation-c-typecheck-fail-closed-baseline-governance\//,
+      // Mais os artefatos que a P1-02B de fato CRIA. Vivem fora do território governado
+      // e por isso classificam como `unknown_scope`; sem ficarem declarados aqui, o
+      // núcleo falharia fechado sobre a própria branch que os produz.
+      //
+      // Todos são artefatos PRÓPRIOS — nenhum pertence a outra fatia; os de outra fatia
+      // estão em `crossSliceAuthorizedPatterns`, abaixo. Um padrão ancorado por arquivo,
+      // sem curinga de diretório. Nenhum é caminho de produto, backend ou Prisma.
+      /^config\/typecheck-production-baseline\.json$/,
+      /^scripts\/lib\/typecheckGovernance\.mjs$/,
+      /^scripts\/capture-typecheck-production-baseline\.mjs$/,
+      /^scripts\/tests\/typecheck-governance\.test\.mjs$/,
+      /^\.github\/workflows\/foundation-governance\.yml$/,
+      /^docs\/engineering\/P1-02B-TYPECHECK-FAIL-CLOSED-BASELINE-REPORT\.md$/,
+    ],
+    branchMarkerPatterns: [
+      /^docs\/evidence\/post-foundation-c-typecheck-fail-closed-baseline-governance\//,
+    ],
+    // Treze arquivos de OUTRAS fatias, e só. Duas famílias, ambas necessárias por
+    // motivo mecânico — nenhuma por conveniência:
+    //
+    // (a) CARDINALIDADE (6): afirmam o tamanho EXATO do catálogo — "48 entradas",
+    //     "ordinais 1..48", "47 merged". Crescer para 49 as torna falsas. São as
+    //     mesmas quatro que a fatia 48 corrigiu, mais o par da própria 48.
+    // (b) SUPERSESSÃO DA PONTE (7): descrevem o wrapper permissivo e a ausência de
+    //     baseline. Removida a ponte, passaram a ser falsas POR SUCESSO. Cada uma foi
+    //     reescrita para afirmar o contrato vigente — nenhuma foi apagada ou pulada.
+    //
+    // Nenhum outro consumidor histórico quebrou: `test:runtime` e os demais gates
+    // dedicados ficaram verdes com a entrada 49 presente, e por isso não foram tocados.
+    crossSliceAuthorizedPatterns: [
+      // (a) cardinalidade — fatias 46, 47 e 48
+      /^src\/runtime\/__tests__\/studio-scope-governance-non-studio-branch-applicability\.test\.js$/,
+      /^scripts\/gates\/g423-studio-scope-governance-non-studio-branch-applicability\.mjs$/,
+      /^src\/runtime\/__tests__\/studio-scope-governance-non-studio-runtime-compatibility\.test\.js$/,
+      /^scripts\/gates\/g423-studio-scope-governance-non-studio-runtime-compatibility\.mjs$/,
+      /^src\/runtime\/__tests__\/typecheck-environment-hygiene-governance\.test\.js$/,
+      /^scripts\/gates\/g423-typecheck-environment-hygiene-governance\.mjs$/,
+      // (b) supersessão da ponte permissiva — todos artefatos da fatia 48
+      /^scripts\/run-typecheck-governance\.mjs$/,
+      /^scripts\/tests\/typecheck-scope-governance\.test\.mjs$/,
+      /^AGENTS\.md$/,
+      /^docs\/ai\/skills\/dev-workflow\.md$/,
+      /^docs\/engineering\/CURRENT-STATE\.md$/,
+      /^docs\/engineering\/TECH-DEBT\.md$/,
+      /^docs\/engineering\/ENGINEERING-JOURNAL\.md$/,
+    ],
+    // Apenas o que a missão realmente precisa. `package-lock.json` está ausente de
+    // propósito: nenhuma dependência é adicionada e ele NÃO muda. O guard também está
+    // ausente: esta fatia não o altera.
+    sharedGovernancePatterns: [
+      /^scripts\/gates\/lib\/studioScopeGovernanceRegistry\.mjs$/,
+      /^package\.json$/,
+    ],
+    explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
+    // Born `merged`, como as fatias 45 a 48: o catálogo descreve o estado da main
+    // DEPOIS do merge, e a branch é resolvida por seu próprio marker durante a PR.
+    status: 'merged',
+  },
 
 ].map(Object.freeze));
 
