@@ -1,7 +1,51 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-09-08 (P1-02A Typecheck Environment Hygiene)
+**Last updated:** 2026-09-09 (P1-02B Fail-Closed Legacy Typecheck Baseline)
+
+---
+
+## 2026-09-09 — P1-02B: Fail-Closed Legacy Typecheck Baseline
+
+**Base:** `1aef37f5126846f3d2a53de7a727d78490c82b19` (merge da PR #504)
+**Deliverable:** [P1-02B-TYPECHECK-FAIL-CLOSED-BASELINE-REPORT.md](./P1-02B-TYPECHECK-FAIL-CLOSED-BASELINE-REPORT.md)
+
+**Por que existiu:** P1-02A separou o escopo do typecheck mas deixou o bypass de pé,
+registrado como `KNOWN_P1_02B_BLOCKER`: `scripts/run-typecheck-governance.mjs` devolvia 0
+diante de qualquer diagnóstico. Enquanto isso valesse, um erro de tipo **novo** entrava na
+main sem que o CI reclamasse.
+
+**O que mudou:** o wrapper passou a comparar a medição contra
+`config/typecheck-production-baseline.json` — SSOT com 1528 fingerprints cobrindo 2365
+diagnósticos em 477 arquivos. Fingerprint = caminho + código TS + mensagem normalizada,
+com contagem de ocorrências; linha e coluna entram como evidência e são provadamente
+ignoradas pela comparação. O CI ganhou 3 steps após o Lint: escopo, contrato, enforcement.
+
+**Os dois sentidos reprovam:** diagnóstico novo ou contagem maior é regressão; diagnóstico
+que sumiu, contagem menor ou `tsc` verde com baseline não vazia é baseline stale. A dívida
+melhorar também reprova — uma baseline que encolhe sozinha é uma baseline que ninguém
+revisou. A regravação é manual, com `--write` explícito, num commit revisável.
+
+**Prova negativa:** um sentinela com erro de tipo real foi commitado em
+`src/runtime/__p1_02b_typecheck_negative__.js`; o enforcement reprovou com exit 1; o commit
+foi revertido com `git revert --no-edit`. História preservada, sem reescrita.
+
+**Supersessão:** 7 asserções de P1-02A afirmavam a ponte permissiva e a ausência de
+baseline. Tornaram-se falsas por SUCESSO e foram reescritas para exigir o contrato vigente
+— nenhuma removida, nenhuma pulada. A evidência histórica permanece imutável.
+
+**Correção pós-auditoria:** a auditoria independente bloqueou o head `439dbd3f` mesmo com
+o CI verde. A ordem da baseline dependia de `localeCompare`, cuja collation varia por
+locale: `LC_ALL=tr_TR.UTF-8` reprovava a árvore intocada como "fora da ordenação
+determinística", `en_US.UTF-8` aprovava. Mesma classe do run #665 — não-portabilidade —,
+lá pela raiz absoluta, aqui pela collation; fail-closed nos dois. A ordem passou a ser por
+unidades de código, o detector de caminho absoluto ficou genérico (sem allowlist de raízes
+Unix), a raiz é removida só em fronteira de caminho, `realpath` cobre checkout com symlink,
+e `tsc` com status ≠ 0 sem diagnóstico passou a reprovar. Baseline regravada: só
+reordenação, 2365/477/1528 preservados. Seis locales verdes.
+
+**Dívida:** TD-016 passa a **Open — contida**. Nenhum dos 2365 diagnósticos foi corrigido:
+a dívida foi congelada, não paga.
 
 ---
 

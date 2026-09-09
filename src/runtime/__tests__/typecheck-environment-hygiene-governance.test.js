@@ -76,7 +76,7 @@ const changedOnThisBranch = () => {
 // ===========================================================================
 
 test('A001 o catálogo tem exatamente 48 entradas', () => {
-  assert.equal(STUDIO_SLICE_CATALOG.length, 48);
+  assert.equal(STUDIO_SLICE_CATALOG.length, 49);
 });
 
 test('A002 os ordinais são contíguos de 1 a 48', () => {
@@ -209,10 +209,18 @@ test('B010b toda autorização cruzada é ancorada, sem curinga', () => {
 });
 
 test('B010c os quatro corrigidos acompanharam o catálogo', () => {
+  // Correção P1-02B: a versão anterior congelava o literal 48 e envelhecia no instante
+  // em que o catálogo crescesse — a mesma armadilha que A012 já corrigira na fatia 47.
+  // Agora a asserção é RELATIVA ao catálogo vigente: cada arquivo corrigido precisa
+  // afirmar a cardinalidade real, seja ela qual for.
+  const n = STUDIO_SLICE_CATALOG.length;
   for (const f of CROSS_CORRECTED) {
     const src = read(f);
-    assert.ok(/forty-eight|48 entradas|=== 48|length, 48|length: 48/.test(src),
-      `${f} não acompanhou a cardinalidade`);
+    const afirmacoes = [...src.matchAll(/STUDIO_SLICE_CATALOG\.length(?:,| ===) (\d+)/g)]
+      .map((m) => Number(m[1]));
+    assert.ok(afirmacoes.length > 0, `${f} não afirma a cardinalidade do catálogo`);
+    assert.deepEqual([...new Set(afirmacoes)], [n],
+      `${f} afirma ${JSON.stringify(afirmacoes)}, catálogo vigente é ${n}`);
   }
 });
 
@@ -228,11 +236,23 @@ test('B012 esta fatia não declara compatibilidade histórica', () => {
 // C — A BRANCH ATUAL
 // ===========================================================================
 
-test('C001 esta branch resolve exatamente a Slice 48', () => {
+test('C001 esta branch resolve exatamente a Slice 48, ou uma fatia posterior', () => {
   const f = changedOnThisBranch();
   if (f === null || f.length === 0) return;
   const a = resolveActiveStudioSlice(f);
+  // A resolução precisa ser SEMPRE inequívoca — isto nunca é dispensado.
   assert.equal(a.ok, true, JSON.stringify(a));
+  assert.equal(a.candidates.length, 1, JSON.stringify(a.candidates));
+  // ESCOPO DE BRANCH PRÓPRIA (P1-02B): quando a fatia ativa é ESTRITAMENTE POSTERIOR, esta
+  // branch não é a desta fatia. A inaplicabilidade é afirmada, nunca pulada; e a branch
+  // da fatia posterior ainda precisa estar integralmente autorizada.
+  if (a.sliceOrdinal > ORDINAL) {
+    const r = consumer(f);
+    assert.equal(r.certifiedAgainstActiveSlice, false);
+    assert.deepEqual(r.blockers, [], JSON.stringify(r.blockers));
+    assert.equal(r.safe, true);
+    return;
+  }
   assert.deepEqual(a.candidates, [SLICE]);
 });
 
@@ -260,6 +280,34 @@ test('C003 o núcleo também aprova esta branch', () => {
 test('D001 esta branch não toca produto, backend, Prisma, migration ou workflow', () => {
   const f = changedOnThisBranch();
   if (f === null || f.length === 0) return;
+  // ESCOPO DE BRANCH PRÓPRIA (P1-02B). A fatia 49 possui o workflow e precisa editá-lo.
+  // Numa branch de fatia ESTRITAMENTE POSTERIOR este check não tem sujeito — afirmado,
+  // nunca pulado. As regras de backend, Prisma e produto continuam sendo verificadas
+  // para TODA branch, inclusive a posterior, logo abaixo.
+  const a = resolveActiveStudioSlice(f);
+  const posterior = a.ok && a.sliceOrdinal > ORDINAL;
+  if (posterior) {
+    const r = consumer(f);
+    assert.equal(r.certifiedAgainstActiveSlice, false);
+    assert.deepEqual(r.blockers, [], JSON.stringify(r.blockers));
+    assert.equal(r.safe, true);
+    // O que NUNCA é dispensado, nem para uma fatia posterior. Esta lista é a MESMA da
+    // regra abaixo menos `.github/**` — que é o único item cuja inaplicabilidade a fatia
+    // 49 justifica. Correção da auditoria: a versão anterior cobria só um subconjunto,
+    // perdendo redundância de segurança sem que nada a exigisse.
+    for (const p of f) {
+      assert.equal(/^backend\//.test(p), false, p);
+      assert.equal(/^prisma\//.test(p), false, p);
+      assert.equal(/migrations?\//.test(p), false, p);
+      assert.equal(p === 'package-lock.json', false, p);
+      assert.equal(
+        /^src\/(App\.jsx|main\.jsx|shared|framework|modules|bos|intelligence|apis|ModeloBase1|ModeloBase2)/.test(p),
+        false,
+        p,
+      );
+    }
+    return;
+  }
   for (const p of f) {
     assert.equal(/^backend\//.test(p), false, p);
     assert.equal(/^prisma\//.test(p), false, p);
@@ -308,11 +356,24 @@ test('E003 a única exclusão nova é a raiz de testes de runtime', () => {
   assert.deepEqual(prod.filter((e) => !base.has(e)), ['src/runtime/__tests__']);
 });
 
-test('E004 nenhuma baseline de typecheck foi criada', () => {
+test('E004 a baseline de typecheck existe e é única — entregue por P1-02B', () => {
+  // Supersessão P1-02B. Esta asserção nasceu afirmando a AUSÊNCIA da baseline, porque
+  // criá-la era escopo da fatia seguinte e não desta. A fatia seguinte chegou. A
+  // asserção passou a ser falsa por SUCESSO, e por isso foi reescrita para exigir o
+  // estado que a substituiu — nunca removida, nunca pulada. A evidência de P1-02A
+  // permanece imutável; a supersessão é declarada aqui.
   const dir = path.join(ROOT, 'config');
-  if (!fs.existsSync(dir)) return;
+  assert.ok(fs.existsSync(dir), 'config/ precisa existir');
   const b = fs.readdirSync(dir).filter((x) => /baseline/i.test(x) && /typecheck/i.test(x));
-  assert.deepEqual(b, [], 'baseline é P1-02B, não esta fatia');
+  assert.deepEqual(b, ['typecheck-production-baseline.json'],
+    'esperada exatamente uma baseline de typecheck');
+  const doc = JSON.parse(fs.readFileSync(path.join(dir, b[0]), 'utf8'));
+  // Ela governa o escopo de PRODUÇÃO que ESTA fatia definiu, e nada além dele.
+  assert.equal(doc.project, './jsconfig.typecheck.json');
+  for (const e of doc.entries) {
+    assert.ok(!e.path.startsWith('src/runtime/__tests__/'),
+      `a baseline invadiu o escopo de testes: ${e.path}`);
+  }
 });
 
 test('E005 os scripts desta fatia estão registrados na convenção do repositório', () => {
@@ -391,10 +452,17 @@ test('F011 uma branch que resolve duas fatias continua ambígua', () => {
   assert.equal(r.candidates.length, 2);
 });
 
-test('F012 o wrapper permissivo continua sendo blocker declarado de P1-02B', () => {
+test('F012 o wrapper deixou de ser ponte permissiva — P1-02B removeu o blocker', () => {
+  // Supersessão P1-02B. Esta asserção exigia que o bypass permanecesse EXPLÍCITO
+  // enquanto existisse — a fatia 48 não podia removê-lo, mas também não podia
+  // disfarçá-lo. P1-02B o removeu de fato. Exigir hoje a marca `BYPASS CONHECIDO`
+  // seria exigir que o bypass voltasse.
   const src = read('scripts/run-typecheck-governance.mjs');
-  assert.ok(/BYPASS CONHECIDO/.test(src));
-  assert.ok(src.includes('P1-02B'));
+  // A história não some: o arquivo continua nomeando a fatia que fechou o blocker.
+  assert.ok(src.includes('P1-02B'), 'falta declarar quem removeu o bypass');
+  assert.ok(/FAIL-CLOSED/.test(src), 'o wrapper precisa declarar o regime vigente');
+  // E o enforcement precisa estar ancorado numa baseline, não numa concessão.
+  assert.ok(src.includes('compareToBaseline'), 'o wrapper não compara contra a baseline');
 });
 
 // ===========================================================================

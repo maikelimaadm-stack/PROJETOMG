@@ -29,6 +29,7 @@ import {
   resolveActiveStudioSlice,
   isStudioGovernedDomainPath,
   classifyStudioScopePath,
+  findOwningStudioSlices,
 } from './lib/studioScopeGovernanceGuard.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -80,7 +81,7 @@ const consumer = (paths, caller = SLICE) =>
 console.log('=== G423 — Slice 47 · Non-Studio Runtime Compatibility ===\n');
 
 /* ---------------- catálogo ---------------- */
-gate('G423-47-C01 — catálogo com 48 entradas', STUDIO_SLICE_CATALOG.length === 48,
+gate('G423-47-C01 — catálogo com 49 entradas', STUDIO_SLICE_CATALOG.length === 49,
   String(STUDIO_SLICE_CATALOG.length));
 gate('G423-47-C02 — ordinais contíguos 1..47',
   STUDIO_SLICE_CATALOG.every((s, i) => s.sliceOrdinal === i + 1));
@@ -199,7 +200,19 @@ const core = evaluateStudioBranchScope([WORKFLOW], { callerSliceId: SLICE });
 gate('G423-47-N02 — núcleo continua fail-closed no workflow-only',
   core.safe === false && core.blockers.includes('no_active_slice_resolved')
   && core.blockers.includes('unknown_scope'), JSON.stringify(core.blockers));
-gate('G423-47-N03 — workflow continua unknown_scope', classifyStudioScopePath(WORKFLOW) === 'unknown_scope');
+// P1-02B: o workflow deixou de ser um caminho NAO REGISTRADO — a fatia 49 precisa
+// edita-lo para instalar o typecheck fail-closed, e por isso o declara como artefato
+// proprio. O que a fatia 47 de fato depende continua valendo e continua asseverado:
+// ele segue FORA do dominio governado (N-B03), que e o que abre a porta non-Studio.
+// A assercao de classificacao passa a usar um caminho comprovadamente sem dono, para
+// nao deixar de existir; e o novo estado do workflow e afirmado positivamente.
+gate('G423-47-N03 — caminho non-Studio sem dono continua unknown_scope',
+  ['README.md', 'vite.config.js'].every((p) => findOwningStudioSlices(p).length === 0
+    && classifyStudioScopePath(p) === 'unknown_scope'));
+gate('G423-47-N03b — o workflow agora e artefato registrado de uma fatia posterior',
+  findOwningStudioSlices(WORKFLOW).every((s) => s.sliceOrdinal > 47)
+  && findOwningStudioSlices(WORKFLOW).length === 1
+  && !isStudioGovernedDomainPath(WORKFLOW));
 gate('G423-47-N04 — backend continua forbidden_scope',
   classifyStudioScopePath('backend/src/server.js') === 'forbidden_scope'
   && FORBIDDEN_SCOPE_PATTERNS.some((r) => r.test('backend/src/server.js')));
