@@ -1632,6 +1632,13 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^docs\/evidence\/post-foundation-c-lifecycle-auth-tenant-atomicity-governance\//,
       /^scripts\/gate-lifecycle-security-isolation\.mjs$/,
       /^scripts\/gate-deploy-pipeline\.mjs$/,
+      /^backend\/package\.json$/,
+      /^backend\/scripts\/testLifecycleSecurityIsolation\.js$/,
+      /^backend\/src\/modules\/lifecycle\/routes\.js$/,
+      /^backend\/src\/modules\/lifecycle\/lifecycleService\.js$/,
+      /^backend\/src\/modules\/lifecycle\/lifecycleRepository\.js$/,
+      /^backend\/src\/modules\/lifecycle\/lifecycleSyncService\.js$/,
+      /^backend\/src\/modules\/lifecycle\/lifecycleTenant\.js$/,
     ],
     branchMarkerPatterns: [
       /^docs\/evidence\/post-foundation-c-lifecycle-auth-tenant-atomicity-governance\//,
