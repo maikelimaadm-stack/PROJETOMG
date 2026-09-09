@@ -392,7 +392,31 @@ test("T15 caminho absoluto, escapada de raiz e curinga reprovam — no path E na
       true, `não detectou absoluto: ${abs}`);
   }
   assert.equal(hasAbsolutePathInMessage("\\\\servidor\\compartilhamento\\x.ts"), true, "UNC");
+  assert.equal(hasAbsolutePathInMessage("//servidor/share/x.ts"), true, "caminho de rede //servidor");
   assert.equal(hasAbsolutePathInMessage("/usr/lib/x/ no início da mensagem"), true, "início da string");
+
+  // Reauditoria: o desenho anterior exigia `/segmento/` com segmento em [A-Za-z0-9_.-],
+  // ou seja, trocara a allowlist de NOMES por uma allowlist de FORMATO. Dava falso
+  // negativo em caminho absoluto de UM segmento e em primeiro segmento não-ASCII.
+  for (const [abs, rotulo] of [
+    ["/foo.ts", "root-level, um único segmento"],
+    ['"/foo.ts"', "um segmento entre aspas duplas"],
+    ["/tmp", "um segmento, sem extensão"],
+    ["'/package.json'", "um segmento entre aspas simples"],
+    ["/ação/arquivo.ts", "primeiro segmento não-ASCII"],
+    ["/é/arquivo.ts", "primeiro segmento não-ASCII curto"],
+    ['"/dados pessoais/arquivo.ts"', "espaço dentro do segmento, entre aspas"],
+  ]) {
+    assert.equal(hasAbsolutePathInMessage(abs), true, `não detectou absoluto (${rotulo}): ${abs}`);
+  }
+  // E também quando o caminho aparece no MEIO de uma mensagem real.
+  for (const m of [
+    `Namespace '"/foo.ts"' has no exported member 'X'.`,
+    "Path '/ação/arquivo.ts' not found.",
+    "Veja /dados/arquivo.ts para detalhes.",
+  ]) {
+    assert.equal(hasAbsolutePathInMessage(m), true, m);
+  }
 
   // E nenhum relativo legítimo pode virar falso positivo.
   for (const ok of [
@@ -403,9 +427,27 @@ test("T15 caminho absoluto, escapada de raiz e curinga reprovam — no path E na
     "Type 'A/B' is not assignable to type 'C/D'.",
     "Namespace '\"src/runtime/types/context\"' has no exported member 'RuntimeMetricsSnapshot'.",
     "See https://example.com/docs/x for details.",
+    "See http://example.com/a for details.",
+    '"x/y/z"',
+    "and/or",
+    "Veja / para detalhes.",
   ]) {
     assert.equal(hasAbsolutePathInMessage(ok), false, ok);
   }
+
+  // FAIL-CLOSED no parsing: um diagnóstico cujo caminho absoluto sobrevive à
+  // normalização é recusado, em vez de virar fingerprint dependente de máquina.
+  for (const abs of ["/foo.ts", "/ação/arquivo.ts", "/tmp"]) {
+    assert.throws(
+      () => parseTypecheckOutput(`src/a.js(1,1): error TS2694: Namespace '"${abs}"' vazio.`),
+      /caminho absoluto após normalização/,
+      `parsing aceitou caminho absoluto: ${abs}`,
+    );
+  }
+  // E a baseline que o carregasse seria inválida.
+  const comRootLevel = baselineOf(diag());
+  comRootLevel.entries[0].message = `Namespace '"/foo.ts"' vazio.`;
+  assert.ok(validateBaseline(comRootLevel).errors.some((e) => /caminho absoluto/.test(e)));
 
   // Uma baseline que ainda carregue caminho absoluto na mensagem é INVÁLIDA.
   const suja = baselineOf(diag());

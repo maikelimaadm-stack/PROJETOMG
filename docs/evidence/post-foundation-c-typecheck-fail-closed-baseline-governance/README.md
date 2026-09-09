@@ -143,3 +143,29 @@ diferentes, para não passar vazio.
 
 **Lição registrada:** CI verde não prova portabilidade. O CI é uma máquina, um locale, uma
 raiz. Determinismo entre execuções não é determinismo entre ambientes.
+
+---
+
+## Reauditoria final — falso negativo POSIX
+
+O head `b6d7867c` já tinha o P1 de locale corrigido e o CI `#667` verde. Foi bloqueado
+mesmo assim: a parte POSIX do detector exigia `/segmento/` com segmento ASCII, o que era
+uma **allowlist de formato** no lugar da antiga allowlist de nomes.
+
+Não detectava: `/foo.ts` · `"/foo.ts"` · `/tmp` · `'/package.json'` · `/ação/arquivo.ts`
+· `/é/arquivo.ts` · `"/dados pessoais/arquivo.ts"`.
+
+Como a mensagem compõe o fingerprint, um absoluto não reconhecido seria aceito pelo
+parsing, pela validação e pela captura — e a baseline voltaria a depender da máquina.
+
+**Correção:** a detecção passou a ser por **fronteira de token** — a barra que abre o
+caminho está no início da string ou logo após espaço, aspa, parêntese, colchete, chave
+ou `<`. Sem exigir segunda barra, sem exigir extensão, sem restringir alfabeto; `//servidor/…`
+incluído. Relativos (`./`, `../`, `@/`, `A/B`, `src/a/b.js`) e URLs seguem fora.
+
+**A baseline não mudou**: delta `0/0/0/0`, hash idêntico, 2365 / 477 / 1528. Zero das
+1528 mensagens reais é marcada pelo detector novo.
+
+**Lição acumulada:** três gerações do detector, três falhas da mesma família — allowlist
+de nomes, depois allowlist de formato — e o CI verde em todas. Portabilidade se prova por
+propriedade, não por enumeração de casos conhecidos.

@@ -55,6 +55,15 @@ if (run.signal) {
   console.error(`[FAIL] tsc terminou por sinal ${run.signal}.`);
   process.exit(1);
 }
+// Defesa em profundidade, espelhando o wrapper. Na API do `spawnSync`, `status` só é
+// nulo quando `error` ou `signal` está presente, e ambos já reprovaram acima — não há
+// caminho realista até aqui. Mas esta ferramenta ESCREVE o SSOT, e num script que
+// escreve não se deve exigir do leitor que reconstrua a semântica do Node para
+// concluir que o caso é inalcançável.
+if (run.status === null) {
+  console.error("[FAIL] tsc terminou sem código de saída.");
+  process.exit(1);
+}
 
 let entries;
 try {

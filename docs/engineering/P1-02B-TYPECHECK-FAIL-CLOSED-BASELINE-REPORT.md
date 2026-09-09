@@ -442,3 +442,83 @@ esta fatia sustenta, e apenas isto:
 - caminhos absolutos **remanescentes são recusados**, em vez de gravados;
 - portanto a baseline é **portátil entre raízes e locales** sob o contrato certificado —
   o que é verificado por teste, não presumido.
+
+---
+
+## 15. Reauditoria final — falso negativo POSIX no detector
+
+O head `b6d7867c` chegou à reauditoria com o P1 de locale **corrigido** e o CI `#667`
+**verde**. Mesmo assim foi bloqueado: o P2 tinha um falso negativo que nenhum teste da
+matriz cobria.
+
+### 15.1 A lacuna
+
+A parte POSIX do detector exigia `/segmento/`, com o segmento em `[A-Za-z0-9_.\-]+`.
+Isso trocou a allowlist de **nomes** (`/home|/Users|/opt…`, a 1ª geração) por uma
+allowlist de **formato** — igualmente incompleta.
+
+Medido com a função real `hasAbsolutePathInMessage`, ANTES da correção:
+
+| mensagem | detectado? | por quê |
+|---|---|---|
+| `/foo.ts` | **FALSE** | um único segmento — não há segunda barra |
+| `"/foo.ts"` | **FALSE** | idem |
+| `/tmp` | **FALSE** | idem |
+| `'/package.json'` | **FALSE** | idem |
+| `/ação/arquivo.ts` | **FALSE** | primeiro segmento não-ASCII |
+| `/é/arquivo.ts` | **FALSE** | idem |
+| `"/dados pessoais/arquivo.ts"` | **FALSE** | espaço dentro do segmento |
+| `/usr/lib/.../lib.dom.d.ts` | TRUE | controle positivo, seguia correto |
+| `./x`, `../x`, `@/x`, URLs | FALSE | controles negativos, seguiam corretos |
+
+Um falso negativo aqui não é cosmético: a mensagem compõe o fingerprint
+(`JSON.stringify([path, code, message])`), então um caminho absoluto não reconhecido
+seria aceito pelo parsing, aceito pela validação, gravado pela captura — e a baseline
+voltaria a depender da máquina, exatamente o que o run #665 ensinou a impedir.
+
+### 15.2 O desenho corrigido
+
+O que distingue absoluto de relativo não é o **nome** nem o **formato** do primeiro
+segmento: é **onde a barra aparece**. Num caminho absoluto ela abre o token; num
+relativo é sempre precedida por algo — `.`, `..`, `@`, um identificador, um esquema de
+URL. A regra passou a ser de **fronteira de token**:
+
+```
+POSIX    (?<![^\s"'`([{<])\/{1,2}[^\s\/]
+Windows  (?<![A-Za-z0-9])[A-Za-z]:[\\/]
+UNC      \\\\[^\s\\]
+```
+
+Sem exigir segunda barra, sem exigir extensão, sem restringir alfabeto — e `//servidor/…`
+(forma de rede) passa a ser coberto. Nenhuma das três formas depende de lista alguma.
+
+### 15.3 Assimetria deliberada
+
+Nenhum detector léxico separa `'/package.json'` de uma string de rota como `'/api/users'`
+— as duas são idênticas na forma. A escolha aqui é consciente: este é um **backstop de
+segurança**, e as consequências são assimétricas. Um falso positivo reprova o build de
+modo visível e diagnosticável; um falso negativo grava, em silêncio, um fingerprint
+dependente de máquina. Conferido contra as **1528 mensagens reais** da baseline: **zero**
+são marcadas, logo a correção não introduz ruído no estado atual.
+
+### 15.4 Consequências
+
+- **A baseline NÃO foi regravada.** O dry-run confirmou delta `0/0/0/0` e o hash
+  permaneceu `16dbcbc930f7ec48ec94219d84799bd1`. Nenhum diagnóstico real mudou.
+- `T15` cobre agora os sete casos de falso negativo, `//servidor`, três mensagens com o
+  caminho no meio do texto, e os negativos ganharam `http://`, `"x/y/z"`, `and/or` e
+  `Veja / para detalhes.`.
+- O fail-closed do parsing é provado: um diagnóstico com `/foo.ts`, `/ação/arquivo.ts`
+  ou `/tmp` é **recusado**, e uma baseline que o carregasse é inválida.
+- `capture-typecheck-production-baseline.mjs` ganhou a checagem explícita de
+  `run.status === null`, espelhando o wrapper. Não há caminho realista até ela — `error`
+  e `signal` já cobrem o caso na API do `spawnSync` —, mas esta ferramenta **escreve** o
+  SSOT, e num script que escreve não se deve exigir do leitor que reconstrua a semântica
+  do Node para concluir que o caso é inalcançável.
+
+### 15.5 Lição acumulada
+
+Três gerações do mesmo detector, três falhas da mesma família: **allowlist de nomes**,
+depois **allowlist de formato**, e em ambos os casos o CI verde não viu nada. O CI é uma
+máquina, um locale, uma raiz e uma matriz de testes. Portabilidade se prova por
+propriedade — "absoluto é absoluto" —, não por enumeração de casos conhecidos.

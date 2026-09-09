@@ -110,26 +110,45 @@ export function compareEntries(a, b) {
 }
 
 /**
- * Detecta um caminho ABSOLUTO em qualquer forma, sem allowlist de diretórios.
+ * Detecta um caminho ABSOLUTO em qualquer forma, sem allowlist e sem exigir formato
+ * do primeiro segmento.
  *
- * O desenho anterior listava raízes Unix conhecidas (`home|Users|opt|tmp|…`) e por isso
- * não via `/usr`, `/workspaces` (Codespaces), `/builds` (GitLab), `/github/workspace`,
- * `/data`, `/app` nem `/checkout`. Uma allowlist de diretórios nunca fica completa: o
- * princípio correto é "absoluto é absoluto, seja qual for o nome da primeira pasta".
+ * Duas gerações deste detector já falharam, e as duas falhas ensinam o desenho atual:
  *
- * Três formas, e o que distingue cada uma de um caminho RELATIVO legítimo:
+ *  1ª — allowlist de raízes Unix (`home|Users|opt|tmp|…`): não via `/usr`,
+ *       `/workspaces` (Codespaces), `/builds` (GitLab), `/github/workspace`, `/data`,
+ *       `/app` nem `/checkout`. Uma lista de diretórios nunca fica completa.
+ *  2ª — exigir `/segmento/` com segmento em `[A-Za-z0-9_.\-]+`: trocou a allowlist de
+ *       NOMES por uma allowlist de FORMATO. Dava falso negativo em `/foo.ts`, `/tmp`,
+ *       `'/package.json'` (um único segmento, sem segunda barra) e em qualquer primeiro
+ *       segmento não-ASCII, como `/ação/arquivo.ts`.
  *
- *  1. POSIX — `/segmento/`. O lookbehind recusa a barra quando ela é precedida por algo
- *     que a torna relativa ou interna: `./x`, `../x`, `@/x`, `A/B`, `http://x`.
- *  2. Windows — letra de unidade seguida de separador (`C:\` ou `C:/`), exigindo
- *     fronteira antes para não casar dentro de um identificador como `ABC:/`.
- *  3. UNC — `\\servidor\compartilhamento`.
+ * O que de fato distingue um caminho absoluto de um relativo não é o nome nem o
+ * formato do primeiro segmento: é ONDE a barra aparece. Num caminho absoluto ela abre
+ * o token; num relativo ela é sempre precedida por algo — `.`, `..`, `@`, um
+ * identificador, um esquema de URL. Por isso a regra é de FRONTEIRA:
+ *
+ *  1. POSIX — `/` (ou `//`, forma de rede) no início da string ou logo após espaço,
+ *     aspa, parêntese, colchete, chave ou `<`, seguida de conteúdo. Não exige segunda
+ *     barra, não exige extensão, não restringe o alfabeto.
+ *     Recusados por consequência: `./x`, `../x`, `@/x`, `A/B`, `src/a/b.js` (a barra
+ *     vem depois de caractere comum) e `http://x` (a barra vem depois de `:`).
+ *  2. Windows — letra de unidade seguida de separador (`C:\` ou `C:/`), com fronteira
+ *     antes para não casar dentro de um identificador como `ABC:/`.
+ *  3. UNC — `\\servidor\...`, também sem restringir o alfabeto do servidor.
+ *
+ * Nota de projeto: nenhum detector léxico consegue separar `'/package.json'` de uma
+ * string de rota como `'/api/users'` — as duas são idênticas na forma. A escolha aqui
+ * é deliberada e assimétrica: este é um BACKSTOP de segurança, e um falso positivo
+ * reprova o build de modo visível e diagnosticável, enquanto um falso negativo grava
+ * silenciosamente um fingerprint dependente de máquina. Conferido contra as 1528
+ * mensagens reais da baseline: zero são marcadas.
  */
 const ABSOLUTE_PATH_IN_MESSAGE_RE = new RegExp(
   [
-    String.raw`(?<![A-Za-z0-9_.\-@/])\/[A-Za-z0-9_.\-]+\/`,
+    String.raw`(?<![^\s"'\`([{<])\/{1,2}[^\s\/]`,
     String.raw`(?<![A-Za-z0-9])[A-Za-z]:[\\/]`,
-    String.raw`\\\\[A-Za-z0-9_.\-]+\\`,
+    String.raw`\\\\[^\s\\]`,
   ].join("|"),
 );
 
