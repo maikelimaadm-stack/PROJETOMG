@@ -484,10 +484,25 @@ test('R004 dois markers permanecem ambíguos', () => {
 });
 
 test('R005 os artefatos desta fatia não são autorizados para outras fatias', () => {
-  const outras = STUDIO_SLICE_CATALOG.filter((s) => s.sliceId !== SLICE);
+  // Exceção nomeada, nunca genérica: uma fatia POSTERIOR que corrija estes arquivos precisa
+  // declará-los, um a um, no próprio `crossSliceAuthorizedPatterns`. A fatia 50 corrige aqui a
+  // cardinalidade do catálogo (49 -> 50) e os invariantes B001/B003/B004. Toda outra fatia
+  // continua sem autorização alguma sobre os artefatos desta.
+  const POSTERIORES_AUTORIZADAS = Object.freeze(['lifecycle-auth-tenant-atomicity-governance']);
+  const outras = STUDIO_SLICE_CATALOG.filter(
+    (s) => s.sliceId !== SLICE && !POSTERIORES_AUTORIZADAS.includes(s.sliceId),
+  );
+  assert.equal(outras.length, STUDIO_SLICE_CATALOG.length - 1 - POSTERIORES_AUTORIZADAS.length);
   for (const f of [TEST_REL, GATE_REL, ...OWN_NON_GOVERNED]) {
     for (const s of outras) {
       assert.equal(isPathAuthorizedForStudioSlice(f, s.sliceId), false, `${f} vazou para ${s.sliceId}`);
+    }
+  }
+  // A exceção é estreita: a fatia posterior alcança o TESTE e o GATE desta fatia, que ela de
+  // fato corrige — nunca a baseline nem o workflow, que ela não toca.
+  for (const f of ['config/typecheck-production-baseline.json', '.github/workflows/foundation-governance.yml']) {
+    for (const s of POSTERIORES_AUTORIZADAS) {
+      assert.equal(isPathAuthorizedForStudioSlice(f, s), false, `${f} vazou para ${s}`);
     }
   }
 });

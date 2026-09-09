@@ -492,7 +492,7 @@ for (const p of [...EXTENSION_TESTS, ...EXTENSION_GATES]) {
   });
   test(`X009 only a governance slice may cross-authorize the extension artifact: ${path.basename(p)}`, () => {
     for (const s of STUDIO_SLICE_CATALOG) {
-      if (s.sliceId.startsWith('studio-scope-governance-')) continue;
+      if (isGovernanceCrossAuthorizer(s.sliceId)) continue;
       // The Builder's own two declared lifecycle paths are its legitimate, separately proven authorization.
       if (s.sliceId === BUILDER && BUILDER_CROSS.includes(p)) continue;
       assert.equal(s.crossSliceAuthorizedPatterns.some((re) => re.test(p)), false, `${s.sliceId} ${p}`);
@@ -542,6 +542,23 @@ for (const p of FORBIDDEN_FIXTURES) {
     assert.equal(isKnownLaterStudioHeadlessArtifact(p), false);
   });
 }
+/**
+ * The slices allowed to reach into ANOTHER slice's governance artifact (its scope test or its
+ * gate). The `studio-scope-governance-*` family qualifies by construction — that IS its subject.
+ * Any other slice has to be named here, one id at a time, so the exception is always a decision
+ * and never a naming accident:
+ *
+ *  - `lifecycle-auth-tenant-atomicity-governance` (ordinal 50) carries the catalog-wide
+ *    correction that follows from the catalog growing to fifty entries: the cardinality
+ *    assertions, and the invariants that used to name a single forbidden-authorizing slice.
+ *
+ * Being on this list authorizes NOTHING by itself: the slice still has to declare each foreign
+ * file in its own `crossSliceAuthorizedPatterns`, anchored at both ends.
+ */
+const GOVERNANCE_CROSS_AUTHORIZERS = Object.freeze(['lifecycle-auth-tenant-atomicity-governance']);
+const isGovernanceCrossAuthorizer = (sliceId) =>
+  sliceId.startsWith('studio-scope-governance-') || GOVERNANCE_CROSS_AUTHORIZERS.includes(sliceId);
+
 /**
  * LEDGER — every slice allowed to authorize a forbidden path, with the EXACT number of entries
  * it declares, in catalog order. Being on this list is a governance decision, never a default:
@@ -1083,6 +1100,7 @@ for (const p of [...NINE_TESTS.map(([x]) => x), ...TWENTY_TWO_GATES.map(([x]) =>
       if (s.sliceId === CONSUMERS) continue; // the later consumers slice rewires the same artifacts
       if (s.sliceId === 'studio-scope-governance-non-studio-runtime-compatibility') continue; // the later non-Studio compatibility slice rewires the same artifacts
       if (s.sliceId === 'studio-scope-governance-maintenance') continue; // its own earlier, separately proven wiring
+      if (s.sliceId === 'lifecycle-auth-tenant-atomicity-governance') continue; // the later slice-50 catalog-wide correction rewires the same artifacts
       if (s.sliceId === BUILDER && BUILDER_CROSS.includes(p)) continue;  // the Builder's own lifecycle pair
       const owns = findOwningStudioSlices(p).some((o) => o.sliceId === s.sliceId);
       if (owns) continue; // a slice is always authorized for what it owns
