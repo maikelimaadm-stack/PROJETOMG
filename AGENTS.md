@@ -30,7 +30,8 @@ npm run dev                        # http://127.0.0.1:5173
 |------|---------|
 | Frontend dev | `npm run dev` |
 | Lint | `npm run lint` |
-| Typecheck | `npm run typecheck` (known JSX/shadcn typing noise in `src/shared/ui/*`) |
+| Typecheck | `npm run typecheck` — escopo de PRODUÇÃO (`jsconfig.typecheck.json`). Ainda vermelho: dívida legada real, TD-016. Não é só shadcn |
+| Typecheck (inventário) | `npm run typecheck:legacy-all` — inclui testes e ferramentas Node. Espera-se vermelho |
 | Production build | `npm run build` |
 | Foundation governance | `npm run verify:governance` |
 | Full CI mirror (PR) | `npm run verify:ci` |

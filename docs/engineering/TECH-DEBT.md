@@ -1,7 +1,7 @@
 # TECH-DEBT — Register
 
 **Status:** Living document  
-**Last verified:** 2026-06-28 (IFM 1A-S3 Supply Chain Hardening)  
+**Last verified:** 2026-09-08 (P1-02A Typecheck Environment Hygiene)  
 **Priority:** P0 (blocker) → P3 (cosmetic)
 
 ---
@@ -107,16 +107,35 @@
 
 ---
 
-### TD-009 — Typecheck noise (shadcn)
+### TD-009 — Typecheck noise (shadcn) — SUBSET de `src/shared/ui/**`
 
 | Field | Value |
 |-------|-------|
 | **Priority** | P3 |
 | **Area** | Developer experience |
-| **Evidence** | `npm run typecheck` errors only in `src/shared/ui/*` |
-| **Impact** | Masks real type errors if introduced elsewhere |
-| **Roadmap** | — |
-| **Status** | Open — known per AGENTS.md |
+| **Evidence (original, 2026-06)** | `npm run typecheck` errors only in `src/shared/ui/*` |
+| **Evidence (medida 2026-09-08, P1-02)** | **REFUTADA como descrição do todo.** Em `14de1110` o typecheck legado emitiu 3745 diagnósticos em 594 arquivos; apenas **316 em 44 arquivos** estavam em `src/shared/ui/**` — 8,4%. Os outros 3429 não pertencem a esta dívida |
+| **Escopo corrigido** | TD-009 passa a designar **somente** o subconjunto `src/shared/ui/**`: 316 diagnósticos |
+| **Impact** | O ruído em si é cosmético; o dano real foi o wrapper de governança atribuir **qualquer** falha a esta dívida e devolver 0 |
+| **Roadmap** | Baseline exata em P1-02B |
+| **Status** | Open — escopo corrigido em 2026-09-08 (P1-02A). O restante da dívida é TD-016 |
+
+---
+
+### TD-016 — Global legacy typecheck debt / permissive governance bridge
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Area** | CI / type safety |
+| **Discovered** | 2026-09-08 — P1-02 parou com `P1_02_BASELINE_SCOPE_DRIFT` ao medir a premissa de TD-009 |
+| **Evidence (pós-higiene, P1-02A)** | `npm run typecheck` (escopo de produção, `jsconfig.typecheck.json`): **2365 diagnósticos em 477 arquivos**. Inventário completo `npm run typecheck:legacy-all`: 3745 em 594 |
+| **Áreas** | framework 488 · shared 402 (dos quais 316 são TD-009) · studio 393 · runtime 345 · bos 270 · intelligence 163 · modules 110 · ModeloBase1 82 · ModeloBase2 74 · apis 28 · App.jsx 4 · main.jsx 4 · integrations 2 |
+| **Códigos dominantes** | TS2339 1308 · TS2322 499 · TS2741 110 · TS2345 98 · TS2353 66 |
+| **Finding específico** | 8 diagnósticos de builtins Node permanecem em **7 arquivos de produção** (`src/runtime/core/{completion,context,crb,session,workflow}`, `src/studio/governance/{architectureRules,dependencyGraph}`). Deliberadamente NÃO ocultados |
+| **Impact** | `typecheck:governance` é uma ponte permissiva: roda o escopo de produção e ainda devolve 0. Um diagnóstico **novo** não reprova o CI |
+| **Owner / remediation** | **P1-02B** — baseline exata + comparação fail-closed. Nenhuma baseline foi criada em P1-02A |
+| **Status** | Open |
 
 ---
 

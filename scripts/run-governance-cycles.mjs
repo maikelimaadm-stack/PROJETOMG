@@ -28,6 +28,7 @@ for (let i = 1; i <= cycles; i += 1) {
 
   run(`Ciclo ${i} — build`, "npm", ["run", "build"]);
   run(`Ciclo ${i} — lint`, "npm", ["run", "lint"]);
+  run(`Ciclo ${i} — typecheck scope contract`, "npm", ["run", "test:typecheck-scope-governance"]);
   run(`Ciclo ${i} — typecheck`, "npm", ["run", "typecheck:governance"]);
   run(`Ciclo ${i} — gate:certification`, "npm", ["run", "gate:certification"]);
   run(`Ciclo ${i} — gate:governance`, "npm", ["run", "gate:governance"]);

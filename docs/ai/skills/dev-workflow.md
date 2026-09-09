@@ -70,7 +70,8 @@ src/
 | Tela BOS sem menus ERP | Header → **Cadastros ERP** ou `/CadastroEmpresas` |
 | Layout antigo | Console: `window.__empPersonalizacoes.resetStoredLayouts()` |
 | E2E blank com auto-login | Desligar `VITE_DEV_AUTO_LOGIN` para Playwright mock |
-| Typecheck noise | `src/shared/ui/*` — CI usa `typecheck:governance` |
+| Typecheck | `npm run typecheck` = escopo de produção. Dívida legada real (TD-016), não só `src/shared/ui/*` |
+| Typecheck no CI | `typecheck:governance` — ponte PERMISSIVA até P1-02B; ainda não reprova código novo |
 
 ## E2E
 

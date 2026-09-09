@@ -78,26 +78,26 @@ const isNonStudio = (r) => r.notApplicable === true && r.applicable === false
 // =====================================================================
 // Catalog
 // =====================================================================
-gate('G423-NSB — the catalog holds forty-seven slices', STUDIO_SLICE_CATALOG.length === 47, String(STUDIO_SLICE_CATALOG.length));
+gate('G423-NSB — the catalog holds forty-eight slices', STUDIO_SLICE_CATALOG.length === 48, String(STUDIO_SLICE_CATALOG.length));
 gate('G423-NSB — ordinals are contiguous 1..46', (() => {
   const o = STUDIO_SLICE_CATALOG.map((s) => s.sliceOrdinal).sort((a, b) => a - b);
-  return o.length === 47 && o.every((v, i) => v === i + 1);
+  return o.length === 48 && o.every((v, i) => v === i + 1);
 })());
 gate('G423-NSB — every entry carries exactly ten keys',
   STUDIO_SLICE_CATALOG.every((s) => Object.keys(s).length === 10));
 gate('G423-NSB — slice ids are unique',
   new Set(STUDIO_SLICE_CATALOG.map((s) => s.sliceId)).size === STUDIO_SLICE_CATALOG.length
-  && STUDIO_SLICE_CATALOG.length === 47);
+  && STUDIO_SLICE_CATALOG.length === 48);
 gate('G423-NSB — this slice is ordinal 46', G.getStudioSliceById(APPLICABILITY)?.sliceOrdinal === 46);
 gate('G423-NSB — this slice is born merged', G.getStudioSliceById(APPLICABILITY)?.status === 'merged');
 gate('G423-NSB — zero active_slice remains',
   STUDIO_SLICE_CATALOG.filter((s) => s.status === 'active_slice').length === 0);
 gate('G423-NSB — zero open_pull_request_* remains',
   STUDIO_SLICE_CATALOG.filter((s) => s.status.startsWith('open_pull_request')).length === 0);
-gate('G423-NSB — the merged family covers all forty-six',
-  STUDIO_SLICE_CATALOG.filter((s) => s.status.startsWith('merged')).length === 47);
+gate('G423-NSB — the merged family covers all forty-eight',
+  STUDIO_SLICE_CATALOG.filter((s) => s.status.startsWith('merged')).length === 48);
 gate('G423-NSB — exactly forty-five carry the plain merged status',
-  STUDIO_SLICE_CATALOG.filter((s) => s.status === 'merged').length === 46);
+  STUDIO_SLICE_CATALOG.filter((s) => s.status === 'merged').length === 47);
 gate('G423-NSB — slice 39 keeps its pre-existing deviating status',
   STUDIO_SLICE_CATALOG.find((s) => s.sliceOrdinal === 39)?.status === 'merged_without_dedicated_artifacts');
 gate('G423-NSB — zero slices authorize historical branch consumers',

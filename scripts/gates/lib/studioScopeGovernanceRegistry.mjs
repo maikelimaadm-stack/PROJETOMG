@@ -1491,6 +1491,64 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
     // still resolved as slice 47 by its own evidence marker.
     status: 'merged',
   },
+  {
+    sliceId: 'typecheck-environment-hygiene-governance',
+    sliceOrdinal: 48,
+    title: 'Typecheck Environment Hygiene Governance',
+    // Esta fatia é de GOVERNANÇA DE CI, não de produto: nenhum módulo, nenhuma UI,
+    // nenhum backend, nenhum Prisma. Ela existe porque a P1-02A precisa alterar
+    // `package.json` — que pertence ao domínio governado — e uma branch só é
+    // certificável quando alguma fatia assume a propriedade do diff.
+    primaryArtifactPatterns: [
+      // Os três artefatos canônicos de uma fatia: teste, gate e evidência.
+      /^src\/runtime\/__tests__\/typecheck-environment-hygiene-governance\.test\.js$/,
+      /^scripts\/gates\/g423-typecheck-environment-hygiene-governance\.mjs$/,
+      /^docs\/evidence\/post-foundation-c-typecheck-environment-hygiene-governance\//,
+      // Mais os artefatos que a P1-02A de fato PRODUZ. Eles vivem fora do território
+      // governado e por isso classificam como `unknown_scope`; sem ficarem declarados
+      // aqui, o núcleo falharia fechado sobre a própria branch que os cria.
+      //
+      // Isto NÃO é cross-authorization: cross é para artefatos de OUTRA fatia, e esta
+      // não toca nenhum. São artefatos próprios, um padrão ancorado por arquivo, sem
+      // curinga de diretório. Nenhum deles é caminho de produto, backend ou Prisma.
+      /^jsconfig\.typecheck\.json$/,
+      /^scripts\/run-typecheck-governance\.mjs$/,
+      /^scripts\/run-governance-cycles\.mjs$/,
+      /^scripts\/tests\/typecheck-scope-governance\.test\.mjs$/,
+      /^AGENTS\.md$/,
+      /^docs\/ai\/skills\/dev-workflow\.md$/,
+      /^docs\/engineering\/CURRENT-STATE\.md$/,
+      /^docs\/engineering\/TECH-DEBT\.md$/,
+      /^docs\/engineering\/ENGINEERING-JOURNAL\.md$/,
+      /^docs\/engineering\/P1-02A-TYPECHECK-ENVIRONMENT-HYGIENE-REPORT\.md$/,
+    ],
+    branchMarkerPatterns: [
+      /^docs\/evidence\/post-foundation-c-typecheck-environment-hygiene-governance\//,
+    ],
+    // Quatro arquivos, e só. Cada um afirma a cardinalidade EXATA do catálogo — "47
+    // entradas", "ordinais 1..47", "46 merged" — e crescer o catálogo para 48 as torna
+    // falsas. Nenhum outro consumidor histórico quebrou: `test:runtime` e os demais gates
+    // dedicados ficaram verdes com a entrada 48 presente, e por isso não foram tocados.
+    // Um padrão ancorado por arquivo, sem curinga.
+    crossSliceAuthorizedPatterns: [
+      /^src\/runtime\/__tests__\/studio-scope-governance-non-studio-branch-applicability\.test\.js$/,
+      /^scripts\/gates\/g423-studio-scope-governance-non-studio-branch-applicability\.mjs$/,
+      /^src\/runtime\/__tests__\/studio-scope-governance-non-studio-runtime-compatibility\.test\.js$/,
+      /^scripts\/gates\/g423-studio-scope-governance-non-studio-runtime-compatibility\.mjs$/,
+    ],
+    // Apenas o que a missão realmente precisa. `package-lock.json` está ausente de
+    // propósito: ele NÃO muda nesta fatia, e autorizar o que não se toca seria uma
+    // autorização vazia. O guard também está ausente: esta fatia não o altera.
+    sharedGovernancePatterns: [
+      /^scripts\/gates\/lib\/studioScopeGovernanceRegistry\.mjs$/,
+      /^package\.json$/,
+    ],
+    explicitlyAuthorizedForbiddenPatterns: [],
+    historicalBranchConsumerCompatibility: false,
+    // Born `merged`, como as fatias 45, 46 e 47: o catálogo descreve o estado da main
+    // DEPOIS do merge, e a branch é resolvida por seu próprio marker durante a PR.
+    status: 'merged',
+  },
 
 ].map(Object.freeze));
 

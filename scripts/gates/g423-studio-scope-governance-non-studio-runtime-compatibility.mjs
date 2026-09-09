@@ -3,7 +3,7 @@
  * GATE G423 — SLICE 47 · STUDIO SCOPE GOVERNANCE NON-STUDIO RUNTIME COMPATIBILITY
  *
  * Verifica, de forma estática e comportamental, que:
- *   - o catálogo tem 47 entradas contíguas e as 1..46 seguem íntegras;
+ *   - o catálogo tem 48 entradas contíguas e as 1..46 seguem íntegras;
  *   - as autorizações da fatia 47 são exatas, sem wildcard e sem caminho proibido;
  *   - os catorze consumidores corrigidos reconhecem `non_studio_branch` e o PROVAM;
  *   - nenhum deles usa skip/todo/only, env, nome de branch ou lista de caminhos;
@@ -80,7 +80,7 @@ const consumer = (paths, caller = SLICE) =>
 console.log('=== G423 — Slice 47 · Non-Studio Runtime Compatibility ===\n');
 
 /* ---------------- catálogo ---------------- */
-gate('G423-47-C01 — catálogo com 47 entradas', STUDIO_SLICE_CATALOG.length === 47,
+gate('G423-47-C01 — catálogo com 48 entradas', STUDIO_SLICE_CATALOG.length === 48,
   String(STUDIO_SLICE_CATALOG.length));
 gate('G423-47-C02 — ordinais contíguos 1..47',
   STUDIO_SLICE_CATALOG.every((s, i) => s.sliceOrdinal === i + 1));
@@ -105,9 +105,14 @@ gate('G423-47-A02 — cada arquivo corrigido casa exatamente um padrão',
   AUTHORIZED.every((f) => entry.crossSliceAuthorizedPatterns.filter((r) => r.test(f)).length === 1));
 gate('G423-47-A03 — nenhum padrão cruzado sobra sem alvo',
   entry.crossSliceAuthorizedPatterns.every((p) => AUTHORIZED.filter((f) => p.test(f)).length === 1));
-gate('G423-47-A12 — o gate corrigido da fatia 46 acompanha o catálogo',
-  read(CORRECTED_GATES[0]).includes('forty-seven')
-  && !read(CORRECTED_GATES[0]).includes('forty-six slices'));
+// Relativo ao catálogo, não a uma palavra congelada — ver A012 no teste desta fatia.
+gate('G423-47-A12 — o gate corrigido da fatia 46 acompanha o catálogo vigente', (() => {
+  const src = read(CORRECTED_GATES[0]);
+  const n = STUDIO_SLICE_CATALOG.length;
+  const found = [...new Set([...src.matchAll(/STUDIO_SLICE_CATALOG\.length === (\d+)/g)]
+    .map((m) => Number(m[1])))];
+  return found.length === 1 && found[0] === n;
+})());
 gate('G423-47-A04 — todo padrão cruzado é ancorado',
   entry.crossSliceAuthorizedPatterns.every((p) => p.source.startsWith('^') && p.source.endsWith('$')));
 gate('G423-47-A05 — nenhum curinga em autorização cruzada',

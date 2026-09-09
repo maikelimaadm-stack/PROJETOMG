@@ -77,14 +77,14 @@ const changedOnThisBranch = () => {
 // ===========================================================================
 // R — the catalog after slice 46
 // ===========================================================================
-test('R001 the catalog holds forty-seven slices', () => assert.equal(STUDIO_SLICE_CATALOG.length, 47));
+test('R001 the catalog holds forty-eight slices', () => assert.equal(STUDIO_SLICE_CATALOG.length, 48));
 test('R002 slice ids stay unique', () => {
   const ids = STUDIO_SLICE_CATALOG.map((s) => s.sliceId);
   assert.equal(new Set(ids).size, ids.length);
 });
-test('R003 ordinals are contiguous 1..47', () => {
+test('R003 ordinals are contiguous 1..48', () => {
   const o = STUDIO_SLICE_CATALOG.map((s) => s.sliceOrdinal).sort((a, b) => a - b);
-  assert.deepEqual(o, Array.from({ length: 47 }, (_, i) => i + 1));
+  assert.deepEqual(o, Array.from({ length: 48 }, (_, i) => i + 1));
 });
 test('R004 every entry still carries exactly ten keys', () => {
   for (const s of STUDIO_SLICE_CATALOG) assert.equal(Object.keys(s).length, 10, s.sliceId);
@@ -101,11 +101,11 @@ test('R007 the catalog carries zero active_slice', () => {
 test('R008 the catalog carries zero open_pull_request_* status', () => {
   assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status.startsWith('open_pull_request')).length, 0);
 });
-test('R009 the merged family covers all forty-seven entries', () => {
-  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status.startsWith('merged')).length, 47);
+test('R009 the merged family covers all forty-eight entries', () => {
+  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status.startsWith('merged')).length, 48);
 });
-test('R010 exactly forty-six carry the plain merged status', () => {
-  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status === 'merged').length, 46);
+test('R010 exactly forty-seven carry the plain merged status', () => {
+  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status === 'merged').length, 47);
 });
 test('R011 slice 39 keeps its pre-existing deviating status, named explicitly', () => {
   const s39 = STUDIO_SLICE_CATALOG.find((s) => s.sliceOrdinal === 39);
