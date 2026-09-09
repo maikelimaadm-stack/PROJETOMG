@@ -202,4 +202,110 @@ Nada foi enfraquecido:
 
 ## 11. Medições
 
-Preenchido a partir das execuções reais desta branch — ver §12 do relatório de PR.
+Todas pós-commit, com o diff de branch real contra `origin/main`.
+
+| bateria | resultado |
+|---|---|
+| `npm run build` | ✅ built in 10.89s |
+| `npm run lint` | ✅ 0 erros |
+| `npm run test:runtime` | ✅ **23712/23712** · 0 fail |
+| `npm run gate:g423` | ✅ 7/7 (G423-01..G423-24 clean) |
+| `npm run test:typecheck-scope-governance` | ✅ 30/30 |
+| `npm run test:typecheck-governance` | ✅ **25/25** (T01–T25) |
+| `npm run typecheck:governance` | ✅ exit 0 — 2365/477 medido = 2365/477 registrado |
+| `gate:g423-typecheck-fail-closed-baseline-governance` | ✅ **55/55** |
+| `gate:g423-typecheck-environment-hygiene-governance` | ✅ 49/49 |
+| `gate:g423-studio-scope-governance-non-studio-runtime-compatibility` | ✅ 154/154 |
+| `gate:g423-studio-scope-governance-non-studio-branch-applicability` | ✅ 137/137 |
+| `npm run typecheck` | ⚠️ exit 2 — **por desenho**, mede a dívida sem escondê-la |
+
+### Prova negativa — execução real
+
+Sentinela commitada em `src/runtime/__p1_02b_typecheck_negative__.js` (commit `0639bfdf`):
+
+```
+[INFO] Medido agora: 2366 diagnósticos em 478 arquivos.
+[INFO] Baseline:     2365 diagnósticos em 477 arquivos.
+
+[FAIL] REGRESSÃO DE TIPOS: há diagnóstico de produção fora da baseline.
+  NOVOS — não existiam na baseline (1):
+    - src/runtime/__p1_02b_typecheck_negative__.js TS2322 x1
+        Type 'string' is not assignable to type 'number'.
+
+  Corrija o código. A baseline NÃO deve crescer para acomodar código novo.
+
+[FAIL] Typecheck governance: REPROVADO (fail-closed).
+exit 1
+```
+
+O contraste com P1-02A é exato: lá o wrapper também **contou** 2366 e ainda assim saiu 0.
+
+Revertido com `git revert --no-edit` (commit `e681afc7`). Sem reset, sem amend, sem
+force-push, sem reescrita. Os quatro commits permanecem visíveis na branch.
+
+> Nota: o commit de revert carrega a mensagem padrão do git, sem os trailers de
+> co-autoria. É consequência direta de `--no-edit` combinado com a proibição de `amend`.
+
+---
+
+## 12. FALHAS ENCONTRADAS E CORRIGIDAS
+
+Registradas antes de qualquer correção, conforme a regra.
+
+### 12.1 — Auto-falsificação por citação (3 ocorrências)
+
+Três asserções de higiene procuravam um token proibido no arquivo inteiro e encontravam a
+**própria documentação**, que cita o token justamente para declarar que ele foi removido.
+
+| onde | procurava | encontrava |
+|---|---|---|
+| `T24` | `/BYPASS\|SKIP\|FORCE/` no wrapper | "O bypass ACABOU", "Não há bypass por variável de ambiente" |
+| `T24` | contagem de `process.exit(0)` | o `exit(0)` citado no histórico de P1-02A |
+| `S005` | `/governance audit/` no workflow | o comentário que documenta a substituição do step |
+
+Correção: a varredura passou a ser **estrutural**, sobre o código com comentários removidos
+(T24, com asserção de que a remoção tirou prosa sem levar código junto), e sobre os `- name:`
+do workflow em vez do arquivo inteiro (S005). É a terceira vez que este padrão aparece no
+programa — as duas anteriores foram a fatia 47 e o bloco W de P1-02A.
+
+### 12.2 — O workflow deixou de ser caminho sem dono (4 checks)
+
+Ver §9. Registrar o workflow como artefato da fatia 49 quebrou os fixtures das fatias 46 e 47,
+que o usavam como exemplo canônico de caminho não governado **e não registrado**.
+
+### 12.3 — Checks branch-relative de fatias anteriores (7 checks)
+
+Encontrados **apenas** na medição pós-commit — antes do commit, `git diff origin/main...HEAD`
+estava vazio e todos retornavam cedo, dando falso verde.
+
+| check | fatia | afirmava |
+|---|---|---|
+| `E009` + gate homônimo | 46 | a branch não carrega o workflow do CI |
+| `S004` | 47 | a branch não toca `.github/**` |
+| `C001` + `G423-48-B01` | 48 | a branch resolve exatamente a Slice 48 |
+| `D001` + `G423-48-B07` | 48 | a branch não toca `.github/**` |
+
+São afirmações sobre a branch **própria** de cada fatia, escritas quando a PR delas estava
+aberta. A correção dispensa o check apenas quando a fatia ativa é **estritamente posterior**,
+e mesmo aí afirma o envelope inteiro; backend, Prisma, migration, produto e lockfile
+continuam proibidos para toda branch, verificados nos dois lados.
+
+### 12.4 — Asserção congelada em literal (1 check)
+
+`B010c`, da fatia 48, exigia o literal `48` nos arquivos corrigidos e envelheceria de novo na
+fatia seguinte. Reescrita para ser relativa ao catálogo vigente — o padrão que `A012` já
+adotara na fatia 47.
+
+### 12.5 — Byte NUL em código-fonte (corrigido antes de qualquer medição)
+
+A primeira versão de `fingerprintOf` usou um separador NUL literal, gravado como byte de
+controle no arquivo. Substituído por `JSON.stringify([path, code, message])`, que dispensa
+separador e elimina qualquer colisão possível.
+
+---
+
+## 13. Limitação pré-existente registrada
+
+`gate:capabilities` falha em G265 (`gate:studio-sdk`) e **já falhava na base intocada**.
+Não foi causada nem corrigida aqui; o workflow do CI não executa esse agregado, e os 7 jobs
+de capability que ele executa estão verdes. Owner: P1-04.
