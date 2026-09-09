@@ -77,14 +77,14 @@ const changedOnThisBranch = () => {
 // ===========================================================================
 // R — the catalog after slice 46
 // ===========================================================================
-test('R001 the catalog holds forty-nine slices', () => assert.equal(STUDIO_SLICE_CATALOG.length, 49));
+test('R001 the catalog holds fifty slices', () => assert.equal(STUDIO_SLICE_CATALOG.length, 50));
 test('R002 slice ids stay unique', () => {
   const ids = STUDIO_SLICE_CATALOG.map((s) => s.sliceId);
   assert.equal(new Set(ids).size, ids.length);
 });
-test('R003 ordinals are contiguous 1..49', () => {
+test('R003 ordinals are contiguous 1..50', () => {
   const o = STUDIO_SLICE_CATALOG.map((s) => s.sliceOrdinal).sort((a, b) => a - b);
-  assert.deepEqual(o, Array.from({ length: 49 }, (_, i) => i + 1));
+  assert.deepEqual(o, Array.from({ length: 50 }, (_, i) => i + 1));
 });
 test('R004 every entry still carries exactly ten keys', () => {
   for (const s of STUDIO_SLICE_CATALOG) assert.equal(Object.keys(s).length, 10, s.sliceId);
@@ -101,11 +101,11 @@ test('R007 the catalog carries zero active_slice', () => {
 test('R008 the catalog carries zero open_pull_request_* status', () => {
   assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status.startsWith('open_pull_request')).length, 0);
 });
-test('R009 the merged family covers all forty-nine entries', () => {
-  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status.startsWith('merged')).length, 49);
+test('R009 the merged family covers all fifty entries', () => {
+  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status.startsWith('merged')).length, 50);
 });
-test('R010 exactly forty-eight carry the plain merged status', () => {
-  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status === 'merged').length, 48);
+test('R010 exactly forty-nine carry the plain merged status', () => {
+  assert.equal(STUDIO_SLICE_CATALOG.filter((s) => s.status === 'merged').length, 49);
 });
 test('R011 slice 39 keeps its pre-existing deviating status, named explicitly', () => {
   const s39 = STUDIO_SLICE_CATALOG.find((s) => s.sliceOrdinal === 39);
@@ -725,9 +725,19 @@ for (const caller of [MAINTENANCE, MIGRATION, CORRECTION, CONSUMERS, NORMALIZATI
     assert.equal(consumer(f, caller).safe, true);
   });
 }
-test('T004 this branch touches no forbidden path', () => {
+test('T004 this branch touches no forbidden path it has not explicitly authorized', () => {
   const f = changedOnThisBranch(); if (f === null) return;
-  for (const p of f) assert.notEqual(classifyStudioScopePath(p), 'forbidden_scope', p);
+  // `classifyStudioScopePath` is slice-blind: it cannot know that the branch's ACTIVE slice
+  // declared a given file in `explicitlyAuthorizedForbiddenPatterns`. The evaluator can, so the
+  // admissible set is read from the SAME SSOT rather than restated here. Everything outside it
+  // stays forbidden, universally.
+  const authorized = new Set(
+    evaluateStudioBranchConsumerScope(f, { callerSliceId: APPLICABILITY }).explicitForbiddenAuthorized,
+  );
+  for (const p of f) {
+    if (authorized.has(p)) continue;
+    assert.notEqual(classifyStudioScopePath(p), 'forbidden_scope', p);
+  }
 });
 test('T005 this branch touches no Studio blueprint-engine source', () => {
   const f = changedOnThisBranch(); if (f === null) return;

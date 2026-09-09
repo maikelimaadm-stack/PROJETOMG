@@ -1049,9 +1049,19 @@ for (const [, caller] of NINE_TESTS) {
     assert.equal(evaluateStudioBranchConsumerScope(f, { callerSliceId: caller }).safe, true);
   });
 }
-test('T003 this branch touches no forbidden path', () => {
+test('T003 this branch touches no forbidden path it has not explicitly authorized', () => {
   const f = changedOnThisBranch(); if (f === null) return;
-  for (const p of f) assert.notEqual(classifyStudioScopePath(p), 'forbidden_scope', p);
+  // `classifyStudioScopePath` is slice-blind: it cannot know that the branch's ACTIVE slice
+  // declared a given file in `explicitlyAuthorizedForbiddenPatterns`. The evaluator can, so the
+  // admissible set is read from the SAME SSOT rather than restated here. Everything outside it
+  // stays forbidden, universally.
+  const authorized = new Set(
+    evaluateStudioBranchConsumerScope(f, { callerSliceId: CORRECTION }).explicitForbiddenAuthorized,
+  );
+  for (const p of f) {
+    if (authorized.has(p)) continue;
+    assert.notEqual(classifyStudioScopePath(p), 'forbidden_scope', p);
+  }
 });
 test('T004 this branch touches no Studio blueprint-engine source of another slice', () => {
   const f = changedOnThisBranch(); if (f === null) return;

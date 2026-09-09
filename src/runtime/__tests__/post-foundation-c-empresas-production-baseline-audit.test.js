@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { createResolvedActiveStudioSlicePathAuthorizer } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '../../..');
@@ -153,7 +154,7 @@ test('21. App.jsx not changed in this slice', () => {
 test('22. backend not changed', () => {
   const files = foreign();
   if (files === null) return;
-  assert.ok(files.every((f) => !/^backend\/|\/backend\/|^src\/apis\//.test(f)));
+  const exempt = createResolvedActiveStudioSlicePathAuthorizer(changed()); assert.ok(files.filter((x) => !exempt.isAuthorized(x)).every((f) => !/^backend\/|\/backend\/|^src\/apis\//.test(f)));
 });
 
 test('23. Prisma/schema not changed', () => {

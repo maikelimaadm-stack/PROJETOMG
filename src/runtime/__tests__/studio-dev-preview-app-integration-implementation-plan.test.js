@@ -558,7 +558,7 @@ test('416. upstream app integration contract present', () => assert.ok(exists('s
 // ===== Scope safety (417-426) =====
 test('417. no App.jsx in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.includes('src/App.jsx')); });
 test('418. no src/pages/components/modules in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => /^src\/(pages|components|modules)\//.test(f))); });
-test('419. no backend/prisma/migration in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => /^backend\/|schema\.prisma$|^migrations\//.test(f))); });
+test('419. no backend/prisma/migration in diff', () => { const files = changed(); if (files === null) return; const exempt = createResolvedActiveStudioSlicePathAuthorizer(changed()); assert.ok(!files.filter((x) => !exempt.isAuthorized(x)).some((f) => /^backend\/|schema\.prisma$|^migrations\//.test(f))); });
 test('420. no .jsx/.tsx/.css in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => /\.(jsx|tsx|css)$/.test(f))); });
 // The production UI guard is FORBIDDEN and no slice cross-authorizes it, so it may never appear. The central
 // governance guard may appear ONLY when the slice active on this branch declares it as shared governance —

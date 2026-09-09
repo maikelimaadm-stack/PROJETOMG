@@ -70,7 +70,7 @@ const branchPaths = (() => {
 console.log('=== G423 — Slice 48 · Typecheck Environment Hygiene Governance ===\n');
 
 /* ---------------- catálogo ---------------- */
-gate('G423-48-C01 — catálogo com 49 entradas', STUDIO_SLICE_CATALOG.length === 49,
+gate('G423-48-C01 — catálogo com 50 entradas', STUDIO_SLICE_CATALOG.length === 50,
   String(STUDIO_SLICE_CATALOG.length));
 gate('G423-48-C02 — ordinais contíguos 1..48',
   STUDIO_SLICE_CATALOG.every((s, i) => s.sliceOrdinal === i + 1));

@@ -81,7 +81,7 @@ const consumer = (paths, caller = SLICE) =>
 console.log('=== G423 — Slice 47 · Non-Studio Runtime Compatibility ===\n');
 
 /* ---------------- catálogo ---------------- */
-gate('G423-47-C01 — catálogo com 49 entradas', STUDIO_SLICE_CATALOG.length === 49,
+gate('G423-47-C01 — catálogo com 50 entradas', STUDIO_SLICE_CATALOG.length === 50,
   String(STUDIO_SLICE_CATALOG.length));
 gate('G423-47-C02 — ordinais contíguos 1..47',
   STUDIO_SLICE_CATALOG.every((s, i) => s.sliceOrdinal === i + 1));

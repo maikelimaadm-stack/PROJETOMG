@@ -104,8 +104,8 @@ const assertNonStudioEnvelope = (r, label) => {
 // C — CATÁLOGO
 // ===========================================================================
 
-test('C001 o catálogo tem exatamente 49 entradas', () => {
-  assert.equal(STUDIO_SLICE_CATALOG.length, 49);
+test('C001 o catálogo tem exatamente 50 entradas', () => {
+  assert.equal(STUDIO_SLICE_CATALOG.length, 50);
 });
 
 test('C002 os ordinais são contíguos de 1 a 47', () => {
