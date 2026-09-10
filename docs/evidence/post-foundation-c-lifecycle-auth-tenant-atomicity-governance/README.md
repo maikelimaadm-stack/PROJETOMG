@@ -80,27 +80,35 @@ export const LIFECYCLE_SYNC_WRITE_ROLES = Object.freeze(["ADMIN", "OPERADOR"]);
 
 ---
 
-## 2. A semântica de `tenant_id` — derivada, não inventada
+## 2. O modelo de tenant do Lifecycle — corrigido na terceira rodada
 
-A pergunta tinha de ser respondida antes de tocar em qualquer rota. A resposta veio do código
-já em produção, em `backend/src/modules/mmm/mmmService.js`: o tenant AUTORIZADO é exatamente o
-`cliente_id` do escopo autenticado, e um tenant pedido diferente disso é `403 TENANT_FORBIDDEN`.
-Não existe hoje subdivisão independente de cliente.
+As rodadas anteriores afirmavam "tenant = cliente_id" com base no MMM. **Estava errado para o
+Lifecycle**, cujo contrato (`businessDnaStore.registerAuthorizedGroupScope`,
+`lifecycleContextAssembly`, `approvalWorkflowEngine`, G323/G324/G325) separa `ownerClientId`,
+`groupId`, `authorizedTenantIds[]` e `tenantId` — `owner-A / group-1 / tenant-A` é legítimo, e
+o head anterior o recusava com 403.
 
-`backend/src/modules/lifecycle/lifecycleTenant.js` aplica a MESMA regra ao lifecycle — é o
-mesmo contrato, não um segundo — e registra as duas consequências:
+Auditoria do backend inteiro: **não existe autoridade server-side** de (owner, group, tenant).
+`authorizedTenantIds` só vive no `localStorage` do navegador, escrito pelos gates. Sem fonte
+confiável, **OPÇÃO C — fail-closed**:
 
-- `LifecycleExecutionJob` e `LifecycleAuditEntry` **não** têm coluna `cliente_id`; carregam só
-  `tenant_id`. Como tenant é o cliente, é `tenant_id` que sustenta o isolamento nessas duas
-  tabelas — por isso ele é sempre copiado da linha de aprovação já escopada.
-- `LifecycleSyncState` tem unique `(cliente_id, group_id, entity_type, entity_id)`. Como tenant
-  é funcionalmente determinado por cliente, esse unique já é seguro e **nenhuma migration é
-  necessária**. Se um dia tenant virar subdivisão real, a decisão muda e passa a exigir
-  migration — o teste desta fatia falha nesse dia, de propósito.
+- `tenantId` é declaração; `authorizedTenantIds`/`ownerClientId` do payload são ignorados.
+- ausente → `400 LIFECYCLE_TENANT_REQUIRED` (nunca derivado, nunca default);
+- igual ao owner → permitido pela identidade autenticada (isolamento de cliente basta);
+- diferente → só com autoridade; sem autoridade → `403 LIFECYCLE_TENANT_AUTHORITY_UNAVAILABLE`
+  (código distinto de `TENANT_FORBIDDEN`, de propósito). Nada é gravado.
 
-`body.tenantId` jamais é autoridade: ou coincide com o autorizado, ou é 403. O fallback
-silencioso `"default"`, que gravava dados persistentes sob um tenant que ninguém provou, foi
-removido.
+A decisão roda no serviço, na fronteira de escrita. O frontend passou a **declarar**
+`tenantId` no push (uma propriedade). Produção registra as rotas sem `deps`; a seam
+`assertRole` foi removida.
+
+**Schema:** o unique de `LifecycleSyncState` passou a incluir `tenant_id` — sem ele, o push de
+tenant-B sobrescrevia a linha de tenant-A no mesmo owner/group (`TEN-13b`). Uma migration,
+index swap, sem dado tocado.
+
+**Veredito desta rodada: BLOQUEADO PARA MERGE** — o caso multi-tenant está modelado e provado
+com autoridade injetada, mas não é autorizável em produção até existir mapping server-side
+(TD-021). Lição: o mesmo termo não implica a mesma semântica entre bounded contexts.
 
 ---
 
@@ -108,10 +116,10 @@ removido.
 
 | Prova | Comando | Resultado |
 | --- | --- | --- |
-| Bateria adversarial | `npm run test:lifecycle-security` (backend) | **44/44 PASS** |
-| Gate de segurança | `npm run gate:lifecycle-security` | **G403 · 35/35 PASS** |
-| Gate da fatia | `npm run gate:g423-lifecycle-auth-tenant-atomicity-governance` | **39/39 PASS** |
-| Suíte de runtime | `npm run test:runtime` | **23773 pass · 0 fail** |
+| Bateria adversarial | `npm run test:lifecycle-security` (backend) | **58/58 PASS** |
+| Gate de segurança | `npm run gate:lifecycle-security` | **G403 · 44/44 PASS** |
+| Gate da fatia | `npm run gate:g423-lifecycle-auth-tenant-atomicity-governance` | **40/40 PASS** |
+| Suíte de runtime | `npm run test:runtime` | **23778 pass · 0 fail** |
 
 A bateria usa um duplo de Prisma **assíncrono** com `updateMany` condicional e `$transaction`
 com rollback por snapshot. A primeira versão do harness era síncrona e por isso `Promise.all`
@@ -149,7 +157,7 @@ absolutas) **→ 0**.
 
 ## 5. Escopo cruzado
 
-51 arquivos de governança de OUTRAS fatias são corrigidos aqui e declarados, um a um, em
+52 arquivos de governança de OUTRAS fatias são corrigidos aqui e declarados, um a um, em
 `crossSliceAuthorizedPatterns`. Nenhum muda de dono. Duas famílias:
 
 - **(a)** a asserção absoluta "backend não mudou", que passa a isentar o que a fatia ATIVA
@@ -179,7 +187,7 @@ arquiteto-chefe — nunca como conformidade.
 
 - Nenhum módulo novo, produto novo ou UI nova.
 - Nenhuma dependência nova; `package-lock.json` não muda.
-- Nenhuma migration; `prisma/schema.prisma` não muda.
+- **Uma migration** (unique de `LifecycleSyncState` com `tenant_id`): index swap, sem dado tocado. Schema e migration como arquivos exatos; `prisma/migrations/` segue proibido.
 - `.github/**` não é tocado.
 - O guard central `studioScopeGovernanceGuard.mjs` não é tocado.
 - P1-04 (`verify:all`) permanece CONGELADA.

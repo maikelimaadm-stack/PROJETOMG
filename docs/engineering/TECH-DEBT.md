@@ -266,6 +266,29 @@
 | **Roadmap** | Promover a decisão a D-numbered quando houver definição de produto sobre quem aprova archive/expunge |
 | **Status** | Open — decisão registrada, aguardando contrato |
 
+### TD-021 — Não existe autoridade server-side de (owner, group, tenant) para o Lifecycle
+
+| Campo | Valor |
+|---|---|
+| **Discovered** | 2026-09-10 — terceira auditoria do arquiteto-chefe sobre a PR #506 (P1-03) |
+| **O que é** | O contrato do Lifecycle autoriza, por group, tenants diferentes do owner (`authorizedTenantIds`). O único lugar onde essa lista existe é o `localStorage` do navegador, escrito apenas pelos gates. O backend não tem tabela, repository nem relação (`Cliente` não tem grupo/holding) que prove "tenant T é autorizado no group G do owner O" |
+| **Contenção (P1-03, OPÇÃO C)** | `authorizeLifecycleTenant` define a INTERFACE de autoridade; a de produção (`NO_LIFECYCLE_TENANT_AUTHORITY`) responde "não sei" e isso é recusa: push com `tenantId ≠ cliente_id` → `403 LIFECYCLE_TENANT_AUTHORITY_UNAVAILABLE`, nada gravado. `tenantId == cliente_id` (o caminho de produção atual) segue funcionando pela identidade autenticada. O caso multi-tenant está modelado e provado com autoridade injetada (TEN-01..04) |
+| **Por que não foi criada uma tabela** | Não há fonte confiável para populá-la sem inventar fluxo de registro (quem registra um group scope? com que política?). Transformar ausência de autoridade em suposição seria pior que recusar |
+| **Roadmap** | Quando o produto definir a origem do group scope (decisão de produto, D-numbered), implementar a autoridade persistida por trás da interface existente — sem tocar nas regras de `lifecycleTenant.js` |
+| **Status** | **Open — BLOQUEADOR DE MERGE da PR #506** enquanto o arquiteto-chefe não decidir o destino |
+
+---
+
+### TD-022 — Migration do unique de LifecycleSyncState não aplicada em banco real nesta sessão
+
+| Campo | Valor |
+|---|---|
+| **Discovered** | 2026-09-10 — P1-03 |
+| **O que é** | `20260910130000_lifecycle_sync_state_tenant_scoped_unique` (DROP INDEX + CREATE UNIQUE INDEX) foi gerada por `prisma migrate diff` sem banco e validada por `prisma generate`/`validate`, mas não executada contra Postgres — não há `DATABASE_URL` de teste |
+| **Risco** | Baixo: index swap sobre coluna `NOT NULL`, unique mais largo que o anterior (nenhuma linha existente pode violá-lo). Ainda assim, não medido |
+| **Roadmap** | Aplicar em staging antes de produção; confirmar `prisma migrate status` |
+| **Status** | Open |
+
 ---
 
 ## Resolved Debt

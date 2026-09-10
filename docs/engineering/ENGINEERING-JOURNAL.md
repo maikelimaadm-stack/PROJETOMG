@@ -1,7 +1,7 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-09-09 (P1-03 Lifecycle Auth, Tenant Isolation and Atomic Decisions)
+**Last updated:** 2026-09-10 (P1-03 — terceira rodada: modelo de tenant do Lifecycle)
 
 ---
 
@@ -26,7 +26,7 @@ enumerar. A decisão virou compare-and-set dentro de `$transaction`, com `client
 `status` no `where`: quem perde a corrida não grava nada, e auditoria e job vivem na mesma
 transação, herdando escopo da linha e nunca do payload.
 
-**A semântica de tenant foi derivada, não inventada:** `backend/src/modules/mmm/mmmService.js`
+**[SUPERSEDIDO na terceira rodada — ver abaixo. A frase seguinte estava ERRADA para o Lifecycle.]** A semântica de tenant foi derivada, não inventada: `backend/src/modules/mmm/mmmService.js`
 já estabelecia que o tenant autorizado é exatamente o `cliente_id` do escopo, e que divergência
 é 403 `TENANT_FORBIDDEN`. O lifecycle passou a aplicar o MESMO contrato. Como tenant é
 funcionalmente determinado por cliente, o unique de `LifecycleSyncState` já é seguro e
@@ -86,6 +86,31 @@ todos confirmados e corrigidos na MESMA PR.
 Onze negativas S50-NEG provam o que a autorização NÃO alcança: server.js, accessScope.js,
 schema Prisma, workflow, um arquivo NOVO no mesmo diretório, uma fatia fictícia, e o predicado
 de exatidão reprovando `^backend/` amplo.
+
+**Terceira rodada — modelo de tenant (PR #506 BLOQUEADA PARA MERGE):** a auditoria mostrou
+que `lifecycleTenant.js` projetava a regra do MMM (tenant == cliente) sobre o Lifecycle, cujo
+contrato próprio (`registerAuthorizedGroupScope`, `lifecycleContextAssembly`,
+`approvalWorkflowEngine`, G323–G325) separa `ownerClientId`, `groupId`, `authorizedTenantIds[]`
+e `tenantId`. Reproduzido: `owner-A` pedindo `tenant-A` → 403. Era incompatibilidade de
+modelo, não proteção. **Lição: o mesmo termo não implica a mesma semântica entre bounded
+contexts.**
+
+Auditoria do backend inteiro: nenhuma autoridade persistida de (owner, group, tenant); a
+lista só existe no `localStorage`, escrita por gates. Sem fonte confiável → **OPÇÃO C,
+fail-closed**: `tenantId` é declaração; ausente → 400; igual ao owner → ok pela identidade;
+diferente → só com autoridade, e a de produção não sabe → `403 AUTHORITY_UNAVAILABLE`
+(código distinto de FORBIDDEN). Decisão no serviço, na fronteira de escrita. Frontend passou a
+declarar `tenantId` no push. Seam `deps.assertRole` removida.
+
+Schema reaberto: o unique de `LifecycleSyncState` sem `tenant_id` fazia o push de tenant-B
+sobrescrever a linha de tenant-A no mesmo owner/group (TEN-13b). **Migration SIM** — index
+swap gerado por `prisma migrate diff`, sem dado tocado; não aplicada em banco real (TD-022).
+
+Bateria 58/58 (TEN-01..18) · G403 44/44 · fatia 40/40 · runtime 23778. 37 asserções
+históricas de Prisma/migration corrigidas com o mesmo padrão H2; um 48º arquivo entrou no
+blast radius. G324/G325 iguais à base (24/26, 26/28). TD-021 e TD-022.
+
+**Veredito: BLOQUEADO** — o gap de autoridade está explicado, não escondido.
 
 **P1-04 (`verify:all`) permanece CONGELADA.**
 
