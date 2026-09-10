@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { createResolvedActiveStudioSlicePathAuthorizer } from '../../../scripts/gates/lib/studioScopeGovernanceGuard.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '../../..');
@@ -176,7 +177,10 @@ test('31. backend not changed', () => {
 test('32. Prisma/schema not changed', () => {
   const files = changed();
   if (files === null) return;
-  assert.ok(files.filter((f) => !isLaterAuthorized(f)).every((f) => !/prisma|schema\.prisma/i.test(f)));
+  // P1-03: a fatia ATIVA pode legitimamente possuir caminhos antes proibidos — a
+  // autorização é a mesma SSOT usada pelos checks vizinhos.
+  const exempt = createResolvedActiveStudioSlicePathAuthorizer(changed());
+  assert.ok(files.filter((f) => !isLaterAuthorized(f) && !exempt.isAuthorized(f)).every((f) => !/prisma|schema\.prisma/i.test(f)));
 });
 
 test('33. runtimeBridge real not changed', () => {

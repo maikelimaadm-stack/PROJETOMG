@@ -160,7 +160,7 @@ test('22. backend not changed', () => {
 test('23. Prisma/schema not changed', () => {
   const files = foreign();
   if (files === null) return;
-  assert.ok(files.every((f) => !/prisma|schema\.prisma/i.test(f)));
+  const exempt = createResolvedActiveStudioSlicePathAuthorizer(changed()); assert.ok(files.filter((x) => !exempt.isAuthorized(x)).every((f) => !/prisma|schema\.prisma/i.test(f)));
 });
 
 test('24. runtimeBridge real not changed', () => {

@@ -472,7 +472,7 @@ test('274. src/pages not changed', () => { const f = foreign(); if (f === null) 
 test('275. App.jsx not changed', () => { const f = foreign(); if (f === null) return; assert.ok(!f.includes('src/App.jsx')); });
 test('276. ModeloBase1/2 not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/^src\/ModeloBase[12]\//.test(x))); });
 test('277. backend/apis not changed', () => { const f = foreign(); if (f === null) return; const exempt = createResolvedActiveStudioSlicePathAuthorizer(changed()); assert.ok(f.filter((x) => !exempt.isAuthorized(x)).every((x) => !/^backend\/|^src\/apis\//.test(x))); });
-test('278. prisma/schema not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/prisma|schema\.prisma/i.test(x))); });
+test('278. prisma/schema not changed', () => { const f = foreign(); if (f === null) return; const exempt = createResolvedActiveStudioSlicePathAuthorizer(changed()); assert.ok(f.filter((x) => !exempt.isAuthorized(x)).every((x) => !/prisma|schema\.prisma/i.test(x))); });
 test('279. migration not created', () => { const f = foreign(); if (f === null) return; const exempt = createResolvedActiveStudioSlicePathAuthorizer(f); assert.ok(f.filter((x) => !exempt.isAuthorized(x)).every((x) => !/migration/i.test(x))); });
 test('280. other src/studio not changed', () => { const f = foreign(); if (f === null) return; assert.ok(f.every((x) => !/^src\/studio\/(?!foundation-contracts\/)/.test(x))); });
 test('281. authorized scope only (branch-relative)', () => {

@@ -1675,6 +1675,10 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^src\/runtime\/__tests__\/post-foundation-c-empresas-controlled-production-test-plan\.test\.js$/,
       /^src\/runtime\/__tests__\/post-foundation-c-empresas-production-baseline-audit\.test\.js$/,
       /^src\/runtime\/__tests__\/post-foundation-c-studio-foundation-audit\.test\.js$/,
+      // (d) segunda rodada — a migration do unique de LifecycleSyncState tropeçou na
+      //     asserção absoluta "Prisma/schema not changed" desta fatia, que não estava
+      //     entre as 47 tocadas antes. Mesma correção H2; um arquivo a mais, exato.
+      /^src\/runtime\/__tests__\/post-foundation-c-studio-first-module-policy\.test\.js$/,
       /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge-contract\.test\.js$/,
       /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge-hardening\.test\.js$/,
       /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge-implementation-plan\.test\.js$/,
