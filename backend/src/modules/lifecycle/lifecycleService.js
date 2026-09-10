@@ -1,70 +1,50 @@
 import {
   listApprovalRequestsByGroup,
-  getApprovalRequestById,
-  updateApprovalRequest,
-  appendAuditEntry,
-  createExecutionJob,
+  decideApprovalRequestAtomic,
+  APPROVAL_DECISION,
 } from "./lifecycleRepository.js";
 
-export async function approveRequestBackend(id, actorId) {
-  const request = await getApprovalRequestById(id);
-  if (!request || request.status !== "pending") {
-    return { approved: false, reason: "Solicitação indisponível." };
-  }
-  const updated = await updateApprovalRequest(id, {
-    status: "approved",
-    approved_by: actorId,
-    decided_at: new Date(),
-  });
-  await appendAuditEntry({
-    request_id: id,
-    group_id: request.group_id,
-    tenant_id: request.tenant_id,
-    action: "approval_granted",
-    entity_type: "approval_request",
-    actor_id: actorId,
-    human_approved: true,
-    summary: "Aprovado via backend persistente.",
-  });
-  await createExecutionJob({
-    request_id: id,
-    group_id: request.group_id,
-    tenant_id: request.tenant_id,
-    action_type: request.action_type,
-    label: `Execução: ${request.label}`,
-    summary: "Na fila de execução persistente.",
-    status: "queued",
-  });
-  return { approved: true, request: updated };
+/**
+ * Resposta única para "não existe", "é de outro cliente" e "já foi decidida".
+ *
+ * Os três casos são indistinguíveis de propósito: distingui-los transformaria a rota
+ * num oráculo de existência de solicitações de outros clientes.
+ */
+const UNAVAILABLE = "Solicitação indisponível.";
+
+/**
+ * Aprova uma solicitação do PRÓPRIO cliente autenticado, atomicamente.
+ *
+ * `clienteId` é obrigatório e vem do escopo autenticado carregado do banco
+ * (`loadAccessScope`), nunca de parâmetro de rota, corpo ou claim JWT possivelmente
+ * obsoleta. Toda a decisão — transição, auditoria e job — acontece numa transação
+ * com compare-and-set; ver `decideApprovalRequestAtomic`.
+ */
+export async function approveRequestBackend({ id, clienteId, actorId }, deps = {}) {
+  const decide = deps.decideApprovalRequestAtomic ?? decideApprovalRequestAtomic;
+  const result = await decide(
+    { id, clienteId, actorId, decision: APPROVAL_DECISION.approved },
+    deps.client,
+  );
+  if (!result.decided) return { approved: false, reason: UNAVAILABLE };
+  return { approved: true, request: result.request };
 }
 
-export async function rejectRequestBackend(id, actorId, reason) {
-  const request = await getApprovalRequestById(id);
-  if (!request || request.status !== "pending") {
-    return { rejected: false, reason: "Solicitação indisponível." };
-  }
-  const updated = await updateApprovalRequest(id, {
-    status: "rejected",
-    rejected_by: actorId,
-    rejection_reason: reason,
-    decided_at: new Date(),
-  });
-  await appendAuditEntry({
-    request_id: id,
-    group_id: request.group_id,
-    tenant_id: request.tenant_id,
-    action: "approval_rejected",
-    entity_type: "approval_request",
-    actor_id: actorId,
-    human_approved: false,
-    summary: reason,
-  });
-  return { rejected: true, request: updated };
+/** Rejeita uma solicitação do próprio cliente autenticado, atomicamente. */
+export async function rejectRequestBackend({ id, clienteId, actorId, reason }, deps = {}) {
+  const decide = deps.decideApprovalRequestAtomic ?? decideApprovalRequestAtomic;
+  const result = await decide(
+    { id, clienteId, actorId, decision: APPROVAL_DECISION.rejected, reason },
+    deps.client,
+  );
+  if (!result.decided) return { rejected: false, reason: UNAVAILABLE };
+  return { rejected: true, request: result.request };
 }
 
-export async function listGroupApprovals(clienteId, groupId) {
-  const rows = await listApprovalRequestsByGroup(clienteId, groupId);
+export async function listGroupApprovals(clienteId, groupId, deps = {}) {
+  const list = deps.listApprovalRequestsByGroup ?? listApprovalRequestsByGroup;
+  const rows = await list(clienteId, groupId, 50, deps.client);
   return { items: rows, durable: true };
 }
 
-export default { approveRequestBackend, rejectRequestBackend, listGroupApprovals };
+export default { approveRequestBackend, rejectRequestBackend, listGroupApprovals, UNAVAILABLE };

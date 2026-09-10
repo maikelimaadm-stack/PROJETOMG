@@ -43,6 +43,9 @@ export async function runLifecycleSyncEngine(groupId, tenantId = "default", opti
     await pushSyncBatch(
       groupId,
       {
+        // Declaração do tenant pedido. O servidor autoriza; o browser apenas declara.
+        // `ownerClientId` e `authorizedTenantIds` NÃO são transmitidos como autoridade.
+        tenantId,
         approvals: pendingPush.map((r) => ({
           entityId: r.requestId,
           label: r.label,

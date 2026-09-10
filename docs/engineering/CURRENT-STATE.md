@@ -135,8 +135,14 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 | `npm run test:typecheck-governance` | ✅ T01–T25 — contrato do enforcement fail-closed |
 | `npm run typecheck:governance` | ✅ **FAIL-CLOSED** (P1-02B) — compara contra `config/typecheck-production-baseline.json`. Diagnóstico novo reprova; baseline stale também. O bypass foi removido |
 | `npm run typecheck:baseline:capture` | ℹ️ Ferramenta MANUAL de regravação da baseline. Exige `--write`; sem ele é dry-run. Nunca roda no CI |
+| `npm run test:lifecycle-security` (backend) | ✅ 58/58 — bateria adversarial do lifecycle: auth, RBAC (ADMIN decide), IDOR cross-client, corrida de decisão, modelo de tenant do Lifecycle (owner ≠ tenant legítimo; sem autoridade server-side → fail-closed) (P1-03) |
+| `npm run gate:lifecycle-security` | ✅ **G403 · 44/44** — afirma a FORMA do código corrigido e executa a bateria. Roda em `gate:deploy-pipeline`, que o CI executa (P1-03) |
+| `npm run gate:enterprise-lifecycle-persistence-approval` | ⚠️ **24/26 — baseline-red PRÉ-EXISTENTE** (cadeia G306→G307→G322→G323). Medido base × head: contagens e checks falhando idênticos. Exceção de não-regressão, não conformidade |
+| `npm run gate:enterprise-lifecycle-sync-storage-audit` | ⚠️ **26/28 — baseline-red PRÉ-EXISTENTE**, mesma cadeia e mesma exceção |
+| `npm run gate:g423-lifecycle-auth-tenant-atomicity-governance` | ✅ 40/40 — governa a Slice 50: entrada de catálogo exata, autorização forbidden estreita, diff da branch explicado (P1-03) |
 | `npm run verify:governance` | ✅ Pass — G31–G142 + G156–G261 |
 | `npm run verify:ci` | ⚠️ Inclui `test:typecheck-scope-governance` e `test:typecheck-governance`. Vermelho por falha PRÉ-EXISTENTE em `gate:studio-sdk` (G265), agregada em `gate:capabilities` — que o workflow do CI não executa |
+| `npm run gate:deploy-pipeline` | ✅ G401 + G402 + **G403** (P1-03) |
 | CI workflow | `.github/workflows/foundation-governance.yml` — foundation job + parallel capability-gates matrix. Typecheck em 3 steps após Lint: escopo · contrato · enforcement fail-closed |
 | Gates V13–V20 (G156–G261) | ✅ **In CI** — TD-013 resolved (IFM 1D-1) |
 | Supplementary gates | `gate:functional-completion`, `gate:foundation-completion`, V15/V15.1/V15.2 — manual |

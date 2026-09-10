@@ -1,7 +1,118 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-09-09 (P1-02B Fail-Closed Legacy Typecheck Baseline)
+**Last updated:** 2026-09-10 (P1-03 — terceira rodada: modelo de tenant do Lifecycle)
+
+---
+
+## 2026-09-09 — P1-03: Lifecycle Auth, Tenant Isolation and Atomic Decisions
+
+**Base:** `6ef1a1cf2515d1bbd98f68ac9e8ecc2b5f929b0b` (merge da PR #505)
+**Deliverable:** [P1-03-LIFECYCLE-AUTH-TENANT-ATOMICITY-REPORT.md](./P1-03-LIFECYCLE-AUTH-TENANT-ATOMICITY-REPORT.md)
+**Fatia de governança:** Slice 50 — Lifecycle Auth, Tenant Isolation and Atomic Decisions Governance
+
+**Por que existiu:** três defeitos independentes em `backend/src/modules/lifecycle`, todos
+exploráveis por um usuário autenticado comum — e o primeiro por qualquer requisição sem token.
+As seis rotas privadas não declaravam `preHandler` e caíam num ator default `"administrador"`;
+a leitura e a atualização eram por `id` isolado, sem `cliente_id` (IDOR cross-tenant); e a
+decisão de aprovação eram cinco passos sem transação, de modo que duas requisições simultâneas
+produziam 2 vencedores, 2 auditorias e 2 jobs para uma única solicitação.
+
+**O que mudou:** as seis rotas passam por `app.authenticate` e leem o escopo de
+`loadAccessScope`, sem replicar auth dentro do módulo. As duas funções globais-por-id foram
+REMOVIDAS — não corrigidas — e o que restou é escopado por construção, com resposta única
+`"Solicitação indisponível."` para inexistente, de outro cliente e já decidida, para não
+enumerar. A decisão virou compare-and-set dentro de `$transaction`, com `cliente_id` **e**
+`status` no `where`: quem perde a corrida não grava nada, e auditoria e job vivem na mesma
+transação, herdando escopo da linha e nunca do payload.
+
+**[SUPERSEDIDO na terceira rodada — ver abaixo. A frase seguinte estava ERRADA para o Lifecycle.]** A semântica de tenant foi derivada, não inventada: `backend/src/modules/mmm/mmmService.js`
+já estabelecia que o tenant autorizado é exatamente o `cliente_id` do escopo, e que divergência
+é 403 `TENANT_FORBIDDEN`. O lifecycle passou a aplicar o MESMO contrato. Como tenant é
+funcionalmente determinado por cliente, o unique de `LifecycleSyncState` já é seguro e
+**nenhuma migration foi necessária** — decisão registrada em `lifecycleTenant.js` junto com a
+condição que a invalidaria.
+
+**Dois FAILs reportados antes de serem corrigidos:**
+
+1. O primeiro harness da corrida era síncrono, então `Promise.all` não interleaveava e a corrida
+   **não** foi reproduzida. Reportado como limitação do harness, não como evidência de
+   segurança; refeito com duplo assíncrono, reproduziu o defeito na base.
+2. Uma medição de runtime reportou 0 falhas **antes** do commit. Era falso: as checagens
+   relativas à branch leem `git diff origin/main...HEAD`, que compara COMMITS, e naquele
+   instante o diff tinha só doze arquivos. Medida de novo após o commit: **95 falhas**.
+   A armadilha é sistemática — qualquer asserção que consuma o diff da branch é cega para o
+   working tree.
+
+**Custo de governança:** `FORBIDDEN_SCOPE_PATTERNS` inclui `/^backend\//`, então qualquer
+alteração de backend é proibida para toda fatia. Sem entrada de catálogo, a correção era
+estruturalmente inverdejável: **129 falhas de runtime**. A Slice 50 declara os sete arquivos
+exatos que toca, ancorados nas duas pontas — como a Slice 42 já fazia com `src/App.jsx` — e a
+redução foi **129 → 62 → 37 → 0**. Nenhum invariante foi afrouxado para deixar passar: C014
+passou a exigir declaração explícita em vez de proibir; S004/F002/F010 leem um LEDGER afirmado
+inteiro; 25/26 passaram a proibir um allow **amplo** em vez da menção da palavra, com um novo
+26a provando que o predicado de exatidão sabe reprovar.
+
+**Novo gate:** **G403 — Lifecycle Security Isolation**, no agregado `gate:deploy-pipeline`,
+o único agregado de validação de backend que o workflow do CI executa. Fazer uma correção de
+segurança de backend depender de ampliar a propriedade sobre `.github/**` seria pior.
+
+**Dívida registrada:** TD-017 (a autorização forbidden de backend depende do marcador de branch;
+o guard central não considera `explicitlyAuthorizedForbiddenPatterns` em
+`isPathAuthorizedForStudioSlice`, o que obriga declaração dupla) e TD-018 (`prisma:validate`
+falha por `DIRECT_URL` ausente — pré-existente, reproduzido na base intocada).
+
+**Segunda rodada — auditoria do arquiteto-chefe (PR #506 não liberada):** quatro achados,
+todos confirmados e corrigidos na MESMA PR.
+
+1. **Autenticar não é autorizar.** As rotas exigiam identidade e isolavam o cliente, mas
+   CONSULTA ainda podia decidir aprovação terminal. D-092/D-093 não nomeiam perfil aprovador,
+   então vale least privilege: approve/reject → ADMIN; sync push → ADMIN+OPERADOR; leituras →
+   qualquer perfil. `assertRole` é o helper central real, sem RBAC paralelo. Onze casos
+   comportamentais na camada de rota, incluindo a prova de que perfil sem permissão não chega
+   a chamar o serviço nem altera estado.
+2. **Certificação falsa de atomicidade.** O relatório afirmava `sync push | Atomic = SIM`.
+   `pushSyncBatchBackend` são três laços com `await`, sem `$transaction`. D-093 não exige batch
+   atômico, então quem estava errado era o relatório, não o código: a matriz passou a dizer
+   `Atômico: NÃO — batch não transacional` e `Race-safe: PARCIAL`.
+3. **G324/G325.** Medidos base × head: 24/26 e 26/28 nos DOIS lados, mesmos checks falhando,
+   nenhuma falha nova. Registrados como baseline-red pré-existente da cadeia
+   G306→G307→G322→G323, com exceção de não-regressão autorizada — nunca como conformidade.
+4. **Blast radius.** Os 47 testes históricos foram classificados: H1 cardinalidade (7),
+   H2 isenção pela fatia ativa (45), H3 ledger (10), H4 (2 — o padrão "fatia posterior ⇒
+   inaplicável, envelope afirmado" em B001/B004 da fatia 49, indispensável e herdado do D001
+   da fatia 48). Nenhuma mudança oportunista.
+
+Onze negativas S50-NEG provam o que a autorização NÃO alcança: server.js, accessScope.js,
+schema Prisma, workflow, um arquivo NOVO no mesmo diretório, uma fatia fictícia, e o predicado
+de exatidão reprovando `^backend/` amplo.
+
+**Terceira rodada — modelo de tenant (PR #506 BLOQUEADA PARA MERGE):** a auditoria mostrou
+que `lifecycleTenant.js` projetava a regra do MMM (tenant == cliente) sobre o Lifecycle, cujo
+contrato próprio (`registerAuthorizedGroupScope`, `lifecycleContextAssembly`,
+`approvalWorkflowEngine`, G323–G325) separa `ownerClientId`, `groupId`, `authorizedTenantIds[]`
+e `tenantId`. Reproduzido: `owner-A` pedindo `tenant-A` → 403. Era incompatibilidade de
+modelo, não proteção. **Lição: o mesmo termo não implica a mesma semântica entre bounded
+contexts.**
+
+Auditoria do backend inteiro: nenhuma autoridade persistida de (owner, group, tenant); a
+lista só existe no `localStorage`, escrita por gates. Sem fonte confiável → **OPÇÃO C,
+fail-closed**: `tenantId` é declaração; ausente → 400; igual ao owner → ok pela identidade;
+diferente → só com autoridade, e a de produção não sabe → `403 AUTHORITY_UNAVAILABLE`
+(código distinto de FORBIDDEN). Decisão no serviço, na fronteira de escrita. Frontend passou a
+declarar `tenantId` no push. Seam `deps.assertRole` removida.
+
+Schema reaberto: o unique de `LifecycleSyncState` sem `tenant_id` fazia o push de tenant-B
+sobrescrever a linha de tenant-A no mesmo owner/group (TEN-13b). **Migration SIM** — index
+swap gerado por `prisma migrate diff`, sem dado tocado; não aplicada em banco real (TD-022).
+
+Bateria 58/58 (TEN-01..18) · G403 44/44 · fatia 40/40 · runtime 23778. 37 asserções
+históricas de Prisma/migration corrigidas com o mesmo padrão H2; um 48º arquivo entrou no
+blast radius. G324/G325 iguais à base (24/26, 26/28). TD-021 e TD-022.
+
+**Veredito: BLOQUEADO** — o gap de autoridade está explicado, não escondido.
+
+**P1-04 (`verify:all`) permanece CONGELADA.**
 
 ---
 

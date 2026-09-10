@@ -87,8 +87,31 @@ test('22. tolerating known-later does not tolerate forbidden alongside', () => {
 const knownSources = KNOWN_LATER_STUDIO_HEADLESS_ARTIFACTS.map((re) => re.source);
 test('23. registry has no broad src/studio/ allow', () => assert.ok(!knownSources.some((s) => s === '^src\\/studio\\/' || s === '^src\\/studio\\/.*' || s === '^src\\/studio\\/.+')));
 test('24. registry has no broad src/ allow', () => assert.ok(!knownSources.some((s) => /^\^src\\\/(\.\*|\.\+)?\$?$/.test(s) || s === '^src\\/')));
-test('25. registry has no broad backend/ allow', () => assert.ok(!knownSources.some((s) => s.includes('backend'))));
-test('26. registry has no broad src/modules/ allow', () => assert.ok(!knownSources.some((s) => s.includes('modules'))));
+/**
+ * A source is an EXACT single-file allow when it is anchored at both ends and carries no regex
+ * metacharacter that could widen it beyond one literal path. `\.` and `\/` are literal escapes,
+ * so they are stripped before the check — anything else surviving (`.` `*` `+` `?` `[` `(` `|`)
+ * means the pattern can match more than the one file it appears to name, and is NOT exact.
+ */
+const isExactSingleFileSource = (s) => {
+  if (!s.startsWith('^') || !s.endsWith('$')) return false;
+  const literal = s.slice(1, -1).replace(/\\[./]/g, '');
+  return !/[.*+?[\]()|{}^$\\]/.test(literal);
+};
+// 25-26 forbid a BROAD allow, not the mere mention of the word. An exactly-anchored single file
+// is the narrowest possible authorization and is separately ledgered (see the chronological
+// migration slice's S004/F002/F010) — a prefix or wildcard allow over the same trees is not.
+test('25. registry has no broad backend/ allow', () => assert.ok(!knownSources.some((s) => s.includes('backend') && !isExactSingleFileSource(s))));
+test('26. registry has no broad src/modules/ allow', () => assert.ok(!knownSources.some((s) => s.includes('modules') && !isExactSingleFileSource(s))));
+test('26a. every backend/modules source in the registry is an EXACT single file', () => {
+  const mentioning = knownSources.filter((s) => s.includes('backend') || s.includes('modules'));
+  for (const s of mentioning) assert.ok(isExactSingleFileSource(s), s);
+  // The exactness predicate must be able to fail, or 25/26 would be vacuous.
+  assert.equal(isExactSingleFileSource('^backend\\/'), false);
+  assert.equal(isExactSingleFileSource('^backend\\/.*$'), false);
+  assert.equal(isExactSingleFileSource('^src\\/modules\\/.+$'), false);
+  assert.equal(isExactSingleFileSource('^backend\\/src\\/modules\\/lifecycle\\/routes\\.js$'), true);
+});
 test('26b. no registered forbidden broad-allow source leaks into known-later', () => assert.ok(!knownSources.some((s) => FORBIDDEN_BROAD_ALLOW_SOURCES.map((x) => x.slice(1, -1)).includes(s))));
 
 // ===== Simulated diffs (27-31) =====

@@ -78,16 +78,16 @@ const isNonStudio = (r) => r.notApplicable === true && r.applicable === false
 // =====================================================================
 // Catalog
 // =====================================================================
-gate('G423-NSB — the catalog holds forty-nine slices', STUDIO_SLICE_CATALOG.length === 49, String(STUDIO_SLICE_CATALOG.length));
-gate('G423-NSB — ordinals are contiguous 1..49', (() => {
+gate('G423-NSB — the catalog holds fifty slices', STUDIO_SLICE_CATALOG.length === 50, String(STUDIO_SLICE_CATALOG.length));
+gate('G423-NSB — ordinals are contiguous 1..50', (() => {
   const o = STUDIO_SLICE_CATALOG.map((s) => s.sliceOrdinal).sort((a, b) => a - b);
-  return o.length === 49 && o.every((v, i) => v === i + 1);
+  return o.length === 50 && o.every((v, i) => v === i + 1);
 })());
 gate('G423-NSB — every entry carries exactly ten keys',
   STUDIO_SLICE_CATALOG.every((s) => Object.keys(s).length === 10));
 gate('G423-NSB — slice ids are unique',
   new Set(STUDIO_SLICE_CATALOG.map((s) => s.sliceId)).size === STUDIO_SLICE_CATALOG.length
-  && STUDIO_SLICE_CATALOG.length === 49);
+  && STUDIO_SLICE_CATALOG.length === 50);
 gate('G423-NSB — this slice is ordinal 46', G.getStudioSliceById(APPLICABILITY)?.sliceOrdinal === 46);
 gate('G423-NSB — this slice is born merged', G.getStudioSliceById(APPLICABILITY)?.status === 'merged');
 gate('G423-NSB — zero active_slice remains',

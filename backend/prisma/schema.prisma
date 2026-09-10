@@ -1337,7 +1337,7 @@ model LifecycleSyncState {
 
   cliente Cliente @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
 
-  @@unique([cliente_id, group_id, entity_type, entity_id])
+  @@unique([cliente_id, group_id, tenant_id, entity_type, entity_id])
   @@index([group_id, sync_status])
   @@map("lifecycle_sync_state")
 }

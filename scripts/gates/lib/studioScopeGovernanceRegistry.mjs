@@ -1622,6 +1622,127 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
     // DEPOIS do merge, e a branch é resolvida por seu próprio marker durante a PR.
     status: 'merged',
   },
+  {
+    sliceId: 'lifecycle-auth-tenant-atomicity-governance',
+    sliceOrdinal: 50,
+    title: 'Lifecycle Auth, Tenant Isolation and Atomic Decisions Governance',
+    primaryArtifactPatterns: [
+      /^src\/runtime\/__tests__\/lifecycle-auth-tenant-atomicity-governance\.test\.js$/,
+      /^scripts\/gates\/g423-lifecycle-auth-tenant-atomicity-governance\.mjs$/,
+      /^docs\/evidence\/post-foundation-c-lifecycle-auth-tenant-atomicity-governance\//,
+      /^scripts\/gate-lifecycle-security-isolation\.mjs$/,
+      /^scripts\/gate-deploy-pipeline\.mjs$/,
+      /^docs\/engineering\/P1-03-LIFECYCLE-AUTH-TENANT-ATOMICITY-REPORT\.md$/,
+      /^docs\/engineering\/GATE-REGISTRY\.md$/,
+      /^backend\/package\.json$/,
+      /^backend\/scripts\/testLifecycleSecurityIsolation\.js$/,
+      /^backend\/src\/modules\/lifecycle\/routes\.js$/,
+      /^backend\/src\/modules\/lifecycle\/lifecycleService\.js$/,
+      /^backend\/src\/modules\/lifecycle\/lifecycleRepository\.js$/,
+      /^backend\/src\/modules\/lifecycle\/lifecycleSyncService\.js$/,
+      /^backend\/src\/modules\/lifecycle\/lifecycleTenant\.js$/,
+      // Segunda rodada de auditoria — o modelo de tenant do Lifecycle (owner ≠ tenant
+      // é legítimo) exigiu: a chave de upsert com tenant_id, o unique correspondente e
+      // sua migration (index swap, sem dado tocado), e UMA propriedade a mais no push
+      // do frontend (a declaração do tenant). Cada caminho é um arquivo exato.
+      /^backend\/src\/modules\/lifecycle\/lifecycleSyncRepository\.js$/,
+      /^backend\/prisma\/schema\.prisma$/,
+      /^backend\/prisma\/migrations\/20260910130000_lifecycle_sync_state_tenant_scoped_unique\/migration\.sql$/,
+      /^src\/intelligence\/lifecycle\/sync\/lifecycleSyncEngine\.js$/,
+    ],
+    branchMarkerPatterns: [
+      /^docs\/evidence\/post-foundation-c-lifecycle-auth-tenant-atomicity-governance\//,
+    ],
+    // As 51 asserções de escopo de OUTRAS fatias que esta PR corrige. Nenhuma delas muda de
+    // dono: continuam sendo artefatos primários das suas próprias fatias, e são declaradas
+    // aqui — arquivo a arquivo, ancoradas nas duas pontas — apenas para que o diff desta
+    // branch seja auditável. Duas famílias:
+    //
+    //  (a) a asserção absoluta "backend não mudou", que precisava passar a isentar o que a
+    //      fatia ATIVA autoriza — o padrão já presente ao lado dela nos mesmos arquivos;
+    //  (b) a cardinalidade do catálogo (49 -> 50) e os invariantes de autorização forbidden,
+    //      que passam a ler um LEDGER de fatias autorizadas em vez de um nome fixo.
+    crossSliceAuthorizedPatterns: [
+      /^scripts\/gates\/g423-studio-scope-governance-non-studio-branch-applicability\.mjs$/,
+      /^scripts\/gates\/g423-studio-scope-governance-non-studio-runtime-compatibility\.mjs$/,
+      /^scripts\/gates\/g423-typecheck-environment-hygiene-governance\.mjs$/,
+      /^scripts\/gates\/g423-typecheck-fail-closed-baseline-governance\.mjs$/,
+      /^src\/runtime\/__tests__\/empresas-certified-blueprint-mirror-alignment-audit\.test\.js$/,
+      /^src\/runtime\/__tests__\/empresas-local-read-contract-certification\.test\.js$/,
+      /^src\/runtime\/__tests__\/empresas-local-read-only-contract-pilot\.test\.js$/,
+      /^src\/runtime\/__tests__\/empresas-local-read-parity-hardening\.test\.js$/,
+      /^src\/runtime\/__tests__\/empresas-studio-compatibility-slice-1\.test\.js$/,
+      /^src\/runtime\/__tests__\/post-foundation-c-empresas-controlled-production-test-plan\.test\.js$/,
+      /^src\/runtime\/__tests__\/post-foundation-c-empresas-production-baseline-audit\.test\.js$/,
+      /^src\/runtime\/__tests__\/post-foundation-c-studio-foundation-audit\.test\.js$/,
+      // (d) segunda rodada — a migration do unique de LifecycleSyncState tropeçou na
+      //     asserção absoluta "Prisma/schema not changed" desta fatia, que não estava
+      //     entre as 47 tocadas antes. Mesma correção H2; um arquivo a mais, exato.
+      /^src\/runtime\/__tests__\/post-foundation-c-studio-first-module-policy\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge-contract\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge-hardening\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge-implementation-plan\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge-source-shape-alignment\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-authoring-runtime-to-preview-bridge\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-blueprint-contract-certification\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-blueprint-contract-hardening\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-blueprint-engine-foundation\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-blueprint-module-reference-planner\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-bridge-decision-envelope-identity-contract\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-bridge-to-preview-sandbox-runtime-contract\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-builder-lifecycle-normalization\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-app-integration-contract\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-app-integration-implementation-plan\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-app-integration\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-contract-bridge\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-isolated-runtime-implementation-plan\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-isolated-runtime\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-route-menu-contract\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-route-menu-implementation-plan\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-route-menu\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-runtime-shell-contract\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-runtime-ui-contract\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-runtime-ui-implementation-plan\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-runtime-ui\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-dev-preview-visual-contract\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-foundation-contracts\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-module-blueprint-authoring-foundation-contract\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-module-blueprint-authoring-implementation-plan\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-module-blueprint-authoring-runtime\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-module-preview-sandbox-contract\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-scope-governance-chronological-migration\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-scope-governance-historical-branch-consumers\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-scope-governance-main-diff-correction\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-scope-governance-maintenance\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-scope-governance-non-studio-branch-applicability\.test\.js$/,
+      /^src\/runtime\/__tests__\/studio-scope-governance-non-studio-runtime-compatibility\.test\.js$/,
+      /^src\/runtime\/__tests__\/typecheck-environment-hygiene-governance\.test\.js$/,
+      /^src\/runtime\/__tests__\/typecheck-fail-closed-baseline-governance\.test\.js$/,
+      // (c) os diários de engenharia, que a fatia 48 possui e que toda fatia posterior
+      //     precisa acrescentar — estado corrente, dívida registrada e log da missão.
+      /^docs\/engineering\/CURRENT-STATE\.md$/,
+      /^docs\/engineering\/TECH-DEBT\.md$/,
+      /^docs\/engineering\/ENGINEERING-JOURNAL\.md$/,
+    ],
+    sharedGovernancePatterns: [
+      /^scripts\/gates\/lib\/studioScopeGovernanceRegistry\.mjs$/,
+      /^package\.json$/,
+    ],
+    explicitlyAuthorizedForbiddenPatterns: [
+      /^backend\/package\.json$/,
+      /^backend\/scripts\/testLifecycleSecurityIsolation\.js$/,
+      /^backend\/src\/modules\/lifecycle\/routes\.js$/,
+      /^backend\/src\/modules\/lifecycle\/lifecycleService\.js$/,
+      /^backend\/src\/modules\/lifecycle\/lifecycleRepository\.js$/,
+      /^backend\/src\/modules\/lifecycle\/lifecycleSyncService\.js$/,
+      /^backend\/src\/modules\/lifecycle\/lifecycleTenant\.js$/,
+      /^backend\/src\/modules\/lifecycle\/lifecycleSyncRepository\.js$/,
+      /^backend\/prisma\/schema\.prisma$/,
+      /^backend\/prisma\/migrations\/20260910130000_lifecycle_sync_state_tenant_scoped_unique\/migration\.sql$/,
+    ],
+    historicalBranchConsumerCompatibility: false,
+    status: 'merged',
+  },
 
 ].map(Object.freeze));
 

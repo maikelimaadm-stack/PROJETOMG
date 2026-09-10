@@ -638,7 +638,7 @@ test('566. guards not in diff', () => {
       `active ${authorizer.activeSliceId} does not own the governance guard`);
   }
 });
-test('567. modules/backend/prisma not in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => /^src\/modules\/|^backend\/|schema\.prisma$|^migrations\//.test(x))); });
+test('567. modules/backend/prisma not in diff', () => { const f = changed(); if (f === null) return; const exempt = createResolvedActiveStudioSlicePathAuthorizer(changed()); assert.ok(!f.filter((x) => !exempt.isAuthorized(x)).some((x) => /^src\/modules\/|^backend\/|schema\.prisma$|^migrations\//.test(x))); });
 test('568. no .jsx/.tsx/.css in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => /\.(jsx|tsx|css)$/.test(x))); });
 // Branch-relative scope check, CALLER-AWARE. It no longer asks "is this path registered somewhere?" — a flat
 // registry could not prove the path was later than this slice. It asks "which slice is this branch building, and

@@ -516,7 +516,7 @@ test('391. no src/modules in diff', () => { const files = changed(); if (files =
 // Empresas PRODUCTION source must not change. A substring scan over file names also matched the Empresas
 // governance TEST files, which are not Empresas source; anchor the check on real source paths instead.
 test('392. no Empresas in diff', () => { const files = changed(); if (files === null) return; const exempt = createResolvedActiveStudioSlicePathAuthorizer(files); assert.ok(files.filter((x) => !exempt.isAuthorized(x)).every((x) => !/empresas/i.test(x))); });
-test('393. no backend/prisma/migration in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => /^backend\/|schema\.prisma$|^migrations\//.test(f))); });
+test('393. no backend/prisma/migration in diff', () => { const files = changed(); if (files === null) return; const exempt = createResolvedActiveStudioSlicePathAuthorizer(changed()); assert.ok(!files.filter((x) => !exempt.isAuthorized(x)).some((f) => /^backend\/|schema\.prisma$|^migrations\//.test(f))); });
 test('394. no .tsx/.css in diff', () => { const files = changed(); if (files === null) return; assert.ok(!files.some((f) => /\.(tsx|css)$/.test(f))); });
 test('395. only .jsx in diff are the subtree or the authorized additive App.jsx', () => { const files = changed(); if (files === null) return; assert.ok(files.filter((f) => /\.jsx$/.test(f)).every((f) => f === 'src/App.jsx' || /^src\/studio\/blueprint-engine\/dev-preview-app-integration\//.test(f))); });
 // The production UI guard is FORBIDDEN and no slice cross-authorizes it, so it may never appear. The central

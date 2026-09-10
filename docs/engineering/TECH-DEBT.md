@@ -217,6 +217,78 @@
 | **Roadmap** | — |
 | **Status** | Open — Constitution §7 declares them historical/subordinate |
 
+### TD-017 — Autorização forbidden de backend depende do marcador de branch
+
+| Campo | Valor |
+|---|---|
+| **Discovered** | 2026-09-09 — P1-03, ao tornar verde a primeira correção de backend sob o catálogo de fatias |
+| **O que é** | `FORBIDDEN_SCOPE_PATTERNS` inclui `/^backend\//`, então nenhuma fatia pode tocar backend sem declarar cada arquivo em `explicitlyAuthorizedForbiddenPatterns`. A Slice 50 é a segunda e última autorizadora do catálogo |
+| **Por que é dívida** | A autorização vive na fatia, não no arquivo: depois do merge, o marcador da Slice 50 continua no catálogo e a autorização dos sete arquivos continua declarada. Uma fatia FUTURA que precise mexer nos mesmos arquivos terá de declará-los de novo, e o catálogo acumulará entradas de backend fatia a fatia |
+| **Contenção atual** | A autorização é da FATIA ATIVA: sem o marcador de branch que elege a Slice 50, os mesmos caminhos voltam a ser recusados (provado por `G423-50-B07` e pelo teste `E004`). O LEDGER em `studio-scope-governance-chronological-migration.test.js` (S004/F002/F010) prende a lista de autorizadoras por identidade e cardinalidade — uma terceira não aparece em silêncio |
+| **Correção estrutural pendente** | `isPathAuthorizedForStudioSlice` hoje considera primary + cross + shared, mas **não** `explicitlyAuthorizedForbiddenPatterns`, o que obriga a fatia a declarar os sete arquivos em DUAS listas. Unificar isso exigiria alterar `studioScopeGovernanceGuard.mjs` — o guard central, que P1-03 deliberadamente não toca |
+| **Roadmap** | Reavaliar quando uma terceira fatia precisar autorizar caminho proibido, ou quando o guard central abrir para alteração |
+| **Status** | Open — contida desde 2026-09-09 (P1-03) |
+
+---
+
+### TD-018 — `prisma:validate` falha por variável de ambiente ausente
+
+| Campo | Valor |
+|---|---|
+| **Discovered** | 2026-09-09 — P1-03, na bateria de verificação |
+| **O que é** | `npm run prisma:validate` sai **1** com `P1012`: `DIRECT_URL` não está definida |
+| **Escopo** | Ambiental, não de schema. Reproduzido na base intocada via `git stash` — **pré-existente**, não regressão de P1-03. O schema foi validado com variáveis efêmeras, apenas em memória; `.env` não foi tocado e nenhuma credencial foi persistida |
+| **Impacto** | O comando não pode ser usado como gate enquanto depender de uma variável que o ambiente de desenvolvimento não fornece |
+| **Roadmap** | Ou o schema deixa de exigir `DIRECT_URL`, ou o comando passa a receber um valor sintético explícito. Nenhuma das duas cabe numa fatia de segurança de backend |
+| **Status** | Open — pré-existente |
+
+### TD-019 — Sync push não é transacional (batch não all-or-nothing)
+
+| Campo | Valor |
+|---|---|
+| **Discovered** | 2026-09-10 — auditoria do arquiteto-chefe sobre a PR #506 (P1-03) |
+| **O que é** | `pushSyncBatchBackend` executa três laços independentes com `await` — `upsertSyncState`, `createStorageAction`, `createBackupAction` — sem `$transaction`. Falha num item posterior deixa os anteriores persistidos |
+| **Por que não foi corrigido aqui** | D-093 aceita o motor de sync mas **não exige** batch all-or-nothing. Transformar o sync inteiro em transação apenas para deixar uma tabela de certificação verde seria mudar produção para servir a um relatório |
+| **Contenção** | A certificação foi corrigida para dizer a verdade: `Atômico: NÃO — batch não transacional`, `Race-safe: PARCIAL — depende das constraints por entidade`. O que P1-03 certifica como atômico é a decisão approve/reject, e apenas ela |
+| **Roadmap** | Reavaliar se e quando um contrato exigir batch atômico; aí a correção é `$transaction` + testes de rollback por item |
+| **Status** | Open — declarada, não mascarada |
+
+---
+
+### TD-020 — Papel aprovador do lifecycle é least-privilege, não contrato canônico
+
+| Campo | Valor |
+|---|---|
+| **Discovered** | 2026-09-10 — auditoria do arquiteto-chefe sobre a PR #506 (P1-03) |
+| **O que é** | D-092 e D-093 não nomeiam perfil aprovador; `lifecyclePersistenceContracts.js` e `approvalWorkflowEngine.js` não carregam papel. P1-03 fixou approve/reject em `["ADMIN"]` por least privilege, não por contrato |
+| **Risco** | Se a operação real exigir que OPERADOR aprove, a regra atual bloqueia trabalho legítimo — de forma visível (403), nunca silenciosa |
+| **Contenção** | A tabela vive em código (`LIFECYCLE_DECISION_ROLES`), o caso `RBAC-05` fixa a decisão, e ele falha no dia em que OPERADOR for admitido — forçando a revisão em vez de deixar a mudança passar despercebida |
+| **Roadmap** | Promover a decisão a D-numbered quando houver definição de produto sobre quem aprova archive/expunge |
+| **Status** | Open — decisão registrada, aguardando contrato |
+
+### TD-021 — Não existe autoridade server-side de (owner, group, tenant) para o Lifecycle
+
+| Campo | Valor |
+|---|---|
+| **Discovered** | 2026-09-10 — terceira auditoria do arquiteto-chefe sobre a PR #506 (P1-03) |
+| **O que é** | O contrato do Lifecycle autoriza, por group, tenants diferentes do owner (`authorizedTenantIds`). O único lugar onde essa lista existe é o `localStorage` do navegador, escrito apenas pelos gates. O backend não tem tabela, repository nem relação (`Cliente` não tem grupo/holding) que prove "tenant T é autorizado no group G do owner O" |
+| **Contenção (P1-03, OPÇÃO C)** | `authorizeLifecycleTenant` define a INTERFACE de autoridade; a de produção (`NO_LIFECYCLE_TENANT_AUTHORITY`) responde "não sei" e isso é recusa: push com `tenantId ≠ cliente_id` → `403 LIFECYCLE_TENANT_AUTHORITY_UNAVAILABLE`, nada gravado. `tenantId == cliente_id` (o caminho de produção atual) segue funcionando pela identidade autenticada. O caso multi-tenant está modelado e provado com autoridade injetada (TEN-01..04) |
+| **Por que não foi criada uma tabela** | Não há fonte confiável para populá-la sem inventar fluxo de registro (quem registra um group scope? com que política?). Transformar ausência de autoridade em suposição seria pior que recusar |
+| **Roadmap** | Quando o produto definir a origem do group scope (decisão de produto, D-numbered), implementar a autoridade persistida por trás da interface existente — sem tocar nas regras de `lifecycleTenant.js` |
+| **Status** | **Open — BLOQUEADOR DE MERGE da PR #506** enquanto o arquiteto-chefe não decidir o destino |
+
+---
+
+### TD-022 — Migration do unique de LifecycleSyncState não aplicada em banco real nesta sessão
+
+| Campo | Valor |
+|---|---|
+| **Discovered** | 2026-09-10 — P1-03 |
+| **O que é** | `20260910130000_lifecycle_sync_state_tenant_scoped_unique` (DROP INDEX + CREATE UNIQUE INDEX) foi gerada por `prisma migrate diff` sem banco e validada por `prisma generate`/`validate`, mas não executada contra Postgres — não há `DATABASE_URL` de teste |
+| **Risco** | Baixo: index swap sobre coluna `NOT NULL`, unique mais largo que o anterior (nenhuma linha existente pode violá-lo). Ainda assim, não medido |
+| **Roadmap** | Aplicar em staging antes de produção; confirmar `prisma migrate status` |
+| **Status** | Open |
+
 ---
 
 ## Resolved Debt

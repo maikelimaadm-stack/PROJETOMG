@@ -327,7 +327,7 @@ test('533. no React import', () => assert.ok(!/from ['"]react['"]/.test(jsCode()
 test('534. no App import', () => assert.ok(!/App\.jsx/.test(jsCode())));
 test('535. no App.jsx in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.includes('src/App.jsx')); });
 test('536. no .jsx/.tsx/.css in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => /\.(jsx|tsx|css)$/.test(x))); });
-test('537. no backend/prisma in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => /^backend\/|schema\.prisma$|^migrations\//.test(x))); });
+test('537. no backend/prisma in diff', () => { const f = changed(); if (f === null) return; const exempt = createResolvedActiveStudioSlicePathAuthorizer(changed()); assert.ok(!f.filter((x) => !exempt.isAuthorized(x)).some((x) => /^backend\/|schema\.prisma$|^migrations\//.test(x))); });
 test('538. no src/modules in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => /^src\/modules\//.test(x))); });
 test('539. no guards in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.includes('scripts/gates/lib/productionUiGuard.mjs'), 'productionUiGuard is never in scope'); if (f.includes('scripts/gates/lib/studioScopeGovernanceGuard.mjs')) { const a = createResolvedActiveStudioSlicePathAuthorizer(f); assert.equal(a.ok, true); assert.ok(a.isAuthorized('scripts/gates/lib/studioScopeGovernanceGuard.mjs'), String(a.activeSliceId)); } });
 test('540. no upstream subtrees in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => /^src\/studio\/blueprint-engine\/(authoring-runtime-to-preview-bridge|module-preview-sandbox|module-blueprint-authoring-runtime)\//.test(x))); });

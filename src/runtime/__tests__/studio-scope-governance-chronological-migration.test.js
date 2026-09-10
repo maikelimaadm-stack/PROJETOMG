@@ -148,11 +148,17 @@ for (const s of STUDIO_SLICE_CATALOG) {
       assert.ok(s.primaryArtifactPatterns.some((p) => p.toString() === marker.toString()), `${s.sliceId} ${marker}`);
     }
   });
-  test(`C014 slice ${s.sliceId} never declares a forbidden path`, () => {
-    const probes = [...s.primaryArtifactPatterns, ...s.crossSliceAuthorizedPatterns, ...s.sharedGovernancePatterns]
-      .map((re) => re.source.replace(/^\^/, '').replace(/\$$/, '').replace(/\\\//g, '/').replace(/\\\./g, '.'));
-    for (const probe of probes) {
-      assert.ok(!FORBIDDEN_SCOPE_PATTERNS.some((f) => f.test(probe)), `${s.sliceId} declares forbidden ${probe}`);
+  test(`C014 slice ${s.sliceId} declares no forbidden path it has not explicitly authorized`, () => {
+    // A forbidden pattern may appear in a normal list ONLY when the SAME slice also declares the
+    // IDENTICAL pattern in `explicitlyAuthorizedForbiddenPatterns` — a declaration that F002 binds
+    // to a ledgered count and F003 binds to anchored, genuinely-forbidden single files. So this is
+    // not a loosening: an unauthorized forbidden pattern is still rejected, and an authorized one
+    // is now provably auditable in two places instead of silently absent from one.
+    const explicit = new Set(s.explicitlyAuthorizedForbiddenPatterns.map(String));
+    for (const re of [...s.primaryArtifactPatterns, ...s.crossSliceAuthorizedPatterns, ...s.sharedGovernancePatterns]) {
+      const probe = re.source.replace(/^\^/, '').replace(/\$$/, '').replace(/\\\//g, '/').replace(/\\\./g, '.');
+      if (!FORBIDDEN_SCOPE_PATTERNS.some((f) => f.test(probe))) continue;
+      assert.ok(explicit.has(String(re)), `${s.sliceId} declares forbidden ${probe} without explicit authorization`);
     }
   });
 }
@@ -486,7 +492,7 @@ for (const p of [...EXTENSION_TESTS, ...EXTENSION_GATES]) {
   });
   test(`X009 only a governance slice may cross-authorize the extension artifact: ${path.basename(p)}`, () => {
     for (const s of STUDIO_SLICE_CATALOG) {
-      if (s.sliceId.startsWith('studio-scope-governance-')) continue;
+      if (isGovernanceCrossAuthorizer(s.sliceId)) continue;
       // The Builder's own two declared lifecycle paths are its legitimate, separately proven authorization.
       if (s.sliceId === BUILDER && BUILDER_CROSS.includes(p)) continue;
       assert.equal(s.crossSliceAuthorizedPatterns.some((re) => re.test(p)), false, `${s.sliceId} ${p}`);
@@ -536,11 +542,46 @@ for (const p of FORBIDDEN_FIXTURES) {
     assert.equal(isKnownLaterStudioHeadlessArtifact(p), false);
   });
 }
-test('S004 the ONLY explicit forbidden authorization is the app-integration slice pair', () => {
+/**
+ * The slices allowed to reach into ANOTHER slice's governance artifact (its scope test or its
+ * gate). The `studio-scope-governance-*` family qualifies by construction — that IS its subject.
+ * Any other slice has to be named here, one id at a time, so the exception is always a decision
+ * and never a naming accident:
+ *
+ *  - `lifecycle-auth-tenant-atomicity-governance` (ordinal 50) carries the catalog-wide
+ *    correction that follows from the catalog growing to fifty entries: the cardinality
+ *    assertions, and the invariants that used to name a single forbidden-authorizing slice.
+ *
+ * Being on this list authorizes NOTHING by itself: the slice still has to declare each foreign
+ * file in its own `crossSliceAuthorizedPatterns`, anchored at both ends.
+ */
+const GOVERNANCE_CROSS_AUTHORIZERS = Object.freeze(['lifecycle-auth-tenant-atomicity-governance']);
+const isGovernanceCrossAuthorizer = (sliceId) =>
+  sliceId.startsWith('studio-scope-governance-') || GOVERNANCE_CROSS_AUTHORIZERS.includes(sliceId);
+
+/**
+ * LEDGER — every slice allowed to authorize a forbidden path, with the EXACT number of entries
+ * it declares, in catalog order. Being on this list is a governance decision, never a default:
+ * the list is asserted WHOLE (identity and cardinality), so a new authorizer cannot appear, and
+ * an existing one cannot grow by one entry, without this line changing in the same diff.
+ *
+ *  - `dev-preview-app-integration` (ordinal 42): `src/App.jsx` + the production UI guard.
+ *  - `lifecycle-auth-tenant-atomicity-governance` (ordinal 50): the seven backend files the
+ *    P1-03 security correction touches (seven sources, the sync repository, the schema and
+ *    its one migration), each anchored to one exact file.
+ */
+const EXPLICIT_FORBIDDEN_AUTHORIZERS = Object.freeze([
+  Object.freeze(['dev-preview-app-integration', 2]),
+  Object.freeze(['lifecycle-auth-tenant-atomicity-governance', 10]),
+]);
+
+test('S004 the explicit forbidden authorizations are exactly the ledgered slices', () => {
   assert.equal(STUDIO_DEV_PREVIEW_APP_INTEGRATION_EXPLICIT_FORBIDDEN.length, 2);
   const withAuth = STUDIO_SLICE_CATALOG.filter((s) => s.explicitlyAuthorizedForbiddenPatterns.length > 0);
-  assert.deepEqual(withAuth.map((s) => s.sliceId), ['dev-preview-app-integration']);
-  assert.equal(withAuth[0].explicitlyAuthorizedForbiddenPatterns.length, 2);
+  assert.deepEqual(
+    withAuth.map((s) => [s.sliceId, s.explicitlyAuthorizedForbiddenPatterns.length]),
+    EXPLICIT_FORBIDDEN_AUTHORIZERS.map((e) => [...e]),
+  );
 });
 test('S005 the derived export mirrors the catalog entry exactly', () => {
   const entry = getStudioSliceById('dev-preview-app-integration');
@@ -877,10 +918,20 @@ test('T007 evaluateStudioBranchDiffScope([]) is notApplicable and safe', () => {
   assert.deepEqual(r.allowed, []);
   assert.equal(r.activeSliceId, null);
 });
-test('T004 this branch touches no production code', () => {
+test('T004 this branch touches no production code it has not explicitly authorized', () => {
   const f = changedOnThisBranch(); if (f === null) return;
-  // UNIVERSAL: forbidden scope is never tolerable, in any consumer state.
-  for (const p of f) assert.equal(classifyStudioScopePath(p) === 'forbidden_scope', false, p);
+  // UNIVERSAL: forbidden scope is never tolerable in any consumer state — EXCEPT for the exact
+  // files the branch's ACTIVE slice ledgered in `explicitlyAuthorizedForbiddenPatterns` (S004/F002/
+  // F010 above bind that ledger by identity and cardinality). `classifyStudioScopePath` is
+  // slice-blind and cannot see that authorization, so the admissible set is read from the
+  // evaluator — the same SSOT — instead of being restated here.
+  const authorized = new Set(
+    evaluateStudioBranchConsumerScope(f, { callerSliceId: MIGRATION }).explicitForbiddenAuthorized,
+  );
+  for (const p of f) {
+    if (authorized.has(p)) continue;
+    assert.equal(classifyStudioScopePath(p) === 'forbidden_scope', false, p);
+  }
 });
 test('T004b this branch touches no Studio blueprint-engine source of another slice', () => {
   const f = changedOnThisBranch(); if (f === null) return;
@@ -907,7 +958,8 @@ for (const s of STUDIO_SLICE_CATALOG) {
     assert.equal(Object.isFrozen(s), true);
   });
   test(`F002 slice ${s.sliceId} declares the expected number of explicit forbidden entries`, () => {
-    assert.equal(s.explicitlyAuthorizedForbiddenPatterns.length, s.sliceId === APP_INTEGRATION ? 2 : 0, s.sliceId);
+    const ledgered = EXPLICIT_FORBIDDEN_AUTHORIZERS.find(([id]) => id === s.sliceId);
+    assert.equal(s.explicitlyAuthorizedForbiddenPatterns.length, ledgered ? ledgered[1] : 0, s.sliceId);
   });
   for (const re of s.explicitlyAuthorizedForbiddenPatterns) {
     test(`F003 ${s.sliceId} explicit forbidden pattern is anchored and truly forbidden: ${re}`, () => {
@@ -918,9 +970,10 @@ for (const s of STUDIO_SLICE_CATALOG) {
     });
   }
 }
-test('F010 only ONE slice in the whole catalog authorizes any forbidden path', () => {
+test('F010 only the LEDGERED slices in the whole catalog authorize any forbidden path', () => {
   assert.deepEqual(STUDIO_SLICE_CATALOG.filter((s) => s.explicitlyAuthorizedForbiddenPatterns.length > 0)
-    .map((s) => s.sliceId), [APP_INTEGRATION]);
+    .map((s) => s.sliceId), EXPLICIT_FORBIDDEN_AUTHORIZERS.map(([id]) => id));
+  assert.ok(EXPLICIT_FORBIDDEN_AUTHORIZERS.some(([id]) => id === APP_INTEGRATION));
 });
 test('F011 the App Integration fixture is ENTIRELY safe for its own slice', () => {
   const r = evaluateStudioBranchScope(APP_INTEGRATION_FIXTURE, { callerSliceId: APP_INTEGRATION });
@@ -1048,6 +1101,7 @@ for (const p of [...NINE_TESTS.map(([x]) => x), ...TWENTY_TWO_GATES.map(([x]) =>
       if (s.sliceId === CONSUMERS) continue; // the later consumers slice rewires the same artifacts
       if (s.sliceId === 'studio-scope-governance-non-studio-runtime-compatibility') continue; // the later non-Studio compatibility slice rewires the same artifacts
       if (s.sliceId === 'studio-scope-governance-maintenance') continue; // its own earlier, separately proven wiring
+      if (s.sliceId === 'lifecycle-auth-tenant-atomicity-governance') continue; // the later slice-50 catalog-wide correction rewires the same artifacts
       if (s.sliceId === BUILDER && BUILDER_CROSS.includes(p)) continue;  // the Builder's own lifecycle pair
       const owns = findOwningStudioSlices(p).some((o) => o.sliceId === s.sliceId);
       if (owns) continue; // a slice is always authorized for what it owns

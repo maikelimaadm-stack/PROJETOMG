@@ -61,6 +61,7 @@
 | **G303B** | Studio (planned) | Business Computation implementation |
 | **G304** | Studio (architecture) | Intent Resolver architecture reference (D-064) — implementation certified by **G305** |
 | **G401–G402** | Deploy pipeline | Renumbered from G303/G304 deploy (D-062) |
+| **G403** | Deploy pipeline | Lifecycle Security Isolation (P1-03) |
 | **G420+** | MMM specification | G421 PlatformSchema coverage — [G421-SPEC.md](../meta-model/spec/G421-SPEC.md) |
 | ~~G303~~ (deploy) | — | **Superseded → G401** |
 | ~~G304~~ (deploy) | — | **Superseded → G402** |
@@ -73,9 +74,16 @@
 |----|------|-----------|-------|-------|---------|----------|--------|---------|------------|
 | **G401** | Backend Bootstrap Validation | Prevent RC-001 class deploy failures (ESM graph, pre-listen bootstrap) | `backend/src`, import graph | Deploy / Platform | 2.3.X.1 | D-052 area | **active** | 2026-06-30 | — (successor to deploy G303) |
 | **G402** | Railway Docker Build Validation | Simulate Dockerfile.railway build before merge | `Dockerfile.railway`, `railway.json`, prisma | Deploy / Platform | 2.3.X.1 | D-052 area | **active** | 2026-06-30 | — (successor to deploy G304) |
-| **G401+G402** | Deploy Pipeline Bundle | Runs G401 then G402 | CI deploy path | Deploy | 2.3.X.1 | D-062 | **active** | 2026-06-30 | — |
+| **G403** | Lifecycle Security Isolation | Prove lifecycle auth, tenant scoping and atomic decisions before deploy (P1-03) | `backend/src/modules/lifecycle`, adversarial suite | Backend / Security | P1-03 | — | **active** | 2026-09-09 | — |
+| **G401+G402+G403** | Deploy Pipeline Bundle | Runs G401, G402 then G403 | CI deploy path | Deploy | 2.3.X.1 | D-062 | **active** | 2026-06-30 | — |
 
-**Scripts:** `gate-backend-bootstrap.mjs` · `gate-railway-docker.mjs` · `gate-deploy-pipeline.mjs`
+**Scripts:** `gate-backend-bootstrap.mjs` · `gate-railway-docker.mjs` · `gate-lifecycle-security-isolation.mjs` · `gate-deploy-pipeline.mjs`
+
+> **G403** roda no agregado `gate:deploy-pipeline` porque esse é o único agregado de
+> validação de backend que o workflow do CI executa. Ele afirma diretamente a forma do
+> código corrigido (auth real nas seis rotas, tenant server-side, leitura e decisão
+> escopadas por `cliente_id`, decisão dentro de `$transaction`) e executa a bateria
+> adversarial `backend/scripts/testLifecycleSecurityIsolation.js`. Falha fechada: exit 1.
 
 ---
 

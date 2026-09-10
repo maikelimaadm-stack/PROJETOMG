@@ -91,12 +91,32 @@ const branchPaths = (() => {
   }
 })();
 
+/**
+ * ESCOPO DE BRANCH PRÓPRIA (padrão herdado da fatia 48, teste D001).
+ *
+ * Uma fatia ESTRITAMENTE POSTERIOR pode legitimamente estar ativa numa branch que ainda
+ * executa este teste. Quando isso acontece, as frases "esta branch é minha" não têm sujeito:
+ * são AFIRMADAS como inaplicáveis — o envelope é verificado — e nunca puladas em silêncio.
+ * Tudo o que é universal (proibido, desconhecido, cronologia) continua rodando nos dois casos.
+ */
+const fatiaAtiva = () => (branchPaths === null || branchPaths.length === 0
+  ? null
+  : resolveActiveStudioSlice(branchPaths));
+const branchDeFatiaPosterior = () => {
+  const a = fatiaAtiva();
+  return a !== null && a.ok && a.sliceOrdinal > ORDINAL;
+};
+/** Os caminhos proibidos que a fatia ATIVA declarou, arquivo a arquivo, no catálogo. */
+const proibidosLedgerados = () => new Set(
+  branchPaths === null ? [] : consumer(branchPaths).explicitForbiddenAuthorized,
+);
+
 // ===========================================================================
 // C — CATÁLOGO
 // ===========================================================================
 
-test('C001 o catálogo tem exatamente 49 entradas', () => {
-  assert.equal(STUDIO_SLICE_CATALOG.length, 49);
+test('C001 o catálogo tem exatamente 50 entradas', () => {
+  assert.equal(STUDIO_SLICE_CATALOG.length, 50);
 });
 
 test('C002 os ordinais são contíguos de 1 a 49', () => {
@@ -332,6 +352,14 @@ test('B001 a branch resolve exatamente esta fatia, sem ambiguidade', () => {
   if (branchPaths === null || branchPaths.length === 0) return assert.ok(true, 'sem diff (main)');
   const a = resolveActiveStudioSlice(branchPaths);
   assert.equal(a.ok, true, `reason=${a.reason} candidates=${a.candidates.join(',')}`);
+  assert.equal(a.candidates.length, 1, a.candidates.join(','));
+  if (branchDeFatiaPosterior()) {
+    // Branch de uma fatia ESTRITAMENTE POSTERIOR: o que esta fatia tem de garantir é que
+    // NÃO se apropria dela. A ausência de ambiguidade continua afirmada acima.
+    assert.notEqual(a.sliceId, SLICE);
+    assert.ok(a.sliceOrdinal > ORDINAL, `${a.sliceId} ordinal ${a.sliceOrdinal}`);
+    return;
+  }
   assert.equal(a.sliceId, SLICE);
   assert.equal(a.sliceOrdinal, ORDINAL);
   assert.deepEqual(a.candidates, [SLICE]);
@@ -352,7 +380,13 @@ test('B002 o diff desta branch é integralmente autorizado — núcleo e consumi
 
 test('B003 a branch não toca produto, backend, Prisma, lockfile nem o guard', () => {
   if (branchPaths === null) return assert.ok(true, 'sem diff (main)');
+  // A ÚNICA dispensa admissível é o conjunto que a fatia ATIVA declarou, arquivo a arquivo,
+  // em `explicitlyAuthorizedForbiddenPatterns` — o LEDGER que a fatia 44 (S004/F002/F010)
+  // prende por identidade e cardinalidade. Nenhuma outra regra desta lista é relaxada, e um
+  // caminho de backend fora do ledger continua reprovando aqui, em qualquer branch.
+  const ledgerados = proibidosLedgerados();
   for (const p of branchPaths) {
+    if (ledgerados.has(p)) continue;
     assert.ok(!/^backend\//.test(p), p);
     assert.ok(!/(^|\/)prisma(\/|$)/i.test(p), p);
     assert.ok(!/\.sql$/i.test(p), p);
@@ -366,6 +400,23 @@ test('B003 a branch não toca produto, backend, Prisma, lockfile nem o guard', (
 
 test('B004 todo arquivo do diff está declarado em ALGUMA lista desta fatia', () => {
   if (branchPaths === null) return assert.ok(true, 'sem diff (main)');
+  if (branchDeFatiaPosterior()) {
+    // Branch de uma fatia ESTRITAMENTE POSTERIOR: o inventário desta fatia não é o inventário
+    // dela, então a frase não tem sujeito. É AFIRMADA como inaplicável, nunca pulada — e o
+    // que substitui a frase é mais forte, não mais fraco: TODO caminho do diff tem de estar
+    // autorizado pela entrada de catálogo da fatia ATIVA, sem bloqueador algum.
+    const r = consumer(branchPaths);
+    assert.equal(r.certifiedAgainstActiveSlice, false);
+    assert.deepEqual(r.blockers, [], JSON.stringify(r.blockers));
+    assert.equal(r.safe, true);
+    assert.deepEqual(r.unknown, []);
+    assert.deepEqual(r.forbidden, []);
+    // União, não soma: `allowed` já contém os caminhos cruzados e os proibidos autorizados,
+    // então somar os três contaria o mesmo arquivo duas vezes e a frase ficaria vazia.
+    const cobertos = new Set([...r.allowed, ...r.crossAuthorized, ...r.explicitForbiddenAuthorized]);
+    for (const p of branchPaths) assert.ok(cobertos.has(p), `não coberto pela fatia ativa: ${p}`);
+    return;
+  }
   const declarado = new Set([
     TEST_REL, GATE_REL, REGISTRY_REL, 'package.json',
     ...OWN_NON_GOVERNED, ...CROSS_ALL,
@@ -433,10 +484,25 @@ test('R004 dois markers permanecem ambíguos', () => {
 });
 
 test('R005 os artefatos desta fatia não são autorizados para outras fatias', () => {
-  const outras = STUDIO_SLICE_CATALOG.filter((s) => s.sliceId !== SLICE);
+  // Exceção nomeada, nunca genérica: uma fatia POSTERIOR que corrija estes arquivos precisa
+  // declará-los, um a um, no próprio `crossSliceAuthorizedPatterns`. A fatia 50 corrige aqui a
+  // cardinalidade do catálogo (49 -> 50) e os invariantes B001/B003/B004. Toda outra fatia
+  // continua sem autorização alguma sobre os artefatos desta.
+  const POSTERIORES_AUTORIZADAS = Object.freeze(['lifecycle-auth-tenant-atomicity-governance']);
+  const outras = STUDIO_SLICE_CATALOG.filter(
+    (s) => s.sliceId !== SLICE && !POSTERIORES_AUTORIZADAS.includes(s.sliceId),
+  );
+  assert.equal(outras.length, STUDIO_SLICE_CATALOG.length - 1 - POSTERIORES_AUTORIZADAS.length);
   for (const f of [TEST_REL, GATE_REL, ...OWN_NON_GOVERNED]) {
     for (const s of outras) {
       assert.equal(isPathAuthorizedForStudioSlice(f, s.sliceId), false, `${f} vazou para ${s.sliceId}`);
+    }
+  }
+  // A exceção é estreita: a fatia posterior alcança o TESTE e o GATE desta fatia, que ela de
+  // fato corrige — nunca a baseline nem o workflow, que ela não toca.
+  for (const f of ['config/typecheck-production-baseline.json', '.github/workflows/foundation-governance.yml']) {
+    for (const s of POSTERIORES_AUTORIZADAS) {
+      assert.equal(isPathAuthorizedForStudioSlice(f, s), false, `${f} vazou para ${s}`);
     }
   }
 });

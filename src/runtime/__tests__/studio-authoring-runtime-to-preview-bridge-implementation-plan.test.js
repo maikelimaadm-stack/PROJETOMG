@@ -748,7 +748,7 @@ test('611. no App.jsx in diff', () => { const f = changed(); if (f === null) ret
 test('612. no src/pages in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => /^src\/pages\//.test(x))); });
 test('613. no src/components in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => /^src\/components\//.test(x))); });
 test('614. no src/modules in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => /^src\/modules\//.test(x))); });
-test('615. no backend/prisma in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => /^backend\/|schema\.prisma$|^migrations\//.test(x))); });
+test('615. no backend/prisma in diff', () => { const f = changed(); if (f === null) return; const exempt = createResolvedActiveStudioSlicePathAuthorizer(changed()); assert.ok(!f.filter((x) => !exempt.isAuthorized(x)).some((x) => /^backend\/|schema\.prisma$|^migrations\//.test(x))); });
 test('616. no .jsx/.tsx/.css in diff', () => { const f = changed(); if (f === null) return; assert.ok(!f.some((x) => /\.(jsx|tsx|css)$/.test(x))); });
 // The production UI guard is FORBIDDEN and no slice cross-authorizes it, so it may never appear. The central
 // governance guard may appear ONLY when the slice active on this branch declares it as shared governance —
