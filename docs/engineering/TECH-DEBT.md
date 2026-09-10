@@ -242,6 +242,30 @@
 | **Roadmap** | Ou o schema deixa de exigir `DIRECT_URL`, ou o comando passa a receber um valor sintético explícito. Nenhuma das duas cabe numa fatia de segurança de backend |
 | **Status** | Open — pré-existente |
 
+### TD-019 — Sync push não é transacional (batch não all-or-nothing)
+
+| Campo | Valor |
+|---|---|
+| **Discovered** | 2026-09-10 — auditoria do arquiteto-chefe sobre a PR #506 (P1-03) |
+| **O que é** | `pushSyncBatchBackend` executa três laços independentes com `await` — `upsertSyncState`, `createStorageAction`, `createBackupAction` — sem `$transaction`. Falha num item posterior deixa os anteriores persistidos |
+| **Por que não foi corrigido aqui** | D-093 aceita o motor de sync mas **não exige** batch all-or-nothing. Transformar o sync inteiro em transação apenas para deixar uma tabela de certificação verde seria mudar produção para servir a um relatório |
+| **Contenção** | A certificação foi corrigida para dizer a verdade: `Atômico: NÃO — batch não transacional`, `Race-safe: PARCIAL — depende das constraints por entidade`. O que P1-03 certifica como atômico é a decisão approve/reject, e apenas ela |
+| **Roadmap** | Reavaliar se e quando um contrato exigir batch atômico; aí a correção é `$transaction` + testes de rollback por item |
+| **Status** | Open — declarada, não mascarada |
+
+---
+
+### TD-020 — Papel aprovador do lifecycle é least-privilege, não contrato canônico
+
+| Campo | Valor |
+|---|---|
+| **Discovered** | 2026-09-10 — auditoria do arquiteto-chefe sobre a PR #506 (P1-03) |
+| **O que é** | D-092 e D-093 não nomeiam perfil aprovador; `lifecyclePersistenceContracts.js` e `approvalWorkflowEngine.js` não carregam papel. P1-03 fixou approve/reject em `["ADMIN"]` por least privilege, não por contrato |
+| **Risco** | Se a operação real exigir que OPERADOR aprove, a regra atual bloqueia trabalho legítimo — de forma visível (403), nunca silenciosa |
+| **Contenção** | A tabela vive em código (`LIFECYCLE_DECISION_ROLES`), o caso `RBAC-05` fixa a decisão, e ele falha no dia em que OPERADOR for admitido — forçando a revisão em vez de deixar a mudança passar despercebida |
+| **Roadmap** | Promover a decisão a D-numbered quando houver definição de produto sobre quem aprova archive/expunge |
+| **Status** | Open — decisão registrada, aguardando contrato |
+
 ---
 
 ## Resolved Debt

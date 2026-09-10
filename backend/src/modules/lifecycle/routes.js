@@ -1,5 +1,40 @@
-import { loadAccessScope } from "../auth/accessScope.js";
+import { loadAccessScope, assertRole } from "../auth/accessScope.js";
 import { assertRequestedTenantAllowed } from "./lifecycleTenant.js";
+
+/**
+ * RBAC DO LIFECYCLE — derivado do produto e FAIL-CLOSED onde o produto se cala.
+ *
+ * Autenticar não é autorizar. Depois da primeira rodada de P1-03 as rotas já exigiam
+ * identidade e já isolavam o cliente, mas QUALQUER perfil do cliente certo — CONSULTA
+ * incluído — podia decidir uma aprovação terminal que dispara archive/expunge.
+ *
+ * O que o produto já diz, e que é reusado aqui sem invenção:
+ *
+ *   backend/src/modules/anexos/routes.js
+ *     GET    → sem assertRole            (leitura: qualquer perfil do cliente)
+ *     POST   → ["ADMIN", "OPERADOR"]     (mutação ordinária de dados)
+ *     DELETE → ["ADMIN"]                 (ação destrutiva)
+ *   backend/src/modules/cadcps|clienteModulo|metrics/routes.js → ["ADMIN"]
+ *
+ * O que o produto NÃO diz: D-092 e D-093 aceitam o workflow de aprovação humana e o
+ * motor de sync, mas NENHUM dos dois nomeia um perfil aprovador; `lifecyclePersistence
+ * Contracts.js` e `approvalWorkflowEngine.js` não carregam papel algum — o
+ * `actorId = "administrador"` que existia lá era um DEFAULT de assinatura, não um
+ * contrato de autorização (e é justamente o default que P1-03 removeu).
+ *
+ * Como não existe contrato canônico, aplica-se LEAST PRIVILEGE, e a decisão fica
+ * registrada aqui para ser contestada por evidência, nunca por conveniência:
+ *
+ *   APPROVE / REJECT → ADMIN            decisão terminal; enfileira execução real
+ *                                       (archive/expunge). OPERADOR NÃO entra sem
+ *                                       evidência canônica de que é aprovador.
+ *   SYNC PUSH        → ADMIN, OPERADOR  mutação ordinária de dados, não decisão de
+ *                                       governança — mesmo degrau do POST /api/anexos.
+ *   LEITURAS         → qualquer perfil  já escopadas por cliente; negar leitura a
+ *                                       CONSULTA seria regressão funcional sem ganho.
+ */
+export const LIFECYCLE_DECISION_ROLES = Object.freeze(["ADMIN"]);
+export const LIFECYCLE_SYNC_WRITE_ROLES = Object.freeze(["ADMIN", "OPERADOR"]);
 
 /**
  * ROTAS LIFECYCLE — P1-03.
@@ -27,6 +62,7 @@ import { assertRequestedTenantAllowed } from "./lifecycleTenant.js";
  */
 export async function registerLifecycleRoutes(app, deps = {}) {
   const resolveScope = deps.loadAccessScope ?? loadAccessScope;
+  const requireRole = deps.assertRole ?? assertRole;
   const loadApprovalService = deps.approvalService
     ? async () => deps.approvalService
     : () => import("./lifecycleService.js");
@@ -52,6 +88,7 @@ export async function registerLifecycleRoutes(app, deps = {}) {
     { preHandler: app.authenticate },
     async (request) => {
       const scope = await resolveScope(request);
+      requireRole(scope, LIFECYCLE_DECISION_ROLES);
       const { approveRequestBackend } = await loadApprovalService();
       return approveRequestBackend({
         id: request.params.id,
@@ -66,6 +103,7 @@ export async function registerLifecycleRoutes(app, deps = {}) {
     { preHandler: app.authenticate },
     async (request) => {
       const scope = await resolveScope(request);
+      requireRole(scope, LIFECYCLE_DECISION_ROLES);
       const { rejectRequestBackend } = await loadApprovalService();
       return rejectRequestBackend({
         id: request.params.id,
@@ -91,6 +129,7 @@ export async function registerLifecycleRoutes(app, deps = {}) {
     { preHandler: app.authenticate },
     async (request) => {
       const scope = await resolveScope(request);
+      requireRole(scope, LIFECYCLE_SYNC_WRITE_ROLES);
       // O tenant é derivado do escopo autenticado. Se o payload trouxer um, ele só é
       // aceito quando coincide com o autorizado; divergência é 403, nunca coerção
       // silenciosa. O antigo fallback `"default"` foi removido: gravava dado

@@ -356,6 +356,111 @@ test('E004 sem o marcador, os arquivos de backend NÃO são liberados', () => {
 });
 
 // ===========================================================================
+// S50-NEG — ANTI-WEAKENING
+// ===========================================================================
+// Uma autorização de caminho proibido só é segura se for possível PROVAR o que ela
+// NÃO alcança. Cada caso abaixo é uma negativa: se algum dia passar, é porque a
+// governança foi afrouxada — e a fatia 50 é a suspeita óbvia.
+
+test('S50-NEG-01 backend/src/server.js continua recusado', () => {
+  const f = 'backend/src/server.js';
+  assert.equal(classifyStudioScopePath(f), 'forbidden_scope');
+  assert.equal(isPathAuthorizedForStudioSlice(f, SLICE), false);
+  const r = evaluateStudioBranchScope([`${EV_REL}/README.md`, f], { callerSliceId: SLICE });
+  assert.ok(r.forbidden.includes(f));
+  assert.equal(r.safe, false);
+});
+
+test('S50-NEG-02 backend/src/modules/auth/accessScope.js continua recusado', () => {
+  const f = 'backend/src/modules/auth/accessScope.js';
+  assert.equal(isPathAuthorizedForStudioSlice(f, SLICE), false);
+  assert.equal(evaluateStudioBranchScope([`${EV_REL}/README.md`, f], { callerSliceId: SLICE }).safe, false);
+});
+
+test('S50-NEG-03 backend/prisma/schema.prisma continua recusado', () => {
+  for (const f of ['backend/prisma/schema.prisma', 'prisma/schema.prisma',
+    'backend/prisma/migrations/0002_x/migration.sql']) {
+    assert.equal(isPathAuthorizedForStudioSlice(f, SLICE), false, f);
+    assert.equal(evaluateStudioBranchScope([`${EV_REL}/README.md`, f], { callerSliceId: SLICE }).safe, false, f);
+  }
+});
+
+test('S50-NEG-04 .github/workflows/foundation-governance.yml continua recusado', () => {
+  const f = '.github/workflows/foundation-governance.yml';
+  assert.equal(isPathAuthorizedForStudioSlice(f, SLICE), false);
+});
+
+test('S50-NEG-05 um arquivo NOVO no mesmo diretório autorizado continua recusado', () => {
+  // A autorização é por ARQUIVO EXATO, não por diretório: o vizinho não herda nada.
+  for (const f of ['backend/src/modules/lifecycle/evil-new-file.js',
+    'backend/src/modules/lifecycle/lifecycleController.js',
+    'backend/src/modules/lifecycle/lifecycleSyncRepository.js']) {
+    assert.equal(isPathAuthorizedForStudioSlice(f, SLICE), false, f);
+    assert.equal(evaluateStudioBranchScope([`${EV_REL}/README.md`, f], { callerSliceId: SLICE }).safe, false, f);
+  }
+});
+
+test('S50-NEG-06 um regex amplo é reprovado pelo predicado de exatidão', () => {
+  // O mesmo predicado que o teste 26a da fatia de manutenção usa. Se ele parar de
+  // reprovar, aquela frase e esta viram decorativas ao mesmo tempo.
+  const exato = (src) => {
+    if (!src.startsWith('^') || !src.endsWith('$')) return false;
+    return !/[.*+?[\]()|{}^$\\]/.test(src.slice(1, -1).replace(/\\[./]/g, ''));
+  };
+  for (const amplo of ['^backend\\/', '^backend\\/.*$', '^backend\\/.+$',
+    '^backend\\/src\\/modules\\/lifecycle\\/.*$', '^backend\\/(src|scripts)\\/x\\.js$']) {
+    assert.equal(exato(amplo), false, amplo);
+  }
+  assert.equal(exato('^backend\\/src\\/modules\\/lifecycle\\/routes\\.js$'), true);
+  // E a fatia real passa no predicado, arquivo a arquivo.
+  for (const re of getExplicitlyAuthorizedForbiddenPatternsForStudioSlice(SLICE)) {
+    assert.equal(exato(re.source), true, re.source);
+  }
+});
+
+test('S50-NEG-07 sem o marcador da fatia 50, os sete arquivos voltam a ser recusados', () => {
+  const semMarcador = BACKEND_TOCADOS.filter((p) => p !== 'backend/package.json');
+  const a = createResolvedActiveStudioSlicePathAuthorizer(semMarcador);
+  assert.equal(a.ok, false, JSON.stringify(a));
+  for (const f of semMarcador) assert.equal(a.isAuthorized(f), false, f);
+});
+
+test('S50-NEG-08 uma fatia inexistente não herda o allow da fatia 50', () => {
+  for (const fantasma of ['lifecycle-auth-tenant-atomicity-governance-v2', 'slice-51',
+    'fatia-que-nao-existe', '']) {
+    for (const f of BACKEND_TOCADOS) {
+      assert.equal(isPathAuthorizedForStudioSlice(f, fantasma), false, `${fantasma} ${f}`);
+    }
+    assert.deepEqual(getExplicitlyAuthorizedForbiddenPatternsForStudioSlice(fantasma), []);
+  }
+});
+
+test('S50-NEG-09 nenhuma fatia histórica passou a POSSUIR os sete arquivos de backend', () => {
+  for (const f of BACKEND_TOCADOS) {
+    const donos = findOwningStudioSlices(f).map((x) => x.sliceId);
+    assert.deepEqual(donos.filter((d) => d !== SLICE), [], `${f} → ${donos.join(',')}`);
+    for (const s of STUDIO_SLICE_CATALOG) {
+      if (s.sliceId === SLICE) continue;
+      assert.equal(s.crossSliceAuthorizedPatterns.some((re) => re.test(f)), false, `${s.sliceId} ${f}`);
+      assert.equal(s.sharedGovernancePatterns.some((re) => re.test(f)), false, `${s.sliceId} ${f}`);
+    }
+  }
+});
+
+test('S50-NEG-10 FORBIDDEN_SCOPE_PATTERNS continua cobrindo backend/**', () => {
+  assert.ok(FORBIDDEN_SCOPE_PATTERNS.some((re) => re.source === '^backend\\/'),
+    `padrões: ${FORBIDDEN_SCOPE_PATTERNS.map((r) => r.source).join(' ')}`);
+  for (const f of ['backend/a.js', 'backend/src/x/y.js', ...BACKEND_TOCADOS]) {
+    assert.equal(classifyStudioScopePath(f), 'forbidden_scope', f);
+  }
+});
+
+test('S50-NEG-11 o guard central não está no diff desta branch', () => {
+  if (branchPaths === null) return assert.ok(true, 'sem diff (main)');
+  assert.equal(branchPaths.includes(GUARD_REL), false, 'o guard central foi alterado');
+});
+
+// ===========================================================================
 // F — OS ARTEFATOS DE SEGURANÇA EXISTEM E ESTÃO PRESOS AO PIPELINE
 // ===========================================================================
 

@@ -416,31 +416,43 @@ const ROTAS = [
 
 async function montarApp({ autenticar, scope }) {
   const app = Fastify();
-  const chamadas = { authenticate: 0 };
+  // `chamadas` também conta o que o SERVIÇO recebeu: é assim que RBAC-07 prova que um
+  // perfil sem permissão não produz efeito nenhum — não basta o status ser 403 se o
+  // serviço já tiver sido chamado antes da recusa.
+  const chamadas = { authenticate: 0, approve: 0, reject: 0, push: 0, list: 0, snapshot: 0, reconcile: 0 };
   app.decorate("authenticate", async (request, reply) => {
     chamadas.authenticate += 1;
     if (!autenticar) return reply.status(401).send({ message: "Não autenticado." });
     request.user = { id: scope.userId, login: scope.user?.login };
     return undefined;
   });
+  // NOTA: `assertRole` NÃO é injetado. As rotas usam o helper REAL de
+  // `backend/src/modules/auth/accessScope.js`, para que estes testes exercitem a
+  // autorização de produção e não uma imitação dela.
   await registerLifecycleRoutes(app, {
     loadAccessScope: async () => scope,
     approvalService: {
-      listGroupApprovals: async (clienteId) => ({ items: [], clienteId, durable: true }),
-      approveRequestBackend: async (args) => ({ approved: true, visto: args }),
-      rejectRequestBackend: async (args) => ({ rejected: true, visto: args }),
+      listGroupApprovals: async (clienteId) => { chamadas.list += 1; return { items: [], clienteId, durable: true }; },
+      approveRequestBackend: async (args) => { chamadas.approve += 1; return { approved: true, visto: args }; },
+      rejectRequestBackend: async (args) => { chamadas.reject += 1; return { rejected: true, visto: args }; },
     },
     syncService: {
-      getSyncSnapshot: async (clienteId) => ({ clienteId, durable: true }),
-      pushSyncBatchBackend: async (clienteId, groupId, tenantId) => ({ clienteId, tenantId }),
-      reconcileSyncBackend: async (clienteId) => ({ clienteId, reconciled: true }),
+      getSyncSnapshot: async (clienteId) => { chamadas.snapshot += 1; return { clienteId, durable: true }; },
+      pushSyncBatchBackend: async (clienteId, groupId, tenantId) => { chamadas.push += 1; return { clienteId, tenantId }; },
+      reconcileSyncBackend: async (clienteId) => { chamadas.reconcile += 1; return { clienteId, reconciled: true }; },
     },
   });
   await app.ready();
   return { app, chamadas };
 }
 
-const scopeA = { clienteId: CLIENTE_A, userId: "usr_A", user: { login: "admin@a" } };
+/** Escopos por PERFIL. `perfil` é o campo que `assertRole` lê — o mesmo do banco. */
+const escopoCom = (perfil, login) => ({
+  clienteId: CLIENTE_A, userId: `usr_A_${perfil}`, perfil, user: { login },
+});
+const scopeA = escopoCom("ADMIN", "admin@a");
+const scopeOperador = escopoCom("OPERADOR", "operador@a");
+const scopeConsulta = escopoCom("CONSULTA", "consulta@a");
 
 await check("A1 sem autenticação, TODAS as rotas privadas respondem 401", async () => {
   for (const [method, url] of ROTAS) {
@@ -523,6 +535,161 @@ await check("R5 sync push sem tenantId deriva o tenant do escopo", async () => {
   assert.equal(res.statusCode, 200);
   assert.equal(res.json().tenantId, CLIENTE_A);
   await app.close();
+});
+
+// ===========================================================================
+console.log("\n=== RBAC — AUTENTICAR NÃO É AUTORIZAR ===");
+// ===========================================================================
+// A primeira rodada de P1-03 parou em "usuário autenticado do cliente certo". Isso
+// deixava CONSULTA decidindo aprovações terminais que enfileiram archive/expunge.
+// Estes casos usam o `assertRole` REAL; a decisão de papel está documentada no topo
+// de `routes.js`.
+
+const APROVAR = "/api/lifecycle/approvals/req_A/approve";
+const REJEITAR = "/api/lifecycle/approvals/req_A/reject";
+const PUSH = "/api/lifecycle/sync/grupo-1/push";
+
+await check("RBAC-01 ADMIN aprova a própria solicitação — permitido", async () => {
+  const { app, chamadas } = await montarApp({ autenticar: true, scope: scopeA });
+  const res = await app.inject({ method: "POST", url: APROVAR, payload: {} });
+  assert.equal(res.statusCode, 200, `veio ${res.statusCode}`);
+  assert.equal(chamadas.approve, 1);
+  await app.close();
+});
+
+await check("RBAC-02 ADMIN rejeita a própria solicitação — permitido", async () => {
+  const { app, chamadas } = await montarApp({ autenticar: true, scope: scopeA });
+  const res = await app.inject({ method: "POST", url: REJEITAR, payload: { reason: "não" } });
+  assert.equal(res.statusCode, 200, `veio ${res.statusCode}`);
+  assert.equal(chamadas.reject, 1);
+  await app.close();
+});
+
+await check("RBAC-03 CONSULTA tenta aprovar — 403", async () => {
+  const { app, chamadas } = await montarApp({ autenticar: true, scope: scopeConsulta });
+  const res = await app.inject({ method: "POST", url: APROVAR, payload: {} });
+  assert.equal(res.statusCode, 403, `veio ${res.statusCode}`);
+  assert.equal(chamadas.approve, 0, "o serviço foi chamado apesar do 403");
+  await app.close();
+});
+
+await check("RBAC-04 CONSULTA tenta rejeitar — 403", async () => {
+  const { app, chamadas } = await montarApp({ autenticar: true, scope: scopeConsulta });
+  const res = await app.inject({ method: "POST", url: REJEITAR, payload: {} });
+  assert.equal(res.statusCode, 403, `veio ${res.statusCode}`);
+  assert.equal(chamadas.reject, 0, "o serviço foi chamado apesar do 403");
+  await app.close();
+});
+
+await check("RBAC-05 OPERADOR NÃO decide — 403 em approve e reject", async () => {
+  // Decisão deliberada, não omissão: não existe contrato canônico (D-092/D-093 não
+  // nomeiam perfil aprovador), logo vale least privilege. No dia em que houver
+  // evidência canônica de que OPERADOR aprova, ESTE caso falha e força a revisão.
+  for (const url of [APROVAR, REJEITAR]) {
+    const { app, chamadas } = await montarApp({ autenticar: true, scope: scopeOperador });
+    const res = await app.inject({ method: "POST", url, payload: {} });
+    assert.equal(res.statusCode, 403, `${url} veio ${res.statusCode}`);
+    assert.equal(chamadas.approve + chamadas.reject, 0, `${url} chamou o serviço apesar do 403`);
+    await app.close();
+  }
+});
+
+await check("RBAC-05b OPERADOR PODE fazer sync push — mutação de dados, não decisão", async () => {
+  const { app, chamadas } = await montarApp({ autenticar: true, scope: scopeOperador });
+  const res = await app.inject({ method: "POST", url: PUSH, payload: { approvals: [] } });
+  assert.equal(res.statusCode, 200, `veio ${res.statusCode}`);
+  assert.equal(chamadas.push, 1);
+  await app.close();
+});
+
+await check("RBAC-05c CONSULTA NÃO faz sync push — 403 e zero escrita", async () => {
+  const { app, chamadas } = await montarApp({ autenticar: true, scope: scopeConsulta });
+  const res = await app.inject({ method: "POST", url: PUSH, payload: { approvals: [] } });
+  assert.equal(res.statusCode, 403, `veio ${res.statusCode}`);
+  assert.equal(chamadas.push, 0, "o sync escreveu apesar do 403");
+  await app.close();
+});
+
+await check("RBAC-05d todo perfil do cliente LÊ — negar leitura seria regressão", async () => {
+  for (const escopo of [scopeA, scopeOperador, scopeConsulta]) {
+    for (const url of ["/api/lifecycle/approvals/grupo-1", "/api/lifecycle/sync/grupo-1"]) {
+      const { app } = await montarApp({ autenticar: true, scope: escopo });
+      const res = await app.inject({ method: "GET", url });
+      assert.equal(res.statusCode, 200, `${escopo.perfil} ${url} veio ${res.statusCode}`);
+      await app.close();
+    }
+  }
+});
+
+await check("RBAC-06 negativa cross-tenant continua indistinguível, mesmo para ADMIN", async () => {
+  // O papel não afrouxa o isolamento: ADMIN do cliente B segue sem alcançar A.
+  const { prisma, estado } = criarPrismaDuplo(pendenteDeA());
+  const r = await approveRequestBackend(
+    { id: "req_A", clienteId: CLIENTE_B, actorId: "admin@b" },
+    { client: prisma },
+  );
+  assert.equal(r.approved, false);
+  assert.equal(r.reason, "Solicitação indisponível.");
+  assert.equal(estado.audits.length, 0);
+  assert.equal(estado.jobs.length, 0);
+  assert.equal(estado.approvals[0].status, "pending");
+});
+
+await check("RBAC-07 perfil sem permissão não muda status, não audita e não enfileira", async () => {
+  // Prova de ponta a ponta: a rota recusa ANTES do serviço, e o estado persistente
+  // permanece exatamente como estava.
+  const { prisma, estado } = criarPrismaDuplo(pendenteDeA());
+  const antes = JSON.stringify(estado);
+  const app = Fastify();
+  app.decorate("authenticate", async (request) => { request.user = { id: "usr_x" }; });
+  let servicoChamado = 0;
+  await registerLifecycleRoutes(app, {
+    loadAccessScope: async () => scopeConsulta,
+    approvalService: {
+      listGroupApprovals: async () => ({ items: [] }),
+      approveRequestBackend: async (args) => {
+        servicoChamado += 1;
+        return approveRequestBackend(args, { client: prisma });
+      },
+      rejectRequestBackend: async () => { servicoChamado += 1; return {}; },
+    },
+    syncService: {
+      getSyncSnapshot: async () => ({}), pushSyncBatchBackend: async () => ({}),
+      reconcileSyncBackend: async () => ({}),
+    },
+  });
+  await app.ready();
+  const res = await app.inject({ method: "POST", url: APROVAR, payload: {} });
+  assert.equal(res.statusCode, 403);
+  assert.equal(servicoChamado, 0, "o serviço rodou apesar do 403");
+  assert.equal(JSON.stringify(estado), antes, "o estado persistente mudou sob perfil sem permissão");
+  await app.close();
+});
+
+await check("RBAC-08 a decisão de papel é FAIL-CLOSED: perfil ausente ou desconhecido é 403", async () => {
+  for (const perfil of [undefined, null, "", "SUPERUSER", "admin"]) {
+    const escopo = { clienteId: CLIENTE_A, userId: "usr_z", perfil, user: { login: "z@a" } };
+    const { app, chamadas } = await montarApp({ autenticar: true, scope: escopo });
+    const res = await app.inject({ method: "POST", url: APROVAR, payload: {} });
+    assert.equal(res.statusCode, 403, `perfil ${JSON.stringify(perfil)} passou com ${res.statusCode}`);
+    assert.equal(chamadas.approve, 0);
+    await app.close();
+  }
+});
+
+await check("RBAC-09 reconcile é hoje read-only — se virar mutação, este caso falha de propósito", async () => {
+  // `reconcileSyncBackend` só lê erros e devolve contagem: por isso NÃO tem gate de
+  // papel, como as demais leituras. Se algum dia passar a escrever, esta asserção
+  // quebra e obriga a decidir o papel antes de a escrita entrar em produção.
+  const fs = await import("node:fs");
+  const url = await import("node:url");
+  const dir = url.fileURLToPath(new URL("../src/modules/lifecycle/", import.meta.url));
+  const src = fs.readFileSync(`${dir}lifecycleSyncService.js`, "utf8");
+  const corpo = src.slice(src.indexOf("export async function reconcileSyncBackend"));
+  const ateOFim = corpo.slice(0, corpo.indexOf("\n}") + 2);
+  for (const escrita of ["upsert", "create", "update", "delete", "append"]) {
+    assert.ok(!new RegExp(escrita, "i").test(ateOFim), `reconcile passou a escrever (${escrita})`);
+  }
 });
 
 // ===========================================================================

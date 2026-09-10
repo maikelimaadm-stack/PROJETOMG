@@ -55,6 +55,31 @@ herdam `tenant_id`/`group_id` da linha já escopada, nunca do payload.
 
 ---
 
+## 1.4 RBAC — autenticar não é autorizar (segunda rodada)
+
+A primeira rodada resolveu identidade e isolamento de cliente, mas **qualquer perfil do
+cliente certo — CONSULTA incluído — podia decidir uma aprovação terminal** que enfileira
+archive/expunge.
+
+D-092 e D-093 não nomeiam perfil aprovador; `approvalWorkflowEngine.js` também não — o
+`actorId = "administrador"` de lá era default de assinatura, não contrato. Sem contrato
+canônico, vale least privilege, e a decisão fica em código:
+
+```js
+export const LIFECYCLE_DECISION_ROLES = Object.freeze(["ADMIN"]);
+export const LIFECYCLE_SYNC_WRITE_ROLES = Object.freeze(["ADMIN", "OPERADOR"]);
+```
+
+- **approve / reject → ADMIN.** OPERADOR não decide: entra no dia em que houver evidência
+  canônica, e `RBAC-05` falha nesse dia para forçar a revisão.
+- **sync push → ADMIN + OPERADOR**, mesmo degrau do `POST /api/anexos`.
+- **leituras → qualquer perfil**, já isoladas por `cliente_id`.
+- **reconcile** é read-only de fato; `RBAC-09` varre a função e falha se ela passar a escrever.
+
+`assertRole` é o helper real de `accessScope.js` — os testes não injetam substituto.
+
+---
+
 ## 2. A semântica de `tenant_id` — derivada, não inventada
 
 A pergunta tinha de ser respondida antes de tocar em qualquer rota. A resposta veio do código
@@ -131,6 +156,22 @@ absolutas) **→ 0**.
   autoriza — o padrão que já existia duas linhas ao lado, nos mesmos arquivos;
 - **(b)** a cardinalidade do catálogo (49 → 50) e os invariantes de autorização forbidden, que
   passam a ler um ledger de fatias autorizadas em vez de um nome fixo.
+
+---
+
+## 5b. O que esta fatia NÃO certifica
+
+`pushSyncBatchBackend` executa três laços independentes com `await`, **sem `$transaction`**:
+o batch de sync **não** é all-or-nothing, e uma falha num item posterior deixa os anteriores
+persistidos. D-093 não exige batch atômico, então o código não foi mudado — a certificação é
+que estava errada e foi corrigida.
+
+A atomicidade certificada por esta fatia é a da **decisão approve/reject**, e apenas ela.
+
+G324 (24/26) e G325 (26/28) **não estão verdes**. Medidos base × head no mesmo ambiente,
+as contagens e os nomes dos checks falhando são idênticos: é *baseline-red* pré-existente da
+cadeia `G306 → G307 → G322 → G323`, tratado como exceção de **não-regressão** autorizada pelo
+arquiteto-chefe — nunca como conformidade.
 
 ---
 

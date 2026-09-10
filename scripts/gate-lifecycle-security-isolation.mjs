@@ -55,6 +55,35 @@ gate("G403-B03 — auth não é replicado dentro das rotas",
 gate("G403-B04 — escopo confiável vem de loadAccessScope", /loadAccessScope/.test(rotas));
 gate("G403-B05 — ator é a identidade autenticada, sem default", !/"administrador"/.test(rotas));
 
+/* ---------------- RBAC: autenticar não é autorizar ---------------- */
+gate("G403-B06 — as rotas de decisão exigem PAPEL, não só identidade",
+  /assertRole|requireRole/.test(rotas),
+  "nenhuma verificação de papel nas rotas");
+gate("G403-B07 — o papel vem do helper central, sem RBAC paralelo",
+  /from "\.\.\/auth\/accessScope\.js"/.test(rotas) && /assertRole/.test(rotas)
+  && !/perfil\s*===/.test(rotas) && !/\.perfil\s*!==/.test(rotas));
+// Comportamental: importa a tabela de papéis REAL em vez de procurar literais.
+const rotasMod = await import(
+  new URL("../backend/src/modules/lifecycle/routes.js", import.meta.url).href
+);
+gate("G403-B08 — decisão terminal é ADMIN-only (least privilege)",
+  JSON.stringify(rotasMod.LIFECYCLE_DECISION_ROLES) === JSON.stringify(["ADMIN"]),
+  JSON.stringify(rotasMod.LIFECYCLE_DECISION_ROLES));
+gate("G403-B09 — CONSULTA não decide e não escreve no sync",
+  !rotasMod.LIFECYCLE_DECISION_ROLES.includes("CONSULTA")
+  && !rotasMod.LIFECYCLE_SYNC_WRITE_ROLES.includes("CONSULTA"));
+gate("G403-B10 — a escrita de sync é mutação ordinária: ADMIN + OPERADOR",
+  JSON.stringify(rotasMod.LIFECYCLE_SYNC_WRITE_ROLES) === JSON.stringify(["ADMIN", "OPERADOR"]),
+  JSON.stringify(rotasMod.LIFECYCLE_SYNC_WRITE_ROLES));
+gate("G403-B11 — as duas tabelas de papel são congeladas",
+  Object.isFrozen(rotasMod.LIFECYCLE_DECISION_ROLES)
+  && Object.isFrozen(rotasMod.LIFECYCLE_SYNC_WRITE_ROLES));
+gate("G403-B12 — o papel é checado ANTES de resolver tenant no sync push", (() => {
+  const i = rotas.indexOf("LIFECYCLE_SYNC_WRITE_ROLES", rotas.indexOf("sync/:groupId/push"));
+  const j = rotas.indexOf("assertRequestedTenantAllowed", rotas.indexOf("sync/:groupId/push"));
+  return i > 0 && j > 0 && i < j;
+})());
+
 /* ---------------- tenant server-side ---------------- */
 gate("G403-C01 — tenant do payload não é autoridade",
   !/request\.body\?\.tenantId\s*\?\?/.test(rotas) && /assertRequestedTenantAllowed/.test(rotas));

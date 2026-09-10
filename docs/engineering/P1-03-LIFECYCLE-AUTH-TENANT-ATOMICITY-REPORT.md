@@ -129,9 +129,70 @@ provou, foi removido.
 
 ---
 
+## 4b. RBAC — autenticar não é autorizar
+
+**Achado da auditoria do arquiteto-chefe (F1), confirmado.** A primeira rodada de P1-03
+parou em "usuário autenticado do cliente certo". Isso deixava qualquer perfil do cliente —
+**CONSULTA incluído** — decidir uma aprovação terminal que enfileira archive/expunge.
+Autenticação sem autorização não é least privilege.
+
+### O que o produto já dizia
+
+`backend/src/modules/anexos/routes.js` estabelece os três degraus, e eles são reusados aqui
+sem invenção:
+
+| Operação | Papel exigido |
+|---|---|
+| `GET /api/anexos` | sem `assertRole` — qualquer perfil do cliente |
+| `POST /api/anexos` | `["ADMIN", "OPERADOR"]` — mutação ordinária |
+| `DELETE /api/anexos/:id` | `["ADMIN"]` — ação destrutiva |
+
+`cadcps`, `clienteModulo`, `metrics` e `debug` usam `["ADMIN"]`.
+
+### O que o produto NÃO dizia
+
+D-092 e D-093 aceitam o workflow de aprovação humana e o motor de sync, mas **nenhum dos
+dois nomeia um perfil aprovador**. `lifecyclePersistenceContracts.js` e
+`approvalWorkflowEngine.js` não carregam papel algum: o `actorId = "administrador"` que
+existia lá era um **default de assinatura**, não um contrato de autorização — e é justamente
+o default que esta fatia removeu.
+
+Sem contrato canônico, aplica-se **least privilege**, declarado em código
+(`LIFECYCLE_DECISION_ROLES`, `LIFECYCLE_SYNC_WRITE_ROLES`) e não só em prosa:
+
+| Operação | Papel | Razão |
+|---|---|---|
+| listar aprovações | qualquer perfil | leitura já escopada por cliente |
+| **aprovar** | **ADMIN** | decisão terminal; enfileira execução real |
+| **rejeitar** | **ADMIN** | decisão terminal |
+| snapshot de sync | qualquer perfil | leitura já escopada |
+| **sync push** | **ADMIN, OPERADOR** | mutação ordinária de dados, não decisão de governança |
+| reconcile | qualquer perfil | hoje é read-only de fato — ver abaixo |
+
+**OPERADOR NÃO decide.** É decisão deliberada, não omissão: entra no dia em que houver
+evidência canônica de que é aprovador de lifecycle. O caso `RBAC-05` falha nesse dia e força
+a revisão.
+
+**Reconcile** não tem gate de papel porque `reconcileSyncBackend` apenas lê erros e devolve
+uma contagem. Impor OPERADOR a uma leitura seria regressão funcional sem ganho. O caso
+`RBAC-09` varre o corpo da função e falha se ela passar a escrever — a decisão de papel volta
+à mesa antes de a escrita chegar a produção.
+
+Negar leitura a CONSULTA seria regressão funcional; a leitura já é isolada por `cliente_id`.
+
+### Provas
+
+`assertRole` é o helper **real** de `backend/src/modules/auth/accessScope.js` — os testes não
+injetam substituto, para exercitarem a autorização de produção. Onze casos comportamentais,
+na camada de ROTA: `RBAC-01`…`RBAC-09` (§6). `RBAC-07` prova o que mais importa: sob perfil
+sem permissão o serviço **não é chamado** e o estado persistente permanece byte a byte igual.
+
+---
+
 ## 5. Matriz de segurança
 
-Sem `?`. Cada linha é uma afirmação verificável por um teste ou gate nomeado.
+Sem `?`. Cada linha é uma afirmação verificável por um teste ou gate **nomeado**.
+S24–S32 vieram da segunda rodada de auditoria (F1 — RBAC).
 
 | # | Propriedade | Antes | Depois | Prova |
 |---|---|---|---|---|
@@ -158,6 +219,41 @@ Sem `?`. Cada linha é uma afirmação verificável por um teste ou gate nomeado
 | S21 | Fallback silencioso `"default"` removido | não | sim | G403-C02 |
 | S22 | O sync valida o tenant antes de qualquer escrita | não | sim | G403-C04 |
 | S23 | Nenhum escape de teste nos artefatos da fatia | n/a | sim | G403-F01 · slice F006 |
+| S24 | Decisão terminal exige PAPEL, não só identidade | não | sim | G403-B06 · RBAC-01/02 |
+| S25 | CONSULTA não aprova nem rejeita | **não** | sim | RBAC-03 · RBAC-04 · G403-B09 |
+| S26 | OPERADOR não decide (least privilege, sem contrato canônico) | não | sim | RBAC-05 · G403-B08 |
+| S27 | CONSULTA não escreve no sync | **não** | sim | RBAC-05c · G403-B09 |
+| S28 | Perfil ausente ou desconhecido é 403 (fail-closed) | não | sim | RBAC-08 |
+| S29 | Perfil sem permissão não chama o serviço nem muda estado | não | sim | RBAC-07 |
+| S30 | O papel é checado antes de resolver tenant no sync push | n/a | sim | G403-B12 |
+| S31 | Não há RBAC paralelo — o helper é o central | n/a | sim | G403-B07 |
+| S32 | Reconcile é read-only; virar mutação quebra o teste | n/a | sim | RBAC-09 |
+
+---
+
+## 5b. Matriz por operação — o que é e o que NÃO é atômico
+
+**Achado da auditoria (F2), confirmado.** Uma versão anterior deste relatório certificou
+`sync push | Atomic = SIM | Race-safe = SIM`. **Isso era falso.** `pushSyncBatchBackend`
+executa três laços independentes com `await` — `upsertSyncState`, `createStorageAction`,
+`createBackupAction` — **sem `$transaction`**. Uma falha num item posterior deixa os
+anteriores persistidos: o batch **não** é all-or-nothing.
+
+D-093 aceita o motor de sync mas **não exige** batch atômico, e transformar o sync inteiro em
+transação apenas para deixar uma tabela verde seria mudar produção para servir a um relatório.
+A certificação é que estava errada, não o código. Corrigida:
+
+| Operação | Auth | Papel | Cliente scope | Tenant scope | Atômico | Race-safe | Leak-safe |
+|---|---|---|---|---|---|---|---|
+| list approvals | SIM | qualquer | SIM | SIM (=cliente) | N/A | N/A | SIM |
+| **approve** | SIM | **ADMIN** | SIM | SIM (da linha) | **SIM** | **SIM** | SIM |
+| **reject** | SIM | **ADMIN** | SIM | SIM (da linha) | **SIM** | **SIM** | SIM |
+| sync snapshot | SIM | qualquer | SIM | SIM (=cliente) | N/A | N/A | SIM |
+| **sync push** | SIM | **ADMIN/OPERADOR** | SIM | SIM (403 se divergente) | **NÃO — batch não transacional** | **PARCIAL — depende das constraints por entidade** | SIM |
+| reconcile | SIM | qualquer | SIM | SIM (=cliente) | N/A (read-only) | N/A | SIM |
+
+A atomicidade que **esta** fatia certifica é a da decisão approve/reject. A do batch de sync
+fica registrada como não implementada — e continuará assim até que um contrato a exija.
 
 ---
 
@@ -188,6 +284,50 @@ as duas assinaturas globais-por-id que esta fatia removeu.
 
 ---
 
+## 6b. G324 / G325 — baseline-red pré-existente, exceção autorizada
+
+**Achado da auditoria (F3).** O prompt original exigia G324 e G325 **verdes**. Eles não estão,
+e esta fatia **não** os torna verdes.
+
+Medição base × head, executada em worktree em `origin/main` intocada e na branch, no mesmo
+ambiente:
+
+| Gate | BASE `origin/main` | HEAD da PR | Checks falhando |
+|---|---|---|---|
+| G324 | **24/26** | **24/26** | `G323 Lifecycle still green` · `G307 BOS still green` |
+| G325 | **26/28** | **26/28** | `G324 Persistence still green` · `G307 BOS still green` |
+
+Contagens **idênticas**, nomes de checks **idênticos**, **nenhuma falha nova**. A raiz é a
+cadeia histórica `G306 → G307 → G322 → G323`, anterior a esta fatia; corrigi-la seria ampliar
+P1-03 para muito além de segurança de lifecycle.
+
+> **G324/G325 NÃO estão verdes.** Exceção de *baseline-red* autorizada pelo arquiteto-chefe
+> exclusivamente como **não-regressão** desta P1-03 — não como conformidade. Os 24 checks
+> substantivos de G324 passam na branch, `Cross-tenant mixing forbidden` entre eles, e o G403
+> independente está verde.
+
+Nenhum gate foi modificado para esconder falha.
+
+---
+
+## 6c. A2 / A4 — cobertura por delegação, declarada como tal
+
+`A2` (token inválido ou revogado → 401) e `A4` (mutação por cookie preserva a checagem de
+Origin) **não têm caso dedicado** nesta bateria. São contratos de `app.authenticate`
+(`backend/src/server.js`), que esta fatia deliberadamente **não** altera — refatorar
+`server.js` para fabricar cobertura seria pior que declarar a delegação.
+
+O que esta fatia prova é o que ela pode provar:
+
+- as seis rotas **dependem** desse boundary — `A5` percorre o registro e falha se qualquer
+  rota subir sem `preHandler`, e `G403-B01` conta exatamente seis;
+- **não existe** segunda implementação capaz de divergir dele — `G403-B03` reprova qualquer
+  `jwtVerify` ou `isAuthTokenRevoked` dentro do módulo.
+
+Cobertura por delegação, portanto — nunca listada como caso direto da bateria.
+
+---
+
 ## 7. A fatia de governança
 
 `FORBIDDEN_SCOPE_PATTERNS` inclui `/^backend\//`, então **qualquer** alteração de backend é
@@ -212,6 +352,33 @@ contra o diff real. Medida de novo após o commit, a suíte reportou **95 falhas
 
 Registrado porque a armadilha é sistemática: qualquer asserção que consuma o diff da branch é
 cega para o working tree.
+
+### 7.1b Blast radius: os 47 arquivos históricos, classificados
+
+**Achado da auditoria (F4).** A PR toca 47 testes de governança de fatias anteriores. Cada
+linha adicionada foi classificada; nenhuma é mudança oportunista:
+
+| Família | Asserções | O que mudou |
+|---|---|---|
+| **H1** — cardinalidade | 7 | o catálogo passou de 49 para 50 entradas |
+| **H2** — forbidden → *não autorizado* | 45 | a asserção absoluta passou a isentar o que a fatia ATIVA declarou |
+| **H3** — ledger explícito | 10 | os invariantes passaram a ler uma lista nomeada de autorizadoras |
+| **H4** — outro | **2** | ver abaixo |
+
+**H4 existe e é declarado**, não escondido: `B001` e `B004` em
+`typecheck-fail-closed-baseline-governance.test.js` adotam o padrão *"fatia ativa
+estritamente posterior ⇒ frase inaplicável, envelope afirmado"*.
+
+É indispensável: `B001` afirma "a branch resolve exatamente ESTA fatia" e `B004` afirma "todo
+arquivo do diff está declarado em ALGUMA lista DESTA fatia". Numa branch da fatia 50 as duas
+são **falsas por construção** — a fatia 49 não é dona desta branch. Sem a correção, nenhuma
+fatia posterior conseguiria abrir PR enquanto o teste da 49 existisse. O padrão não é
+invenção desta fatia: o `D001` da fatia 48 já o estabeleceu na main, e o substituto é **mais
+forte**, não mais fraco — exige que TODO caminho do diff esteja autorizado pela entrada de
+catálogo da fatia ativa.
+
+Nenhum arquivo histórico foi tocado por outro motivo. Nenhuma falha histórica não relacionada
+foi "corrigida" para obter verde artificial.
 
 ### 7.2 O que mudou nos invariantes de governança
 

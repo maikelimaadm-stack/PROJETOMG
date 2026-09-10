@@ -137,6 +137,35 @@ gate('G423-50-B07 — sem o marcador, os arquivos de backend voltam a ser recusa
   return a.ok === false && semMarcador.every((f) => a.isAuthorized(f) === false);
 })());
 
+/* ---------------- B-NEG — anti-weakening ---------------- */
+// O gate afirma as negativas por conta própria; o teste da fatia as afirma em detalhe.
+// Um gate que só delegasse seria alias, e um teste sozinho poderia ser removido sem
+// que nada no pipeline notasse.
+gate('G423-50-BNEG-01 — um arquivo NOVO no diretório autorizado NÃO herda a autorização',
+  ['backend/src/modules/lifecycle/evil-new-file.js',
+    'backend/src/modules/lifecycle/lifecycleController.js',
+    'backend/src/modules/lifecycle/lifecycleSyncRepository.js']
+    .every((f) => !isPathAuthorizedForStudioSlice(f, SLICE)));
+gate('G423-50-BNEG-02 — uma fatia inexistente não herda o allow da fatia 50',
+  ['slice-51', 'lifecycle-auth-tenant-atomicity-governance-v2', 'fatia-que-nao-existe']
+    .every((fantasma) => BACKEND_TOCADOS.every((f) => !isPathAuthorizedForStudioSlice(f, fantasma))
+      && getExplicitlyAuthorizedForbiddenPatternsForStudioSlice(fantasma).length === 0));
+gate('G423-50-BNEG-03 — nenhuma fatia histórica passou a POSSUIR os sete arquivos',
+  BACKEND_TOCADOS.every((f) => findOwningStudioSlices(f)
+    .every((o) => o.sliceId === SLICE)));
+gate('G423-50-BNEG-04 — FORBIDDEN_SCOPE_PATTERNS continua cobrindo backend/**',
+  FORBIDDEN_SCOPE_PATTERNS.some((re) => re.source === '^backend\\/')
+  && ['backend/a.js', 'backend/src/x/y.js'].every((f) => classifyStudioScopePath(f) === 'forbidden_scope'));
+gate('G423-50-BNEG-05 — um regex amplo seria reprovado pelo predicado de exatidão', (() => {
+  const exato = (src) => src.startsWith('^') && src.endsWith('$')
+    && !/[.*+?[\]()|{}^$\\]/.test(src.slice(1, -1).replace(/\\[./]/g, ''));
+  return ['^backend\\/', '^backend\\/.*$', '^backend\\/src\\/modules\\/lifecycle\\/.+$']
+    .every((amplo) => exato(amplo) === false)
+    && exato('^backend\\/src\\/modules\\/lifecycle\\/routes\\.js$') === true;
+})());
+gate('G423-50-BNEG-06 — o guard central não está no diff desta branch',
+  branchPaths === null || !branchPaths.includes(GUARD_REL));
+
 /* ---------------- C — escopo cruzado ---------------- */
 const probeOf = (re) => re.source.replace(/^\^/, '').replace(/\$$/, '').replace(/\\\//g, '/').replace(/\\\./g, '.');
 const RAIZES_CRUZADAS = ['src/runtime/__tests__/', 'scripts/gates/', 'docs/engineering/'];

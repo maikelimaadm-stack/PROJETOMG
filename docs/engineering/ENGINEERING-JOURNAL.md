@@ -62,6 +62,31 @@ o guard central não considera `explicitlyAuthorizedForbiddenPatterns` em
 `isPathAuthorizedForStudioSlice`, o que obriga declaração dupla) e TD-018 (`prisma:validate`
 falha por `DIRECT_URL` ausente — pré-existente, reproduzido na base intocada).
 
+**Segunda rodada — auditoria do arquiteto-chefe (PR #506 não liberada):** quatro achados,
+todos confirmados e corrigidos na MESMA PR.
+
+1. **Autenticar não é autorizar.** As rotas exigiam identidade e isolavam o cliente, mas
+   CONSULTA ainda podia decidir aprovação terminal. D-092/D-093 não nomeiam perfil aprovador,
+   então vale least privilege: approve/reject → ADMIN; sync push → ADMIN+OPERADOR; leituras →
+   qualquer perfil. `assertRole` é o helper central real, sem RBAC paralelo. Onze casos
+   comportamentais na camada de rota, incluindo a prova de que perfil sem permissão não chega
+   a chamar o serviço nem altera estado.
+2. **Certificação falsa de atomicidade.** O relatório afirmava `sync push | Atomic = SIM`.
+   `pushSyncBatchBackend` são três laços com `await`, sem `$transaction`. D-093 não exige batch
+   atômico, então quem estava errado era o relatório, não o código: a matriz passou a dizer
+   `Atômico: NÃO — batch não transacional` e `Race-safe: PARCIAL`.
+3. **G324/G325.** Medidos base × head: 24/26 e 26/28 nos DOIS lados, mesmos checks falhando,
+   nenhuma falha nova. Registrados como baseline-red pré-existente da cadeia
+   G306→G307→G322→G323, com exceção de não-regressão autorizada — nunca como conformidade.
+4. **Blast radius.** Os 47 testes históricos foram classificados: H1 cardinalidade (7),
+   H2 isenção pela fatia ativa (45), H3 ledger (10), H4 (2 — o padrão "fatia posterior ⇒
+   inaplicável, envelope afirmado" em B001/B004 da fatia 49, indispensável e herdado do D001
+   da fatia 48). Nenhuma mudança oportunista.
+
+Onze negativas S50-NEG provam o que a autorização NÃO alcança: server.js, accessScope.js,
+schema Prisma, workflow, um arquivo NOVO no mesmo diretório, uma fatia fictícia, e o predicado
+de exatidão reprovando `^backend/` amplo.
+
 **P1-04 (`verify:all`) permanece CONGELADA.**
 
 ---
