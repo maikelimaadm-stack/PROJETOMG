@@ -108,10 +108,10 @@ removido.
 
 | Prova | Comando | Resultado |
 | --- | --- | --- |
-| Bateria adversarial | `npm run test:lifecycle-security` (backend) | 32/32 PASS |
-| Gate de segurança | `npm run gate:lifecycle-security` | G403 · 28/28 PASS |
-| Gate da fatia | `npm run gate:g423-lifecycle-auth-tenant-atomicity-governance` | PASS |
-| Suíte de runtime | `npm run test:runtime` | 0 fail |
+| Bateria adversarial | `npm run test:lifecycle-security` (backend) | **44/44 PASS** |
+| Gate de segurança | `npm run gate:lifecycle-security` | **G403 · 35/35 PASS** |
+| Gate da fatia | `npm run gate:g423-lifecycle-auth-tenant-atomicity-governance` | **39/39 PASS** |
+| Suíte de runtime | `npm run test:runtime` | **23773 pass · 0 fail** |
 
 A bateria usa um duplo de Prisma **assíncrono** com `updateMany` condicional e `$transaction`
 com rollback por snapshot. A primeira versão do harness era síncrona e por isso `Promise.all`
