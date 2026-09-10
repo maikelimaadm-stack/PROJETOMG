@@ -1,5 +1,5 @@
 import { loadAccessScope, assertRole } from "../auth/accessScope.js";
-import { assertRequestedTenantAllowed } from "./lifecycleTenant.js";
+import { NO_LIFECYCLE_TENANT_AUTHORITY } from "./lifecycleTenant.js";
 
 /**
  * RBAC DO LIFECYCLE — derivado do produto e FAIL-CLOSED onde o produto se cala.
@@ -62,7 +62,13 @@ export const LIFECYCLE_SYNC_WRITE_ROLES = Object.freeze(["ADMIN", "OPERADOR"]);
  */
 export async function registerLifecycleRoutes(app, deps = {}) {
   const resolveScope = deps.loadAccessScope ?? loadAccessScope;
-  const requireRole = deps.assertRole ?? assertRole;
+  // O boundary de PAPEL não é substituível: `assertRole` é sempre o helper central.
+  // (A seam `deps.assertRole` foi removida — os testes usam o real.)
+  const requireRole = assertRole;
+  // Autoridade server-side de (owner, group, tenant). O default de produção NÃO SABE
+  // responder, e não saber é recusa — ver `lifecycleTenant.js`. Só entra outra por
+  // injeção explícita; `server.js` registra estas rotas sem `deps`.
+  const tenantAuthority = deps.tenantAuthority ?? NO_LIFECYCLE_TENANT_AUTHORITY;
   const loadApprovalService = deps.approvalService
     ? async () => deps.approvalService
     : () => import("./lifecycleService.js");
@@ -130,17 +136,18 @@ export async function registerLifecycleRoutes(app, deps = {}) {
     async (request) => {
       const scope = await resolveScope(request);
       requireRole(scope, LIFECYCLE_SYNC_WRITE_ROLES);
-      // O tenant é derivado do escopo autenticado. Se o payload trouxer um, ele só é
-      // aceito quando coincide com o autorizado; divergência é 403, nunca coerção
-      // silenciosa. O antigo fallback `"default"` foi removido: gravava dado
-      // persistente sob um tenant que ninguém havia provado.
-      const tenantId = assertRequestedTenantAllowed(scope, request.body?.tenantId);
+      // `body.tenantId` é uma DECLARAÇÃO, nunca autoridade. Quem decide é o serviço,
+      // na fronteira de escrita, consultando a autoridade server-side: ausente → 400;
+      // igual ao owner → aceito pela identidade autenticada; diferente → só com a
+      // autoridade dizendo sim, e sem autoridade → recusa (fail-closed). Nunca
+      // derivado do escopo, nunca "default", nunca coagido.
       const { pushSyncBatchBackend } = await loadSyncService();
       return pushSyncBatchBackend(
         scope.clienteId,
         request.params.groupId,
-        tenantId,
+        request.body?.tenantId,
         request.body ?? {},
+        { tenantAuthority },
       );
     },
   );

@@ -78,35 +78,84 @@ gate("G403-B10 — a escrita de sync é mutação ordinária: ADMIN + OPERADOR",
 gate("G403-B11 — as duas tabelas de papel são congeladas",
   Object.isFrozen(rotasMod.LIFECYCLE_DECISION_ROLES)
   && Object.isFrozen(rotasMod.LIFECYCLE_SYNC_WRITE_ROLES));
-gate("G403-B12 — o papel é checado ANTES de resolver tenant no sync push", (() => {
-  const i = rotas.indexOf("LIFECYCLE_SYNC_WRITE_ROLES", rotas.indexOf("sync/:groupId/push"));
-  const j = rotas.indexOf("assertRequestedTenantAllowed", rotas.indexOf("sync/:groupId/push"));
-  return i > 0 && j > 0 && i < j;
+gate("G403-B12 — o papel é checado ANTES de chamar o serviço no sync push", (() => {
+  const inicio = rotas.indexOf("sync/:groupId/push");
+  const i = rotas.indexOf("LIFECYCLE_SYNC_WRITE_ROLES", inicio);
+  const j = rotas.indexOf("pushSyncBatchBackend(", inicio);
+  return inicio > 0 && i > inicio && j > i;
 })());
 
-/* ---------------- tenant server-side ---------------- */
-gate("G403-C01 — tenant do payload não é autoridade",
-  !/request\.body\?\.tenantId\s*\?\?/.test(rotas) && /assertRequestedTenantAllowed/.test(rotas));
-gate("G403-C02 — fallback silencioso \"default\" removido", !/"default"/.test(rotas));
-// Comportamental: chama o módulo real em vez de procurar o literal 403 no texto —
-// o status é atribuído por um helper, então a varredura textual mediria a si mesma.
+/* ---------------- tenant: contrato do LIFECYCLE, autoridade server-side ---------------- */
+// A primeira versão deste gate certificava "tenant == cliente" como semântica universal
+// do Lifecycle. Isso projetava a regra do MMM sobre outro bounded context: o contrato
+// do Lifecycle (businessDnaStore, lifecycleContextAssembly, approvalWorkflowEngine,
+// G323/G324/G325) separa ownerClientId, groupId, authorizedTenantIds[] e tenantId.
+gate("G403-C01 — tenant do payload não é autoridade; a rota apenas repassa a declaração",
+  !/assertRequestedTenantAllowed/.test(rotas) && !/request\.body\?\.tenantId\s*\?\?/.test(rotas)
+  && /tenantAuthority/.test(rotas));
+gate("G403-C02 — sem fallback \"default\" e sem o modelo antigo em rota/serviço/tenant",
+  !/"default"/.test(rotas)
+  && ["routes.js", "lifecycleService.js", "lifecycleSyncService.js", "lifecycleTenant.js"]
+    .every((f) => !/resolveLifecycleTenantId|assertRequestedTenantAllowed|assertTenantMatchesCliente/
+      .test(code(`backend/src/modules/lifecycle/${f}`))));
 const tenantMod = await import(
   new URL("../backend/src/modules/lifecycle/lifecycleTenant.js", import.meta.url).href
 );
-gate("G403-C03 — tenant divergente é recusado com 403, não coagido", (() => {
-  try {
-    tenantMod.assertRequestedTenantAllowed({ clienteId: "cli_a" }, "cli_b");
-    return false;
-  } catch (e) {
-    return e.statusCode === 403 && e.code === "TENANT_FORBIDDEN";
-  }
-})());
-gate("G403-C03b — tenant coincidente é aceito e o ausente deriva do escopo",
-  tenantMod.assertRequestedTenantAllowed({ clienteId: "cli_a" }, "cli_a") === "cli_a" &&
-  tenantMod.assertRequestedTenantAllowed({ clienteId: "cli_a" }, undefined) === "cli_a");
+const autoridadeAB = { async isTenantAuthorizedInGroup({ clienteId, groupId, tenantId }) {
+  return clienteId === "owner-A" && groupId === "group-1" && ["tenant-A", "tenant-B"].includes(tenantId);
+} };
+const tenta = async (args, aut) => {
+  try { return { ok: await tenantMod.authorizeLifecycleTenant(args, aut) }; }
+  catch (e) { return { erro: e }; }
+};
+gate("G403-C03 — tenant-A ≠ owner-A NÃO é automaticamente proibido: com autoridade, é legítimo", (
+  await Promise.all([
+    tenta({ ownerClientId: "owner-A", groupId: "group-1", requestedTenantId: "tenant-A" }, autoridadeAB),
+    tenta({ ownerClientId: "owner-A", groupId: "group-1", requestedTenantId: "tenant-B" }, autoridadeAB),
+  ])).every((r) => r.ok?.basis === "group_scope"));
+gate("G403-C03b — tenant não autorizado pela autoridade → 403 TENANT_FORBIDDEN",
+  (await tenta({ ownerClientId: "owner-A", groupId: "group-1", requestedTenantId: "tenant-C" }, autoridadeAB))
+    .erro?.code === tenantMod.TENANT_FORBIDDEN);
+gate("G403-C03c — owner-B não herda o group de owner-A",
+  (await tenta({ ownerClientId: "owner-B", groupId: "group-1", requestedTenantId: "tenant-A" }, autoridadeAB))
+    .erro?.code === tenantMod.TENANT_FORBIDDEN);
+gate("G403-C03d — tenant ausente → 400 REQUIRED: nunca derivado, nunca default", (
+  await Promise.all([undefined, null, ""].map((t) =>
+    tenta({ ownerClientId: "owner-A", groupId: "group-1", requestedTenantId: t }, autoridadeAB))))
+  .every((r) => r.erro?.statusCode === 400 && r.erro?.code === tenantMod.LIFECYCLE_TENANT_REQUIRED));
+gate("G403-C03e — tenant igual ao owner autenticado é aceito pela identidade, não por coerção",
+  (await tenta({ ownerClientId: "owner-A", groupId: "group-1", requestedTenantId: "owner-A" })).ok?.basis === "owner_identity");
+gate("G403-C03f — a autoridade de PRODUÇÃO não sabe responder, e não saber é recusa fail-closed", (
+  await tenantMod.NO_LIFECYCLE_TENANT_AUTHORITY.isTenantAuthorizedInGroup({ clienteId: "owner-A", groupId: "group-1", tenantId: "tenant-A" })) === null
+  && (await tenta({ ownerClientId: "owner-A", groupId: "group-1", requestedTenantId: "tenant-A" }))
+    .erro?.code === tenantMod.LIFECYCLE_TENANT_AUTHORITY_UNAVAILABLE
+  && tenantMod.LIFECYCLE_TENANT_AUTHORITY_UNAVAILABLE !== tenantMod.TENANT_FORBIDDEN);
 const sync = code("backend/src/modules/lifecycle/lifecycleSyncService.js");
-gate("G403-C04 — o sync valida o tenant antes de qualquer escrita",
-  /assertTenantMatchesCliente/.test(sync) && !/tenant_id: tenantId/.test(sync));
+gate("G403-C04 — o serviço decide o tenant na fronteira de escrita, via autoridade",
+  /authorizeLifecycleTenant/.test(sync) && /NO_LIFECYCLE_TENANT_AUTHORITY/.test(sync)
+  // duas fronteiras de escrita, duas chamadas: push e divergência
+  && (sync.match(/resolveTenantForWrite\(/g) ?? []).length === 2);
+gate("G403-C04b — o serviço nunca lê authorizedTenantIds/ownerClientId do payload",
+  !/batch\??\.(authorizedTenantIds|ownerClientId)/.test(sync)
+  && !/partial\??\.(authorizedTenantIds|ownerClientId)/.test(sync)
+  && !/authorizedTenantIds/.test(sync));
+const engine = code("src/intelligence/lifecycle/sync/lifecycleSyncEngine.js");
+gate("G403-C05 — o frontend DECLARA tenantId no push e não transmite autoridade", (() => {
+  const i = engine.indexOf("await pushSyncBatch(");
+  if (i < 0) return false;
+  const chamada = engine.slice(i, engine.indexOf("{ clienteId, useMemory }", i));
+  return /\btenantId,/.test(chamada) && !/authorizedTenantIds|ownerClientId/.test(chamada);
+})());
+gate("G403-C06 — produção registra as rotas sem deps: nenhuma autoridade/papel entra por fora",
+  /registerLifecycleRoutes\(app\)/.test(read("backend/src/routes/index.js"))
+  && !/registerLifecycleRoutes\(app,/.test(read("backend/src/routes/index.js")));
+gate("G403-C07 — a seam deps.assertRole foi removida", !/deps\.assertRole/.test(rotas));
+const schema = read("backend/prisma/schema.prisma");
+const repoSync = code("backend/src/modules/lifecycle/lifecycleSyncRepository.js");
+gate("G403-C08 — LifecycleSyncState é único por (cliente, group, TENANT, entity)",
+  /@@unique\(\[cliente_id, group_id, tenant_id, entity_type, entity_id\]\)/.test(schema)
+  && /cliente_id_group_id_tenant_id_entity_type_entity_id/.test(repoSync)
+  && fs.existsSync(path.join(ROOT, "backend/prisma/migrations/20260910130000_lifecycle_sync_state_tenant_scoped_unique/migration.sql")));
 
 /* ---------------- scoping no banco ---------------- */
 const repo = code("backend/src/modules/lifecycle/lifecycleRepository.js");

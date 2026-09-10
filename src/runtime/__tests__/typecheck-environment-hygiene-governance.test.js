@@ -302,12 +302,20 @@ test('D001 esta branch não toca produto, backend, Prisma, migration ou workflow
     // prende por identidade e cardinalidade. Nada além dele é dispensado: um caminho de
     // backend não ledgerado continua reprovando aqui, para TODA branch.
     const ledgerados = new Set(r.explicitForbiddenAuthorized);
+    // Produto NÃO proibido (ex.: src/intelligence/**) só é admissível quando a fatia
+    // ATIVA o declara como artefato PRIMÁRIO por padrão EXATO — um único arquivo,
+    // ancorado nas duas pontas, sem metacaractere. Um curinga não conta.
+    const ativa = STUDIO_SLICE_CATALOG.find((s) => s.sliceId === a.sliceId);
+    const exato = (re) => re.source.startsWith('^') && re.source.endsWith('$')
+      && !/[.*+?[\]()|{}^$\\]/.test(re.source.slice(1, -1).replace(/\\[./]/g, ''));
+    const declaradoExatamente = (p) => ativa.primaryArtifactPatterns.some((re) => exato(re) && re.test(p));
     for (const p of f) {
+      assert.equal(p === 'package-lock.json', false, p);
       if (ledgerados.has(p)) continue;
       assert.equal(/^backend\//.test(p), false, p);
       assert.equal(/^prisma\//.test(p), false, p);
       assert.equal(/migrations?\//.test(p), false, p);
-      assert.equal(p === 'package-lock.json', false, p);
+      if (declaradoExatamente(p)) continue;
       assert.equal(
         /^src\/(App\.jsx|main\.jsx|shared|framework|modules|bos|intelligence|apis|ModeloBase1|ModeloBase2)/.test(p),
         false,

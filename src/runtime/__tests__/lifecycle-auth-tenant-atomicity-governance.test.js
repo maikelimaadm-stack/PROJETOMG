@@ -55,6 +55,15 @@ const BACKEND_TOCADOS = Object.freeze([
   'backend/src/modules/lifecycle/lifecycleRepository.js',
   'backend/src/modules/lifecycle/lifecycleSyncService.js',
   'backend/src/modules/lifecycle/lifecycleTenant.js',
+  // Segunda rodada — modelo de tenant do Lifecycle (owner ≠ tenant é legítimo).
+  'backend/src/modules/lifecycle/lifecycleSyncRepository.js',
+  'backend/prisma/schema.prisma',
+  'backend/prisma/migrations/20260910130000_lifecycle_sync_state_tenant_scoped_unique/migration.sql',
+]);
+
+/** Produto que a fatia possui como artefato PRIMÁRIO exato: a única mudança de frontend. */
+const PRODUTO_DECLARADO = Object.freeze([
+  'src/intelligence/lifecycle/sync/lifecycleSyncEngine.js',
 ]);
 
 /** Backend que a fatia NÃO toca — o contraste que torna a autorização verificável. */
@@ -63,7 +72,7 @@ const BACKEND_NAO_TOCADOS = Object.freeze([
   'backend/src/modules/auth/accessScope.js',
   'backend/src/modules/mmm/mmmService.js',
   'backend/src/modules/lifecycle/lifecycleController.js',
-  'backend/prisma/schema.prisma',
+  'backend/prisma/migrations/20260630140000_mmm_publish_engine/migration.sql',
 ]);
 
 const entry = () => getStudioSliceById(SLICE);
@@ -183,12 +192,28 @@ test('B005 a autorização não vaza: nenhuma OUTRA fatia alcança estes sete ar
   }
 });
 
-test('B006 produto, Prisma, migration e lockfile continuam fora do alcance desta fatia', () => {
+test('B006 produto, outras migrations e lockfile continuam fora do alcance desta fatia', () => {
   for (const f of ['src/App.jsx', 'src/modules/empresas/index.js', 'prisma/schema.prisma',
     'backend/prisma/migrations/0001_init/migration.sql', 'package-lock.json',
-    'scripts/gates/lib/productionUiGuard.mjs']) {
+    'scripts/gates/lib/productionUiGuard.mjs',
+    'src/intelligence/lifecycle/sync/lifecycleSyncApiClient.js',
+    'src/intelligence/lifecycle/sync/lifecycleSyncContracts.js']) {
     assert.equal(isPathAuthorizedForStudioSlice(f, SLICE), false, f);
   }
+});
+
+test('B007 o schema e a migration autorizados são EXATOS — o diretório de migrations não é', () => {
+  assert.equal(isPathAuthorizedForStudioSlice('backend/prisma/schema.prisma', SLICE), true);
+  assert.equal(isPathAuthorizedForStudioSlice(
+    'backend/prisma/migrations/20260910130000_lifecycle_sync_state_tenant_scoped_unique/migration.sql', SLICE), true);
+  for (const f of ['backend/prisma/migrations/20260910130000_lifecycle_sync_state_tenant_scoped_unique/rollback.sql',
+    'backend/prisma/migrations/20260910130001_outra/migration.sql',
+    'backend/prisma/migrations/migration_lock.toml', 'backend/prisma/seed.js']) {
+    assert.equal(isPathAuthorizedForStudioSlice(f, SLICE), false, f);
+  }
+  // E a única mudança de produto do frontend é um arquivo exato, primário, sem irmãos.
+  assert.equal(isPathAuthorizedForStudioSlice(PRODUTO_DECLARADO[0], SLICE), true);
+  assert.equal(findOwningStudioSlices(PRODUTO_DECLARADO[0]).map((x) => x.sliceId).join(), SLICE);
 });
 
 // ===========================================================================
@@ -276,22 +301,26 @@ test('D002 o diff é integralmente autorizado — núcleo e consumidor concordam
   assert.equal(r.safe, true);
 });
 
-test('D003 os ÚNICOS caminhos proibidos do diff são os sete declarados', () => {
+test('D003 os ÚNICOS caminhos proibidos do diff são os dez declarados', () => {
   if (branchPaths === null || branchPaths.length === 0) return assert.ok(true, 'sem diff (main)');
   const proibidos = branchPaths.filter((p) => classifyStudioScopePath(p) === 'forbidden_scope').sort();
   assert.deepEqual(proibidos, [...BACKEND_TOCADOS].sort());
   assert.deepEqual([...consumer(branchPaths).explicitForbiddenAuthorized].sort(), [...BACKEND_TOCADOS].sort());
 });
 
-test('D004 a branch não toca Prisma, migration, lockfile, workflow, guard nem produto', () => {
+test('D004 a branch não toca lockfile, workflow, guard nem produto — salvo o exatamente declarado', () => {
   if (branchPaths === null) return assert.ok(true, 'sem diff (main)');
+  const declarado = new Set([...BACKEND_TOCADOS, ...PRODUTO_DECLARADO]);
   for (const p of branchPaths) {
-    assert.ok(!/(^|\/)prisma(\/|$)/i.test(p), p);
-    assert.ok(!/migrations?\//i.test(p), p);
-    assert.ok(!/\.sql$/i.test(p), p);
+    // Incondicionais: nenhuma declaração da fatia alcança estes.
     assert.ok(!/^\.github\//.test(p), p);
     assert.notEqual(p, 'package-lock.json');
     assert.notEqual(p, GUARD_REL);
+    if (declarado.has(p)) continue;
+    // Para tudo o mais, Prisma/migration/produto continuam proibidos.
+    assert.ok(!/(^|\/)prisma(\/|$)/i.test(p), p);
+    assert.ok(!/migrations?\//i.test(p), p);
+    assert.ok(!/\.sql$/i.test(p), p);
     assert.ok(!/^src\/(App\.jsx|main\.jsx|modules|shared|framework|apis|bos|intelligence|ModeloBase1|ModeloBase2)/.test(p), p);
   }
 });
@@ -377,9 +406,21 @@ test('S50-NEG-02 backend/src/modules/auth/accessScope.js continua recusado', () 
   assert.equal(evaluateStudioBranchScope([`${EV_REL}/README.md`, f], { callerSliceId: SLICE }).safe, false);
 });
 
-test('S50-NEG-03 backend/prisma/schema.prisma continua recusado', () => {
-  for (const f of ['backend/prisma/schema.prisma', 'prisma/schema.prisma',
-    'backend/prisma/migrations/0002_x/migration.sql']) {
+test('S50-NEG-03 Prisma fora dos DOIS arquivos exatos continua recusado', () => {
+  // O schema e UMA migration são autorizados como arquivos exatos (B007). Tudo o mais
+  // sob prisma/ — outra migration, o lock, um seed, o schema na raiz — segue proibido.
+  for (const f of ['prisma/schema.prisma', 'backend/prisma/migrations/0002_x/migration.sql',
+    'backend/prisma/migrations/20260910130000_lifecycle_sync_state_tenant_scoped_unique/extra.sql',
+    'backend/prisma/migrations/migration_lock.toml', 'backend/prisma/seed.js']) {
+    assert.equal(isPathAuthorizedForStudioSlice(f, SLICE), false, f);
+    assert.equal(evaluateStudioBranchScope([`${EV_REL}/README.md`, f], { callerSliceId: SLICE }).safe, false, f);
+  }
+});
+
+test('S50-NEG-12 o vizinho do único arquivo de frontend declarado NÃO herda a autorização', () => {
+  for (const f of ['src/intelligence/lifecycle/sync/lifecycleSyncApiClient.js',
+    'src/intelligence/lifecycle/sync/evil-new-file.js', 'src/intelligence/index.js',
+    'src/intelligence/dna/engine/businessDnaStore.js', 'src/bos/pages/BosHomePage.jsx']) {
     assert.equal(isPathAuthorizedForStudioSlice(f, SLICE), false, f);
     assert.equal(evaluateStudioBranchScope([`${EV_REL}/README.md`, f], { callerSliceId: SLICE }).safe, false, f);
   }
@@ -394,7 +435,7 @@ test('S50-NEG-05 um arquivo NOVO no mesmo diretório autorizado continua recusad
   // A autorização é por ARQUIVO EXATO, não por diretório: o vizinho não herda nada.
   for (const f of ['backend/src/modules/lifecycle/evil-new-file.js',
     'backend/src/modules/lifecycle/lifecycleController.js',
-    'backend/src/modules/lifecycle/lifecycleSyncRepository.js']) {
+    'backend/src/modules/lifecycle/lifecycleSyncRepository.test.js']) {
     assert.equal(isPathAuthorizedForStudioSlice(f, SLICE), false, f);
     assert.equal(evaluateStudioBranchScope([`${EV_REL}/README.md`, f], { callerSliceId: SLICE }).safe, false, f);
   }

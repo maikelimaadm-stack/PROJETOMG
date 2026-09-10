@@ -52,12 +52,16 @@ const BACKEND_TOCADOS = [
   'backend/src/modules/lifecycle/lifecycleRepository.js',
   'backend/src/modules/lifecycle/lifecycleSyncService.js',
   'backend/src/modules/lifecycle/lifecycleTenant.js',
+  'backend/src/modules/lifecycle/lifecycleSyncRepository.js',
+  'backend/prisma/schema.prisma',
+  'backend/prisma/migrations/20260910130000_lifecycle_sync_state_tenant_scoped_unique/migration.sql',
 ];
+const PRODUTO_DECLARADO = ['src/intelligence/lifecycle/sync/lifecycleSyncEngine.js'];
 const BACKEND_NAO_TOCADOS = [
   'backend/src/server.js',
   'backend/src/modules/auth/accessScope.js',
   'backend/src/modules/mmm/mmmService.js',
-  'backend/prisma/schema.prisma',
+  'backend/prisma/migrations/20260630140000_mmm_publish_engine/migration.sql',
 ];
 
 let passed = 0;
@@ -105,7 +109,7 @@ gate('G423-50-A07 — o lockfile e o guard central NÃO são alcançáveis',
 
 /* ---------------- B — autorização forbidden ---------------- */
 const explicitos = getExplicitlyAuthorizedForbiddenPatternsForStudioSlice(SLICE);
-gate('G423-50-B01 — autoriza exatamente os sete arquivos de backend tocados',
+gate('G423-50-B01 — autoriza exatamente os dez arquivos proibidos tocados',
   explicitos.length === BACKEND_TOCADOS.length
   && BACKEND_TOCADOS.every((f) => explicitos.filter((re) => re.test(f)).length === 1)
   && explicitos.every((re) => BACKEND_TOCADOS.filter((f) => re.test(f)).length === 1),
@@ -127,10 +131,16 @@ gate('G423-50-B05 — a autorização não vaza para nenhuma outra fatia',
   STUDIO_SLICE_CATALOG.filter((s) => s.sliceId !== SLICE).every((s) =>
     BACKEND_TOCADOS.every((f) => !isPathAuthorizedForStudioSlice(f, s.sliceId)
       && !s.explicitlyAuthorizedForbiddenPatterns.some((re) => re.test(f)))));
-gate('G423-50-B06 — produto, Prisma, migration e UI guard seguem fora de alcance',
+gate('G423-50-B06 — produto, outras migrations e UI guard seguem fora de alcance',
   ['src/App.jsx', 'src/modules/empresas/index.js', 'prisma/schema.prisma',
-    'backend/prisma/migrations/0001_init/migration.sql', 'scripts/gates/lib/productionUiGuard.mjs']
+    'backend/prisma/migrations/0001_init/migration.sql', 'scripts/gates/lib/productionUiGuard.mjs',
+    'backend/prisma/migrations/20260910130000_lifecycle_sync_state_tenant_scoped_unique/extra.sql',
+    'backend/prisma/migrations/migration_lock.toml',
+    'src/intelligence/lifecycle/sync/lifecycleSyncApiClient.js', 'src/intelligence/index.js']
     .every((f) => !isPathAuthorizedForStudioSlice(f, SLICE)));
+gate('G423-50-B06b — o único produto declarado é exato, primário e sem irmãos',
+  PRODUTO_DECLARADO.every((f) => isPathAuthorizedForStudioSlice(f, SLICE)
+    && findOwningStudioSlices(f).every((o) => o.sliceId === SLICE)));
 gate('G423-50-B07 — sem o marcador, os arquivos de backend voltam a ser recusados', (() => {
   const semMarcador = BACKEND_TOCADOS.filter((p) => p !== 'backend/package.json');
   const a = createResolvedActiveStudioSlicePathAuthorizer(semMarcador);
@@ -144,7 +154,7 @@ gate('G423-50-B07 — sem o marcador, os arquivos de backend voltam a ser recusa
 gate('G423-50-BNEG-01 — um arquivo NOVO no diretório autorizado NÃO herda a autorização',
   ['backend/src/modules/lifecycle/evil-new-file.js',
     'backend/src/modules/lifecycle/lifecycleController.js',
-    'backend/src/modules/lifecycle/lifecycleSyncRepository.js']
+    'backend/src/modules/lifecycle/lifecycleSyncRepository.test.js']
     .every((f) => !isPathAuthorizedForStudioSlice(f, SLICE)));
 gate('G423-50-BNEG-02 — uma fatia inexistente não herda o allow da fatia 50',
   ['slice-51', 'lifecycle-auth-tenant-atomicity-governance-v2', 'fatia-que-nao-existe']
@@ -212,11 +222,12 @@ if (branchPaths === null || branchPaths.length === 0) {
   gate('G423-50-D04 — os ÚNICOS proibidos do diff são os sete declarados',
     JSON.stringify(proibidosNoDiff) === JSON.stringify([...BACKEND_TOCADOS].sort()),
     proibidosNoDiff.join(', '));
-  gate('G423-50-D05 — a branch não toca Prisma, migration, lockfile, workflow, guard nem produto',
-    branchPaths.every((p) => !/(^|\/)prisma(\/|$)/i.test(p) && !/migrations?\//i.test(p)
-      && !/\.sql$/i.test(p) && !/^\.github\//.test(p) && p !== 'package-lock.json' && p !== GUARD_REL
-      && !/^src\/(App\.jsx|main\.jsx|modules|shared|framework|apis|bos|intelligence|ModeloBase1|ModeloBase2)/.test(p)),
-    branchPaths.filter((p) => /(^|\/)prisma(\/|$)|migrations?\/|\.sql$|^\.github\//i.test(p)).join(', '));
+  const declarado = new Set([...BACKEND_TOCADOS, ...PRODUTO_DECLARADO]);
+  gate('G423-50-D05 — a branch não toca lockfile, workflow, guard nem produto — salvo o exatamente declarado',
+    branchPaths.every((p) => !/^\.github\//.test(p) && p !== 'package-lock.json' && p !== GUARD_REL
+      && (declarado.has(p) || (!/(^|\/)prisma(\/|$)/i.test(p) && !/migrations?\//i.test(p) && !/\.sql$/i.test(p)
+        && !/^src\/(App\.jsx|main\.jsx|modules|shared|framework|apis|bos|intelligence|ModeloBase1|ModeloBase2)/.test(p)))),
+    branchPaths.filter((p) => !declarado.has(p) && /(^|\/)prisma(\/|$)|migrations?\/|\.sql$|^\.github\/|^src\/intelligence\//i.test(p)).join(', '));
   gate('G423-50-D06 — em src/runtime só __tests__ foi alterado',
     branchPaths.filter((p) => p.startsWith('src/runtime/')).every((p) => p.startsWith('src/runtime/__tests__/')));
   gate('G423-50-D07 — nenhuma autorização cruzada declarada ficou por exercer',

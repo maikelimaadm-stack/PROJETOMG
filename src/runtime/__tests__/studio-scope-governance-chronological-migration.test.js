@@ -567,11 +567,12 @@ const isGovernanceCrossAuthorizer = (sliceId) =>
  *
  *  - `dev-preview-app-integration` (ordinal 42): `src/App.jsx` + the production UI guard.
  *  - `lifecycle-auth-tenant-atomicity-governance` (ordinal 50): the seven backend files the
- *    P1-03 security correction touches, each anchored to one exact file.
+ *    P1-03 security correction touches (seven sources, the sync repository, the schema and
+ *    its one migration), each anchored to one exact file.
  */
 const EXPLICIT_FORBIDDEN_AUTHORIZERS = Object.freeze([
   Object.freeze(['dev-preview-app-integration', 2]),
-  Object.freeze(['lifecycle-auth-tenant-atomicity-governance', 7]),
+  Object.freeze(['lifecycle-auth-tenant-atomicity-governance', 10]),
 ]);
 
 test('S004 the explicit forbidden authorizations are exactly the ledgered slices', () => {

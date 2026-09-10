@@ -1641,6 +1641,14 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^backend\/src\/modules\/lifecycle\/lifecycleRepository\.js$/,
       /^backend\/src\/modules\/lifecycle\/lifecycleSyncService\.js$/,
       /^backend\/src\/modules\/lifecycle\/lifecycleTenant\.js$/,
+      // Segunda rodada de auditoria — o modelo de tenant do Lifecycle (owner ≠ tenant
+      // é legítimo) exigiu: a chave de upsert com tenant_id, o unique correspondente e
+      // sua migration (index swap, sem dado tocado), e UMA propriedade a mais no push
+      // do frontend (a declaração do tenant). Cada caminho é um arquivo exato.
+      /^backend\/src\/modules\/lifecycle\/lifecycleSyncRepository\.js$/,
+      /^backend\/prisma\/schema\.prisma$/,
+      /^backend\/prisma\/migrations\/20260910130000_lifecycle_sync_state_tenant_scoped_unique\/migration\.sql$/,
+      /^src\/intelligence\/lifecycle\/sync\/lifecycleSyncEngine\.js$/,
     ],
     branchMarkerPatterns: [
       /^docs\/evidence\/post-foundation-c-lifecycle-auth-tenant-atomicity-governance\//,
@@ -1724,6 +1732,9 @@ export const STUDIO_SLICE_CATALOG = Object.freeze([
       /^backend\/src\/modules\/lifecycle\/lifecycleRepository\.js$/,
       /^backend\/src\/modules\/lifecycle\/lifecycleSyncService\.js$/,
       /^backend\/src\/modules\/lifecycle\/lifecycleTenant\.js$/,
+      /^backend\/src\/modules\/lifecycle\/lifecycleSyncRepository\.js$/,
+      /^backend\/prisma\/schema\.prisma$/,
+      /^backend\/prisma\/migrations\/20260910130000_lifecycle_sync_state_tenant_scoped_unique\/migration\.sql$/,
     ],
     historicalBranchConsumerCompatibility: false,
     status: 'merged',

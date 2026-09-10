@@ -29,10 +29,13 @@ import {
   rejectRequestBackend,
   listGroupApprovals,
 } from "../src/modules/lifecycle/lifecycleService.js";
-import { pushSyncBatchBackend } from "../src/modules/lifecycle/lifecycleSyncService.js";
+import { pushSyncBatchBackend, recordSyncDivergence } from "../src/modules/lifecycle/lifecycleSyncService.js";
 import {
-  resolveLifecycleTenantId,
-  assertRequestedTenantAllowed,
+  authorizeLifecycleTenant,
+  NO_LIFECYCLE_TENANT_AUTHORITY,
+  LIFECYCLE_TENANT_REQUIRED,
+  LIFECYCLE_TENANT_AUTHORITY_UNAVAILABLE,
+  TENANT_FORBIDDEN,
 } from "../src/modules/lifecycle/lifecycleTenant.js";
 import { registerLifecycleRoutes } from "../src/modules/lifecycle/routes.js";
 
@@ -362,45 +365,222 @@ await check("D7 a decisão inteira acontece dentro de UMA transação", async ()
 });
 
 // ===========================================================================
-console.log("\n=== T — SEMÂNTICA DE TENANT ===");
+console.log("\n=== TEN — MODELO DE TENANT DO LIFECYCLE (owner ≠ tenant é legítimo) ===");
 // ===========================================================================
-await check("T1 tenant autorizado é o cliente do escopo autenticado", () => {
-  assert.equal(resolveLifecycleTenantId({ clienteId: CLIENTE_A }), CLIENTE_A);
+// O contrato do PRÓPRIO Lifecycle (businessDnaStore.registerAuthorizedGroupScope,
+// lifecycleContextAssembly, approvalWorkflowEngine, G323/G324/G325) separa
+// ownerClientId, groupId, authorizedTenantIds[] e tenantId. A versão anterior deste
+// módulo projetava a regra do MMM (tenant == cliente) sobre o Lifecycle e recusava o
+// caso legítimo do contrato como se fosse ataque. Estes casos exercitam a lógica REAL
+// (serviço + repository) com um duplo de Prisma e uma AUTORIDADE injetada — porque a
+// autoridade de produção não existe e, por isso, falha fechado.
+
+const TENANT_A = "tenant-A";
+const TENANT_B = "tenant-B";
+const TENANT_C = "tenant-C";
+const GRUPO = "grupo-1";
+
+/** Autoridade de teste: (owner, group) → tenants autorizados. Desconhecido = NÃO. */
+const autoridade = (escopos) => Object.freeze({
+  kind: "teste",
+  async isTenantAuthorizedInGroup({ clienteId, groupId, tenantId }) {
+    const lista = escopos[`${clienteId}|${groupId}`];
+    if (!lista) return false;
+    return lista.includes(tenantId);
+  },
+});
+const ESCOPO_A = { [`${CLIENTE_A}|${GRUPO}`]: [TENANT_A, TENANT_B] };
+
+/** Duplo de Prisma para o sync. `chaveComTenant=false` simula o unique ANTIGO. */
+function criarPrismaSync({ chaveComTenant = true, syncStates = [] } = {}) {
+  const estado = { syncStates: syncStates.map((r) => ({ ...r })), storage: [], backup: [], errors: [] };
+  const chave = (r) => (chaveComTenant
+    ? [r.cliente_id, r.group_id, r.tenant_id, r.entity_type, r.entity_id]
+    : [r.cliente_id, r.group_id, r.entity_type, r.entity_id]).join("|");
+  const prisma = {
+    lifecycleSyncState: {
+      async upsert({ where, create, update }) {
+        await ceder();
+        const w = Object.values(where)[0];
+        const i = estado.syncStates.findIndex((r) => chave(r) === chave(w));
+        if (i >= 0) { Object.assign(estado.syncStates[i], update); return estado.syncStates[i]; }
+        const row = { ...create };
+        estado.syncStates.push(row);
+        return row;
+      },
+      async findMany({ where }) { return estado.syncStates.filter((r) => Object.entries(where).every(([k, v]) => r[k] === v)); },
+    },
+    lifecycleStorageAction: { async create({ data }) { await ceder(); estado.storage.push({ ...data }); return data; }, async findMany() { return estado.storage; } },
+    lifecycleBackupAction: { async create({ data }) { await ceder(); estado.backup.push({ ...data }); return data; }, async findMany() { return estado.backup; } },
+    lifecycleSyncError: { async create({ data }) { estado.errors.push({ ...data }); return data; }, async findMany() { return estado.errors; } },
+    lifecycleNotification: { async findMany() { return []; } },
+    lifecycleApprovalRequest: { async findMany() { return []; } },
+  };
+  const totalEscritas = () => estado.syncStates.length + estado.storage.length + estado.backup.length + estado.errors.length;
+  return { prisma, estado, totalEscritas };
+}
+const lote = (entityId = "req-1") => ({ approvals: [{ entityId, label: "L", status: "pending", actionType: "archive" }] });
+
+await check("TEN-01 owner-A / grupo-1 / tenant-A autorizado → permitido, persistido como tenant-A", async () => {
+  const { prisma, estado } = criarPrismaSync();
+  const r = await pushSyncBatchBackend(CLIENTE_A, GRUPO, TENANT_A, lote(), { client: prisma, tenantAuthority: autoridade(ESCOPO_A) });
+  assert.equal(r.tenantId, TENANT_A);
+  assert.equal(estado.syncStates.length, 1);
+  assert.equal(estado.syncStates[0].cliente_id, CLIENTE_A);
+  assert.equal(estado.syncStates[0].tenant_id, TENANT_A);
+  assert.notEqual(estado.syncStates[0].tenant_id, CLIENTE_A, "tenant foi coagido para o cliente");
 });
 
-await check("T2 tenant ausente no payload resolve para o autorizado", () => {
-  const scope = { clienteId: CLIENTE_A };
-  assert.equal(assertRequestedTenantAllowed(scope, undefined), CLIENTE_A);
-  assert.equal(assertRequestedTenantAllowed(scope, ""), CLIENTE_A);
+await check("TEN-02 owner-A / grupo-1 / tenant-B autorizado → permitido, persistido como tenant-B", async () => {
+  const { prisma, estado } = criarPrismaSync();
+  const r = await pushSyncBatchBackend(CLIENTE_A, GRUPO, TENANT_B, lote(), { client: prisma, tenantAuthority: autoridade(ESCOPO_A) });
+  assert.equal(r.tenantId, TENANT_B);
+  assert.equal(estado.syncStates[0].tenant_id, TENANT_B);
 });
 
-await check("T3 tenant forjado no payload é 403, não coerção silenciosa", () => {
-  try {
-    assertRequestedTenantAllowed({ clienteId: CLIENTE_A }, CLIENTE_B);
-    throw new Error("aceitou tenant forjado");
-  } catch (e) {
-    assert.equal(e.statusCode, 403);
-    assert.equal(e.code, "TENANT_FORBIDDEN");
+await check("TEN-03 owner-A / grupo-1 / tenant-C NÃO autorizado → 403 TENANT_FORBIDDEN, zero escrita", async () => {
+  const { prisma, totalEscritas } = criarPrismaSync();
+  await assert.rejects(
+    pushSyncBatchBackend(CLIENTE_A, GRUPO, TENANT_C, lote(), { client: prisma, tenantAuthority: autoridade(ESCOPO_A) }),
+    (e) => e.statusCode === 403 && e.code === TENANT_FORBIDDEN,
+  );
+  assert.equal(totalEscritas(), 0);
+});
+
+await check("TEN-04 owner-B não herda o group de owner-A: tenant-A em grupo-1 é recusado para B", async () => {
+  const { prisma, totalEscritas } = criarPrismaSync();
+  await assert.rejects(
+    pushSyncBatchBackend(CLIENTE_B, GRUPO, TENANT_A, lote(), { client: prisma, tenantAuthority: autoridade(ESCOPO_A) }),
+    (e) => e.statusCode === 403 && e.code === TENANT_FORBIDDEN,
+  );
+  assert.equal(totalEscritas(), 0);
+});
+
+await check("TEN-05 body.authorizedTenantIds forjado NÃO autoriza nada (sem autoridade → fail-closed)", async () => {
+  const { prisma, totalEscritas } = criarPrismaSync();
+  const forjado = { ...lote(), authorizedTenantIds: [TENANT_C], tenantId: TENANT_C };
+  await assert.rejects(
+    pushSyncBatchBackend(CLIENTE_A, GRUPO, TENANT_C, forjado, { client: prisma }),
+    (e) => e.statusCode === 403 && e.code === LIFECYCLE_TENANT_AUTHORITY_UNAVAILABLE,
+  );
+  assert.equal(totalEscritas(), 0);
+  // E mesmo COM autoridade, a lista do body é ignorada: a autoridade é quem decide.
+  await assert.rejects(
+    pushSyncBatchBackend(CLIENTE_A, GRUPO, TENANT_C, forjado, { client: prisma, tenantAuthority: autoridade(ESCOPO_A) }),
+    (e) => e.code === TENANT_FORBIDDEN,
+  );
+  assert.equal(totalEscritas(), 0);
+});
+
+await check("TEN-06 body.ownerClientId forjado NÃO muda o owner persistido", async () => {
+  const { prisma, estado } = criarPrismaSync();
+  const forjado = { ...lote(), ownerClientId: CLIENTE_A };
+  await pushSyncBatchBackend(CLIENTE_B, GRUPO, CLIENTE_B, forjado, { client: prisma });
+  assert.equal(estado.syncStates.length, 1);
+  assert.equal(estado.syncStates[0].cliente_id, CLIENTE_B);
+  assert.notEqual(estado.syncStates[0].cliente_id, CLIENTE_A);
+});
+
+for (const tenant of [TENANT_A, TENANT_B]) {
+  await check(`TEN-0${tenant === TENANT_A ? 7 : 8} approve de linha ${tenant} → audit e job permanecem ${tenant}`, async () => {
+    const { prisma, estado } = criarPrismaDuplo({ approvals: [{
+      id: "req_T", cliente_id: CLIENTE_A, tenant_id: tenant, group_id: GRUPO,
+      status: "pending", action_type: "archive", label: "L",
+    }] });
+    const r = await approveRequestBackend({ id: "req_T", clienteId: CLIENTE_A, actorId: "admin@a" }, { client: prisma });
+    assert.equal(r.approved, true);
+    assert.equal(estado.audits.length, 1);
+    assert.equal(estado.jobs.length, 1);
+    assert.equal(estado.audits[0].tenant_id, tenant);
+    assert.equal(estado.jobs[0].tenant_id, tenant);
+    assert.notEqual(estado.jobs[0].tenant_id, CLIENTE_A, "tenant do job foi coagido para o cliente");
+  });
+}
+
+await check("TEN-09 tenant nunca é coagido para cliente_id: recusado é recusado, não reescrito", async () => {
+  const { prisma, estado, totalEscritas } = criarPrismaSync();
+  await assert.rejects(pushSyncBatchBackend(CLIENTE_A, GRUPO, TENANT_C, lote(), { client: prisma }));
+  assert.equal(totalEscritas(), 0);
+  assert.equal(estado.syncStates.some((r) => r.tenant_id === CLIENTE_A), false);
+  // Ausente também não vira cliente_id.
+  await assert.rejects(pushSyncBatchBackend(CLIENTE_A, GRUPO, undefined, lote(), { client: prisma }),
+    (e) => e.statusCode === 400 && e.code === LIFECYCLE_TENANT_REQUIRED);
+  assert.equal(totalEscritas(), 0);
+});
+
+await check("TEN-11 tenant ausente quando obrigatório → 400 fail-closed, zero escrita (push e divergência)", async () => {
+  for (const ausente of [undefined, null, ""]) {
+    const { prisma, totalEscritas } = criarPrismaSync();
+    await assert.rejects(pushSyncBatchBackend(CLIENTE_A, GRUPO, ausente, lote(), { client: prisma }),
+      (e) => e.statusCode === 400 && e.code === LIFECYCLE_TENANT_REQUIRED, `push com ${JSON.stringify(ausente)}`);
+    await assert.rejects(recordSyncDivergence(CLIENTE_A, GRUPO, ausente, { entityType: "x", entityId: "1" }, { client: prisma }),
+      (e) => e.statusCode === 400 && e.code === LIFECYCLE_TENANT_REQUIRED, `divergência com ${JSON.stringify(ausente)}`);
+    assert.equal(totalEscritas(), 0);
   }
 });
 
-await check("T4 sem escopo autenticado não existe tenant", () => {
-  assert.throws(() => resolveLifecycleTenantId({}), (e) => e.statusCode === 401);
+await check("TEN-12 group de outro owner não autoriza escrita nos dados dele: B em grupo-1 nunca toca as linhas de A", async () => {
+  const linhaDeA = { cliente_id: CLIENTE_A, group_id: GRUPO, tenant_id: TENANT_A, entity_type: "approval", entity_id: "req-1", frontend_state: "pending", backend_state: "pending", sync_status: "synced" };
+  const { prisma, estado } = criarPrismaSync({ syncStates: [linhaDeA] });
+  const antes = JSON.stringify(estado.syncStates[0]);
+  await pushSyncBatchBackend(CLIENTE_B, GRUPO, CLIENTE_B, lote("req-1"), { client: prisma });
+  assert.equal(estado.syncStates.length, 2);
+  assert.equal(JSON.stringify(estado.syncStates[0]), antes, "a linha de A foi alterada por B");
+  assert.equal(estado.syncStates[1].cliente_id, CLIENTE_B);
 });
 
-await check("B5 sync push persiste o tenant do cliente, nunca o do payload", async () => {
-  const gravados = [];
-  const syncPrisma = {
-    lifecycleSyncState: { async upsert(args) { gravados.push(args); return {}; } },
-  };
-  // O serviço recusa antes de qualquer escrita quando o tenant diverge.
-  await assert.rejects(
-    pushSyncBatchBackend(CLIENTE_A, "grupo-1", CLIENTE_B, { approvals: [] }),
-    (e) => e.statusCode === 403 && e.code === "TENANT_FORBIDDEN",
-  );
-  assert.equal(gravados.length, 0);
-  void syncPrisma;
+await check("TEN-13a tenants A e B com o MESMO entity_id não colidem sob o unique NOVO (com tenant_id)", async () => {
+  const { prisma, estado } = criarPrismaSync({ chaveComTenant: true });
+  const deps = { client: prisma, tenantAuthority: autoridade(ESCOPO_A) };
+  await pushSyncBatchBackend(CLIENTE_A, GRUPO, TENANT_A, lote("req-1"), deps);
+  await pushSyncBatchBackend(CLIENTE_A, GRUPO, TENANT_B, { approvals: [{ entityId: "req-1", label: "L", status: "approved" }] }, deps);
+  assert.equal(estado.syncStates.length, 2);
+  assert.deepEqual(estado.syncStates.map((r) => r.tenant_id), [TENANT_A, TENANT_B]);
+  assert.equal(estado.syncStates[0].frontend_state, "pending", "o estado de A foi sobrescrito por B");
 });
+
+await check("TEN-13b sob o unique ANTIGO (sem tenant_id) o push de B SOBRESCREVIA a linha de A — o motivo da migration", async () => {
+  const { prisma, estado } = criarPrismaSync({ chaveComTenant: false });
+  const deps = { client: prisma, tenantAuthority: autoridade(ESCOPO_A) };
+  await pushSyncBatchBackend(CLIENTE_A, GRUPO, TENANT_A, lote("req-1"), deps);
+  await pushSyncBatchBackend(CLIENTE_A, GRUPO, TENANT_B, { approvals: [{ entityId: "req-1", label: "L", status: "approved" }] }, deps);
+  assert.equal(estado.syncStates.length, 1, "com a chave antiga deveria colidir — a simulação está errada");
+  assert.equal(estado.syncStates[0].tenant_id, TENANT_A);
+  assert.equal(estado.syncStates[0].frontend_state, "approved", "a linha de A carrega o estado de B: colisão cross-tenant");
+});
+
+await check("TEN-14 IDOR cross-client continua bloqueado, com ou sem autoridade de tenant", async () => {
+  const { prisma, estado } = criarPrismaDuplo(pendenteDeA());
+  const r = await approveRequestBackend({ id: "req_A", clienteId: CLIENTE_B, actorId: "admin@b" }, { client: prisma });
+  assert.equal(r.approved, false);
+  assert.equal(r.reason, "Solicitação indisponível.");
+  assert.equal(estado.audits.length + estado.jobs.length, 0);
+});
+
+await check("TEN-16 a autoridade de PRODUÇÃO não sabe responder, e não saber é recusa", async () => {
+  assert.equal(NO_LIFECYCLE_TENANT_AUTHORITY.kind, "none");
+  assert.equal(await NO_LIFECYCLE_TENANT_AUTHORITY.isTenantAuthorizedInGroup({ clienteId: CLIENTE_A, groupId: GRUPO, tenantId: TENANT_A }), null);
+  await assert.rejects(authorizeLifecycleTenant({ ownerClientId: CLIENTE_A, groupId: GRUPO, requestedTenantId: TENANT_A }),
+    (e) => e.statusCode === 403 && e.code === LIFECYCLE_TENANT_AUTHORITY_UNAVAILABLE);
+  // …e o código é DIFERENTE de TENANT_FORBIDDEN de propósito: não afirma proibição.
+  assert.notEqual(LIFECYCLE_TENANT_AUTHORITY_UNAVAILABLE, TENANT_FORBIDDEN);
+  // O owner continua podendo escrever sob a própria identidade: isolamento de cliente basta.
+  const ok = await authorizeLifecycleTenant({ ownerClientId: CLIENTE_A, groupId: GRUPO, requestedTenantId: CLIENTE_A });
+  assert.deepEqual(ok, { tenantId: CLIENTE_A, basis: "owner_identity" });
+});
+
+await check("TEN-17 o antigo modelo (tenant == cliente) NÃO sobreviveu no código", async () => {
+  const fs = await import("node:fs");
+  const url = await import("node:url");
+  const dir = url.fileURLToPath(new URL("../src/modules/lifecycle/", import.meta.url));
+  const semComentarios = (f) => fs.readFileSync(`${dir}${f}`, "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+  for (const f of ["lifecycleTenant.js", "lifecycleSyncService.js", "routes.js"]) {
+    const c = semComentarios(f);
+    assert.ok(!/resolveLifecycleTenantId|assertRequestedTenantAllowed|assertTenantMatchesCliente/.test(c), `${f} ainda usa o modelo antigo`);
+  }
+  assert.ok(/authorizeLifecycleTenant/.test(semComentarios("lifecycleSyncService.js")), "o serviço não consulta a autoridade");
+});
+
 
 // ===========================================================================
 console.log("\n=== A/R — AUTH REAL NAS ROTAS (Fastify inject) ===");
@@ -414,7 +594,7 @@ const ROTAS = [
   ["POST", "/api/lifecycle/sync/grupo-1/reconcile"],
 ];
 
-async function montarApp({ autenticar, scope }) {
+async function montarApp({ autenticar, scope, syncReal = null, tenantAuthority = undefined }) {
   const app = Fastify();
   // `chamadas` também conta o que o SERVIÇO recebeu: é assim que RBAC-07 prova que um
   // perfil sem permissão não produz efeito nenhum — não basta o status ser 403 se o
@@ -436,11 +616,18 @@ async function montarApp({ autenticar, scope }) {
       approveRequestBackend: async (args) => { chamadas.approve += 1; return { approved: true, visto: args }; },
       rejectRequestBackend: async (args) => { chamadas.reject += 1; return { rejected: true, visto: args }; },
     },
-    syncService: {
+    // `syncReal` liga a rota ao SERVIÇO REAL (lógica de tenant de produção) sobre um
+    // duplo de Prisma; a autoridade que a rota repassa é a de produção, salvo injeção.
+    syncService: syncReal ? {
+      getSyncSnapshot: async (c, g) => { chamadas.snapshot += 1; return { clienteId: c, durable: true }; },
+      pushSyncBatchBackend: async (c, g, t, b, d) => { chamadas.push += 1; return pushSyncBatchBackend(c, g, t, b, { ...d, client: syncReal.prisma }); },
+      reconcileSyncBackend: async (c) => { chamadas.reconcile += 1; return { clienteId: c, reconciled: true }; },
+    } : {
       getSyncSnapshot: async (clienteId) => { chamadas.snapshot += 1; return { clienteId, durable: true }; },
       pushSyncBatchBackend: async (clienteId, groupId, tenantId) => { chamadas.push += 1; return { clienteId, tenantId }; },
       reconcileSyncBackend: async (clienteId) => { chamadas.reconcile += 1; return { clienteId, reconciled: true }; },
     },
+    ...(tenantAuthority ? { tenantAuthority } : {}),
   });
   await app.ready();
   return { app, chamadas };
@@ -506,34 +693,86 @@ await check("R2 o ator é a identidade autenticada, não um default", async () =
   await app.close();
 });
 
-await check("R3 sync push com tenantId forjado no body é recusado com 403", async () => {
-  const { app } = await montarApp({ autenticar: true, scope: scopeA });
-  const res = await app.inject({
-    method: "POST", url: "/api/lifecycle/sync/grupo-1/push",
-    payload: { tenantId: CLIENTE_B, approvals: [] },
-  });
+await check("R3 sync push com tenantId forjado no body é recusado — sem autoridade, fail-closed (403 AUTHORITY_UNAVAILABLE)", async () => {
+  const syncReal = criarPrismaSync();
+  const { app } = await montarApp({ autenticar: true, scope: scopeA, syncReal });
+  const res = await app.inject({ method: "POST", url: "/api/lifecycle/sync/grupo-1/push", payload: { tenantId: CLIENTE_B, approvals: [] } });
   assert.equal(res.statusCode, 403, `esperado 403, veio ${res.statusCode}`);
+  assert.equal(res.json().code, LIFECYCLE_TENANT_AUTHORITY_UNAVAILABLE);
+  assert.equal(syncReal.totalEscritas(), 0);
   await app.close();
 });
 
-await check("R4 sync push com tenantId coincidente é aceito e persiste o autorizado", async () => {
-  const { app } = await montarApp({ autenticar: true, scope: scopeA });
-  const res = await app.inject({
-    method: "POST", url: "/api/lifecycle/sync/grupo-1/push",
-    payload: { tenantId: CLIENTE_A, approvals: [] },
-  });
-  assert.equal(res.statusCode, 200);
+await check("R4 sync push com tenantId igual ao owner é aceito pela identidade autenticada", async () => {
+  const syncReal = criarPrismaSync();
+  const { app } = await montarApp({ autenticar: true, scope: scopeA, syncReal });
+  const res = await app.inject({ method: "POST", url: "/api/lifecycle/sync/grupo-1/push", payload: { tenantId: CLIENTE_A, ...lote() } });
+  assert.equal(res.statusCode, 200, `veio ${res.statusCode} ${res.body}`);
   assert.equal(res.json().tenantId, CLIENTE_A);
+  assert.equal(syncReal.estado.syncStates[0].tenant_id, CLIENTE_A);
   await app.close();
 });
 
-await check("R5 sync push sem tenantId deriva o tenant do escopo", async () => {
-  const { app } = await montarApp({ autenticar: true, scope: scopeA });
-  const res = await app.inject({
-    method: "POST", url: "/api/lifecycle/sync/grupo-1/push", payload: { approvals: [] },
+await check("R5 sync push SEM tenantId é 400 fail-closed — nunca derivado do escopo", async () => {
+  const syncReal = criarPrismaSync();
+  const { app } = await montarApp({ autenticar: true, scope: scopeA, syncReal });
+  const res = await app.inject({ method: "POST", url: "/api/lifecycle/sync/grupo-1/push", payload: { approvals: [] } });
+  assert.equal(res.statusCode, 400, `veio ${res.statusCode}`);
+  assert.equal(res.json().code, LIFECYCLE_TENANT_REQUIRED);
+  assert.equal(syncReal.totalEscritas(), 0);
+  await app.close();
+});
+
+await check("TEN-10 tenant declarado pelo frontend é validado SERVER-SIDE: com autoridade passa, sem autoridade não", async () => {
+  // Com autoridade injetada na rota: tenant-A ≠ owner-A é LEGÍTIMO e persiste como tenant-A.
+  const comAut = criarPrismaSync();
+  const a1 = await montarApp({ autenticar: true, scope: scopeA, syncReal: comAut, tenantAuthority: autoridade(ESCOPO_A) });
+  const r1 = await a1.app.inject({ method: "POST", url: "/api/lifecycle/sync/grupo-1/push", payload: { tenantId: TENANT_A, ...lote() } });
+  assert.equal(r1.statusCode, 200, `veio ${r1.statusCode} ${r1.body}`);
+  assert.equal(comAut.estado.syncStates[0].tenant_id, TENANT_A);
+  await a1.app.close();
+  // Produção (sem injeção): a mesma declaração é recusada, nada gravado.
+  const semAut = criarPrismaSync();
+  const a2 = await montarApp({ autenticar: true, scope: scopeA, syncReal: semAut });
+  const r2 = await a2.app.inject({ method: "POST", url: "/api/lifecycle/sync/grupo-1/push", payload: { tenantId: TENANT_A, ...lote() } });
+  assert.equal(r2.statusCode, 403);
+  assert.equal(r2.json().code, LIFECYCLE_TENANT_AUTHORITY_UNAVAILABLE);
+  assert.equal(semAut.totalEscritas(), 0);
+  await a2.app.close();
+});
+
+await check("TEN-10b o frontend DECLARA tenantId no push e NÃO transmite autoridade", async () => {
+  const fs = await import("node:fs");
+  const url = await import("node:url");
+  const engine = fs.readFileSync(url.fileURLToPath(new URL("../../src/intelligence/lifecycle/sync/lifecycleSyncEngine.js", import.meta.url)), "utf8");
+  const codigo = engine.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+  const i = codigo.indexOf("await pushSyncBatch(");
+  assert.ok(i > 0, "push não encontrado");
+  const chamada = codigo.slice(i, codigo.indexOf("{ clienteId, useMemory }", i));
+  assert.ok(/\btenantId,/.test(chamada), "o push não declara tenantId");
+  assert.ok(!/authorizedTenantIds|ownerClientId/.test(chamada), "o push transmite autoridade");
+});
+
+await check("TEN-18 produção registra as rotas SEM deps: autoridade e papel não são substituíveis por fora", async () => {
+  const fs = await import("node:fs");
+  const url = await import("node:url");
+  const idx = fs.readFileSync(url.fileURLToPath(new URL("../src/routes/index.js", import.meta.url)), "utf8");
+  assert.match(idx, /registerLifecycleRoutes\(app\)/);
+  assert.ok(!/registerLifecycleRoutes\(app,/.test(idx), "produção passa deps para as rotas do lifecycle");
+  // E a seam `deps.assertRole` foi removida: injetar um assertRole permissivo não muda nada.
+  const app = Fastify();
+  app.decorate("authenticate", async (request) => { request.user = { id: "x" }; });
+  let chamado = 0;
+  await registerLifecycleRoutes(app, {
+    loadAccessScope: async () => scopeConsulta,
+    assertRole: () => {},
+    approvalService: { listGroupApprovals: async () => ({}), approveRequestBackend: async () => { chamado += 1; return {}; }, rejectRequestBackend: async () => ({}) },
+    syncService: { getSyncSnapshot: async () => ({}), pushSyncBatchBackend: async () => ({}), reconcileSyncBackend: async () => ({}) },
   });
-  assert.equal(res.statusCode, 200);
-  assert.equal(res.json().tenantId, CLIENTE_A);
+  await app.ready();
+  const res = await app.inject({ method: "POST", url: "/api/lifecycle/approvals/req_A/approve", payload: {} });
+  assert.equal(res.statusCode, 403, "a seam assertRole ainda substitui o boundary de papel");
+  assert.equal(chamado, 0);
   await app.close();
 });
 
@@ -721,6 +960,9 @@ await check("S2 rotas não fazem pseudo-auth manual nem aceitam tenant do body",
   assert.ok(!/"default"/.test(codigo), "fallback silencioso de tenant sobreviveu");
   assert.ok(!/jwtVerify/.test(codigo), "auth replicado dentro das rotas");
   assert.ok(!/"administrador"/.test(codigo), "ator default sobreviveu");
+  assert.ok(!/assertRequestedTenantAllowed/.test(codigo), "a rota ainda decide tenant com o modelo antigo");
+  assert.ok(!/deps\.assertRole/.test(codigo), "a seam deps.assertRole voltou");
+  assert.ok(/tenantAuthority/.test(codigo), "a rota não repassa a autoridade de tenant");
 });
 
 console.log(`\n${falhas.length === 0 ? "PASS" : "FAIL"}: ${passou}/${passou + falhas.length}`);
